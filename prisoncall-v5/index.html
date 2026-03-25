@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cheap prison calls | Unlimited minutes – Prisoncall Australia</title>
+<meta name="description" content="Affordable prison calls for VIC & NSW. Unlimited minutes, one flat monthly fee. Set up in 1 minute. 4.9/5 from 2,500+ reviews.">
+<link rel="icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+img{display:block;max-width:100%}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;background:none;font:inherit}
+:root{
+  --black:#000000;--white:#FFFFFF;--green:#00D258;
+  --green-mid:#E6FAF0;--green-pale:#F2F6F0;
+  --hero-bg:#101010;--muted:#666666;--border:#E5E5E5;
+  --body:#333333;--font:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --pill:80px;--card:16px;--sm:8px;--max:1312px;
+  --hh:88px;--hm:64px;--ease:150ms ease;
+}
+body{font-family:var(--font);font-size:16px;line-height:1.5;color:var(--black);background:var(--white);-webkit-font-smoothing:antialiased}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 48px}
+@media(max-width:768px){.wrap{padding:0 20px}}
+
+/* ── HEADER ── */
+.hdr{position:sticky;top:0;z-index:200;background:var(--white);height:var(--hh)}
+.hdr .wrap{height:100%;display:flex;align-items:center;justify-content:space-between}
+.hdr-logo img{height:26px;width:auto}
+.hdr-nav{display:flex;align-items:center;gap:32px}
+.hdr-nav a{font-size:15px;font-weight:600;color:var(--black);transition:color var(--ease)}
+.hdr-nav a:hover{color:var(--muted)}
+.btn-nav{display:inline-flex;align-items:center;padding:10px 22px;background:var(--black);color:var(--white);border:2px solid var(--black);border-radius:var(--pill);font-size:14px;font-weight:600;letter-spacing:.02em;transition:opacity var(--ease);white-space:nowrap}
+.btn-nav:hover{opacity:.82}
+.hdr-burger{display:none;flex-direction:column;gap:5px;padding:8px;cursor:pointer}
+.hdr-burger span{display:block;width:22px;height:2px;background:var(--black);border-radius:2px}
+@media(max-width:768px){
+  .hdr{height:var(--hm)}
+  .hdr-burger{display:flex}
+  .hdr-nav-links{display:none}
+  .hdr .wrap{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+  .hdr-logo{justify-self:center}
+  .hdr-cta-wrap{justify-self:end}
+}
+.drawer{display:none;position:fixed;inset:0;z-index:300;background:var(--white);padding:24px;flex-direction:column}
+.drawer.open{display:flex}
+.drawer-x{align-self:flex-end;font-size:24px;padding:8px;cursor:pointer;line-height:1}
+.drawer nav{display:flex;flex-direction:column;gap:24px;margin-top:40px}
+.drawer nav a{font-size:20px;font-weight:600}
+
+/* ── BUTTONS ── */
+.btn-green{display:inline-flex;align-items:center;justify-content:center;padding:16px 32px;background:var(--green);color:var(--black);border:2px solid var(--green);border-radius:var(--pill);font-size:16px;font-weight:600;letter-spacing:.02em;transition:opacity var(--ease);white-space:nowrap}
+.btn-green:hover{opacity:.88}
+.btn-ghost{display:inline-flex;align-items:center;justify-content:center;padding:14px 28px;background:var(--white);color:var(--black);border:2px solid var(--green);border-radius:var(--pill);font-size:16px;font-weight:600;transition:background var(--ease)}
+.btn-ghost:hover{background:var(--green-mid)}
+
+/* ── HERO ── */
+.hero{background:var(--hero-bg);position:relative;overflow:hidden;min-height:620px;display:flex;align-items:center}
+.hero-bg{position:absolute;inset:0;background:url('assets/images/hero-desktop.jpg') center/cover no-repeat;opacity:.32}
+.hero-content{position:relative;z-index:2;padding:72px 0;max-width:580px}
+.hero-badge{display:inline-flex;align-items:center;padding:6px 14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:var(--pill);color:var(--white);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px}
+.hero h1{font-size:56px;font-weight:800;line-height:1.0;letter-spacing:-.02em;color:var(--white);margin-bottom:18px}
+.hero h1 em{font-style:normal;color:var(--green)}
+.hero-sub{font-size:18px;font-weight:400;line-height:1.56;color:rgba(255,255,255,.85);margin-bottom:24px;max-width:460px}
+.hero-review{display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;padding:8px 16px;background:rgba(255,255,255,.08);border-radius:var(--pill)}
+.hero-stars{display:flex;gap:3px}
+.hero-stars svg{width:14px;height:14px;fill:#F5C518}
+.hero-rt{font-size:13px;font-weight:500;color:rgba(255,255,255,.9)}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.hero-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:rgba(255,255,255,.10);border-radius:var(--pill);color:var(--white);font-size:13px;font-weight:500}
+.hero-pill svg{width:16px;height:16px;flex-shrink:0;color:var(--white)}
+.hero-cta{margin-bottom:20px}
+.hero-cta .btn-green{min-height:52px;padding:14px 36px}
+.hero-trust{display:flex;flex-direction:column;gap:8px}
+.hero-trust-item{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.85);font-size:14px}
+.hero-trust-item svg{width:16px;height:16px;flex-shrink:0;color:rgba(255,255,255,.85)}
+@media(max-width:768px){
+  .hero{min-height:560px}
+  .hero-bg{background-image:url('assets/images/hero-mobile.jpg');opacity:.28}
+  .hero-content{text-align:center;padding:56px 0;max-width:100%}
+  .hero h1{font-size:36px;line-height:1.08;margin-bottom:14px}
+  .hero-sub{font-size:16px;margin:0 auto 20px}
+  .hero-pills{justify-content:center}
+  .hero-cta .btn-green{width:100%}
+  .hero-trust{align-items:center}
+}
+
+/* ── SECTIONS ── */
+section{padding:80px 0}
+@media(max-width:768px){section{padding:56px 0}}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.sec-title{font-size:48px;font-weight:700;line-height:1.08;letter-spacing:-.02em;color:var(--black);margin-bottom:16px}
+.sec-sub{font-size:18px;font-weight:400;line-height:1.56;color:var(--muted);max-width:560px}
+@media(max-width:768px){.sec-title{font-size:32px}.sec-sub{font-size:16px}}
+
+/* ── STEPS ── */
+.steps{background:var(--white)}
+.steps-head{margin-bottom:60px}
+.steps-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px 80px;align-items:start}
+.step{display:flex;gap:20px;padding-bottom:44px;position:relative}
+.step:not(:last-child)::before{content:'';position:absolute;left:19px;top:40px;bottom:0;width:2px;background:var(--border)}
+.step-dot{flex-shrink:0;width:40px;height:40px;background:var(--black);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.step-dot svg{width:16px;height:16px;fill:none;stroke:var(--white);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.step-dot.green{background:var(--green)}
+.step-dot.green svg{stroke:var(--black)}
+.step-body{padding-top:6px}
+.step-tag{display:inline-flex;padding:3px 12px;background:var(--black);color:var(--white);font-size:11px;font-weight:700;border-radius:var(--pill);margin-bottom:8px}
+.step-tag.green{background:var(--green);color:var(--black)}
+.step-h{font-size:22px;font-weight:700;color:var(--black);margin-bottom:6px;line-height:1.2}
+.step-p{font-size:16px;font-weight:400;color:var(--body);line-height:1.65}
+.steps-img{border-radius:var(--card);overflow:hidden;aspect-ratio:4/3;position:sticky;top:calc(var(--hh) + 24px)}
+.steps-img img{width:100%;height:100%;object-fit:cover}
+@media(max-width:900px){
+  .steps-grid{grid-template-columns:1fr;gap:48px}
+  .steps-img{position:static;aspect-ratio:16/9}
+}
+
+/* ── FEATURES ── */
+.features-head{margin-bottom:44px}
+.features-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.fc{background:var(--green-mid);border-radius:var(--card);overflow:hidden}
+.fc-img{position:relative;aspect-ratio:3/4;overflow:hidden}
+.fc-img img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.fc-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.52) 0%,rgba(0,0,0,0) 55%)}
+.fc-stat{position:absolute;bottom:14px;left:14px;display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.45);border-radius:var(--pill);padding:4px 12px 4px 4px}
+.fc-stat-n{width:32px;height:32px;background:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--green)}
+.fc-stat-t{font-size:11px;font-weight:600;color:var(--white)}
+.fc-body{padding:18px 20px}
+.fc-title{font-size:17px;font-weight:600;color:var(--black);margin-bottom:6px}
+.fc-desc{font-size:14px;font-weight:400;color:var(--body);line-height:1.6}
+@media(max-width:900px){.features-grid{grid-template-columns:1fr 1fr;gap:16px}}
+@media(max-width:560px){.features-grid{grid-template-columns:1fr}.fc-img{aspect-ratio:16/9}}
+
+/* ── REVIEWS ── */
+.reviews{background:var(--green-mid)}
+.reviews-head{text-align:center;margin-bottom:12px}
+.reviews-rating{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:44px;flex-wrap:wrap}
+.rev-stars{display:flex;gap:4px}
+.rev-stars svg{width:20px;height:20px;fill:var(--black)}
+.rev-score{font-size:28px;font-weight:800;color:var(--black)}
+.rev-count{font-size:14px;color:var(--muted)}
+.rev-carousel{overflow:hidden;position:relative}
+.rev-track{display:flex;gap:20px;transition:transform 300ms ease}
+.rev-card{background:var(--white);border-radius:var(--card);padding:22px;flex:0 0 calc(25% - 15px);min-width:260px}
+.rev-card-stars{display:flex;gap:3px;margin-bottom:10px}
+.rev-card-stars svg{width:14px;height:14px;fill:var(--black)}
+.rev-title{font-size:15px;font-weight:700;color:var(--black);margin-bottom:8px}
+.rev-body{font-size:14px;color:var(--body);line-height:1.6;margin-bottom:14px}
+.rev-author{font-size:12px;font-weight:500;color:var(--muted)}
+.rev-controls{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:28px}
+.rev-btn{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--black);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background var(--ease)}
+.rev-btn:hover{background:var(--black)}
+.rev-btn:hover svg{stroke:var(--white)}
+.rev-btn svg{width:18px;height:18px;fill:none;stroke:var(--black);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rev-dots{display:flex;gap:8px}
+.rev-dot{width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,.2);cursor:pointer;transition:background var(--ease)}
+.rev-dot.on{background:var(--black)}
+.rev-cta{text-align:center;margin-top:36px}
+@media(max-width:768px){
+  .rev-card{flex:0 0 calc(100% - 20px)}
+  .rev-btn{display:none}
+}
+
+/* ── FAQ ── */
+.faq-head{margin-bottom:44px}
+.faq-list{max-width:740px}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0;cursor:pointer;min-height:56px}
+.faq-qt{font-size:16px;font-weight:600;color:var(--black);line-height:1.4}
+.faq-chev{flex-shrink:0;width:20px;height:20px;fill:none;stroke:var(--black);stroke-width:2;stroke-linecap:round;transition:transform 200ms ease}
+.faq-item.open .faq-chev{transform:rotate(90deg)}
+.faq-item.open .faq-q{padding-left:16px;border-left:3px solid var(--green)}
+.faq-ans{display:none;padding:0 0 20px 16px;font-size:15px;color:var(--body);line-height:1.65}
+.faq-item.open .faq-ans{display:block}
+.faq-ans a{color:var(--black);text-decoration:underline;text-decoration-color:var(--green)}
+
+/* ── FINAL CTA ── */
+.final-cta{background:var(--white);text-align:center;padding:80px 0;border-top:1px solid var(--border)}
+.final-cta h2{font-size:36px;font-weight:700;color:var(--black);margin-bottom:10px}
+.final-cta p{font-size:18px;color:var(--muted);margin-bottom:28px}
+@media(max-width:768px){
+  .final-cta h2{font-size:28px}
+  .final-cta p{font-size:16px}
+  .final-cta .btn-green{width:100%}
+}
+
+/* ── FOOTER ── */
+.footer{background:var(--white);border-top:1px solid var(--border);padding:48px 0 32px}
+.footer-grid{display:grid;grid-template-columns:200px 1fr 1fr;gap:48px;margin-bottom:44px}
+.footer-logo img{height:22px;margin-bottom:8px}
+.footer-brand{font-size:14px;font-weight:600;color:var(--black);margin-bottom:14px}
+.footer-social{display:flex;gap:12px}
+.footer-social a{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;transition:border-color var(--ease)}
+.footer-social a:hover{border-color:var(--black)}
+.footer-social svg{width:16px;height:16px;fill:var(--black)}
+.footer-col-h{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--black);margin-bottom:14px}
+.footer-links{display:flex;flex-direction:column;gap:9px}
+.footer-links a{font-size:13px;color:var(--body);transition:color var(--ease)}
+.footer-links a:hover{color:var(--black);text-decoration:underline;text-decoration-color:var(--green)}
+.footer-bottom{border-top:1px solid var(--border);padding-top:22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.footer-payments{display:flex;align-items:center;gap:8px}
+.footer-payments img{height:22px;width:auto;border-radius:4px}
+.footer-legal{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.footer-legal a,.footer-copy{font-size:12px;color:var(--muted)}
+.footer-legal a:hover{color:var(--black)}
+@media(max-width:768px){
+  .footer-grid{grid-template-columns:1fr;gap:28px;text-align:center}
+  .footer-logo img,.footer-brand{display:block;margin-left:auto;margin-right:auto}
+  .footer-social{justify-content:center}
+  .footer-bottom{flex-direction:column;align-items:center;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+<div class="wrap">
+  <button class="hdr-burger" id="burger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  <a href="/" class="hdr-logo"><img src="assets/logo-black.png" alt="Prisoncall Australia"></a>
+  <div class="hdr-nav">
+    <div class="hdr-nav-links">
+      <a href="#how-it-works">How it works</a>
+      <a href="#why-prisoncall">Why Prisoncall</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a href="choose-plan.html" class="btn-nav hdr-cta-wrap">Get started</a>
+  </div>
+</div>
+</header>
+
+<!-- MOBILE DRAWER -->
+<div class="drawer" id="drawer">
+  <button class="drawer-x" id="drawerX">&#x2715;</button>
+  <nav>
+    <a href="#how-it-works">How it works</a>
+    <a href="#why-prisoncall">Why Prisoncall</a>
+    <a href="#faq">FAQ</a>
+    <a href="choose-plan.html" class="btn-green" style="margin-top:8px">Get started</a>
+  </nav>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+<div class="hero-bg"></div>
+<div class="wrap">
+<div class="hero-content">
+
+  <div class="hero-badge">Exclusively for VIC &amp; NSW prisons</div>
+
+  <h1>Cheap <em>prison calls</em><br>in Australia</h1>
+
+  <p class="hero-sub">Affordable prison calls. Set up in 1 minute.</p>
+
+  <!-- Star review -->
+  <div class="hero-review">
+    <div class="hero-stars">
+      <svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg>
+      <svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg>
+      <svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg>
+      <svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg>
+      <svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg>
+    </div>
+    <span class="hero-rt">4.9/5 based on 2,500+ reviews</span>
+  </div>
+
+  <!-- Benefit pills — phone icon -->
+  <div class="hero-pills">
+    <div class="hero-pill">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 9h3"/></svg>
+      Unlimited minutes
+    </div>
+    <div class="hero-pill">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 9h3"/></svg>
+      One flat fee
+    </div>
+    <div class="hero-pill">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 9h3"/></svg>
+      No top-ups
+    </div>
+    <div class="hero-pill">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 9h3"/></svg>
+      Cancel anytime
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="hero-cta"><a href="choose-plan.html" class="btn-green">Get started now</a></div>
+
+  <!-- Trust badges — shield-check + star/badge -->
+  <div class="hero-trust">
+    <div class="hero-trust-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
+      100% Prison-Approved Number Guarantee
+    </div>
+    <div class="hero-trust-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/></svg>
+      99.9% Uptime and Call Quality Guarantee
+    </div>
+  </div>
+
+</div>
+</div>
+</section>
+
+
+<!-- HOW IT WORKS -->
+<section class="steps" id="how-it-works">
+<div class="wrap">
+  <div class="steps-head">
+    <p class="sec-label">Your journey</p>
+    <h2 class="sec-title">Your journey to affordable<br>prison calls</h2>
+  </div>
+  <div class="steps-grid">
+    <div>
+      <div class="step">
+        <div class="step-dot"><svg viewBox="0 0 16 16"><path d="M8 2v6l4 2"/></svg></div>
+        <div class="step-body">
+          <span class="step-tag">Sign up</span>
+          <h3 class="step-h">Sign up online</h3>
+          <p class="step-p">Select your state (VIC or NSW), choose your prison and enter your Australian mobile number. Takes less than 60 seconds.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot"><svg viewBox="0 0 16 16"><path d="M2 8h12M8 2v12"/></svg></div>
+        <div class="step-body">
+          <span class="step-tag">Day 1</span>
+          <h3 class="step-h">Get your Prisoncall number</h3>
+          <p class="step-p">We instantly assign you a local landline number. Share it with your loved one to register with the prison. It works for VIC and NSW prisons.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot"><svg viewBox="0 0 16 16"><path d="M2 8h12M8 2v12"/></svg></div>
+        <div class="step-body">
+          <span class="step-tag">Day 2</span>
+          <h3 class="step-h">Ready to connect</h3>
+          <p class="step-p">Your loved one registers the Prisoncall number with the prison. Once registered, calls forward directly to your mobile. All set.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot"><svg viewBox="0 0 16 16"><path d="M3 8l3.5 3.5L13 4.5"/></svg></div>
+        <div class="step-body">
+          <span class="step-tag">Week 1</span>
+          <h3 class="step-h">Talk more</h3>
+          <p class="step-p">Cheaper prison calls start coming through. Every call costs less now — unlimited minutes, one flat fee per month. No credit top-ups ever.</p>
+        </div>
+      </div>
+      <div class="step" style="padding-bottom:0">
+        <div class="step-dot green"><svg viewBox="0 0 16 16"><path d="M3 8l3.5 3.5L13 4.5"/></svg></div>
+        <div class="step-body">
+          <span class="step-tag green">Month 1</span>
+          <h3 class="step-h">Real savings</h3>
+          <p class="step-p">No top-ups. One flat monthly fee. More conversations with your loved one. Our customers save up to $500 compared to other providers.</p>
+        </div>
+      </div>
+    </div>
+    <div class="steps-img">
+      <img src="assets/images/feature-3.jpg" alt="Family staying connected" loading="lazy">
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- FEATURE CARDS -->
+<section id="why-prisoncall">
+<div class="wrap">
+  <div class="features-head">
+    <p class="sec-label">Why Prisoncall</p>
+    <h2 class="sec-title">Why Australians use Prisoncall<br>for cheap prison calls</h2>
+  </div>
+  <div class="features-grid">
+    <div class="fc">
+      <div class="fc-img">
+        <img src="assets/images/feature-1.jpg" alt="Unlimited minutes" loading="lazy">
+        <div class="fc-overlay"></div>
+        <div class="fc-stat"><div class="fc-stat-n">98%</div><span class="fc-stat-t">Talk without top-ups</span></div>
+      </div>
+      <div class="fc-body">
+        <h3 class="fc-title">Unlimited minutes</h3>
+        <p class="fc-desc">Our most loved feature. No more frequent and expensive top-ups for more "minutes".</p>
+      </div>
+    </div>
+    <div class="fc">
+      <div class="fc-img">
+        <img src="assets/images/feature-2.jpg" alt="One flat fee" loading="lazy">
+        <div class="fc-overlay"></div>
+        <div class="fc-stat"><div class="fc-stat-n">99%</div><span class="fc-stat-t">Save more every month</span></div>
+      </div>
+      <div class="fc-body">
+        <h3 class="fc-title">One flat fee</h3>
+        <p class="fc-desc">Our monthly flat fee plan offers the best value and flexibility. Easy and just bloody brilliant.</p>
+      </div>
+    </div>
+    <div class="fc">
+      <div class="fc-img">
+        <img src="assets/images/feature-3.jpg" alt="Talk more" loading="lazy">
+        <div class="fc-overlay"></div>
+        <div class="fc-stat"><div class="fc-stat-n">90%</div><span class="fc-stat-t">Talk more than 5× a day</span></div>
+      </div>
+      <div class="fc-body">
+        <h3 class="fc-title">Talk more</h3>
+        <p class="fc-desc">More than 5 times a day? No problem. Stay connected more often than ever before.</p>
+      </div>
+    </div>
+    <div class="fc">
+      <div class="fc-img">
+        <img src="assets/images/feature-4.jpg" alt="Secure and quality audio" loading="lazy">
+        <div class="fc-overlay"></div>
+        <div class="fc-stat"><div class="fc-stat-n">100%</div><span class="fc-stat-t">Approved by VIC &amp; NSW prisons</span></div>
+      </div>
+      <div class="fc-body">
+        <h3 class="fc-title">Secure + quality audio</h3>
+        <p class="fc-desc">Prisoncall numbers are secure with excellent call quality direct to your mobile. No app required.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- REVIEWS -->
+<section class="reviews">
+<div class="wrap">
+  <div class="reviews-head">
+    <h2 class="sec-title">Rated the best for cheap<br>prison calls in Australia</h2>
+  </div>
+  <div class="reviews-rating">
+    <div class="rev-stars">
+      <svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg>
+      <svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg>
+      <svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg>
+      <svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg>
+      <svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg>
+    </div>
+    <span class="rev-score">4.9 / 5</span>
+    <span class="rev-count">based on 2,561 verified reviews</span>
+  </div>
+  <div class="rev-carousel">
+    <div class="rev-track" id="revTrack">
+      <article class="rev-card">
+        <div class="rev-card-stars"><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg></div>
+        <h4 class="rev-title">It just works and it's cheap!</h4>
+        <p class="rev-body">Look at using the internet but this was day cheaper for my partner to call me now.</p>
+        <span class="rev-author">S.</span>
+      </article>
+      <article class="rev-card">
+        <div class="rev-card-stars"><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg></div>
+        <h4 class="rev-title">I'm so glad I found Prisoncall</h4>
+        <p class="rev-body">Talking to my hubby again daily. I saved money. Thank you so much Prisoncall.</p>
+        <span class="rev-author">Sarah, J.</span>
+      </article>
+      <article class="rev-card">
+        <div class="rev-card-stars"><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg></div>
+        <h4 class="rev-title">I saved money</h4>
+        <p class="rev-body">I send less money to my son because his calls to me are cheaper with Prisoncall. Recommended!</p>
+        <span class="rev-author">J.C.</span>
+      </article>
+      <article class="rev-card">
+        <div class="rev-card-stars"><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg></div>
+        <h4 class="rev-title">Works in NSW</h4>
+        <p class="rev-body">Partner in NSW. Prisoncall works. Other engine numbers always fail. Not Prisoncall — gets approved first time, call quality is perfect.</p>
+        <span class="rev-author">Sydney, S.</span>
+      </article>
+      <article class="rev-card">
+        <div class="rev-card-stars"><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg></div>
+        <h4 class="rev-title">Real people for support</h4>
+        <p class="rev-body">They actually have real people to support you. Gave me two days free rather than charging me for the month. Prisoncall is 5 stars!</p>
+        <span class="rev-author">J.J.</span>
+      </article>
+      <article class="rev-card">
+        <div class="rev-card-stars"><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.4 7.3H19l-5.2 3.8 2 7.2L10 15.3l-5.8 4 2-7.2L1 8.3h6.6z"/></svg></div>
+        <h4 class="rev-title">Best so far Victorian prisons</h4>
+        <p class="rev-body">My partner has gone through MRC, Marngoneet, Fulham, Barwon and Western Plains. It just works! Number changes are free of charge.</p>
+        <span class="rev-author">Jamie, C.</span>
+      </article>
+    </div>
+  </div>
+  <div class="rev-controls">
+    <button class="rev-btn" id="revPrev"><svg viewBox="0 0 20 20"><path d="M12.5 4.5L7 10l5.5 5.5"/></svg></button>
+    <div class="rev-dots" id="revDots"></div>
+    <button class="rev-btn" id="revNext"><svg viewBox="0 0 20 20"><path d="M7.5 4.5L13 10l-5.5 5.5"/></svg></button>
+  </div>
+  <div class="rev-cta"><a href="choose-plan.html" class="btn-green">Get started now</a></div>
+</div>
+</section>
+
+
+<!-- FAQ -->
+<section id="faq">
+<div class="wrap">
+  <div class="faq-head">
+    <p class="sec-label">Questions</p>
+    <h2 class="sec-title">Frequently asked questions</h2>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q" tabindex="0"><span class="faq-qt">What is Prisoncall?</span><svg class="faq-chev" viewBox="0 0 20 20"><path d="M7.5 4.5L13 10l-5.5 5.5"/></svg></div>
+      <div class="faq-ans">Prisoncall provides affordable local landline numbers for families of people in Victorian and NSW correctional facilities. When your loved one calls your Prisoncall number from prison, the call forwards directly to your Australian mobile — at the cheaper landline rate. You pay one flat monthly fee. No top-ups, no per-minute charges to you.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" tabindex="0"><span class="faq-qt">What is the advantage of Prisoncall vs other providers?</span><svg class="faq-chev" viewBox="0 0 20 20"><path d="M7.5 4.5L13 10l-5.5 5.5"/></svg></div>
+      <div class="faq-ans">Other providers charge per minute or require frequent top-ups. Prisoncall gives you unlimited minutes for one flat monthly fee — no surprise charges, no running out of credit mid-call. Our customers save up to $500 compared to other providers.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" tabindex="0"><span class="faq-qt">When can I start using Prisoncall after signing up?</span><svg class="faq-chev" viewBox="0 0 20 20"><path d="M7.5 4.5L13 10l-5.5 5.5"/></svg></div>
+      <div class="faq-ans">You receive your Prisoncall number on Day 1, immediately after sign-up. Share this number with your loved one so they can register it with the prison. Once registered (typically Day 2), calls will forward to your mobile automatically.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" tabindex="0"><span class="faq-qt">Why do I get cheap phone calls from prison with Prisoncall?</span><svg class="faq-chev" viewBox="0 0 20 20"><path d="M7.5 4.5L13 10l-5.5 5.5"/></svg></div>
+      <div class="faq-ans">Prisons charge the lowest rates for calls to local landlines. Prisoncall gives your loved one a local landline number to call — so they're charged at the cheapest landline rate. The call then forwards to your mobile at no extra cost to you.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" tabindex="0"><span class="faq-qt">Which prisons does Prisoncall work for?</span><svg class="faq-chev" viewBox="0 0 20 20"><path d="M7.5 4.5L13 10l-5.5 5.5"/></svg></div>
+      <div class="faq-ans">We currently cover all correctional facilities in Victoria and New South Wales. Don't see your prison? <a href="contact.html">Contact us</a>.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" tabindex="0"><span class="faq-qt">What is an engine number for prison?</span><svg class="faq-chev" viewBox="0 0 20 20"><path d="M7.5 4.5L13 10l-5.5 5.5"/></svg></div>
+      <div class="faq-ans">Staying connected is easier when you understand how engine numbers work. An engine number is a local landline phone number that your loved one registers with the prison to make outgoing calls. Prisoncall provides you with one of these numbers — assigned to your Australian mobile — so every call they make reaches you at the cheapest possible rate. Note: mobile numbers are not accepted by prisons for this purpose.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" tabindex="0"><span class="faq-qt">Can I use the same number if my loved one is transferred?</span><svg class="faq-chev" viewBox="0 0 20 20"><path d="M7.5 4.5L13 10l-5.5 5.5"/></svg></div>
+      <div class="faq-ans">If your loved one is transferred to another VIC or NSW prison, we update your number free of charge. Simply contact us and we'll handle the change so you stay connected without interruption.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+<div class="wrap">
+  <h2>Cheap prison calls made easy</h2>
+  <p>Set up your Prisoncall number in 1 minute.</p>
+  <a href="choose-plan.html" class="btn-green">Get started now</a>
+</div>
+</section>
+
+
+<!-- FOOTER -->
+<footer class="footer">
+<div class="wrap">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo"><img src="assets/logo-black.png" alt="Prisoncall Australia"></div>
+      <p class="footer-brand">Prisoncall Australia</p>
+      <div class="footer-social">
+        <a href="https://facebook.com/prisoncall" aria-label="Facebook" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="https://instagram.com/prisoncall" aria-label="Instagram" target="_blank" rel="noopener">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+      </div>
+    </div>
+    <div>
+      <p class="footer-col-h">Prisons</p>
+      <nav class="footer-links">
+        <a href="/nsw-prison">NSW Prison</a>
+        <a href="/barwon-prison">Barwon Prison</a>
+        <a href="/long-bay-correctional-centre">Long Bay Correctional Centre</a>
+        <a href="/mrc-prison">MRC Prison</a>
+        <a href="/mrrc-silverwater">MRRC Silverwater</a>
+        <a href="/western-plains-prison">Western Plains Prison</a>
+        <a href="/victoria-prison">Victoria Prison</a>
+        <a href="/ravenhall-prison">Ravenhall Prison</a>
+      </nav>
+    </div>
+    <div>
+      <p class="footer-col-h">Resources</p>
+      <nav class="footer-links">
+        <a href="/cheap-phone-call-from-prison">Cheap phone call from prison</a>
+        <a href="/engine-number-for-prison">Engine number for prison</a>
+        <a href="/jail-engine-number">Jail engine number</a>
+        <a href="contact.html">Contact us</a>
+        <a href="refund-policy.html">Refund policy</a>
+        <a href="cancellation-policy.html">Cancellation policy</a>
+        <a href="privacy-policy.html">Privacy policy</a>
+        <a href="terms-of-service.html">Terms of service</a>
+      </nav>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 Prisoncall Australia</span>
+    <div class="footer-payments">
+      <img src="assets/icons/payments/visa.svg" alt="Visa">
+      <img src="assets/icons/payments/mastercard.svg" alt="Mastercard">
+      <img src="assets/icons/payments/amex.svg" alt="American Express">
+      <img src="assets/icons/payments/apple-pay.svg" alt="Apple Pay">
+      <img src="assets/icons/payments/google-pay.svg" alt="Google Pay">
+    </div>
+    <div class="footer-legal">
+      <a href="privacy-policy.html">Privacy</a>
+      <a href="terms-of-service.html">Terms</a>
+      <a href="refund-policy.html">Refund policy</a>
+    </div>
+  </div>
+</div>
+</footer>
+
+<script>
+// Mobile nav
+const burger=document.getElementById('burger'),drawer=document.getElementById('drawer'),drawerX=document.getElementById('drawerX');
+function openNav(){drawer.classList.add('open');document.body.style.overflow='hidden'}
+function closeNav(){drawer.classList.remove('open');document.body.style.overflow=''}
+burger.addEventListener('click',openNav);
+drawerX.addEventListener('click',closeNav);
+drawer.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeNav));
+
+// FAQ
+document.querySelectorAll('.faq-q').forEach(q=>{
+  const toggle=()=>{
+    const item=q.closest('.faq-item'),open=item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>{i.classList.remove('open');i.querySelector('.faq-q').setAttribute('aria-expanded','false')});
+    if(!open){item.classList.add('open');q.setAttribute('aria-expanded','true')}
+  };
+  q.addEventListener('click',toggle);
+  q.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}});
+});
+
+// Reviews carousel
+const track=document.getElementById('revTrack'),dots=document.getElementById('revDots');
+const prev=document.getElementById('revPrev'),next=document.getElementById('revNext');
+let cur=0;
+function vis(){return window.innerWidth<=768?1:window.innerWidth<=1024?2:4}
+function pages(){return Math.ceil(track.children.length/vis())}
+function buildDots(){
+  dots.innerHTML='';
+  for(let i=0;i<pages();i++){
+    const d=document.createElement('button');
+    d.className='rev-dot'+(i===cur?' on':'');
+    d.setAttribute('aria-label',`Page ${i+1}`);
+    d.onclick=()=>go(i);
+    dots.appendChild(d);
+  }
+}
+function go(p){
+  cur=(p+pages())%pages();
+  const w=track.children[0].offsetWidth+20;
+  track.style.transform=`translateX(-${cur*vis()*w}px)`;
+  dots.querySelectorAll('.rev-dot').forEach((d,i)=>d.classList.toggle('on',i===cur));
+}
+prev.onclick=()=>go(cur-1);
+next.onclick=()=>go(cur+1);
+let tx=0;
+track.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+track.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>50)go(d>0?cur+1:cur-1)});
+buildDots();
+window.addEventListener('resize',()=>{buildDots();go(0)});
+</script>
+</body>
+</html>
