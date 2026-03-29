@@ -915,7 +915,8 @@
       '<button class="step-back" type="button" data-back="4">'+BACK_SVG+' Step 3</button>',
       '<p class="step-eyebrow">Step 4 of 4</p>',
       '<h2 class="step-heading">Choose your plan</h2>',
-      '<div class="carousel-outer"><div class="carousel-track" role="list">'+cardsHtml+'</div></div>'
+      '<div class="carousel-outer"><div class="carousel-track" role="list">'+cardsHtml+'</div></div>',
+      '<button class="mobile-continue plan-continue" type="button">Continue &rarr;</button>'
     ].join('');
     return el;
   }
@@ -1036,20 +1037,16 @@
       scrollTimer = setTimeout(function(){ isScrolling = false; }, 200);
     }, { passive:true });
 
-    /* Plan card selection */
+    /* Plan card selection — visual highlight only, no completePlan yet */
     el.querySelectorAll('.plan-card').forEach(function(card){
       function doSelect(){
         if(isScrolling) return;
-        var pk = card.dataset.planKey;
-        /* Visual update */
         el.querySelectorAll('.plan-card').forEach(function(c){
           c.classList.remove('is-selected'); c.setAttribute('aria-pressed','false');
           c.querySelector('.plan-card__select').textContent = 'Select plan';
         });
         card.classList.add('is-selected'); card.setAttribute('aria-pressed','true');
         card.querySelector('.plan-card__select').textContent = '\u2713 Selected';
-        /* Complete plan after brief visual moment */
-        setTimeout(function(){ completePlan(pk); }, 180);
       }
       card.addEventListener('click', function(e){
         if(e.target.classList.contains('plan-card__select')){ doSelect(); return; }
@@ -1059,6 +1056,13 @@
       card.querySelector('.plan-card__select').addEventListener('click', function(e){
         e.stopPropagation(); doSelect();
       });
+    });
+
+    /* Continue — reads the currently selected card and confirms the plan */
+    el.querySelector('.plan-continue').addEventListener('click', function(){
+      var selected = el.querySelector('.plan-card.is-selected');
+      if(!selected) return;
+      completePlan(selected.dataset.planKey);
     });
   }
 
