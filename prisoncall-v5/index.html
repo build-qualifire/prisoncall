@@ -92,10 +92,10 @@
 
     /* ═══════════════════════════════════════════════════════════
        HEADER
-       Layout: grid [hamburger] [logo] [cta] — all screen sizes
-       Scroll behaviour:
-         Desktop — CTA black → green when hero CTA leaves view
-         Mobile  — CTA hidden, wordmark logo → on scroll: show green CTA, swap to icon mark
+       Grid: 44px [1fr centre] 44px
+       Mobile State 1 (default): hamburger | wordmark | [empty]
+       Mobile State 2 (scrolled): hamburger | green CTA | icon mark
+       Desktop (unchanged): hamburger | wordmark | CTA right
     ═══════════════════════════════════════════════════════════ */
     .header {
       position: sticky;
@@ -107,14 +107,13 @@
     }
     .header__inner {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
+      grid-template-columns: 44px 1fr 44px;
       align-items: center;
       height: 100%;
     }
 
-    /* Hamburger — always left */
+    /* ── Col 1: Hamburger ── */
     .header__hamburger {
-      justify-self: start;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -123,83 +122,101 @@
     }
     .header__hamburger img { width: 24px; height: 24px; }
 
-    /* Logo — always centred, contains both wordmark and icon */
-    .header__logo {
-      justify-self: center;
+    /* ── Col 2: Centre slot — holds wordmark (state 1) or mobile CTA (state 2) ── */
+    .header__center {
       display: flex;
       align-items: center;
+      justify-content: center;
       position: relative;
-      height: 32px;
+      height: 100%;
+      overflow: hidden;
     }
-    .header__logo-wordmark,
-    .header__logo-icon {
-      height: 26px;
-      width: auto;
+    .header__wordmark {
+      display: flex;
+      align-items: center;
       transition: opacity var(--transition-fast);
     }
-    /* Icon sits on top of wordmark, invisible by default */
-    .header__logo-icon {
+    .header__wordmark img { height: 26px; width: auto; }
+    /* Mobile CTA: centred absolutely, hidden by default */
+    .header__mobile-cta {
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
       opacity: 0;
       pointer-events: none;
-      height: 28px; /* icon mark is square — slightly larger */
+      transition: opacity var(--transition-fast);
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: var(--font-family);
+      white-space: nowrap;
+      border-radius: var(--radius-pill);
+      background: var(--color-green);
+      color: var(--color-black);
+      border: 2px solid var(--color-green);
+      text-decoration: none;
+      line-height: 1;
     }
 
-    /* CTA — always right */
-    .header__cta {
-      justify-self: end;
+    /* ── Col 3: Right slot — holds icon mark (mobile state 2) or desktop CTA ── */
+    .header__right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+    }
+    .header__icon-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
       transition: opacity var(--transition-fast);
     }
-    .header__cta .btn {
-      padding: 9px 16px;
-      font-size: 13px;
-      white-space: nowrap;
-    }
+    .header__icon-img { width: 24px; height: 24px; }
+    /* Desktop CTA hidden on mobile */
+    .header__desktop-cta { display: none; }
 
-    /* ── Mobile: hide CTA + keep wordmark by default ── */
+    /* ── Mobile scrolled: show CTA + icon, hide wordmark ── */
     @media (max-width: 767px) {
-      .header__cta {
+      .header--scrolled .header__wordmark {
         opacity: 0;
         pointer-events: none;
       }
-      /* When scrolled: show green CTA + swap to icon */
-      .header--scrolled .header__cta {
+      .header--scrolled .header__mobile-cta {
         opacity: 1;
         pointer-events: auto;
       }
-      .header--scrolled .header__cta .btn {
-        background: var(--color-green);
-        color: var(--color-black);
-        border-color: var(--color-green);
-      }
-      .header--scrolled .header__logo-wordmark {
-        opacity: 0;
-        pointer-events: none;
-      }
-      .header--scrolled .header__logo-icon {
+      .header--scrolled .header__icon-link {
         opacity: 1;
         pointer-events: auto;
       }
     }
 
-    /* ── Desktop: always show CTA (black), turns green on scroll ── */
+    /* ── Desktop: restore original layout ── */
     @media (min-width: 768px) {
       .header { height: var(--header-height); }
-      .header__logo-wordmark { height: 32px; }
-      .header__logo-icon { height: 34px; }
-      .header__cta .btn { padding: 12px 24px; font-size: 15px; }
-      /* CTA always visible on desktop */
-      .header__cta { opacity: 1; pointer-events: auto; }
-      /* Turn green when scrolled */
-      .header--scrolled .header__cta .btn {
+      .header__inner { grid-template-columns: 1fr auto 1fr; }
+      .header__center { justify-self: center; position: static; overflow: visible; }
+      .header__wordmark img { height: 32px; }
+      /* Wordmark always fully visible on desktop */
+      .header--scrolled .header__wordmark { opacity: 1; pointer-events: auto; }
+      /* Mobile CTA never shows on desktop */
+      .header__mobile-cta { display: none; }
+      /* Right slot: auto width for desktop CTA */
+      .header__right { width: auto; justify-self: end; }
+      /* Icon mark never shows on desktop */
+      .header__icon-link { display: none; }
+      /* Desktop CTA: always visible, black by default */
+      .header__desktop-cta { display: block; }
+      .header__desktop-cta .btn { padding: 12px 24px; font-size: 15px; }
+      /* Desktop scrolled: CTA turns green */
+      .header--scrolled .header__desktop-cta .btn {
         background: var(--color-green);
         color: var(--color-black);
         border-color: var(--color-green);
       }
-      /* Never show icon mark on desktop */
-      .header__logo-icon { display: none; }
     }
 
     /* ═══════════════════════════════════
@@ -624,19 +641,27 @@
   <header class="header" id="siteHeader">
     <div class="container header__inner">
 
+      <!-- Col 1: Hamburger (44px) -->
       <button class="header__hamburger" id="menuToggle" aria-label="Open menu" aria-expanded="false">
         <img src="assets/icons/feature_icons/icon-hamburger.svg" alt="">
       </button>
 
-      <!-- Logo: wordmark + icon mark (CSS controls which is visible) -->
-      <a href="index.html" class="header__logo" aria-label="Prisoncall Australia — home">
-        <img class="header__logo-wordmark" src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
-        <img class="header__logo-icon" src="assets/brand_logos/Prisoncall_Icon_BLACK.svg" alt="Prisoncall Australia">
-      </a>
+      <!-- Col 2: Centre — wordmark (state 1) or mobile CTA (state 2) -->
+      <div class="header__center">
+        <a href="index.html" class="header__wordmark" aria-label="Prisoncall Australia — home">
+          <img src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
+        </a>
+        <a href="choose-plan.html" class="header__mobile-cta" id="headerCtaBtn">Get Prisoncall now</a>
+      </div>
 
-      <!-- CTA: always black on desktop; hidden on mobile until scroll -->
-      <div class="header__cta">
-        <a href="choose-plan.html" class="btn btn--black" id="headerCtaBtn">Get Prisoncall now</a>
+      <!-- Col 3: Right (44px) — icon mark on mobile scroll / CTA on desktop -->
+      <div class="header__right">
+        <a href="index.html" class="header__icon-link" aria-label="Prisoncall Australia — home">
+          <img src="assets/brand_logos/Prisoncall_Icon_BLACK.svg" alt="Prisoncall Australia" class="header__icon-img">
+        </a>
+        <div class="header__desktop-cta">
+          <a href="choose-plan.html" class="btn btn--black">Get Prisoncall now</a>
+        </div>
       </div>
 
     </div>
