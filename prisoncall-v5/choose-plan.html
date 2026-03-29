@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choose Your Prisoncall Plan | Prisoncall Australia</title>
+  <meta name="description" content="Choose your Prisoncall plan — select your state, prison and a plan to start receiving cheaper prison calls today. Set up in 1 minute.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ─── CSS Variables (identical to index.html) ─── */
+    :root {
+      --color-black: #000000;
+      --color-white: #ffffff;
+      --color-green: #00D258;
+      --color-green-mid: #E6FAF0;
+      --color-green-pale: #F2F6F0;
+      --color-hero: #101010;
+      --color-muted: #666666;
+      --color-border: #E5E5E5;
+      --color-surface: #F9F9F9;
+      --color-gold: #FFB800;
+      --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 80px;
+      --transition-fast: 150ms ease;
+      --transition-med: 200ms ease;
+      --container-max: 1312px;
+      --header-height: 72px;
+      --header-height-mobile: 48px;
+    }
+
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-family);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--color-black);
+      background: var(--color-white);
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ─── Container ─── */
+    .container { max-width: var(--container-max); margin: 0 auto; padding: 0 16px; }
+    @media (min-width: 768px) { .container { padding: 0 24px; } }
+    @media (min-width: 1024px) { .container { padding: 0 32px; } }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border-radius: var(--radius-pill); font-family: var(--font-family);
+      font-size: 16px; font-weight: 700; line-height: 1; padding: 15px 28px;
+      transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast), transform var(--transition-fast);
+      white-space: nowrap; cursor: pointer; text-decoration: none;
+    }
+    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); opacity: 1; }
+    .btn--green { background: var(--color-green); color: var(--color-black); border: 2px solid var(--color-green); }
+    .btn--black { background: var(--color-black); color: var(--color-white); border: 2px solid var(--color-black); }
+    .btn--ghost  { background: var(--color-white); color: var(--color-black); border: 2px solid var(--color-green); }
+
+    /* ═══════════════════════════════════
+       HEADER (identical to index.html)
+    ═══════════════════════════════════ */
+    .header {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--color-white); height: var(--header-height-mobile);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .header__inner {
+      display: grid; grid-template-columns: 44px 1fr 44px;
+      align-items: center; height: 100%;
+    }
+    .header__hamburger {
+      display: flex; align-items: center; justify-content: center; width: 44px; height: 44px;
+    }
+    .header__hamburger img { width: 24px; height: 24px; }
+    .header__center {
+      display: flex; align-items: center; justify-content: center;
+      position: relative; height: 100%; overflow: hidden;
+    }
+    .header__wordmark { display: flex; align-items: center; transition: opacity var(--transition-fast); }
+    .header__wordmark img { height: 20px; width: auto; }
+    .header__mobile-cta {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      opacity: 0; pointer-events: none; transition: opacity var(--transition-fast);
+      padding: 9px 20px; font-size: 13px; font-weight: 700; font-family: var(--font-family);
+      white-space: nowrap; border-radius: var(--radius-pill);
+      background: var(--color-green); color: var(--color-black);
+      border: 2px solid var(--color-green); text-decoration: none; line-height: 1;
+    }
+    .header__right {
+      display: flex; align-items: center; justify-content: center; width: 44px; height: 44px;
+    }
+    .header__icon-link {
+      display: flex; align-items: center; justify-content: center;
+      opacity: 1; pointer-events: auto; transition: opacity var(--transition-fast);
+    }
+    .header__icon-img { width: 24px; height: 24px; }
+    .header__desktop-cta { display: none; }
+
+    /* On this page the header is always in "scrolled" state visually (no hero to scroll past) */
+    @media (max-width: 767px) {
+      /* header--scrolled applied via JS on load */
+      .header--scrolled .header__wordmark { opacity: 0; pointer-events: none; }
+      .header--scrolled .header__mobile-cta { opacity: 1; pointer-events: auto; }
+    }
+    @media (min-width: 768px) {
+      .header { height: var(--header-height); }
+      .header__inner { grid-template-columns: 1fr auto 1fr; }
+      .header__center { justify-self: center; position: static; overflow: visible; }
+      .header__wordmark img { height: 32px; }
+      .header--scrolled .header__wordmark { opacity: 1; pointer-events: auto; }
+      .header__mobile-cta { display: none; }
+      .header__right { width: auto; justify-self: end; }
+      .header__icon-link { display: none; }
+      .header__desktop-cta { display: block; }
+      .header__desktop-cta .btn { padding: 12px 24px; font-size: 15px; }
+      /* CTA always green on this page (user is already in purchase flow) */
+      .header__desktop-cta .btn,
+      .header--scrolled .header__desktop-cta .btn {
+        background: var(--color-green); color: var(--color-black); border-color: var(--color-green);
+      }
+    }
+
+    /* ═══════════════════════════════════
+       MOBILE MENU
+    ═══════════════════════════════════ */
+    .mobile-menu {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: var(--color-white); flex-direction: column;
+    }
+    .mobile-menu.is-open { display: flex; }
+    .mobile-menu__top {
+      display: grid; grid-template-columns: 44px 1fr 44px; align-items: center;
+      height: var(--header-height-mobile); border-bottom: 1px solid var(--color-border);
+      padding: 0 16px; flex-shrink: 0;
+    }
+    .mobile-menu__close {
+      width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 400; color: var(--color-black); justify-self: start;
+    }
+    .mobile-menu__logo { display: flex; align-items: center; justify-content: center; }
+    .mobile-menu__logo img { height: 26px; width: auto; }
+    .mobile-menu__body { flex: 1; overflow-y: auto; padding: 0 24px 40px; }
+    .mobile-menu__links { display: flex; flex-direction: column; }
+    .mobile-menu__links a {
+      font-size: 17px; font-weight: 600; color: var(--color-black);
+      padding: 18px 0; border-bottom: 1px solid var(--color-border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .mobile-menu__links a:hover { color: var(--color-muted); }
+    .mobile-menu__social { display: flex; flex-direction: column; }
+    .mobile-menu__social a {
+      font-size: 15px; font-weight: 500; color: var(--color-muted);
+      padding: 16px 0; border-bottom: 1px solid var(--color-border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .mobile-menu__cta { margin-top: 28px; }
+    .mobile-menu__cta .btn { width: 100%; font-size: 16px; padding: 17px 24px; }
+
+    /* ═══════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════ */
+    .footer { background: var(--color-black); color: var(--color-white); padding: 56px 0 0; }
+    .footer__top {
+      display: grid; grid-template-columns: 1fr; gap: 40px;
+      padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    @media (min-width: 900px) { .footer__top { grid-template-columns: 210px 1fr; gap: 48px; } }
+    .footer__brand { display: flex; flex-direction: column; gap: 20px; }
+    .footer__logo img { height: 28px; width: auto; }
+    .footer__tagline { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; max-width: 200px; }
+    .footer__social { display: flex; gap: 10px; }
+    .footer__social-link {
+      width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--transition-fast);
+    }
+    .footer__social-link:hover { background: rgba(255,255,255,0.18); }
+    .footer__social-link svg { width: 20px; height: 20px; }
+    .footer__links { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    @media (min-width: 640px) { .footer__links { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+    .footer__col-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: rgba(255,255,255,0.38); margin-bottom: 16px;
+    }
+    .footer__col ul { display: flex; flex-direction: column; gap: 10px; }
+    .footer__col li a { font-size: 13px; color: rgba(255,255,255,0.62); transition: color var(--transition-fast); }
+    .footer__col li a:hover { color: var(--color-white); }
+    .footer__bottom {
+      padding: 28px 0 32px; display: flex; flex-direction: column; gap: 20px; align-items: center;
+    }
+    @media (min-width: 768px) {
+      .footer__bottom { flex-direction: row; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    }
+    .footer__payments { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .footer__payment-icon { display: flex; align-items: center; justify-content: center; height: 40px; border: none; outline: none; box-shadow: none; background: none; padding: 0; }
+    .footer__payment-icon img { height: 40px; width: auto; display: block; border: none; outline: none; box-shadow: none; }
+    .footer__policies { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+    .footer__policies a { font-size: 12px; color: rgba(255,255,255,0.42); transition: color var(--transition-fast); }
+    .footer__policies a:hover { color: rgba(255,255,255,0.75); }
+    .footer__copyright { font-size: 12px; color: rgba(255,255,255,0.32); text-align: center; }
+
+    /* Footer bottom padding — account for sticky checkout bar */
+    .footer { padding-bottom: 96px; }
+
+    /* ═══════════════════════════════════
+       STICKY CHECKOUT BAR
+    ═══════════════════════════════════ */
+    .checkout-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+      padding: 12px 16px 20px;
+      background: var(--color-white); border-top: 1px solid var(--color-border);
+    }
+    .checkout-bar__btn {
+      display: block; width: 100%; padding: 16px 24px;
+      font-size: 16px; font-weight: 700; font-family: var(--font-family);
+      border-radius: var(--radius-pill); text-align: center; cursor: pointer;
+      border: 2px solid var(--color-green);
+      background: var(--color-green); color: var(--color-black);
+      text-decoration: none; transition: all var(--transition-fast);
+    }
+    .checkout-bar__btn:hover:not(.is-disabled) { opacity: 0.88; transform: translateY(-1px); }
+    .checkout-bar__btn.is-disabled {
+      background: var(--color-border); color: var(--color-muted);
+      border-color: var(--color-border); cursor: not-allowed;
+      pointer-events: none;
+    }
+    @media (min-width: 768px) {
+      .checkout-bar {
+        left: 50%; right: auto; transform: translateX(-50%);
+        width: 480px; padding: 16px 24px 24px;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        border: 1px solid var(--color-border); border-bottom: none;
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.08);
+      }
+    }
+
+    /* ═══════════════════════════════════
+       CHOOSE PLAN PAGE
+    ═══════════════════════════════════ */
+    .cp-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 32px 16px 32px;
+    }
+    @media (min-width: 768px) { .cp-wrap { padding: 48px 24px 48px; } }
+
+    .cp-heading {
+      font-size: 26px; font-weight: 800; line-height: 1.1;
+      letter-spacing: -0.01em; margin-bottom: 4px;
+    }
+    @media (min-width: 768px) { .cp-heading { font-size: 34px; } }
+    .cp-subheading { font-size: 14px; color: var(--color-muted); margin-bottom: 24px; }
+
+    /* ─── Trust banner ─── */
+    .trust-banner {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--color-green-mid); border-radius: var(--radius-md);
+      padding: 12px 16px; margin-bottom: 36px;
+    }
+    .trust-avatars { display: flex; flex-shrink: 0; }
+    .trust-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid var(--color-white);
+      object-fit: cover; background: var(--color-border); display: block;
+    }
+    .trust-avatar + .trust-avatar { margin-left: -8px; }
+    .trust-text { font-size: 13px; font-weight: 500; color: #1a5c33; line-height: 1.4; }
+
+    /* ─── Plan group ─── */
+    .plan-group + .plan-group {
+      margin-top: 48px; padding-top: 40px; border-top: 2px solid var(--color-border);
+    }
+    .plan-group__number {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--color-muted); margin-bottom: 24px;
+    }
+
+    /* ─── Step block ─── */
+    .step-block { }
+    .step-block + .step-block { margin-top: 32px; }
+
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .step-block.is-revealed { animation: stepIn 280ms ease forwards; }
+
+    .step-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--color-muted); margin-bottom: 4px;
+    }
+    .step-title { font-size: 18px; font-weight: 700; color: var(--color-black); margin-bottom: 16px; }
+
+    /* ─── State toggle ─── */
+    .state-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .state-btn {
+      padding: 16px 12px; font-size: 15px; font-weight: 700;
+      border: 2px solid var(--color-border); border-radius: var(--radius-md);
+      background: var(--color-white); color: var(--color-black);
+      cursor: pointer; transition: all var(--transition-fast); font-family: var(--font-family);
+      text-align: center; line-height: 1.2;
+    }
+    .state-btn:hover { border-color: #999; }
+    .state-btn.is-active { background: var(--color-black); color: var(--color-white); border-color: var(--color-black); }
+    .state-btn__sub { display: block; font-size: 11px; font-weight: 400; opacity: 0.65; margin-top: 3px; }
+
+    /* ─── Prison pills ─── */
+    .prison-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .prison-pill {
+      padding: 8px 14px; font-size: 13px; font-weight: 500;
+      border: 1.5px solid var(--color-border); border-radius: var(--radius-pill);
+      background: var(--color-white); color: var(--color-black);
+      cursor: pointer; transition: all var(--transition-fast); font-family: var(--font-family);
+    }
+    .prison-pill:hover { border-color: #999; }
+    .prison-pill.is-active { background: var(--color-black); color: var(--color-white); border-color: var(--color-black); }
+
+    /* ─── Mobile number input ─── */
+    .mobile-hint { font-size: 13px; color: var(--color-muted); margin-bottom: 12px; }
+    .mobile-input {
+      width: 100%; padding: 14px 16px; font-size: 17px; font-weight: 600;
+      font-family: var(--font-family); border: 2px solid var(--color-border);
+      border-radius: var(--radius-md); background: var(--color-white);
+      color: var(--color-black); outline: none; transition: border-color var(--transition-fast);
+      letter-spacing: 0.03em;
+    }
+    .mobile-input:focus { border-color: var(--color-black); }
+    .mobile-input.has-error { border-color: #e53e3e; }
+    .mobile-error {
+      font-size: 12px; color: #e53e3e; margin-top: 6px; display: none;
+    }
+    .mobile-error.is-visible { display: block; }
+    .mobile-continue {
+      margin-top: 12px; width: 100%; padding: 14px 20px;
+      font-size: 15px; font-weight: 700; font-family: var(--font-family);
+      background: var(--color-black); color: var(--color-white);
+      border: 2px solid var(--color-black); border-radius: var(--radius-pill);
+      cursor: pointer; transition: all var(--transition-fast); text-align: center;
+    }
+    .mobile-continue:hover { opacity: 0.88; transform: translateY(-1px); }
+    .mobile-continue:active { transform: none; opacity: 1; }
+
+    /* ─── Plan carousel ─── */
+    .carousel-outer { overflow: hidden; margin: 0 -16px; }
+    @media (min-width: 768px) { .carousel-outer { margin: 0; overflow: visible; } }
+
+    .carousel-track {
+      display: flex; gap: 12px; overflow-x: scroll;
+      scroll-snap-type: x mandatory; scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      padding: 4px 16px 16px;
+    }
+    .carousel-track::-webkit-scrollbar { display: none; }
+
+    @media (min-width: 768px) {
+      .carousel-track {
+        overflow-x: visible; flex-wrap: wrap;
+        scroll-snap-type: none; padding: 4px 0 16px;
+      }
+    }
+
+    /* ─── Plan card ─── */
+    .plan-card {
+      flex: 0 0 calc(82% - 6px); scroll-snap-align: start;
+      border: 2px solid var(--color-border); border-radius: var(--radius-md);
+      overflow: hidden; cursor: pointer; background: var(--color-white);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+      display: flex; flex-direction: column; user-select: none;
+    }
+    @media (min-width: 480px) { .plan-card { flex: 0 0 calc(72% - 6px); } }
+    @media (min-width: 768px) { .plan-card { flex: 0 0 calc(50% - 6px); scroll-snap-align: none; } }
+    @media (min-width: 1024px) { .plan-card { flex: 0 0 calc(25% - 9px); } }
+
+    .plan-card:hover { border-color: #aaa; }
+    .plan-card.is-selected { border-color: var(--color-black); box-shadow: 0 0 0 1px var(--color-black); }
+
+    .plan-card__header {
+      background: var(--color-surface); padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--color-border);
+      transition: background var(--transition-fast);
+    }
+    .plan-card.is-selected .plan-card__header { background: var(--color-black); border-bottom-color: transparent; }
+
+    .plan-card__badge {
+      display: inline-flex; align-self: flex-start; margin-bottom: 8px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      background: var(--color-green); color: var(--color-black);
+      padding: 3px 8px; border-radius: var(--radius-pill);
+    }
+    .plan-card__badge-spacer { display: block; height: 22px; }
+
+    .plan-card__name {
+      font-size: 11px; font-weight: 700; color: var(--color-muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px;
+      transition: color var(--transition-fast);
+    }
+    .plan-card.is-selected .plan-card__name { color: rgba(255,255,255,0.6); }
+
+    .plan-card__price { display: flex; align-items: baseline; gap: 1px; }
+    .plan-card__amount {
+      font-size: 34px; font-weight: 800; color: var(--color-black); line-height: 1;
+      transition: color var(--transition-fast);
+    }
+    .plan-card.is-selected .plan-card__amount { color: var(--color-white); }
+    .plan-card__period { font-size: 13px; color: var(--color-muted); transition: color var(--transition-fast); }
+    .plan-card.is-selected .plan-card__period { color: rgba(255,255,255,0.55); }
+
+    .plan-card__body { padding: 14px 18px; flex: 1; }
+    .plan-card__features { display: flex; flex-direction: column; gap: 9px; }
+    .plan-card__feature {
+      display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333;
+    }
+    .plan-card__check {
+      width: 17px; height: 17px; border-radius: 50%;
+      background: var(--color-green); color: var(--color-black);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 800; flex-shrink: 0; line-height: 1;
+    }
+
+    .plan-card__footer { padding: 0 18px 18px; }
+    .plan-card__select-btn {
+      width: 100%; padding: 10px; font-size: 13px; font-weight: 700;
+      font-family: var(--font-family); border-radius: var(--radius-pill);
+      background: var(--color-black); color: var(--color-white);
+      border: 2px solid var(--color-black); cursor: pointer; text-align: center;
+      transition: all var(--transition-fast);
+    }
+    .plan-card.is-selected .plan-card__select-btn {
+      background: var(--color-green); color: var(--color-black); border-color: var(--color-green);
+    }
+
+    /* ─── Add another plan ─── */
+    .add-plan-wrap { margin-top: 24px; }
+    .add-plan-btn {
+      width: 100%; padding: 14px 20px; font-size: 14px; font-weight: 600;
+      background: var(--color-white); color: var(--color-black);
+      border: 2px dashed var(--color-border); border-radius: var(--radius-md);
+      cursor: pointer; font-family: var(--font-family); transition: all var(--transition-fast);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .add-plan-btn:hover { border-color: var(--color-black); background: var(--color-green-mid); }
+    .add-plan-btn svg { flex-shrink: 0; }
+
+    /* ─── Bundle notice ─── */
+    .bundle-notice {
+      background: var(--color-green-mid); border: 1px solid #a3e9c5;
+      border-radius: var(--radius-md); padding: 12px 16px;
+      font-size: 13px; font-weight: 600; color: #1a5c33;
+      margin-top: 24px; margin-bottom: 0;
+      display: none; align-items: center; gap: 8px;
+    }
+    .bundle-notice.is-visible { display: flex; }
+
+    /* ─── Order summary ─── */
+    .order-summary {
+      margin-top: 24px; border: 2px solid var(--color-border);
+      border-radius: var(--radius-md); overflow: hidden; display: none;
+    }
+    .order-summary.is-visible { display: block; }
+    .order-summary__title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--color-muted); padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border); background: var(--color-surface);
+    }
+    .order-line {
+      padding: 14px 16px; border-bottom: 1px solid var(--color-border);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    }
+    .order-line:last-of-type { border-bottom: none; }
+    .order-line__info { flex: 1; min-width: 0; }
+    .order-line__prison { font-size: 14px; font-weight: 700; color: var(--color-black); }
+    .order-line__meta { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
+    .order-line__right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .order-line__price { font-size: 14px; font-weight: 700; white-space: nowrap; }
+    .order-line__remove {
+      width: 26px; height: 26px; border-radius: 50%; background: var(--color-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; color: var(--color-muted);
+      border: none; font-family: inherit; cursor: pointer; flex-shrink: 0; line-height: 1;
+      transition: background var(--transition-fast), color var(--transition-fast);
+    }
+    .order-line__remove:hover { background: #d0d0d0; color: var(--color-black); }
+
+    .order-total {
+      padding: 14px 16px; background: var(--color-surface);
+      border-top: 2px solid var(--color-border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .order-total__label { font-size: 14px; font-weight: 700; }
+    .order-total__value { display: flex; align-items: baseline; gap: 8px; }
+    .order-total__original { text-decoration: line-through; color: var(--color-muted); font-size: 15px; }
+    .order-total__discounted { color: var(--color-green); font-size: 20px; font-weight: 800; }
+    .order-total__plain { font-size: 20px; font-weight: 800; }
+
+    /* ─── Spacer above footer to account for sticky bar ─── */
+    .checkout-spacer { height: 88px; }
+
+    /* ─── Utility ─── */
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header header--scrolled" id="siteHeader">
+    <div class="container header__inner">
+      <button class="header__hamburger" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+        <img src="assets/icons/feature_icons/icon-hamburger.svg" alt="">
+      </button>
+      <div class="header__center">
+        <a href="index.html" class="header__wordmark" aria-label="Prisoncall Australia — home">
+          <img src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
+        </a>
+        <a href="choose-plan.html" class="header__mobile-cta">Get Prisoncall now</a>
+      </div>
+      <div class="header__right">
+        <a href="choose-plan.html" class="header__icon-link" aria-label="Get Prisoncall now">
+          <img src="assets/brand_logos/Prisoncall_Icon_BLACK.svg" alt="" class="header__icon-img">
+        </a>
+        <div class="header__desktop-cta">
+          <a href="choose-plan.html" class="btn btn--green">Get Prisoncall now</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ MOBILE MENU ═══ -->
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <div class="mobile-menu__top">
+      <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">&#x2715;</button>
+      <div class="mobile-menu__logo">
+        <img src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
+      </div>
+      <div></div>
+    </div>
+    <div class="mobile-menu__body">
+      <nav class="mobile-menu__links">
+        <a href="choose-plan.html">Choose Prisoncall plan</a>
+        <a href="https://account.prisoncall.com.au/pages/121f6795-04f1-44c5-ac65-0408561ac72e?locale=en&region_country=AU" target="_blank" rel="noopener">Manage my plan</a>
+        <a href="contact.html">Contact us</a>
+      </nav>
+      <div class="mobile-menu__social">
+        <a href="https://www.facebook.com/prisoncallaustralia" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          Follow us on Facebook
+        </a>
+        <a href="https://www.instagram.com/prisoncallaustralia/" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          Follow us on Instagram
+        </a>
+      </div>
+      <div class="mobile-menu__cta">
+        <a href="choose-plan.html" class="btn btn--green">Get started now</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN ═══ -->
+  <main>
+    <div class="cp-wrap">
+
+      <h1 class="cp-heading">Choose your Prisoncall plan</h1>
+      <p class="cp-subheading">Set up in 1 minute. Unlimited minutes from day one.</p>
+
+      <!-- Trust banner — avatars + text injected by JS -->
+      <div class="trust-banner" id="trustBanner">
+        <div class="trust-avatars" id="trustAvatars" aria-hidden="true"></div>
+        <p class="trust-text" id="trustText"></p>
+      </div>
+
+      <!-- Plan groups injected by JS -->
+      <div id="planBuilder"></div>
+
+      <!-- Step 5: Add another plan -->
+      <div class="add-plan-wrap hidden" id="addPlanWrap">
+        <button class="add-plan-btn" id="addPlanBtn" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add another plan for a different person
+        </button>
+      </div>
+
+      <!-- Bundle notice -->
+      <div class="bundle-notice" id="bundleNotice" role="status" aria-live="polite">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a5c33" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Bundle discount: 10% off automatically applied
+      </div>
+
+      <!-- Order summary -->
+      <div class="order-summary" id="orderSummary" aria-label="Your order">
+        <div class="order-summary__title">Your order</div>
+        <div id="orderLines"></div>
+        <div class="order-total">
+          <span class="order-total__label">Total</span>
+          <span class="order-total__value" id="orderTotalValue"></span>
+        </div>
+      </div>
+
+      <div class="checkout-spacer"></div>
+
+    </div>
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a href="index.html" class="footer__logo" aria-label="Prisoncall Australia — home">
+            <img src="assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall Australia">
+          </a>
+          <p class="footer__tagline">Providing cheap prison phone calls for inmates and families in Victoria and New South Wales since 2023.</p>
+          <div class="footer__social">
+            <a href="https://www.facebook.com/prisoncallaustralia" target="_blank" rel="noopener" class="footer__social-link" aria-label="Follow Prisoncall on Facebook">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/prisoncallaustralia/" target="_blank" rel="noopener" class="footer__social-link" aria-label="Follow Prisoncall on Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer__links">
+          <div class="footer__col">
+            <p class="footer__col-title">Victoria</p>
+            <ul>
+              <li><a href="barwon-prison.html">Barwon Prison</a></li>
+              <li><a href="beechworth-correctional-centre.html">Beechworth CC</a></li>
+              <li><a href="dame-phyllis-frost-centre.html">Dame Phyllis Frost Centre</a></li>
+              <li><a href="fulham-correctional-centre.html">Fulham CC</a></li>
+              <li><a href="hopkins-correctional-centre.html">Hopkins CC</a></li>
+              <li><a href="langi-kal-kal-prison.html">Langi Kal Kal Prison</a></li>
+              <li><a href="loddon-middleton-prison.html">Loddon / Middleton Prison</a></li>
+              <li><a href="marngoneet-correctional-centre.html">Marngoneet CC</a></li>
+              <li><a href="melbourne-assessment-prison.html">Melbourne Assessment Prison</a></li>
+              <li><a href="metropolitan-remand-centre.html">Metropolitan Remand Centre</a></li>
+              <li><a href="port-phillip-prison.html">Port Phillip Prison</a></li>
+              <li><a href="ravenhall-correctional-centre.html">Ravenhall CC</a></li>
+              <li><a href="tarrengower-prison.html">Tarrengower Prison</a></li>
+              <li><a href="western-plains-correctional-centre.html">Western Plains CC</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <p class="footer__col-title">New South Wales</p>
+            <ul>
+              <li><a href="cessnock-correctional-centre.html">Cessnock CC</a></li>
+              <li><a href="clarence-correctional-centre.html">Clarence CC</a></li>
+              <li><a href="cooma-correctional-centre.html">Cooma CC</a></li>
+              <li><a href="dillwynia-correctional-centre.html">Dillwynia CC</a></li>
+              <li><a href="emu-plains-correctional-centre.html">Emu Plains CC</a></li>
+              <li><a href="goulburn-correctional-centre.html">Goulburn CC</a></li>
+              <li><a href="john-morony-correctional-centre.html">John Morony CC</a></li>
+              <li><a href="junee-correctional-centre.html">Junee CC</a></li>
+              <li><a href="kariong-intake-transit.html">Kariong Intake &amp; Transit</a></li>
+              <li><a href="kirkconnell-correctional-centre.html">Kirkconnell CC</a></li>
+              <li><a href="lithgow-correctional-centre.html">Lithgow CC</a></li>
+              <li><a href="long-bay-correctional-centre.html">Long Bay Complex</a></li>
+              <li><a href="mrrc-silverwater-prison.html">MRRC Silverwater</a></li>
+              <li><a href="oberon-correctional-centre.html">Oberon CC</a></li>
+              <li><a href="parklea-correctional-centre.html">Parklea CC</a></li>
+              <li><a href="silverwater-womens-correctional-centre.html">Silverwater Women's CC</a></li>
+              <li><a href="south-coast-correctional-centre.html">South Coast CC</a></li>
+              <li><a href="st-heliers-correctional-centre.html">St Heliers CC</a></li>
+              <li><a href="tamworth-correctional-centre.html">Tamworth CC</a></li>
+              <li><a href="wellington-correctional-centre.html">Wellington CC</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <p class="footer__col-title">Help</p>
+            <ul>
+              <li><a href="choose-plan.html">Buy a Prisoncall plan</a></li>
+              <li><a href="https://account.prisoncall.com.au/pages/121f6795-04f1-44c5-ac65-0408561ac72e?locale=en&region_country=AU" target="_blank" rel="noopener">Manage my plan</a></li>
+              <li><a href="contact.html">Contact support</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <p class="footer__col-title">Resources</p>
+            <ul>
+              <li><a href="index.html">Cheap Prison Calls</a></li>
+              <li><a href="engine-number-for-prison.html">Prison Engine Number</a></li>
+              <li><a href="jail-engine-number.html">Jail Engine Number</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <div class="footer__payments" aria-label="Accepted payment methods">
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/Visa.svg" alt="Visa"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/Mastercard.svg" alt="Mastercard"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/Amex.svg" alt="American Express"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/ApplePay.svg" alt="Apple Pay"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/GooglePay.svg" alt="Google Pay"></div>
+        </div>
+        <div class="footer__policies">
+          <a href="privacy-policy.html">Privacy Policy</a>
+          <a href="terms-of-service.html">Terms of Service</a>
+          <a href="refund-policy.html">Refund Policy</a>
+          <a href="cancellation-policy.html">Cancellation Policy</a>
+        </div>
+        <p class="footer__copyright">© <span id="copyrightYear"></span> Prisoncall Australia by The Freebird &amp; Co Pty Ltd. All prices GST-inclusive.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══ STICKY CHECKOUT BAR ═══ -->
+  <div class="checkout-bar" id="checkoutBar">
+    <a href="#" class="checkout-bar__btn is-disabled" id="checkoutBtn" aria-disabled="true" aria-label="Activate my number now — complete all steps above first">
+      Activate my number now
+    </a>
+  </div>
+
+  <!-- ═══ SCRIPTS ═══ -->
+  <script>
+    // ─── Copyright year ───
+    document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+
+    // ─── Mobile Menu ───
+    var menuToggle = document.getElementById('menuToggle');
+    var menuClose  = document.getElementById('menuClose');
+    var mobileMenu = document.getElementById('mobileMenu');
+    function openMenu()  { mobileMenu.classList.add('is-open');    document.body.style.overflow = 'hidden'; menuToggle.setAttribute('aria-expanded', 'true'); }
+    function closeMenu() { mobileMenu.classList.remove('is-open'); document.body.style.overflow = '';       menuToggle.setAttribute('aria-expanded', 'false'); }
+    menuToggle.addEventListener('click', openMenu);
+    menuClose.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeMenu(); });
+    mobileMenu.querySelectorAll('a').forEach(function(l) { l.addEventListener('click', closeMenu); });
+
+    // ═══════════════════════════════════════════════════════════
+    // DATA
+    // ═══════════════════════════════════════════════════════════
+    var PRISONS = {
+      vic: [
+        'Barwon Prison','Beechworth CC','Dame Phyllis Frost Centre','Fulham CC',
+        'Hopkins CC','Langi Kal Kal Prison','Loddon / Middleton Prison','Marngoneet CC',
+        'Melbourne Assessment Prison','Metropolitan Remand Centre','Port Phillip Prison',
+        'Ravenhall CC','Tarrengower Prison','Western Plains CC'
+      ],
+      nsw: [
+        'Cessnock CC','Clarence CC','Cooma CC','Dillwynia CC','Emu Plains CC',
+        'Goulburn CC','John Morony CC','Junee CC','Kariong Intake & Transit',
+        'Kirkconnell CC','Lithgow CC','Long Bay Complex','MRRC Silverwater',
+        'Oberon CC','Parklea CC','Silverwater Women\'s CC','South Coast CC',
+        'St Heliers CC','Tamworth CC','Wellington CC'
+      ]
+    };
+
+    // Card order: Monthly → Fortnightly → Quarterly → Weekly
+    var PLANS = [
+      { key: 'monthly',     name: 'Monthly',     amount: 45,  period: 'month',     badge: 'Most Popular' },
+      { key: 'fortnightly', name: 'Fortnightly', amount: 25,  period: 'fortnight', badge: null           },
+      { key: 'quarterly',   name: 'Quarterly',   amount: 125, period: 'quarter',   badge: 'Best Value'   },
+      { key: 'weekly',      name: 'Weekly',       amount: 15,  period: 'week',      badge: null           }
+    ];
+
+    var FEATURES = ['Unlimited minutes', 'One flat fee', 'Prison-approved number', 'Cancel anytime'];
+
+    var FEMALE_NAMES = ['Sydney','Jamie','Monique','Kim','Sarah','Lisa','Michelle'];
+    var MALE_NAMES   = ['Tony','Matt','James','Michael','David'];
+    var FEMALE_AV    = ['avatar-1.svg','avatar-2.svg','avatar-5.svg','avatar-6.svg','avatar-8.png','avatar-9.png','avatar-12.png','avatar-13.png','avatar-16.png','avatar-17.png'];
+    var MALE_AV      = ['avatar-3.svg','avatar-4.svg','avatar-10.png','avatar-11.png','avatar-14.png','avatar-15.png'];
+
+    // ═══════════════════════════════════════════════════════════
+    // TRUST BANNER
+    // ═══════════════════════════════════════════════════════════
+    function pickRandom(arr, exclude) {
+      var pool = exclude ? arr.filter(function(x) { return exclude.indexOf(x) < 0; }) : arr.slice();
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    (function renderTrust() {
+      var g1    = Math.random() < 0.5 ? 'f' : 'm';
+      var n1    = pickRandom(g1 === 'f' ? FEMALE_NAMES : MALE_NAMES, null);
+      var av1   = pickRandom(g1 === 'f' ? FEMALE_AV   : MALE_AV,    null);
+      var g2    = Math.random() < 0.5 ? 'f' : 'm';
+      var n2    = pickRandom(g2 === 'f' ? FEMALE_NAMES : MALE_NAMES, [n1]);
+      var av2   = pickRandom(g2 === 'f' ? FEMALE_AV   : MALE_AV,    [av1]);
+      var allAv = FEMALE_AV.concat(MALE_AV);
+      var av3   = pickRandom(allAv, [av1, av2]);
+
+      var wrap = document.getElementById('trustAvatars');
+      [av1, av2, av3].forEach(function(av) {
+        var img = document.createElement('img');
+        img.className = 'trust-avatar';
+        img.src = 'assets/images/' + av;
+        img.alt = '';
+        wrap.appendChild(img);
+      });
+      document.getElementById('trustText').textContent =
+        n1 + ', ' + n2 + ' & 2,500+ others recommend Prisoncall';
+    })();
+
+    // ═══════════════════════════════════════════════════════════
+    // STATE MANAGEMENT
+    // ═══════════════════════════════════════════════════════════
+    var groups   = [];   // [{ id, state, prison, mobile, planKey }]
+    var nextId   = 0;
+    var MAX_GROUPS = 3;
+
+    function getGroupData(id) {
+      return groups.find(function(g) { return g.id === id; });
+    }
+
+    function getUrlState() {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        var s = (p.get('state') || '').toLowerCase();
+        return (s === 'vic' || s === 'nsw') ? s : null;
+      } catch(e) { return null; }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // BUILD PLAN GROUP DOM
+    // ═══════════════════════════════════════════════════════════
+    function buildGroupEl(id) {
+      var el = document.createElement('div');
+      el.className = 'plan-group';
+      el.dataset.groupId = id;
+
+      // Multiple groups get a label
+      var labelHtml = '';
+      if (groups.length > 0) {
+        labelHtml = '<p class="plan-group__number">Plan ' + (groups.length + 1) + '</p>';
+      }
+
+      // Plan cards HTML
+      var cardsHtml = PLANS.map(function(p) {
+        var badgeHtml = p.badge
+          ? '<span class="plan-card__badge">' + p.badge + '</span>'
+          : '<span class="plan-card__badge-spacer"></span>';
+        var featHtml = FEATURES.map(function(f) {
+          return '<li class="plan-card__feature"><span class="plan-card__check" aria-hidden="true">&#10003;</span>' + f + '</li>';
+        }).join('');
+        return [
+          '<div class="plan-card" data-plan-key="' + p.key + '" role="button" tabindex="0" aria-pressed="false">',
+            '<div class="plan-card__header">',
+              badgeHtml,
+              '<p class="plan-card__name">' + p.name + '</p>',
+              '<div class="plan-card__price">',
+                '<span class="plan-card__amount">$' + p.amount + '</span>',
+                '<span class="plan-card__period"> / ' + p.period + '</span>',
+              '</div>',
+            '</div>',
+            '<div class="plan-card__body">',
+              '<ul class="plan-card__features">' + featHtml + '</ul>',
+            '</div>',
+            '<div class="plan-card__footer">',
+              '<button class="plan-card__select-btn" type="button" tabindex="-1">Select plan</button>',
+            '</div>',
+          '</div>'
+        ].join('');
+      }).join('');
+
+      el.innerHTML = [
+        labelHtml,
+        // Step 1 — State
+        '<div class="step-block" data-step="state">',
+          '<p class="step-label">Step 1</p>',
+          '<h2 class="step-title">Select your state</h2>',
+          '<div class="state-toggle">',
+            '<button class="state-btn" type="button" data-sv="vic" aria-pressed="false">',
+              'VIC<span class="state-btn__sub">Victoria</span>',
+            '</button>',
+            '<button class="state-btn" type="button" data-sv="nsw" aria-pressed="false">',
+              'NSW<span class="state-btn__sub">New South Wales</span>',
+            '</button>',
+          '</div>',
+        '</div>',
+        // Step 2 — Prison
+        '<div class="step-block hidden" data-step="prison">',
+          '<p class="step-label">Step 2</p>',
+          '<h2 class="step-title">Select your prison</h2>',
+          '<div class="prison-grid"></div>',
+        '</div>',
+        // Step 3 — Mobile
+        '<div class="step-block hidden" data-step="mobile">',
+          '<p class="step-label">Step 3</p>',
+          '<h2 class="step-title">Your mobile number</h2>',
+          '<p class="mobile-hint">Your loved one\'s calls will be forwarded to this number.</p>',
+          '<input class="mobile-input" type="tel" inputmode="numeric" placeholder="04xx xxx xxx" maxlength="14" autocomplete="tel" aria-label="Australian mobile number">',
+          '<p class="mobile-error" role="alert">Please enter a valid Australian mobile starting with 04 (10 digits).</p>',
+          '<button class="mobile-continue" type="button">Continue &rarr;</button>',
+        '</div>',
+        // Step 4 — Plan
+        '<div class="step-block hidden" data-step="plan">',
+          '<p class="step-label">Step 4</p>',
+          '<h2 class="step-title">Choose your plan</h2>',
+          '<div class="carousel-outer">',
+            '<div class="carousel-track" role="list" aria-label="Available plans">',
+              cardsHtml,
+            '</div>',
+          '</div>',
+        '</div>'
+      ].join('');
+
+      return el;
+    }
+
+    // ─── Reveal a step with animation ───
+    function revealStep(groupEl, stepName) {
+      var block = groupEl.querySelector('[data-step="' + stepName + '"]');
+      if (!block || !block.classList.contains('hidden')) return;
+      block.classList.remove('hidden');
+      block.classList.add('is-revealed');
+      setTimeout(function() {
+        block.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 50);
+    }
+
+    // ─── Wire a plan group ───
+    function wireGroup(el) {
+      var id = parseInt(el.dataset.groupId, 10);
+
+      // ── State buttons ──
+      el.querySelectorAll('.state-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var sv = btn.dataset.sv;
+          el.querySelectorAll('.state-btn').forEach(function(b) {
+            b.classList.remove('is-active'); b.setAttribute('aria-pressed', 'false');
+          });
+          btn.classList.add('is-active'); btn.setAttribute('aria-pressed', 'true');
+          var gd = getGroupData(id);
+          if (gd) { gd.state = sv; gd.prison = null; gd.mobile = null; gd.planKey = null; }
+
+          // Populate prison grid
+          var grid = el.querySelector('.prison-grid');
+          grid.innerHTML = '';
+          PRISONS[sv].forEach(function(prison) {
+            var pill = document.createElement('button');
+            pill.type = 'button';
+            pill.className = 'prison-pill';
+            pill.textContent = prison;
+            pill.addEventListener('click', function() {
+              el.querySelectorAll('.prison-pill').forEach(function(p) { p.classList.remove('is-active'); });
+              pill.classList.add('is-active');
+              var gd2 = getGroupData(id);
+              if (gd2) { gd2.prison = prison; gd2.mobile = null; gd2.planKey = null; }
+              revealStep(el, 'mobile');
+              // Reset mobile step
+              var inp = el.querySelector('.mobile-input');
+              var err = el.querySelector('.mobile-error');
+              if (inp) { inp.value = ''; inp.classList.remove('has-error'); }
+              if (err) err.classList.remove('is-visible');
+            });
+            grid.appendChild(pill);
+          });
+
+          revealStep(el, 'prison');
+        });
+      });
+
+      // ── Mobile input ──
+      var mInput = el.querySelector('.mobile-input');
+      var mError = el.querySelector('.mobile-error');
+      var mCont  = el.querySelector('.mobile-continue');
+
+      mInput.addEventListener('input', function() {
+        var digits = mInput.value.replace(/\D/g, '').slice(0, 10);
+        // Format as 04xx xxx xxx
+        var fmt = digits;
+        if (digits.length > 7) fmt = digits.slice(0,4) + ' ' + digits.slice(4,7) + ' ' + digits.slice(7);
+        else if (digits.length > 4) fmt = digits.slice(0,4) + ' ' + digits.slice(4);
+        mInput.value = fmt;
+        mInput.classList.remove('has-error');
+        mError.classList.remove('is-visible');
+      });
+
+      mCont.addEventListener('click', function() {
+        var digits = mInput.value.replace(/\D/g, '');
+        if (!/^04\d{8}$/.test(digits)) {
+          mInput.classList.add('has-error');
+          mError.classList.add('is-visible');
+          mInput.focus();
+          return;
+        }
+        var gd = getGroupData(id);
+        if (gd) gd.mobile = digits;
+        revealStep(el, 'plan');
+        // Auto-select Monthly (first card) after animation
+        setTimeout(function() {
+          var firstCard = el.querySelector('.plan-card');
+          if (firstCard) selectCard(el, firstCard);
+        }, 120);
+      });
+
+      // Also allow Enter key on mobile input
+      mInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); mCont.click(); }
+      });
+
+      // ── Plan cards ──
+      el.querySelectorAll('.plan-card').forEach(function(card) {
+        function doSelect() { selectCard(el, card); }
+        card.addEventListener('click', function(e) {
+          if (e.target.classList.contains('plan-card__select-btn')) return;
+          doSelect();
+        });
+        card.querySelector('.plan-card__select-btn').addEventListener('click', doSelect);
+        card.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doSelect(); }
+        });
+      });
+    }
+
+    // ─── Select a plan card ───
+    function selectCard(groupEl, card) {
+      var id = parseInt(groupEl.dataset.groupId, 10);
+      groupEl.querySelectorAll('.plan-card').forEach(function(c) {
+        c.classList.remove('is-selected');
+        c.setAttribute('aria-pressed', 'false');
+        c.querySelector('.plan-card__select-btn').textContent = 'Select plan';
+      });
+      card.classList.add('is-selected');
+      card.setAttribute('aria-pressed', 'true');
+      card.querySelector('.plan-card__select-btn').textContent = '\u2713 Selected';
+
+      var gd = getGroupData(id);
+      if (gd) gd.planKey = card.dataset.planKey;
+
+      // Snap carousel to this card smoothly
+      var track = groupEl.querySelector('.carousel-track');
+      if (track && window.innerWidth < 768) {
+        track.scrollTo({ left: card.offsetLeft - 16, behavior: 'smooth' });
+      }
+
+      checkShowAddPlanBtn();
+      renderSummary();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // GROUP MANAGEMENT
+    // ═══════════════════════════════════════════════════════════
+    function addGroup(preState) {
+      if (groups.length >= MAX_GROUPS) return null;
+      var id = nextId++;
+      groups.push({ id: id, state: null, prison: null, mobile: null, planKey: null });
+      var el = buildGroupEl(id);
+      document.getElementById('planBuilder').appendChild(el);
+      wireGroup(el);
+
+      // Pre-select state from URL param (first group only) or passed arg
+      var stateToPreselect = preState || (groups.length === 1 ? getUrlState() : null);
+      if (stateToPreselect) {
+        var btn = el.querySelector('[data-sv="' + stateToPreselect + '"]');
+        if (btn) setTimeout(function() { btn.click(); }, 0);
+      }
+
+      return el;
+    }
+
+    function removeGroup(id) {
+      var idx = groups.findIndex(function(g) { return g.id === id; });
+      if (idx < 0) return;
+      groups.splice(idx, 1);
+      var el = document.querySelector('.plan-group[data-group-id="' + id + '"]');
+      if (el) el.remove();
+      checkShowAddPlanBtn();
+      renderSummary();
+    }
+
+    // ─── Show add-plan button once a plan is selected in the latest group ───
+    function checkShowAddPlanBtn() {
+      var lastGroup = groups[groups.length - 1];
+      var anyComplete = groups.some(function(g) { return g.planKey && g.mobile && g.prison && g.state; });
+      var wrap = document.getElementById('addPlanWrap');
+      if (anyComplete && groups.length < MAX_GROUPS) {
+        wrap.classList.remove('hidden');
+      } else {
+        wrap.classList.add('hidden');
+      }
+    }
+
+    document.getElementById('addPlanBtn').addEventListener('click', function() {
+      var newEl = addGroup(null);
+      if (groups.length >= MAX_GROUPS) {
+        document.getElementById('addPlanWrap').classList.add('hidden');
+      }
+      if (newEl) {
+        setTimeout(function() { newEl.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // ORDER SUMMARY
+    // ═══════════════════════════════════════════════════════════
+    function maskMobile(digits) {
+      if (!digits || digits.length < 3) return digits || '';
+      return '04\u2022\u2022 \u2022\u2022\u2022 ' + digits.slice(-3);
+    }
+
+    function renderSummary() {
+      var complete = groups.filter(function(g) {
+        return g.state && g.prison && g.mobile && g.planKey;
+      });
+
+      var summaryEl  = document.getElementById('orderSummary');
+      var linesEl    = document.getElementById('orderLines');
+      var totalValEl = document.getElementById('orderTotalValue');
+      var bundleEl   = document.getElementById('bundleNotice');
+      var checkoutBtn = document.getElementById('checkoutBtn');
+
+      if (complete.length === 0) {
+        summaryEl.classList.remove('is-visible');
+        bundleEl.classList.remove('is-visible');
+        checkoutBtn.classList.add('is-disabled');
+        checkoutBtn.setAttribute('aria-disabled', 'true');
+        return;
+      }
+
+      summaryEl.classList.add('is-visible');
+      var isBundle = complete.length >= 2;
+      bundleEl.classList.toggle('is-visible', isBundle);
+
+      var rawTotal = complete.reduce(function(sum, g) {
+        var plan = PLANS.find(function(p) { return p.key === g.planKey; });
+        return sum + (plan ? plan.amount : 0);
+      }, 0);
+      var finalTotal = isBundle ? Math.round(rawTotal * 0.9) : rawTotal;
+
+      // Build order lines
+      linesEl.innerHTML = '';
+      complete.forEach(function(g) {
+        var plan = PLANS.find(function(p) { return p.key === g.planKey; });
+        if (!plan) return;
+        var line = document.createElement('div');
+        line.className = 'order-line';
+        line.innerHTML = [
+          '<div class="order-line__info">',
+            '<p class="order-line__prison">' + g.prison + '</p>',
+            '<p class="order-line__meta">',
+              g.state.toUpperCase() + ' &middot; ',
+              maskMobile(g.mobile) + ' &middot; ',
+              plan.name,
+            '</p>',
+          '</div>',
+          '<div class="order-line__right">',
+            '<span class="order-line__price">$' + plan.amount + '/' + plan.period + '</span>',
+            '<button class="order-line__remove" type="button" data-gid="' + g.id + '" aria-label="Remove ' + g.prison + ' plan">&times;</button>',
+          '</div>'
+        ].join('');
+        linesEl.appendChild(line);
+      });
+
+      // Wire remove buttons
+      linesEl.querySelectorAll('.order-line__remove').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          removeGroup(parseInt(btn.dataset.gid, 10));
+        });
+      });
+
+      // Total
+      if (isBundle) {
+        totalValEl.innerHTML =
+          '<span class="order-total__original">$' + rawTotal + '</span>' +
+          '<span class="order-total__discounted">$' + finalTotal + '</span>';
+      } else {
+        totalValEl.innerHTML = '<span class="order-total__plain">$' + rawTotal + '</span>';
+      }
+
+      // Enable checkout CTA
+      checkoutBtn.classList.remove('is-disabled');
+      checkoutBtn.removeAttribute('aria-disabled');
+      checkoutBtn.setAttribute('aria-label', 'Activate my number now');
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════════════════
+    addGroup(null); // First group — URL param state pre-selection handled inside
+  </script>
+
+</body>
+</html>
