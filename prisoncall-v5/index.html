@@ -276,11 +276,11 @@
     ═══════════════════════════════════ */
     .hero { background: var(--color-hero); display: flex; flex-direction: column; }
     .hero__visual { width: 100%; overflow: hidden; line-height: 0; }
-    /* Mobile: cap image height so all hero content fits above the fold on 390px screens */
-    .hero__visual img { width: 100%; height: 155px; object-fit: cover; object-position: center top; display: block; }
+    /* Mobile: image tall enough to show subject naturally, content tightened to fit above fold */
+    .hero__visual img { width: 100%; height: 200px; object-fit: cover; object-position: center 20%; display: block; }
     .hero__content {
       background: var(--color-hero);
-      padding: 18px 20px 36px;
+      padding: 14px 20px 24px;
       display: flex; flex-direction: column;
       align-items: center; text-align: center;
     }
@@ -288,44 +288,44 @@
     .hero__badge {
       display: inline-flex; align-items: center;
       background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9);
-      font-size: 11px; font-weight: 700;
+      font-size: 10px; font-weight: 700;
       letter-spacing: 0.06em; text-transform: uppercase;
-      padding: 5px 12px; border-radius: var(--radius-pill); margin-bottom: 10px;
+      padding: 5px 12px; border-radius: var(--radius-pill); margin-bottom: 8px;
     }
     .hero__h1 {
-      font-size: 28px; font-weight: 800; line-height: 1.08;
-      color: var(--color-white); letter-spacing: -0.02em; margin-bottom: 8px;
+      font-size: 26px; font-weight: 800; line-height: 1.1;
+      color: var(--color-white); letter-spacing: -0.02em; margin-bottom: 6px;
     }
     .hero__subtext {
-      font-size: 14px; font-weight: 400;
-      color: rgba(255,255,255,0.8); margin-bottom: 12px; line-height: 1.5;
+      font-size: 13px; font-weight: 400;
+      color: rgba(255,255,255,0.8); margin-bottom: 10px; line-height: 1.45;
     }
     .hero__rating {
       display: flex; align-items: center; justify-content: center;
-      gap: 6px; margin-bottom: 12px; flex-wrap: wrap;
+      gap: 5px; margin-bottom: 10px; flex-wrap: wrap;
     }
     .hero__stars { display: flex; gap: 2px; }
-    .hero__stars img { width: 13px; height: 13px; }
-    .hero__rating-text { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.72); }
+    .hero__stars img { width: 12px; height: 12px; }
+    .hero__rating-text { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.72); }
     .hero__pills {
-      display: flex; flex-wrap: wrap; gap: 6px;
-      justify-content: center; margin-bottom: 14px;
+      display: flex; flex-wrap: wrap; gap: 5px;
+      justify-content: center; margin-bottom: 12px;
     }
     .hero__pill {
-      display: inline-flex; align-items: center; gap: 5px;
+      display: inline-flex; align-items: center; gap: 4px;
       background: rgba(255,255,255,0.10); color: rgba(255,255,255,0.88);
-      font-size: 12px; font-weight: 500;
-      padding: 6px 11px; border-radius: var(--radius-pill);
+      font-size: 11px; font-weight: 500;
+      padding: 5px 10px; border-radius: var(--radius-pill);
     }
-    .hero__pill img { width: 12px; height: 12px; flex-shrink: 0; }
-    .hero__cta-wrap { width: 100%; margin-bottom: 12px; }
-    .hero__cta-wrap .btn { width: 100%; font-size: 15px; padding: 15px 28px; }
-    .hero__trust { display: flex; flex-direction: column; gap: 7px; align-items: center; }
+    .hero__pill img { width: 11px; height: 11px; flex-shrink: 0; }
+    .hero__cta-wrap { width: 100%; margin-bottom: 10px; }
+    .hero__cta-wrap .btn { width: 100%; font-size: 15px; padding: 13px 28px; }
+    .hero__trust { display: flex; flex-direction: column; gap: 6px; align-items: center; }
     .hero__trust-item {
-      display: flex; align-items: center; gap: 7px;
-      font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.72);
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.72);
     }
-    .hero__trust-item img { width: 13px; height: 13px; flex-shrink: 0; }
+    .hero__trust-item img { width: 12px; height: 12px; flex-shrink: 0; }
 
     @media (min-width: 768px) {
       .hero {
