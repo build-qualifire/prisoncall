@@ -276,17 +276,18 @@
     ═══════════════════════════════════ */
     /* 100vh - 80px = header (64px) + desired peek gap (16px) — next section always peeks by exactly 16px */
     .hero { background: var(--color-hero); display: flex; flex-direction: column; min-height: calc(100vh - 80px); }
-    /* Bottom padding exposes the image's lower rounded corners against the dark background */
-    .hero__visual { width: 100%; overflow: hidden; line-height: 0; padding: 10px 16px 8px; }
+    /* Equal 16px gap on all four sides — image floats as a card with consistent breathing room */
+    .hero__visual { width: 100%; overflow: hidden; line-height: 0; padding: 16px; }
     /* Mobile: image tall enough to show subject naturally, content tightened to fit above fold */
     /* Youi-style: inset from screen edges with rounded corners — card-like, not flush */
     .hero__visual img { width: 100%; height: 240px; object-fit: cover; object-position: center 20%; display: block; border-radius: 16px; }
     .hero__content {
       background: var(--color-hero);
-      padding: 20px 20px 20px;
+      padding: 20px 20px 28px;
       display: flex; flex-direction: column;
       align-items: flex-start; text-align: left; /* Youi-style: left-aligned editorial feel */
-      flex: 1; /* fills remaining height — breathing room collects at bottom above white peek */
+      flex: 1;                  /* fills remaining height below image */
+      justify-content: flex-end; /* pushes content cluster to bottom — white section peeks below */
     }
     .hero__inner { max-width: 520px; width: 100%; }
     .hero__badge {
