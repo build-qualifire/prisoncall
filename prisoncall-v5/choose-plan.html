@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Choose Your Prisoncall Plan | Prisoncall Australia</title>
-  <meta name="description" content="Choose your Prisoncall plan — select your state, prison and a plan to start receiving cheaper prison calls today. Set up in 1 minute.">
+  <meta name="description" content="Choose your Prisoncall plan — select your state, prison and plan to start receiving cheaper prison calls today.">
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/svg+xml" href="assets/brand_logos/Prisoncall_Icon_BLACK.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ─── CSS Variables (identical to index.html) ─── */
+    /* ─── Variables (identical to index.html) ─── */
     :root {
       --color-black: #000000;
       --color-white: #ffffff;
@@ -22,14 +22,12 @@
       --color-muted: #666666;
       --color-border: #E5E5E5;
       --color-surface: #F9F9F9;
-      --color-gold: #FFB800;
       --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       --radius-sm: 8px;
       --radius-md: 16px;
       --radius-lg: 24px;
       --radius-pill: 80px;
-      --transition-fast: 150ms ease;
-      --transition-med: 200ms ease;
+      --tr: 150ms ease;
       --container-max: 1312px;
       --header-height: 72px;
       --header-height-mobile: 48px;
@@ -40,10 +38,8 @@
     html { scroll-behavior: smooth; }
     body {
       font-family: var(--font-family);
-      font-size: 16px;
-      line-height: 1.5;
-      color: var(--color-black);
-      background: var(--color-white);
+      font-size: 16px; line-height: 1.5;
+      color: var(--color-black); background: var(--color-white);
       -webkit-font-smoothing: antialiased;
     }
     img { display: block; max-width: 100%; }
@@ -61,18 +57,17 @@
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       border-radius: var(--radius-pill); font-family: var(--font-family);
       font-size: 16px; font-weight: 700; line-height: 1; padding: 15px 28px;
-      transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast), transform var(--transition-fast);
+      transition: background var(--tr), color var(--tr), border-color var(--tr), opacity var(--tr), transform var(--tr);
       white-space: nowrap; cursor: pointer; text-decoration: none;
     }
     .btn:hover { opacity: 0.88; transform: translateY(-1px); }
     .btn:active { transform: translateY(0); opacity: 1; }
     .btn--green { background: var(--color-green); color: var(--color-black); border: 2px solid var(--color-green); }
     .btn--black { background: var(--color-black); color: var(--color-white); border: 2px solid var(--color-black); }
-    .btn--ghost  { background: var(--color-white); color: var(--color-black); border: 2px solid var(--color-green); }
 
-    /* ═══════════════════════════════════
+    /* ═══════════════════════════════
        HEADER (identical to index.html)
-    ═══════════════════════════════════ */
+    ═══════════════════════════════ */
     .header {
       position: sticky; top: 0; z-index: 200;
       background: var(--color-white); height: var(--header-height-mobile);
@@ -82,37 +77,25 @@
       display: grid; grid-template-columns: 44px 1fr 44px;
       align-items: center; height: 100%;
     }
-    .header__hamburger {
-      display: flex; align-items: center; justify-content: center; width: 44px; height: 44px;
-    }
+    .header__hamburger { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
     .header__hamburger img { width: 24px; height: 24px; }
-    .header__center {
-      display: flex; align-items: center; justify-content: center;
-      position: relative; height: 100%; overflow: hidden;
-    }
-    .header__wordmark { display: flex; align-items: center; transition: opacity var(--transition-fast); }
+    .header__center { display: flex; align-items: center; justify-content: center; position: relative; height: 100%; overflow: hidden; }
+    .header__wordmark { display: flex; align-items: center; transition: opacity var(--tr); }
     .header__wordmark img { height: 20px; width: auto; }
     .header__mobile-cta {
       position: absolute; left: 50%; transform: translateX(-50%);
-      opacity: 0; pointer-events: none; transition: opacity var(--transition-fast);
+      opacity: 0; pointer-events: none; transition: opacity var(--tr);
       padding: 9px 20px; font-size: 13px; font-weight: 700; font-family: var(--font-family);
       white-space: nowrap; border-radius: var(--radius-pill);
       background: var(--color-green); color: var(--color-black);
-      border: 2px solid var(--color-green); text-decoration: none; line-height: 1;
+      border: 2px solid var(--color-green); line-height: 1;
     }
-    .header__right {
-      display: flex; align-items: center; justify-content: center; width: 44px; height: 44px;
-    }
-    .header__icon-link {
-      display: flex; align-items: center; justify-content: center;
-      opacity: 1; pointer-events: auto; transition: opacity var(--transition-fast);
-    }
+    .header__right { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+    .header__icon-link { display: flex; align-items: center; justify-content: center; opacity: 1; pointer-events: auto; transition: opacity var(--tr); }
     .header__icon-img { width: 24px; height: 24px; }
     .header__desktop-cta { display: none; }
-
-    /* On this page the header is always in "scrolled" state visually (no hero to scroll past) */
+    /* This page always shows scrolled state (no hero) */
     @media (max-width: 767px) {
-      /* header--scrolled applied via JS on load */
       .header--scrolled .header__wordmark { opacity: 0; pointer-events: none; }
       .header--scrolled .header__mobile-cta { opacity: 1; pointer-events: auto; }
     }
@@ -127,387 +110,346 @@
       .header__icon-link { display: none; }
       .header__desktop-cta { display: block; }
       .header__desktop-cta .btn { padding: 12px 24px; font-size: 15px; }
-      /* CTA always green on this page (user is already in purchase flow) */
+      /* CTA always green here — user is in purchase flow */
       .header__desktop-cta .btn,
       .header--scrolled .header__desktop-cta .btn {
         background: var(--color-green); color: var(--color-black); border-color: var(--color-green);
       }
     }
 
-    /* ═══════════════════════════════════
+    /* ═══════════════════════════════
        MOBILE MENU
-    ═══════════════════════════════════ */
-    .mobile-menu {
-      display: none; position: fixed; inset: 0; z-index: 300;
-      background: var(--color-white); flex-direction: column;
-    }
+    ═══════════════════════════════ */
+    .mobile-menu { display: none; position: fixed; inset: 0; z-index: 300; background: var(--color-white); flex-direction: column; }
     .mobile-menu.is-open { display: flex; }
     .mobile-menu__top {
       display: grid; grid-template-columns: 44px 1fr 44px; align-items: center;
       height: var(--header-height-mobile); border-bottom: 1px solid var(--color-border);
       padding: 0 16px; flex-shrink: 0;
     }
-    .mobile-menu__close {
-      width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
-      font-size: 22px; font-weight: 400; color: var(--color-black); justify-self: start;
-    }
+    .mobile-menu__close { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--color-black); justify-self: start; }
     .mobile-menu__logo { display: flex; align-items: center; justify-content: center; }
     .mobile-menu__logo img { height: 26px; width: auto; }
     .mobile-menu__body { flex: 1; overflow-y: auto; padding: 0 24px 40px; }
     .mobile-menu__links { display: flex; flex-direction: column; }
-    .mobile-menu__links a {
-      font-size: 17px; font-weight: 600; color: var(--color-black);
-      padding: 18px 0; border-bottom: 1px solid var(--color-border);
-      display: flex; align-items: center; gap: 10px;
-    }
+    .mobile-menu__links a { font-size: 17px; font-weight: 600; padding: 18px 0; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: 10px; }
     .mobile-menu__links a:hover { color: var(--color-muted); }
     .mobile-menu__social { display: flex; flex-direction: column; }
-    .mobile-menu__social a {
-      font-size: 15px; font-weight: 500; color: var(--color-muted);
-      padding: 16px 0; border-bottom: 1px solid var(--color-border);
-      display: flex; align-items: center; gap: 10px;
-    }
+    .mobile-menu__social a { font-size: 15px; font-weight: 500; color: var(--color-muted); padding: 16px 0; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: 10px; }
     .mobile-menu__cta { margin-top: 28px; }
     .mobile-menu__cta .btn { width: 100%; font-size: 16px; padding: 17px 24px; }
 
-    /* ═══════════════════════════════════
+    /* ═══════════════════════════════
        FOOTER
-    ═══════════════════════════════════ */
-    .footer { background: var(--color-black); color: var(--color-white); padding: 56px 0 0; }
-    .footer__top {
-      display: grid; grid-template-columns: 1fr; gap: 40px;
-      padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
+    ═══════════════════════════════ */
+    .footer { background: var(--color-black); color: var(--color-white); padding: 56px 0 48px; }
+    .footer__top { display: grid; grid-template-columns: 1fr; gap: 40px; padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,0.1); }
     @media (min-width: 900px) { .footer__top { grid-template-columns: 210px 1fr; gap: 48px; } }
     .footer__brand { display: flex; flex-direction: column; gap: 20px; }
     .footer__logo img { height: 28px; width: auto; }
     .footer__tagline { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; max-width: 200px; }
     .footer__social { display: flex; gap: 10px; }
-    .footer__social-link {
-      width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.08);
-      display: flex; align-items: center; justify-content: center;
-      transition: background var(--transition-fast);
-    }
+    .footer__social-link { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; transition: background var(--tr); }
     .footer__social-link:hover { background: rgba(255,255,255,0.18); }
     .footer__social-link svg { width: 20px; height: 20px; }
     .footer__links { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
     @media (min-width: 640px) { .footer__links { grid-template-columns: 1fr 1fr 1fr 1fr; } }
-    .footer__col-title {
-      font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-      color: rgba(255,255,255,0.38); margin-bottom: 16px;
-    }
+    .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.38); margin-bottom: 16px; }
     .footer__col ul { display: flex; flex-direction: column; gap: 10px; }
-    .footer__col li a { font-size: 13px; color: rgba(255,255,255,0.62); transition: color var(--transition-fast); }
+    .footer__col li a { font-size: 13px; color: rgba(255,255,255,0.62); transition: color var(--tr); }
     .footer__col li a:hover { color: var(--color-white); }
-    .footer__bottom {
-      padding: 28px 0 32px; display: flex; flex-direction: column; gap: 20px; align-items: center;
-    }
-    @media (min-width: 768px) {
-      .footer__bottom { flex-direction: row; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-    }
+    .footer__bottom { padding: 28px 0 0; display: flex; flex-direction: column; gap: 20px; align-items: center; }
+    @media (min-width: 768px) { .footer__bottom { flex-direction: row; justify-content: space-between; flex-wrap: wrap; gap: 16px; } }
     .footer__payments { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
-    .footer__payment-icon { display: flex; align-items: center; justify-content: center; height: 40px; border: none; outline: none; box-shadow: none; background: none; padding: 0; }
-    .footer__payment-icon img { height: 40px; width: auto; display: block; border: none; outline: none; box-shadow: none; }
+    .footer__payment-icon { display: flex; align-items: center; justify-content: center; height: 40px; background: none; padding: 0; }
+    .footer__payment-icon img { height: 40px; width: auto; display: block; }
     .footer__policies { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
-    .footer__policies a { font-size: 12px; color: rgba(255,255,255,0.42); transition: color var(--transition-fast); }
+    .footer__policies a { font-size: 12px; color: rgba(255,255,255,0.42); transition: color var(--tr); }
     .footer__policies a:hover { color: rgba(255,255,255,0.75); }
     .footer__copyright { font-size: 12px; color: rgba(255,255,255,0.32); text-align: center; }
 
-    /* Footer bottom padding — account for sticky checkout bar */
-    .footer { padding-bottom: 96px; }
-
-    /* ═══════════════════════════════════
-       STICKY CHECKOUT BAR
-    ═══════════════════════════════════ */
-    .checkout-bar {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-      padding: 12px 16px 20px;
-      background: var(--color-white); border-top: 1px solid var(--color-border);
-    }
-    .checkout-bar__btn {
-      display: block; width: 100%; padding: 16px 24px;
-      font-size: 16px; font-weight: 700; font-family: var(--font-family);
-      border-radius: var(--radius-pill); text-align: center; cursor: pointer;
-      border: 2px solid var(--color-green);
-      background: var(--color-green); color: var(--color-black);
-      text-decoration: none; transition: all var(--transition-fast);
-    }
-    .checkout-bar__btn:hover:not(.is-disabled) { opacity: 0.88; transform: translateY(-1px); }
-    .checkout-bar__btn.is-disabled {
-      background: var(--color-border); color: var(--color-muted);
-      border-color: var(--color-border); cursor: not-allowed;
-      pointer-events: none;
-    }
-    @media (min-width: 768px) {
-      .checkout-bar {
-        left: 50%; right: auto; transform: translateX(-50%);
-        width: 480px; padding: 16px 24px 24px;
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        border: 1px solid var(--color-border); border-bottom: none;
-        box-shadow: 0 -4px 24px rgba(0,0,0,0.08);
-      }
-    }
-
-    /* ═══════════════════════════════════
-       CHOOSE PLAN PAGE
-    ═══════════════════════════════════ */
+    /* ═══════════════════════════════
+       PAGE LAYOUT
+    ═══════════════════════════════ */
     .cp-wrap {
-      max-width: 640px;
+      max-width: 680px;
       margin: 0 auto;
-      padding: 32px 16px 32px;
+      padding: 32px 20px 80px;
     }
-    @media (min-width: 768px) { .cp-wrap { padding: 48px 24px 48px; } }
+    @media (min-width: 768px) { .cp-wrap { padding: 48px 32px 96px; } }
+    @media (min-width: 1024px) { .cp-wrap { padding: 56px 0 96px; } }
 
-    .cp-heading {
-      font-size: 26px; font-weight: 800; line-height: 1.1;
-      letter-spacing: -0.01em; margin-bottom: 4px;
-    }
+    .cp-heading { font-size: 26px; font-weight: 800; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 4px; }
     @media (min-width: 768px) { .cp-heading { font-size: 34px; } }
-    .cp-subheading { font-size: 14px; color: var(--color-muted); margin-bottom: 24px; }
+    .cp-subheading { font-size: 14px; color: var(--color-muted); margin-bottom: 28px; }
 
-    /* ─── Trust banner ─── */
+    /* ═══════════════════════════════
+       TRUST BANNER
+    ═══════════════════════════════ */
     .trust-banner {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: 14px;
       background: var(--color-green-mid); border-radius: var(--radius-md);
-      padding: 12px 16px; margin-bottom: 36px;
+      padding: 14px 18px; margin-bottom: 40px;
     }
     .trust-avatars { display: flex; flex-shrink: 0; }
-    .trust-avatar {
-      width: 32px; height: 32px; border-radius: 50%;
-      border: 2px solid var(--color-white);
-      object-fit: cover; background: var(--color-border); display: block;
+    .trust-av {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 2.5px solid var(--color-white); object-fit: cover;
+      background: var(--color-border); display: block;
+      transition: opacity 350ms ease;
     }
-    .trust-avatar + .trust-avatar { margin-left: -8px; }
-    .trust-text { font-size: 13px; font-weight: 500; color: #1a5c33; line-height: 1.4; }
+    .trust-av + .trust-av { margin-left: -9px; }
+    .trust-text { font-size: 13px; font-weight: 600; color: #1a5c33; line-height: 1.4; }
 
-    /* ─── Plan group ─── */
-    .plan-group + .plan-group {
-      margin-top: 48px; padding-top: 40px; border-top: 2px solid var(--color-border);
-    }
-    .plan-group__number {
-      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--color-muted); margin-bottom: 24px;
-    }
-
-    /* ─── Step block ─── */
-    .step-block { }
-    .step-block + .step-block { margin-top: 32px; }
-
+    /* ═══════════════════════════════
+       STEP SECTIONS
+    ═══════════════════════════════ */
     @keyframes stepIn {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .step-block.is-revealed { animation: stepIn 280ms ease forwards; }
+    .step-section {
+      padding: 28px 0;
+      border-bottom: 1px solid var(--color-border);
+      animation: stepIn 260ms ease forwards;
+    }
+    .step-section:first-child { padding-top: 0; }
 
-    .step-label {
+    .step-back {
+      display: inline-flex; align-items: center; gap: 5px;
+      color: var(--color-muted); font-size: 12px; font-weight: 600;
+      cursor: pointer; margin-bottom: 20px;
+      background: none; padding: 0; font-family: inherit;
+      transition: color var(--tr);
+    }
+    .step-back:hover { color: var(--color-black); }
+    .step-back svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    .step-eyebrow {
       font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
       color: var(--color-muted); margin-bottom: 4px;
     }
-    .step-title { font-size: 18px; font-weight: 700; color: var(--color-black); margin-bottom: 16px; }
+    .step-heading { font-size: 20px; font-weight: 700; margin-bottom: 6px; line-height: 1.2; }
+    @media (min-width: 768px) { .step-heading { font-size: 22px; } }
+    .step-hint { font-size: 13px; color: var(--color-muted); margin-bottom: 20px; }
 
     /* ─── State toggle ─── */
     .state-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .state-btn {
-      padding: 16px 12px; font-size: 15px; font-weight: 700;
-      border: 2px solid var(--color-border); border-radius: var(--radius-md);
-      background: var(--color-white); color: var(--color-black);
-      cursor: pointer; transition: all var(--transition-fast); font-family: var(--font-family);
-      text-align: center; line-height: 1.2;
+      padding: 18px 12px; border: 2px solid var(--color-border); border-radius: var(--radius-md);
+      background: var(--color-white); color: var(--color-black); cursor: pointer;
+      font-family: inherit; text-align: center; transition: border-color var(--tr), background var(--tr), color var(--tr);
     }
-    .state-btn:hover { border-color: #999; }
+    .state-btn:hover { border-color: #aaa; }
     .state-btn.is-active { background: var(--color-black); color: var(--color-white); border-color: var(--color-black); }
-    .state-btn__sub { display: block; font-size: 11px; font-weight: 400; opacity: 0.65; margin-top: 3px; }
+    .state-btn__abbr { display: block; font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 5px; }
+    .state-btn__name { display: block; font-size: 12px; font-weight: 400; opacity: 0.65; }
+    .state-btn.is-active .state-btn__name { opacity: 0.7; }
 
     /* ─── Prison pills ─── */
     .prison-grid { display: flex; flex-wrap: wrap; gap: 8px; }
     .prison-pill {
-      padding: 8px 14px; font-size: 13px; font-weight: 500;
+      padding: 9px 16px; font-size: 13px; font-weight: 500;
       border: 1.5px solid var(--color-border); border-radius: var(--radius-pill);
       background: var(--color-white); color: var(--color-black);
-      cursor: pointer; transition: all var(--transition-fast); font-family: var(--font-family);
+      cursor: pointer; font-family: inherit; transition: border-color var(--tr), background var(--tr), color var(--tr);
     }
     .prison-pill:hover { border-color: #999; }
     .prison-pill.is-active { background: var(--color-black); color: var(--color-white); border-color: var(--color-black); }
 
     /* ─── Mobile number input ─── */
-    .mobile-hint { font-size: 13px; color: var(--color-muted); margin-bottom: 12px; }
+    .mobile-hint { font-size: 13px; color: var(--color-muted); margin-bottom: 14px; }
     .mobile-input {
-      width: 100%; padding: 14px 16px; font-size: 17px; font-weight: 600;
-      font-family: var(--font-family); border: 2px solid var(--color-border);
+      display: block; width: 100%; padding: 16px 18px;
+      font-size: 20px; font-weight: 700; letter-spacing: 0.06em;
+      font-family: inherit; border: 2px solid var(--color-border);
       border-radius: var(--radius-md); background: var(--color-white);
-      color: var(--color-black); outline: none; transition: border-color var(--transition-fast);
-      letter-spacing: 0.03em;
+      color: var(--color-black); outline: none;
+      transition: border-color var(--tr);
     }
     .mobile-input:focus { border-color: var(--color-black); }
     .mobile-input.has-error { border-color: #e53e3e; }
-    .mobile-error {
-      font-size: 12px; color: #e53e3e; margin-top: 6px; display: none;
-    }
+    .mobile-error { font-size: 12px; color: #e53e3e; margin-top: 8px; display: none; }
     .mobile-error.is-visible { display: block; }
     .mobile-continue {
-      margin-top: 12px; width: 100%; padding: 14px 20px;
-      font-size: 15px; font-weight: 700; font-family: var(--font-family);
+      display: block; width: 100%; margin-top: 14px; padding: 15px;
+      font-size: 15px; font-weight: 700; font-family: inherit;
       background: var(--color-black); color: var(--color-white);
       border: 2px solid var(--color-black); border-radius: var(--radius-pill);
-      cursor: pointer; transition: all var(--transition-fast); text-align: center;
+      cursor: pointer; transition: opacity var(--tr), transform var(--tr); text-align: center;
     }
-    .mobile-continue:hover { opacity: 0.88; transform: translateY(-1px); }
+    .mobile-continue:hover { opacity: 0.86; transform: translateY(-1px); }
     .mobile-continue:active { transform: none; opacity: 1; }
 
-    /* ─── Plan carousel ─── */
-    .carousel-outer { overflow: hidden; margin: 0 -16px; }
-    @media (min-width: 768px) { .carousel-outer { margin: 0; overflow: visible; } }
+    /* ═══════════════════════════════
+       PLAN CAROUSEL
+    ═══════════════════════════════ */
+    .carousel-outer { overflow: hidden; margin: 0 -20px; }
+    @media (min-width: 768px) { .carousel-outer { overflow: visible; margin: 0; } }
 
     .carousel-track {
-      display: flex; gap: 12px; overflow-x: scroll;
-      scroll-snap-type: x mandatory; scroll-behavior: smooth;
+      display: flex; gap: 12px;
+      overflow-x: scroll; scroll-snap-type: x mandatory; scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch; scrollbar-width: none;
-      padding: 4px 16px 16px;
+      padding: 6px 10% 20px;
     }
     .carousel-track::-webkit-scrollbar { display: none; }
 
     @media (min-width: 768px) {
       .carousel-track {
-        overflow-x: visible; flex-wrap: wrap;
-        scroll-snap-type: none; padding: 4px 0 16px;
+        overflow: visible; scroll-snap-type: none;
+        padding: 24px 0 16px; gap: 10px;
+        align-items: flex-end; /* cards bottom-align so Monthly grows up */
       }
     }
 
     /* ─── Plan card ─── */
     .plan-card {
-      flex: 0 0 calc(82% - 6px); scroll-snap-align: start;
+      flex: 0 0 80%; scroll-snap-align: center;
       border: 2px solid var(--color-border); border-radius: var(--radius-md);
       overflow: hidden; cursor: pointer; background: var(--color-white);
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-      display: flex; flex-direction: column; user-select: none;
+      transition: border-color var(--tr); display: flex; flex-direction: column;
+      user-select: none;
     }
-    @media (min-width: 480px) { .plan-card { flex: 0 0 calc(72% - 6px); } }
-    @media (min-width: 768px) { .plan-card { flex: 0 0 calc(50% - 6px); scroll-snap-align: none; } }
-    @media (min-width: 1024px) { .plan-card { flex: 0 0 calc(25% - 9px); } }
+    @media (min-width: 768px) { .plan-card { flex: 1; scroll-snap-align: none; } }
+    /* Monthly card is larger on desktop */
+    @media (min-width: 768px) { .plan-card--monthly { flex: 1.45; } }
 
-    .plan-card:hover { border-color: #aaa; }
-    .plan-card.is-selected { border-color: var(--color-black); box-shadow: 0 0 0 1px var(--color-black); }
+    .plan-card:hover { border-color: #bbb; }
+    .plan-card.is-selected { border-color: var(--color-black); }
 
     .plan-card__header {
-      background: var(--color-surface); padding: 18px 18px 14px;
+      padding: 18px 18px 14px; background: var(--color-surface);
       border-bottom: 1px solid var(--color-border);
-      transition: background var(--transition-fast);
+      transition: background var(--tr), border-color var(--tr);
     }
+    /* Monthly gets taller header on desktop for prominence */
+    @media (min-width: 768px) { .plan-card--monthly .plan-card__header { padding-top: 32px; } }
+
     .plan-card.is-selected .plan-card__header { background: var(--color-black); border-bottom-color: transparent; }
 
     .plan-card__badge {
-      display: inline-flex; align-self: flex-start; margin-bottom: 8px;
+      display: inline-block; margin-bottom: 8px;
       font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       background: var(--color-green); color: var(--color-black);
-      padding: 3px 8px; border-radius: var(--radius-pill);
+      padding: 3px 9px; border-radius: var(--radius-pill);
     }
-    .plan-card__badge-spacer { display: block; height: 22px; }
+    .plan-card__badge-spacer { height: 21px; margin-bottom: 8px; display: block; }
 
-    .plan-card__name {
-      font-size: 11px; font-weight: 700; color: var(--color-muted);
-      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px;
-      transition: color var(--transition-fast);
+    .plan-card__plan-name {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--color-muted); margin-bottom: 4px;
+      transition: color var(--tr);
     }
-    .plan-card.is-selected .plan-card__name { color: rgba(255,255,255,0.6); }
+    .plan-card.is-selected .plan-card__plan-name { color: rgba(255,255,255,0.5); }
 
-    .plan-card__price { display: flex; align-items: baseline; gap: 1px; }
-    .plan-card__amount {
-      font-size: 34px; font-weight: 800; color: var(--color-black); line-height: 1;
-      transition: color var(--transition-fast);
-    }
+    .plan-card__price { display: flex; align-items: baseline; gap: 2px; }
+    .plan-card__amount { font-size: 36px; font-weight: 800; line-height: 1; color: var(--color-black); transition: color var(--tr); }
     .plan-card.is-selected .plan-card__amount { color: var(--color-white); }
-    .plan-card__period { font-size: 13px; color: var(--color-muted); transition: color var(--transition-fast); }
-    .plan-card.is-selected .plan-card__period { color: rgba(255,255,255,0.55); }
+    .plan-card__period { font-size: 13px; color: var(--color-muted); transition: color var(--tr); }
+    .plan-card.is-selected .plan-card__period { color: rgba(255,255,255,0.48); }
 
     .plan-card__body { padding: 14px 18px; flex: 1; }
     .plan-card__features { display: flex; flex-direction: column; gap: 9px; }
-    .plan-card__feature {
-      display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333;
-    }
+    .plan-card__feature { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; }
     .plan-card__check {
-      width: 17px; height: 17px; border-radius: 50%;
-      background: var(--color-green); color: var(--color-black);
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--color-green); flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: 9px; font-weight: 800; flex-shrink: 0; line-height: 1;
+      font-size: 9px; font-weight: 900; color: var(--color-black); line-height: 1;
     }
-
     .plan-card__footer { padding: 0 18px 18px; }
-    .plan-card__select-btn {
-      width: 100%; padding: 10px; font-size: 13px; font-weight: 700;
-      font-family: var(--font-family); border-radius: var(--radius-pill);
+    .plan-card__select {
+      display: block; width: 100%; padding: 10px; font-size: 13px; font-weight: 700;
+      font-family: inherit; text-align: center; border-radius: var(--radius-pill);
       background: var(--color-black); color: var(--color-white);
-      border: 2px solid var(--color-black); cursor: pointer; text-align: center;
-      transition: all var(--transition-fast);
+      border: 2px solid var(--color-black); cursor: pointer;
+      transition: background var(--tr), color var(--tr), border-color var(--tr);
     }
-    .plan-card.is-selected .plan-card__select-btn {
+    .plan-card.is-selected .plan-card__select {
       background: var(--color-green); color: var(--color-black); border-color: var(--color-green);
     }
 
-    /* ─── Add another plan ─── */
-    .add-plan-wrap { margin-top: 24px; }
-    .add-plan-btn {
-      width: 100%; padding: 14px 20px; font-size: 14px; font-weight: 600;
-      background: var(--color-white); color: var(--color-black);
-      border: 2px dashed var(--color-border); border-radius: var(--radius-md);
-      cursor: pointer; font-family: var(--font-family); transition: all var(--transition-fast);
-      display: flex; align-items: center; justify-content: center; gap: 8px;
+    /* ═══════════════════════════════
+       COMPLETED AREA
+    ═══════════════════════════════ */
+    #completedArea { margin-top: 32px; }
+
+    /* ─── Summary line ─── */
+    .summary-line {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px; border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md); margin-bottom: 10px;
     }
-    .add-plan-btn:hover { border-color: var(--color-black); background: var(--color-green-mid); }
-    .add-plan-btn svg { flex-shrink: 0; }
+    .summary-line__info { flex: 1; min-width: 0; }
+    .summary-line__prison { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .summary-line__meta { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
+    .summary-line__right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .summary-line__price { font-size: 14px; font-weight: 700; white-space: nowrap; }
+    .summary-line__edit {
+      padding: 6px 13px; font-size: 12px; font-weight: 600; font-family: inherit;
+      border: 1.5px solid var(--color-border); border-radius: var(--radius-pill);
+      background: var(--color-white); color: var(--color-black); cursor: pointer;
+      transition: border-color var(--tr);
+    }
+    .summary-line__edit:hover { border-color: var(--color-black); }
+    .summary-line__remove {
+      width: 26px; height: 26px; border-radius: 50%; background: var(--color-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: var(--color-muted); border: none; font-family: inherit;
+      cursor: pointer; flex-shrink: 0; line-height: 1;
+      transition: background var(--tr), color var(--tr);
+    }
+    .summary-line__remove:hover { background: #d0d0d0; color: var(--color-black); }
+
+    /* ─── Add another plan ─── */
+    .add-plan-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 16px; margin: 12px 0;
+      font-size: 14px; font-weight: 600; font-family: inherit;
+      border: 2px dashed var(--color-border); border-radius: var(--radius-md);
+      background: var(--color-white); color: var(--color-black); cursor: pointer;
+      transition: border-color var(--tr), background var(--tr);
+    }
+    .add-plan-btn:hover { border-color: var(--color-black); background: var(--color-surface); }
 
     /* ─── Bundle notice ─── */
     .bundle-notice {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px; margin-bottom: 10px;
       background: var(--color-green-mid); border: 1px solid #a3e9c5;
-      border-radius: var(--radius-md); padding: 12px 16px;
-      font-size: 13px; font-weight: 600; color: #1a5c33;
-      margin-top: 24px; margin-bottom: 0;
-      display: none; align-items: center; gap: 8px;
+      border-radius: var(--radius-md); font-size: 13px; font-weight: 600; color: #1a5c33;
     }
-    .bundle-notice.is-visible { display: flex; }
 
-    /* ─── Order summary ─── */
-    .order-summary {
-      margin-top: 24px; border: 2px solid var(--color-border);
-      border-radius: var(--radius-md); overflow: hidden; display: none;
-    }
-    .order-summary.is-visible { display: block; }
-    .order-summary__title {
-      font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--color-muted); padding: 12px 16px;
-      border-bottom: 1px solid var(--color-border); background: var(--color-surface);
-    }
-    .order-line {
-      padding: 14px 16px; border-bottom: 1px solid var(--color-border);
-      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
-    }
-    .order-line:last-of-type { border-bottom: none; }
-    .order-line__info { flex: 1; min-width: 0; }
-    .order-line__prison { font-size: 14px; font-weight: 700; color: var(--color-black); }
-    .order-line__meta { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
-    .order-line__right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .order-line__price { font-size: 14px; font-weight: 700; white-space: nowrap; }
-    .order-line__remove {
-      width: 26px; height: 26px; border-radius: 50%; background: var(--color-border);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 15px; color: var(--color-muted);
-      border: none; font-family: inherit; cursor: pointer; flex-shrink: 0; line-height: 1;
-      transition: background var(--transition-fast), color var(--transition-fast);
-    }
-    .order-line__remove:hover { background: #d0d0d0; color: var(--color-black); }
-
+    /* ─── Order total ─── */
     .order-total {
-      padding: 14px 16px; background: var(--color-surface);
-      border-top: 2px solid var(--color-border);
       display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 18px; margin-bottom: 16px;
+      background: var(--color-surface); border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
     }
-    .order-total__label { font-size: 14px; font-weight: 700; }
-    .order-total__value { display: flex; align-items: baseline; gap: 8px; }
-    .order-total__original { text-decoration: line-through; color: var(--color-muted); font-size: 15px; }
-    .order-total__discounted { color: var(--color-green); font-size: 20px; font-weight: 800; }
-    .order-total__plain { font-size: 20px; font-weight: 800; }
+    .order-total__label { font-size: 15px; font-weight: 700; }
+    .order-total__val { display: flex; align-items: baseline; gap: 8px; }
+    .order-total__orig { text-decoration: line-through; color: var(--color-muted); font-size: 15px; }
+    .order-total__disc { color: var(--color-green); font-size: 22px; font-weight: 800; }
+    .order-total__plain { font-size: 22px; font-weight: 800; }
 
-    /* ─── Spacer above footer to account for sticky bar ─── */
-    .checkout-spacer { height: 88px; }
+    /* ─── Checkout CTA ─── */
+    .checkout-cta {
+      display: block; width: 100%; padding: 18px;
+      font-size: 17px; font-weight: 700; font-family: inherit; text-align: center;
+      border-radius: var(--radius-pill); cursor: pointer;
+      background: var(--color-green); color: var(--color-black);
+      border: 2px solid var(--color-green); text-decoration: none;
+      transition: opacity var(--tr), transform var(--tr), background var(--tr), border-color var(--tr), color var(--tr);
+      margin-top: 8px;
+    }
+    .checkout-cta:hover:not(.is-disabled) { opacity: 0.88; transform: translateY(-1px); }
+    .checkout-cta:active { transform: none; }
+    .checkout-cta.is-disabled {
+      background: var(--color-border); color: var(--color-muted);
+      border-color: var(--color-border); pointer-events: none; cursor: default;
+    }
 
     /* ─── Utility ─── */
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
@@ -543,9 +485,7 @@
   <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation menu">
     <div class="mobile-menu__top">
       <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">&#x2715;</button>
-      <div class="mobile-menu__logo">
-        <img src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
-      </div>
+      <div class="mobile-menu__logo"><img src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia"></div>
       <div></div>
     </div>
     <div class="mobile-menu__body">
@@ -564,9 +504,7 @@
           Follow us on Instagram
         </a>
       </div>
-      <div class="mobile-menu__cta">
-        <a href="choose-plan.html" class="btn btn--green">Get started now</a>
-      </div>
+      <div class="mobile-menu__cta"><a href="choose-plan.html" class="btn btn--green">Get started now</a></div>
     </div>
   </div>
 
@@ -577,40 +515,17 @@
       <h1 class="cp-heading">Choose your Prisoncall plan</h1>
       <p class="cp-subheading">Set up in 1 minute. Unlimited minutes from day one.</p>
 
-      <!-- Trust banner — avatars + text injected by JS -->
-      <div class="trust-banner" id="trustBanner">
-        <div class="trust-avatars" id="trustAvatars" aria-hidden="true"></div>
+      <!-- Trust banner -->
+      <div class="trust-banner">
+        <div class="trust-avatars" id="trustAvatars"></div>
         <p class="trust-text" id="trustText"></p>
       </div>
 
-      <!-- Plan groups injected by JS -->
-      <div id="planBuilder"></div>
+      <!-- Gated step flow — steps injected by JS -->
+      <div id="planFlow"></div>
 
-      <!-- Step 5: Add another plan -->
-      <div class="add-plan-wrap hidden" id="addPlanWrap">
-        <button class="add-plan-btn" id="addPlanBtn" type="button">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add another plan for a different person
-        </button>
-      </div>
-
-      <!-- Bundle notice -->
-      <div class="bundle-notice" id="bundleNotice" role="status" aria-live="polite">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a5c33" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        Bundle discount: 10% off automatically applied
-      </div>
-
-      <!-- Order summary -->
-      <div class="order-summary" id="orderSummary" aria-label="Your order">
-        <div class="order-summary__title">Your order</div>
-        <div id="orderLines"></div>
-        <div class="order-total">
-          <span class="order-total__label">Total</span>
-          <span class="order-total__value" id="orderTotalValue"></span>
-        </div>
-      </div>
-
-      <div class="checkout-spacer"></div>
+      <!-- Completed area: summary lines + bottom controls -->
+      <div id="completedArea"></div>
 
     </div>
   </main>
@@ -715,470 +630,601 @@
     </div>
   </footer>
 
-  <!-- ═══ STICKY CHECKOUT BAR ═══ -->
-  <div class="checkout-bar" id="checkoutBar">
-    <a href="#" class="checkout-bar__btn is-disabled" id="checkoutBtn" aria-disabled="true" aria-label="Activate my number now — complete all steps above first">
-      Activate my number now
-    </a>
-  </div>
-
   <!-- ═══ SCRIPTS ═══ -->
   <script>
-    // ─── Copyright year ───
-    document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+  'use strict';
 
-    // ─── Mobile Menu ───
-    var menuToggle = document.getElementById('menuToggle');
-    var menuClose  = document.getElementById('menuClose');
-    var mobileMenu = document.getElementById('mobileMenu');
-    function openMenu()  { mobileMenu.classList.add('is-open');    document.body.style.overflow = 'hidden'; menuToggle.setAttribute('aria-expanded', 'true'); }
-    function closeMenu() { mobileMenu.classList.remove('is-open'); document.body.style.overflow = '';       menuToggle.setAttribute('aria-expanded', 'false'); }
-    menuToggle.addEventListener('click', openMenu);
-    menuClose.addEventListener('click', closeMenu);
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeMenu(); });
-    mobileMenu.querySelectorAll('a').forEach(function(l) { l.addEventListener('click', closeMenu); });
+  /* ─── Copyright year ─── */
+  document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 
-    // ═══════════════════════════════════════════════════════════
-    // DATA
-    // ═══════════════════════════════════════════════════════════
-    var PRISONS = {
-      vic: [
-        'Barwon Prison','Beechworth CC','Dame Phyllis Frost Centre','Fulham CC',
-        'Hopkins CC','Langi Kal Kal Prison','Loddon / Middleton Prison','Marngoneet CC',
-        'Melbourne Assessment Prison','Metropolitan Remand Centre','Port Phillip Prison',
-        'Ravenhall CC','Tarrengower Prison','Western Plains CC'
-      ],
-      nsw: [
-        'Cessnock CC','Clarence CC','Cooma CC','Dillwynia CC','Emu Plains CC',
-        'Goulburn CC','John Morony CC','Junee CC','Kariong Intake & Transit',
-        'Kirkconnell CC','Lithgow CC','Long Bay Complex','MRRC Silverwater',
-        'Oberon CC','Parklea CC','Silverwater Women\'s CC','South Coast CC',
-        'St Heliers CC','Tamworth CC','Wellington CC'
-      ]
-    };
+  /* ─── Mobile menu ─── */
+  var menuToggle = document.getElementById('menuToggle');
+  var menuClose  = document.getElementById('menuClose');
+  var mobileMenu = document.getElementById('mobileMenu');
+  function openMenu()  { mobileMenu.classList.add('is-open');    document.body.style.overflow = 'hidden'; menuToggle.setAttribute('aria-expanded','true'); }
+  function closeMenu() { mobileMenu.classList.remove('is-open'); document.body.style.overflow = '';       menuToggle.setAttribute('aria-expanded','false'); }
+  menuToggle.addEventListener('click', openMenu);
+  menuClose.addEventListener('click', closeMenu);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeMenu(); });
+  mobileMenu.querySelectorAll('a').forEach(function(l){ l.addEventListener('click', closeMenu); });
 
-    // Card order: Monthly → Fortnightly → Quarterly → Weekly
-    var PLANS = [
-      { key: 'monthly',     name: 'Monthly',     amount: 45,  period: 'month',     badge: 'Most Popular' },
-      { key: 'fortnightly', name: 'Fortnightly', amount: 25,  period: 'fortnight', badge: null           },
-      { key: 'quarterly',   name: 'Quarterly',   amount: 125, period: 'quarter',   badge: 'Best Value'   },
-      { key: 'weekly',      name: 'Weekly',       amount: 15,  period: 'week',      badge: null           }
+  /* ═══════════════════════════════════════════════════════
+     DATA
+  ═══════════════════════════════════════════════════════ */
+  var PRISONS = {
+    vic: ['Barwon Prison','Beechworth CC','Dame Phyllis Frost Centre','Fulham CC',
+          'Hopkins CC','Langi Kal Kal Prison','Loddon / Middleton Prison','Marngoneet CC',
+          'Melbourne Assessment Prison','Metropolitan Remand Centre','Port Phillip Prison',
+          'Ravenhall CC','Tarrengower Prison','Western Plains CC'],
+    nsw: ['Cessnock CC','Clarence CC','Cooma CC','Dillwynia CC','Emu Plains CC',
+          'Goulburn CC','John Morony CC','Junee CC','Kariong Intake & Transit',
+          'Kirkconnell CC','Lithgow CC','Long Bay Complex','MRRC Silverwater',
+          'Oberon CC','Parklea CC',"Silverwater Women's CC",'South Coast CC',
+          'St Heliers CC','Tamworth CC','Wellington CC']
+  };
+
+  /* Card order: Quarterly → Monthly → Fortnightly → Weekly */
+  var PLANS = [
+    { key:'quarterly',   name:'Quarterly',   amount:125, period:'quarter',   badge:'Best Value',   cls:'plan-card--quarterly'   },
+    { key:'monthly',     name:'Monthly',     amount:45,  period:'month',     badge:'Most Popular', cls:'plan-card--monthly'     },
+    { key:'fortnightly', name:'Fortnightly', amount:25,  period:'fortnight', badge:null,           cls:'plan-card--fortnightly' },
+    { key:'weekly',      name:'Weekly',      amount:15,  period:'week',      badge:null,           cls:'plan-card--weekly'      }
+  ];
+
+  var FEATURES = ['Unlimited minutes','One flat fee','Prison-approved number','Cancel anytime'];
+
+  var F_NAMES = ['Sydney','Jamie','Monique','Kim','Sarah','Lisa','Michelle'];
+  var M_NAMES = ['Tony','Matt','James','Michael','David'];
+  var F_AV    = ['avatar-1.svg','avatar-2.svg','avatar-5.svg','avatar-6.svg',
+                 'avatar-8.png','avatar-9.png','avatar-12.png','avatar-13.png',
+                 'avatar-16.png','avatar-17.png'];
+  var M_AV    = ['avatar-3.svg','avatar-4.svg','avatar-10.png','avatar-11.png',
+                 'avatar-14.png','avatar-15.png'];
+  var ALL_AV  = F_AV.concat(M_AV);
+
+  /* ═══════════════════════════════════════════════════════
+     PRELOAD ALL AVATARS
+  ═══════════════════════════════════════════════════════ */
+  ALL_AV.forEach(function(av){
+    var img = new Image(); img.src = 'assets/images/' + av;
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     TRUST BANNER — randomise + cycle
+  ═══════════════════════════════════════════════════════ */
+  function pickRand(arr, exclude){
+    var pool = exclude ? arr.filter(function(x){ return exclude.indexOf(x)<0; }) : arr.slice();
+    if(!pool.length) pool = arr.slice();
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
+
+  var trustImgs  = []; // the 3 <img> elements
+  var trustSlots = []; // { name, av } — slot 0 & 1 have names, slot 2 has null name
+
+  function buildInitialTrust(){
+    var g1 = Math.random()<0.5?'f':'m';
+    var n1 = pickRand(g1==='f'?F_NAMES:M_NAMES, null);
+    var a1 = pickRand(g1==='f'?F_AV:M_AV, null);
+    var g2 = Math.random()<0.5?'f':'m';
+    var n2 = pickRand(g2==='f'?F_NAMES:M_NAMES, [n1]);
+    var a2 = pickRand(g2==='f'?F_AV:M_AV, [a1]);
+    var a3 = pickRand(ALL_AV, [a1,a2]);
+    trustSlots = [
+      {name:n1, av:a1, gender:g1},
+      {name:n2, av:a2, gender:g2},
+      {name:null, av:a3, gender:null}
     ];
+    var wrap = document.getElementById('trustAvatars');
+    trustSlots.forEach(function(slot, i){
+      var img = document.createElement('img');
+      img.className = 'trust-av'; img.alt = ''; img.src = 'assets/images/'+slot.av;
+      wrap.appendChild(img);
+      trustImgs.push(img);
+    });
+    updateTrustText();
+  }
 
-    var FEATURES = ['Unlimited minutes', 'One flat fee', 'Prison-approved number', 'Cancel anytime'];
+  function updateTrustText(){
+    document.getElementById('trustText').textContent =
+      trustSlots[0].name + ', ' + trustSlots[1].name + ' & 2,500+ others recommend Prisoncall';
+  }
 
-    var FEMALE_NAMES = ['Sydney','Jamie','Monique','Kim','Sarah','Lisa','Michelle'];
-    var MALE_NAMES   = ['Tony','Matt','James','Michael','David'];
-    var FEMALE_AV    = ['avatar-1.svg','avatar-2.svg','avatar-5.svg','avatar-6.svg','avatar-8.png','avatar-9.png','avatar-12.png','avatar-13.png','avatar-16.png','avatar-17.png'];
-    var MALE_AV      = ['avatar-3.svg','avatar-4.svg','avatar-10.png','avatar-11.png','avatar-14.png','avatar-15.png'];
-
-    // ═══════════════════════════════════════════════════════════
-    // TRUST BANNER
-    // ═══════════════════════════════════════════════════════════
-    function pickRandom(arr, exclude) {
-      var pool = exclude ? arr.filter(function(x) { return exclude.indexOf(x) < 0; }) : arr.slice();
-      return pool[Math.floor(Math.random() * pool.length)];
-    }
-
-    (function renderTrust() {
-      var g1    = Math.random() < 0.5 ? 'f' : 'm';
-      var n1    = pickRandom(g1 === 'f' ? FEMALE_NAMES : MALE_NAMES, null);
-      var av1   = pickRandom(g1 === 'f' ? FEMALE_AV   : MALE_AV,    null);
-      var g2    = Math.random() < 0.5 ? 'f' : 'm';
-      var n2    = pickRandom(g2 === 'f' ? FEMALE_NAMES : MALE_NAMES, [n1]);
-      var av2   = pickRandom(g2 === 'f' ? FEMALE_AV   : MALE_AV,    [av1]);
-      var allAv = FEMALE_AV.concat(MALE_AV);
-      var av3   = pickRandom(allAv, [av1, av2]);
-
-      var wrap = document.getElementById('trustAvatars');
-      [av1, av2, av3].forEach(function(av) {
-        var img = document.createElement('img');
-        img.className = 'trust-avatar';
-        img.src = 'assets/images/' + av;
-        img.alt = '';
-        wrap.appendChild(img);
-      });
-      document.getElementById('trustText').textContent =
-        n1 + ', ' + n2 + ' & 2,500+ others recommend Prisoncall';
-    })();
-
-    // ═══════════════════════════════════════════════════════════
-    // STATE MANAGEMENT
-    // ═══════════════════════════════════════════════════════════
-    var groups   = [];   // [{ id, state, prison, mobile, planKey }]
-    var nextId   = 0;
-    var MAX_GROUPS = 3;
-
-    function getGroupData(id) {
-      return groups.find(function(g) { return g.id === id; });
-    }
-
-    function getUrlState() {
-      try {
-        var p = new URLSearchParams(window.location.search);
-        var s = (p.get('state') || '').toLowerCase();
-        return (s === 'vic' || s === 'nsw') ? s : null;
-      } catch(e) { return null; }
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // BUILD PLAN GROUP DOM
-    // ═══════════════════════════════════════════════════════════
-    function buildGroupEl(id) {
-      var el = document.createElement('div');
-      el.className = 'plan-group';
-      el.dataset.groupId = id;
-
-      // Multiple groups get a label
-      var labelHtml = '';
-      if (groups.length > 0) {
-        labelHtml = '<p class="plan-group__number">Plan ' + (groups.length + 1) + '</p>';
+  function cycleSlot(idx){
+    var img = trustImgs[idx];
+    img.style.opacity = '0';
+    setTimeout(function(){
+      var curAvs = trustSlots.map(function(s){ return s.av; });
+      if(idx < 2){
+        var g = Math.random()<0.5?'f':'m';
+        var otherNames = trustSlots.filter(function(s,i){ return i!==idx && s.name; }).map(function(s){ return s.name; });
+        var newName = pickRand(g==='f'?F_NAMES:M_NAMES, otherNames);
+        var newAv   = pickRand(g==='f'?F_AV:M_AV, curAvs.filter(function(a,i){ return i!==idx; }));
+        trustSlots[idx] = {name:newName, av:newAv, gender:g};
+        updateTrustText();
+      } else {
+        var newAv = pickRand(ALL_AV, [trustSlots[0].av, trustSlots[1].av]);
+        trustSlots[2] = {name:null, av:newAv, gender:null};
       }
+      img.src = 'assets/images/'+trustSlots[idx].av;
+      img.style.opacity = '1';
+    }, 360);
+  }
 
-      // Plan cards HTML
-      var cardsHtml = PLANS.map(function(p) {
-        var badgeHtml = p.badge
-          ? '<span class="plan-card__badge">' + p.badge + '</span>'
-          : '<span class="plan-card__badge-spacer"></span>';
-        var featHtml = FEATURES.map(function(f) {
-          return '<li class="plan-card__feature"><span class="plan-card__check" aria-hidden="true">&#10003;</span>' + f + '</li>';
-        }).join('');
-        return [
-          '<div class="plan-card" data-plan-key="' + p.key + '" role="button" tabindex="0" aria-pressed="false">',
-            '<div class="plan-card__header">',
-              badgeHtml,
-              '<p class="plan-card__name">' + p.name + '</p>',
-              '<div class="plan-card__price">',
-                '<span class="plan-card__amount">$' + p.amount + '</span>',
-                '<span class="plan-card__period"> / ' + p.period + '</span>',
-              '</div>',
-            '</div>',
-            '<div class="plan-card__body">',
-              '<ul class="plan-card__features">' + featHtml + '</ul>',
-            '</div>',
-            '<div class="plan-card__footer">',
-              '<button class="plan-card__select-btn" type="button" tabindex="-1">Select plan</button>',
-            '</div>',
-          '</div>'
-        ].join('');
+  buildInitialTrust();
+
+  var cycleSlotIdx = 0;
+  setInterval(function(){
+    cycleSlot(cycleSlotIdx % 3);
+    cycleSlotIdx++;
+  }, 3500);
+
+  /* ═══════════════════════════════════════════════════════
+     APP STATE
+  ═══════════════════════════════════════════════════════ */
+  var entries  = []; // completed: [{id,state,prison,mobile,planKey}]
+  var cur      = null; // plan being built
+  var editId   = null; // id of entry being edited (null = new)
+  var nextId   = 0;
+  var MAX_PLANS = 3;
+
+  var planFlow      = document.getElementById('planFlow');
+  var completedArea = document.getElementById('completedArea');
+
+  /* ─── URL param ─── */
+  function getUrlState(){
+    try {
+      var p = new URLSearchParams(window.location.search);
+      var s = (p.get('state')||'').toLowerCase();
+      return (s==='vic'||s==='nsw') ? s : null;
+    } catch(e){ return null; }
+  }
+
+  /* ─── Smooth scroll to element (below sticky header) ─── */
+  function scrollToEl(el){
+    if(!el) return;
+    setTimeout(function(){
+      var headerH = document.getElementById('siteHeader').offsetHeight;
+      var top = el.getBoundingClientRect().top + window.pageYOffset - headerH - 16;
+      window.scrollTo({ top: Math.max(0, top), behavior:'smooth' });
+    }, 60);
+  }
+
+  /* ─── Remove steps >= stepNum from planFlow ─── */
+  function removeStepsFrom(n){
+    planFlow.querySelectorAll('[data-step]').forEach(function(s){
+      if(parseInt(s.dataset.step, 10) >= n) s.remove();
+    });
+  }
+  function getStepEl(n){ return planFlow.querySelector('[data-step="'+n+'"]'); }
+
+  /* ─── Back arrow SVG ─── */
+  var BACK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>';
+
+  /* ═══════════════════════════════════════════════════════
+     BUILD STEP ELEMENTS
+  ═══════════════════════════════════════════════════════ */
+  function buildStep1El(preState){
+    var el = document.createElement('section');
+    el.className = 'step-section'; el.dataset.step = '1';
+    el.innerHTML = [
+      '<p class="step-eyebrow">Step 1 of 4</p>',
+      '<h2 class="step-heading">Select prison state</h2>',
+      '<p class="step-hint">Select the state where the prison is located</p>',
+      '<div class="state-toggle">',
+        '<button class="state-btn'+(preState==='vic'?' is-active':'')+'" type="button" data-sv="vic">',
+          '<span class="state-btn__abbr">VIC</span><span class="state-btn__name">Victoria</span>',
+        '</button>',
+        '<button class="state-btn'+(preState==='nsw'?' is-active':'')+'" type="button" data-sv="nsw">',
+          '<span class="state-btn__abbr">NSW</span><span class="state-btn__name">New South Wales</span>',
+        '</button>',
+      '</div>'
+    ].join('');
+    return el;
+  }
+
+  function buildStep2El(stateVal, prePrison){
+    var el = document.createElement('section');
+    el.className = 'step-section'; el.dataset.step = '2';
+    var pillsHtml = PRISONS[stateVal].map(function(p){
+      return '<button class="prison-pill'+(p===prePrison?' is-active':'')+'" type="button">'+p+'</button>';
+    }).join('');
+    el.innerHTML = [
+      '<button class="step-back" type="button" data-back="2">'+BACK_SVG+' Step 1</button>',
+      '<p class="step-eyebrow">Step 2 of 4</p>',
+      '<h2 class="step-heading">Select prison</h2>',
+      '<div class="prison-grid">'+pillsHtml+'</div>'
+    ].join('');
+    return el;
+  }
+
+  function buildStep3El(preMobile){
+    var fmtMobile = preMobile ? formatMobile(preMobile) : '';
+    var el = document.createElement('section');
+    el.className = 'step-section'; el.dataset.step = '3';
+    el.innerHTML = [
+      '<button class="step-back" type="button" data-back="3">'+BACK_SVG+' Step 2</button>',
+      '<p class="step-eyebrow">Step 3 of 4</p>',
+      '<h2 class="step-heading">Your mobile number</h2>',
+      '<p class="mobile-hint">Your loved one\'s calls will be forwarded to this number.</p>',
+      '<input class="mobile-input" type="tel" inputmode="numeric" placeholder="04xx xxx xxx" maxlength="14" autocomplete="tel" value="'+fmtMobile+'">',
+      '<p class="mobile-error">Please enter a valid Australian mobile starting with 04 (10 digits total).</p>',
+      '<button class="mobile-continue" type="button">Continue &rarr;</button>'
+    ].join('');
+    return el;
+  }
+
+  function buildStep4El(prePlanKey){
+    var defaultKey = prePlanKey || 'monthly';
+    var cardsHtml = PLANS.map(function(p){
+      var isSelected = p.key === defaultKey;
+      var badgeHtml  = p.badge
+        ? '<span class="plan-card__badge">'+p.badge+'</span>'
+        : '<span class="plan-card__badge-spacer"></span>';
+      var featHtml = FEATURES.map(function(f){
+        return '<li class="plan-card__feature"><span class="plan-card__check" aria-hidden="true">&#10003;</span>'+f+'</li>';
       }).join('');
-
-      el.innerHTML = [
-        labelHtml,
-        // Step 1 — State
-        '<div class="step-block" data-step="state">',
-          '<p class="step-label">Step 1</p>',
-          '<h2 class="step-title">Select your state</h2>',
-          '<div class="state-toggle">',
-            '<button class="state-btn" type="button" data-sv="vic" aria-pressed="false">',
-              'VIC<span class="state-btn__sub">Victoria</span>',
-            '</button>',
-            '<button class="state-btn" type="button" data-sv="nsw" aria-pressed="false">',
-              'NSW<span class="state-btn__sub">New South Wales</span>',
-            '</button>',
-          '</div>',
-        '</div>',
-        // Step 2 — Prison
-        '<div class="step-block hidden" data-step="prison">',
-          '<p class="step-label">Step 2</p>',
-          '<h2 class="step-title">Select your prison</h2>',
-          '<div class="prison-grid"></div>',
-        '</div>',
-        // Step 3 — Mobile
-        '<div class="step-block hidden" data-step="mobile">',
-          '<p class="step-label">Step 3</p>',
-          '<h2 class="step-title">Your mobile number</h2>',
-          '<p class="mobile-hint">Your loved one\'s calls will be forwarded to this number.</p>',
-          '<input class="mobile-input" type="tel" inputmode="numeric" placeholder="04xx xxx xxx" maxlength="14" autocomplete="tel" aria-label="Australian mobile number">',
-          '<p class="mobile-error" role="alert">Please enter a valid Australian mobile starting with 04 (10 digits).</p>',
-          '<button class="mobile-continue" type="button">Continue &rarr;</button>',
-        '</div>',
-        // Step 4 — Plan
-        '<div class="step-block hidden" data-step="plan">',
-          '<p class="step-label">Step 4</p>',
-          '<h2 class="step-title">Choose your plan</h2>',
-          '<div class="carousel-outer">',
-            '<div class="carousel-track" role="list" aria-label="Available plans">',
-              cardsHtml,
+      return [
+        '<div class="plan-card '+p.cls+(isSelected?' is-selected':'')+'" data-plan-key="'+p.key+'" role="button" tabindex="0" aria-pressed="'+(isSelected?'true':'false')+'">',
+          '<div class="plan-card__header">',
+            badgeHtml,
+            '<p class="plan-card__plan-name">'+p.name+'</p>',
+            '<div class="plan-card__price">',
+              '<span class="plan-card__amount">$'+p.amount+'</span>',
+              '<span class="plan-card__period"> / '+p.period+'</span>',
             '</div>',
+          '</div>',
+          '<div class="plan-card__body"><ul class="plan-card__features">'+featHtml+'</ul></div>',
+          '<div class="plan-card__footer">',
+            '<button class="plan-card__select" type="button" tabindex="-1">'+(isSelected?'\u2713 Selected':'Select plan')+'</button>',
           '</div>',
         '</div>'
       ].join('');
+    }).join('');
 
-      return el;
-    }
+    var el = document.createElement('section');
+    el.className = 'step-section'; el.dataset.step = '4';
+    el.innerHTML = [
+      '<button class="step-back" type="button" data-back="4">'+BACK_SVG+' Step 3</button>',
+      '<p class="step-eyebrow">Step 4 of 4</p>',
+      '<h2 class="step-heading">Choose your plan</h2>',
+      '<div class="carousel-outer"><div class="carousel-track" role="list">'+cardsHtml+'</div></div>'
+    ].join('');
+    return el;
+  }
 
-    // ─── Reveal a step with animation ───
-    function revealStep(groupEl, stepName) {
-      var block = groupEl.querySelector('[data-step="' + stepName + '"]');
-      if (!block || !block.classList.contains('hidden')) return;
-      block.classList.remove('hidden');
-      block.classList.add('is-revealed');
-      setTimeout(function() {
-        block.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }, 50);
-    }
-
-    // ─── Wire a plan group ───
-    function wireGroup(el) {
-      var id = parseInt(el.dataset.groupId, 10);
-
-      // ── State buttons ──
-      el.querySelectorAll('.state-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          var sv = btn.dataset.sv;
-          el.querySelectorAll('.state-btn').forEach(function(b) {
-            b.classList.remove('is-active'); b.setAttribute('aria-pressed', 'false');
-          });
-          btn.classList.add('is-active'); btn.setAttribute('aria-pressed', 'true');
-          var gd = getGroupData(id);
-          if (gd) { gd.state = sv; gd.prison = null; gd.mobile = null; gd.planKey = null; }
-
-          // Populate prison grid
-          var grid = el.querySelector('.prison-grid');
-          grid.innerHTML = '';
-          PRISONS[sv].forEach(function(prison) {
-            var pill = document.createElement('button');
-            pill.type = 'button';
-            pill.className = 'prison-pill';
-            pill.textContent = prison;
-            pill.addEventListener('click', function() {
-              el.querySelectorAll('.prison-pill').forEach(function(p) { p.classList.remove('is-active'); });
-              pill.classList.add('is-active');
-              var gd2 = getGroupData(id);
-              if (gd2) { gd2.prison = prison; gd2.mobile = null; gd2.planKey = null; }
-              revealStep(el, 'mobile');
-              // Reset mobile step
-              var inp = el.querySelector('.mobile-input');
-              var err = el.querySelector('.mobile-error');
-              if (inp) { inp.value = ''; inp.classList.remove('has-error'); }
-              if (err) err.classList.remove('is-visible');
-            });
-            grid.appendChild(pill);
-          });
-
-          revealStep(el, 'prison');
-        });
-      });
-
-      // ── Mobile input ──
-      var mInput = el.querySelector('.mobile-input');
-      var mError = el.querySelector('.mobile-error');
-      var mCont  = el.querySelector('.mobile-continue');
-
-      mInput.addEventListener('input', function() {
-        var digits = mInput.value.replace(/\D/g, '').slice(0, 10);
-        // Format as 04xx xxx xxx
-        var fmt = digits;
-        if (digits.length > 7) fmt = digits.slice(0,4) + ' ' + digits.slice(4,7) + ' ' + digits.slice(7);
-        else if (digits.length > 4) fmt = digits.slice(0,4) + ' ' + digits.slice(4);
-        mInput.value = fmt;
-        mInput.classList.remove('has-error');
-        mError.classList.remove('is-visible');
-      });
-
-      mCont.addEventListener('click', function() {
-        var digits = mInput.value.replace(/\D/g, '');
-        if (!/^04\d{8}$/.test(digits)) {
-          mInput.classList.add('has-error');
-          mError.classList.add('is-visible');
-          mInput.focus();
-          return;
+  /* ═══════════════════════════════════════════════════════
+     WIRE STEPS
+  ═══════════════════════════════════════════════════════ */
+  function wireStep1(el){
+    el.querySelectorAll('.state-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var sv = btn.dataset.sv;
+        /* If same state already selected, just scroll to step 2 */
+        if(cur && cur.state === sv){
+          var s2 = getStepEl(2);
+          if(s2){ scrollToEl(s2); return; }
         }
-        var gd = getGroupData(id);
-        if (gd) gd.mobile = digits;
-        revealStep(el, 'plan');
-        // Auto-select Monthly (first card) after animation
-        setTimeout(function() {
-          var firstCard = el.querySelector('.plan-card');
-          if (firstCard) selectCard(el, firstCard);
-        }, 120);
+        /* Mark active */
+        el.querySelectorAll('.state-btn').forEach(function(b){ b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        if(cur){ cur.state = sv; cur.prison = null; cur.mobile = null; cur.planKey = null; }
+        /* Inject step 2 */
+        removeStepsFrom(2);
+        var s2 = buildStep2El(sv, null);
+        planFlow.appendChild(s2);
+        wireStep2(s2);
+        scrollToEl(s2);
       });
+    });
+  }
 
-      // Also allow Enter key on mobile input
-      mInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') { e.preventDefault(); mCont.click(); }
+  function wireStep2(el){
+    /* Back */
+    el.querySelector('[data-back="2"]').addEventListener('click', function(){
+      removeStepsFrom(2);
+      if(cur){ cur.prison = null; cur.mobile = null; cur.planKey = null; }
+      scrollToEl(getStepEl(1));
+    });
+    /* Prison pills */
+    el.querySelectorAll('.prison-pill').forEach(function(pill){
+      pill.addEventListener('click', function(){
+        var prison = pill.textContent;
+        /* Same prison: just scroll to step 3 */
+        if(cur && cur.prison === prison){
+          var s3 = getStepEl(3);
+          if(s3){ scrollToEl(s3); return; }
+        }
+        el.querySelectorAll('.prison-pill').forEach(function(p){ p.classList.remove('is-active'); });
+        pill.classList.add('is-active');
+        if(cur){ cur.prison = prison; cur.mobile = null; cur.planKey = null; }
+        removeStepsFrom(3);
+        var s3 = buildStep3El(null);
+        planFlow.appendChild(s3);
+        wireStep3(s3);
+        scrollToEl(s3);
       });
+    });
+  }
 
-      // ── Plan cards ──
-      el.querySelectorAll('.plan-card').forEach(function(card) {
-        function doSelect() { selectCard(el, card); }
-        card.addEventListener('click', function(e) {
-          if (e.target.classList.contains('plan-card__select-btn')) return;
-          doSelect();
-        });
-        card.querySelector('.plan-card__select-btn').addEventListener('click', doSelect);
-        card.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doSelect(); }
-        });
-      });
-    }
+  function wireStep3(el){
+    var input = el.querySelector('.mobile-input');
+    var error = el.querySelector('.mobile-error');
+    var cont  = el.querySelector('.mobile-continue');
 
-    // ─── Select a plan card ───
-    function selectCard(groupEl, card) {
-      var id = parseInt(groupEl.dataset.groupId, 10);
-      groupEl.querySelectorAll('.plan-card').forEach(function(c) {
-        c.classList.remove('is-selected');
-        c.setAttribute('aria-pressed', 'false');
-        c.querySelector('.plan-card__select-btn').textContent = 'Select plan';
-      });
-      card.classList.add('is-selected');
-      card.setAttribute('aria-pressed', 'true');
-      card.querySelector('.plan-card__select-btn').textContent = '\u2713 Selected';
-
-      var gd = getGroupData(id);
-      if (gd) gd.planKey = card.dataset.planKey;
-
-      // Snap carousel to this card smoothly
-      var track = groupEl.querySelector('.carousel-track');
-      if (track && window.innerWidth < 768) {
-        track.scrollTo({ left: card.offsetLeft - 16, behavior: 'smooth' });
-      }
-
-      checkShowAddPlanBtn();
-      renderSummary();
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // GROUP MANAGEMENT
-    // ═══════════════════════════════════════════════════════════
-    function addGroup(preState) {
-      if (groups.length >= MAX_GROUPS) return null;
-      var id = nextId++;
-      groups.push({ id: id, state: null, prison: null, mobile: null, planKey: null });
-      var el = buildGroupEl(id);
-      document.getElementById('planBuilder').appendChild(el);
-      wireGroup(el);
-
-      // Pre-select state from URL param (first group only) or passed arg
-      var stateToPreselect = preState || (groups.length === 1 ? getUrlState() : null);
-      if (stateToPreselect) {
-        var btn = el.querySelector('[data-sv="' + stateToPreselect + '"]');
-        if (btn) setTimeout(function() { btn.click(); }, 0);
-      }
-
-      return el;
-    }
-
-    function removeGroup(id) {
-      var idx = groups.findIndex(function(g) { return g.id === id; });
-      if (idx < 0) return;
-      groups.splice(idx, 1);
-      var el = document.querySelector('.plan-group[data-group-id="' + id + '"]');
-      if (el) el.remove();
-      checkShowAddPlanBtn();
-      renderSummary();
-    }
-
-    // ─── Show add-plan button once a plan is selected in the latest group ───
-    function checkShowAddPlanBtn() {
-      var lastGroup = groups[groups.length - 1];
-      var anyComplete = groups.some(function(g) { return g.planKey && g.mobile && g.prison && g.state; });
-      var wrap = document.getElementById('addPlanWrap');
-      if (anyComplete && groups.length < MAX_GROUPS) {
-        wrap.classList.remove('hidden');
-      } else {
-        wrap.classList.add('hidden');
-      }
-    }
-
-    document.getElementById('addPlanBtn').addEventListener('click', function() {
-      var newEl = addGroup(null);
-      if (groups.length >= MAX_GROUPS) {
-        document.getElementById('addPlanWrap').classList.add('hidden');
-      }
-      if (newEl) {
-        setTimeout(function() { newEl.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
-      }
+    /* Back */
+    el.querySelector('[data-back="3"]').addEventListener('click', function(){
+      removeStepsFrom(3);
+      if(cur){ cur.mobile = null; cur.planKey = null; }
+      scrollToEl(getStepEl(2));
     });
 
-    // ═══════════════════════════════════════════════════════════
-    // ORDER SUMMARY
-    // ═══════════════════════════════════════════════════════════
-    function maskMobile(digits) {
-      if (!digits || digits.length < 3) return digits || '';
-      return '04\u2022\u2022 \u2022\u2022\u2022 ' + digits.slice(-3);
-    }
+    /* Format as user types */
+    input.addEventListener('input', function(){
+      var d = input.value.replace(/\D/g,'').slice(0,10);
+      input.value = formatMobile(d);
+      input.classList.remove('has-error'); error.classList.remove('is-visible');
+    });
 
-    function renderSummary() {
-      var complete = groups.filter(function(g) {
-        return g.state && g.prison && g.mobile && g.planKey;
-      });
-
-      var summaryEl  = document.getElementById('orderSummary');
-      var linesEl    = document.getElementById('orderLines');
-      var totalValEl = document.getElementById('orderTotalValue');
-      var bundleEl   = document.getElementById('bundleNotice');
-      var checkoutBtn = document.getElementById('checkoutBtn');
-
-      if (complete.length === 0) {
-        summaryEl.classList.remove('is-visible');
-        bundleEl.classList.remove('is-visible');
-        checkoutBtn.classList.add('is-disabled');
-        checkoutBtn.setAttribute('aria-disabled', 'true');
-        return;
+    /* Continue */
+    function doValidate(){
+      var digits = input.value.replace(/\D/g,'');
+      if(!/^04\d{8}$/.test(digits)){
+        input.classList.add('has-error'); error.classList.add('is-visible'); input.focus(); return;
       }
+      if(cur){ cur.mobile = digits; }
+      /* Same mobile — scroll to step 4 if it exists */
+      var s4 = getStepEl(4);
+      if(s4){ scrollToEl(s4); return; }
+      removeStepsFrom(4);
+      s4 = buildStep4El(null);
+      planFlow.appendChild(s4);
+      wireStep4(s4);
+      scrollToEl(s4);
+      /* Pre-scroll carousel to Monthly after render */
+      snapCarouselToKey(s4, 'monthly');
+    }
+    cont.addEventListener('click', doValidate);
+    input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doValidate(); } });
+  }
 
-      summaryEl.classList.add('is-visible');
-      var isBundle = complete.length >= 2;
-      bundleEl.classList.toggle('is-visible', isBundle);
+  function wireStep4(el){
+    /* Back */
+    el.querySelector('[data-back="4"]').addEventListener('click', function(){
+      removeStepsFrom(4);
+      if(cur){ cur.planKey = null; }
+      scrollToEl(getStepEl(3));
+    });
 
-      var rawTotal = complete.reduce(function(sum, g) {
-        var plan = PLANS.find(function(p) { return p.key === g.planKey; });
-        return sum + (plan ? plan.amount : 0);
-      }, 0);
-      var finalTotal = isBundle ? Math.round(rawTotal * 0.9) : rawTotal;
+    /* Carousel scroll debounce for tap-vs-swipe detection */
+    var track = el.querySelector('.carousel-track');
+    var isScrolling = false;
+    var scrollTimer;
+    track.addEventListener('scroll', function(){
+      isScrolling = true;
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(function(){ isScrolling = false; }, 200);
+    }, { passive:true });
 
-      // Build order lines
-      linesEl.innerHTML = '';
-      complete.forEach(function(g) {
-        var plan = PLANS.find(function(p) { return p.key === g.planKey; });
-        if (!plan) return;
-        var line = document.createElement('div');
-        line.className = 'order-line';
-        line.innerHTML = [
-          '<div class="order-line__info">',
-            '<p class="order-line__prison">' + g.prison + '</p>',
-            '<p class="order-line__meta">',
-              g.state.toUpperCase() + ' &middot; ',
-              maskMobile(g.mobile) + ' &middot; ',
-              plan.name,
-            '</p>',
-          '</div>',
-          '<div class="order-line__right">',
-            '<span class="order-line__price">$' + plan.amount + '/' + plan.period + '</span>',
-            '<button class="order-line__remove" type="button" data-gid="' + g.id + '" aria-label="Remove ' + g.prison + ' plan">&times;</button>',
-          '</div>'
-        ].join('');
-        linesEl.appendChild(line);
-      });
-
-      // Wire remove buttons
-      linesEl.querySelectorAll('.order-line__remove').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          removeGroup(parseInt(btn.dataset.gid, 10));
+    /* Plan card selection */
+    el.querySelectorAll('.plan-card').forEach(function(card){
+      function doSelect(){
+        if(isScrolling) return;
+        var pk = card.dataset.planKey;
+        /* Visual update */
+        el.querySelectorAll('.plan-card').forEach(function(c){
+          c.classList.remove('is-selected'); c.setAttribute('aria-pressed','false');
+          c.querySelector('.plan-card__select').textContent = 'Select plan';
         });
-      });
-
-      // Total
-      if (isBundle) {
-        totalValEl.innerHTML =
-          '<span class="order-total__original">$' + rawTotal + '</span>' +
-          '<span class="order-total__discounted">$' + finalTotal + '</span>';
-      } else {
-        totalValEl.innerHTML = '<span class="order-total__plain">$' + rawTotal + '</span>';
+        card.classList.add('is-selected'); card.setAttribute('aria-pressed','true');
+        card.querySelector('.plan-card__select').textContent = '\u2713 Selected';
+        /* Complete plan after brief visual moment */
+        setTimeout(function(){ completePlan(pk); }, 180);
       }
+      card.addEventListener('click', function(e){
+        if(e.target.classList.contains('plan-card__select')){ doSelect(); return; }
+        doSelect();
+      });
+      card.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); doSelect(); } });
+      card.querySelector('.plan-card__select').addEventListener('click', function(e){
+        e.stopPropagation(); doSelect();
+      });
+    });
+  }
 
-      // Enable checkout CTA
-      checkoutBtn.classList.remove('is-disabled');
-      checkoutBtn.removeAttribute('aria-disabled');
-      checkoutBtn.setAttribute('aria-label', 'Activate my number now');
+  /* ─── Snap carousel to a plan key ─── */
+  function snapCarouselToKey(stepEl, planKey){
+    setTimeout(function(){
+      var track = stepEl.querySelector('.carousel-track');
+      if(!track) return;
+      var card = track.querySelector('[data-plan-key="'+planKey+'"]');
+      if(!card || window.innerWidth >= 768) return;
+      var cardCenter  = card.offsetLeft + card.offsetWidth / 2;
+      var trackCenter = track.clientWidth / 2;
+      track.scrollLeft = Math.max(0, cardCenter - trackCenter);
+    }, 150);
+  }
+
+  /* ─── Format mobile number ─── */
+  function formatMobile(digits){
+    digits = (digits || '').replace(/\D/g,'').slice(0,10);
+    if(digits.length > 7) return digits.slice(0,4)+' '+digits.slice(4,7)+' '+digits.slice(7);
+    if(digits.length > 4) return digits.slice(0,4)+' '+digits.slice(4);
+    return digits;
+  }
+
+  /* ─── Mask mobile for display ─── */
+  function maskMobile(digits){
+    if(!digits || digits.length < 3) return digits || '';
+    return '04\u2022\u2022 \u2022\u2022\u2022 ' + digits.slice(-3);
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     COMPLETE PLAN
+  ═══════════════════════════════════════════════════════ */
+  function completePlan(planKey){
+    if(!cur) return;
+    cur.planKey = planKey;
+    if(editId !== null){
+      var idx = entries.findIndex(function(e){ return e.id === editId; });
+      if(idx >= 0) entries[idx] = Object.assign({}, cur, {id:editId});
+      editId = null;
+    } else {
+      entries.push(Object.assign({}, cur));
+    }
+    cur = null;
+    planFlow.innerHTML = '';
+    renderCompletedArea();
+    /* Scroll to completed area */
+    scrollToEl(completedArea);
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     EDIT ENTRY — re-inject all steps pre-filled
+  ═══════════════════════════════════════════════════════ */
+  function editEntry(id){
+    var entry = entries.find(function(e){ return e.id===id; });
+    if(!entry) return;
+    cur = Object.assign({}, entry);
+    editId = id;
+
+    /* Remove from entries temporarily so summary doesn't show it */
+    entries = entries.filter(function(e){ return e.id !== id; });
+
+    planFlow.innerHTML = '';
+
+    /* Inject step 1 (pre-selected state, no cascade) */
+    var s1 = buildStep1El(entry.state);
+    planFlow.appendChild(s1);
+    wireStep1(s1);
+
+    /* Inject step 2 pre-filled (no scroll) */
+    var s2 = buildStep2El(entry.state, entry.prison);
+    planFlow.appendChild(s2);
+    wireStep2(s2);
+
+    /* Inject step 3 pre-filled (no scroll) */
+    var s3 = buildStep3El(entry.mobile);
+    planFlow.appendChild(s3);
+    wireStep3(s3);
+
+    /* Inject step 4 pre-filled (no scroll) */
+    var s4 = buildStep4El(entry.planKey);
+    planFlow.appendChild(s4);
+    wireStep4(s4);
+
+    renderCompletedArea();
+    scrollToEl(s1);
+
+    /* Snap carousel to current plan */
+    snapCarouselToKey(s4, entry.planKey);
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     RENDER COMPLETED AREA
+  ═══════════════════════════════════════════════════════ */
+  function renderCompletedArea(){
+    var html = '';
+    var hasEntries = entries.length > 0;
+    var isEditing  = editId !== null || (cur !== null);
+    var isBundle   = entries.length >= 2;
+    var rawTotal   = entries.reduce(function(s,e){
+      var p = PLANS.find(function(p){ return p.key===e.planKey; });
+      return s + (p ? p.amount : 0);
+    }, 0);
+    var finalTotal = isBundle ? Math.round(rawTotal * 0.9) : rawTotal;
+
+    /* Summary lines */
+    entries.forEach(function(e){
+      var plan = PLANS.find(function(p){ return p.key===e.planKey; });
+      if(!plan) return;
+      html += [
+        '<div class="summary-line">',
+          '<div class="summary-line__info">',
+            '<p class="summary-line__prison">'+escHtml(e.prison)+'</p>',
+            '<p class="summary-line__meta">'+e.state.toUpperCase()+' &middot; '+escHtml(maskMobile(e.mobile))+' &middot; '+plan.name+'</p>',
+          '</div>',
+          '<div class="summary-line__right">',
+            '<span class="summary-line__price">$'+plan.amount+'/'+plan.period+'</span>',
+            '<button class="summary-line__edit" type="button" data-edit-id="'+e.id+'">Edit</button>',
+            '<button class="summary-line__remove" type="button" data-remove-id="'+e.id+'" aria-label="Remove plan">&times;</button>',
+          '</div>',
+        '</div>'
+      ].join('');
+    });
+
+    /* Bundle notice */
+    if(isBundle){
+      html += '<div class="bundle-notice">'+
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a5c33" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'+
+        'Bundle discount: 10% off automatically applied</div>';
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // INIT
-    // ═══════════════════════════════════════════════════════════
-    addGroup(null); // First group — URL param state pre-selection handled inside
+    /* Order total */
+    if(hasEntries){
+      var totalHtml = isBundle
+        ? '<span class="order-total__orig">$'+rawTotal+'</span><span class="order-total__disc">$'+finalTotal+'</span>'
+        : '<span class="order-total__plain">$'+rawTotal+'</span>';
+      html += '<div class="order-total"><span class="order-total__label">Total</span><span class="order-total__val">'+totalHtml+'</span></div>';
+    }
+
+    /* Add another plan button */
+    var showAdd = hasEntries && !isEditing && entries.length < MAX_PLANS && cur === null;
+    if(showAdd){
+      html += '<button class="add-plan-btn" id="addPlanBtn" type="button">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'+
+        'Add another plan for a different person</button>';
+    }
+
+    /* Checkout CTA */
+    var ctaDisabled = !hasEntries;
+    html += '<a href="#" class="checkout-cta'+(ctaDisabled?' is-disabled':'')+'" id="checkoutBtn"'+(ctaDisabled?' aria-disabled="true"':'')+'>Activate my number now</a>';
+
+    completedArea.innerHTML = html;
+
+    /* Wire events */
+    completedArea.querySelectorAll('[data-edit-id]').forEach(function(btn){
+      btn.addEventListener('click', function(){ editEntry(parseInt(btn.dataset.editId, 10)); });
+    });
+    completedArea.querySelectorAll('[data-remove-id]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        entries = entries.filter(function(e){ return e.id !== parseInt(btn.dataset.removeId, 10); });
+        renderCompletedArea();
+      });
+    });
+    var addBtn = document.getElementById('addPlanBtn');
+    if(addBtn){
+      addBtn.addEventListener('click', function(){
+        startNewPlan(null);
+        scrollToEl(planFlow);
+      });
+    }
+  }
+
+  /* ─── Escape HTML ─── */
+  function escHtml(str){
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     START NEW PLAN
+  ═══════════════════════════════════════════════════════ */
+  function startNewPlan(preState){
+    cur    = { id: nextId++, state: null, prison: null, mobile: null, planKey: null };
+    editId = null;
+    planFlow.innerHTML = '';
+    var s1 = buildStep1El(preState);
+    planFlow.appendChild(s1);
+    wireStep1(s1);
+    /* Auto-trigger URL state */
+    if(preState){
+      var btn = s1.querySelector('[data-sv="'+preState+'"]');
+      if(btn) setTimeout(function(){ btn.click(); }, 0);
+    }
+    renderCompletedArea();
+  }
+
+  /* ─── Init ─── */
+  startNewPlan(getUrlState());
   </script>
 
 </body>
