@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32" width="48" height="32">
-  <rect width="48" height="32" rx="4" fill="white" stroke="#E5E5E5" stroke-width="0.5"/>
-  <text x="7" y="21" font-family="Arial" font-size="12" font-weight="500" fill="#3C4043">G</text>
-  <text x="15" y="21" font-family="Arial" font-size="12" font-weight="500">
-    <tspan fill="#4285F4">G</tspan><tspan fill="#EA4335">o</tspan><tspan fill="#FBBC04">o</tspan><tspan fill="#4285F4">g</tspan><tspan fill="#34A853">l</tspan><tspan fill="#EA4335">e</tspan>
-  </text>
-  <text x="7" y="29" font-family="Arial" font-size="7" fill="#3C4043">Pay</text>
-</svg>
