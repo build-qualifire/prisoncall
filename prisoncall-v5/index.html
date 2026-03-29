@@ -283,7 +283,7 @@
     .hero__visual img { width: 100%; height: 240px; object-fit: cover; object-position: center 20%; display: block; border-radius: 16px; }
     .hero__content {
       background: var(--color-hero);
-      padding: 32px 0 4px; /* top matches image side/top spacing; left/right 0 aligns with image edges */
+      padding: 32px 0 32px; /* equal 32px on top and bottom matches hero section's side/top padding */
       display: flex; flex-direction: column;
       align-items: flex-start; text-align: left; /* Youi-style: left-aligned editorial feel */
       flex: 1;                  /* fills remaining height below image */
@@ -297,7 +297,7 @@
       padding: 5px 12px; border-radius: var(--radius-pill); margin-bottom: 14px;
     }
     .hero__h1 {
-      font-size: 40px; font-weight: 800; line-height: 1.08;
+      font-size: 36px; font-weight: 800; line-height: 1.08;
       color: var(--color-white); letter-spacing: -0.02em; margin-bottom: 12px;
     }
     .hero__subtext {
