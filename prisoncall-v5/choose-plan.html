@@ -479,7 +479,8 @@
         <a href="choose-plan.html" class="header__mobile-cta">Get Prisoncall now</a>
       </div>
       <div class="header__right">
-        <a href="choose-plan.html" class="header__icon-link" aria-label="Get Prisoncall now">
+        <!-- STANDING RULE: brand icon always links to index.html on every page — never blocked by JS -->
+        <a href="index.html" class="header__icon-link" aria-label="Prisoncall Australia — home">
           <img src="assets/brand_logos/Prisoncall_Icon_BLACK.svg" alt="" class="header__icon-img">
         </a>
         <div class="header__desktop-cta">
@@ -783,6 +784,15 @@
 
   function setGate(y){ gateY = Math.max(0, Math.round(y)); gateActive = true; }
   function clearGate(){ gateActive = false; gateY = 0; }
+
+  /* STANDING RULE: scroll gate must NEVER block header links or any navigation.
+     Capture-phase click listener kills the gate instantly when any <a href> is tapped,
+     so window.scrollTo() cannot fire during navigation and swallow the tap on mobile.
+     Apply this pattern to every page that uses scroll gating. */
+  document.addEventListener('click', function(e){
+    var link = e.target.closest('a[href]');
+    if(link){ clearGate(); }
+  }, true /* capture phase — fires before scroll handler */);
 
   window.addEventListener('scroll', function(){
     if(gateActive && window.pageYOffset < gateY){
