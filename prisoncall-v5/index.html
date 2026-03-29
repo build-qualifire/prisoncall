@@ -276,9 +276,10 @@
     ═══════════════════════════════════ */
     /* min-height fills viewport on mobile; desktop overrides this with 660px in its own media query */
     .hero { background: var(--color-hero); display: flex; flex-direction: column; min-height: calc(100vh - 64px); }
-    .hero__visual { width: 100%; overflow: hidden; line-height: 0; }
+    .hero__visual { width: 100%; overflow: hidden; line-height: 0; padding: 10px 16px 0; }
     /* Mobile: image tall enough to show subject naturally, content tightened to fit above fold */
-    .hero__visual img { width: 100%; height: 240px; object-fit: cover; object-position: center 20%; display: block; }
+    /* Youi-style: inset from screen edges with rounded corners — card-like, not flush */
+    .hero__visual img { width: 100%; height: 240px; object-fit: cover; object-position: center 20%; display: block; border-radius: 16px; }
     .hero__content {
       background: var(--color-hero);
       padding: 14px 20px 24px;
