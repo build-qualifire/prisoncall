@@ -310,33 +310,29 @@
       transition: border-color var(--tr); display: flex; flex-direction: column;
       user-select: none;
     }
-    /* Monthly visibly wider on mobile */
-    .plan-card--monthly { flex: 0 0 84%; }
     @media (min-width: 768px) { .plan-card { flex: 1; scroll-snap-align: none; } }
-    /* Monthly card is larger on desktop — overrides mobile width */
-    @media (min-width: 768px) { .plan-card--monthly { flex: 1.5; } }
+    /* Selected card is the enlarged one — size follows selection on both mobile and desktop */
+    .plan-card.is-selected { flex: 0 0 84%; border-color: var(--color-black); }
+    @media (min-width: 768px) { .plan-card.is-selected { flex: 1.5; } }
 
     .plan-card:hover { border-color: #bbb; }
-    .plan-card.is-selected { border-color: var(--color-black); }
 
     .plan-card__header {
       padding: 18px 18px 14px; background: var(--color-surface);
       border-bottom: 1px solid var(--color-border);
-      transition: background var(--tr), border-color var(--tr);
+      transition: background var(--tr), border-color var(--tr), padding var(--tr);
     }
-    /* Monthly taller on mobile — creates floating centred effect */
-    .plan-card--monthly .plan-card__header { padding-top: 26px; padding-bottom: 18px; }
-    .plan-card--monthly .plan-card__body { padding-top: 18px; padding-bottom: 18px; }
-    .plan-card--monthly .plan-card__footer { padding-bottom: 22px; }
-    /* Monthly even more prominent on desktop */
-    @media (min-width: 768px) { .plan-card--monthly .plan-card__header { padding-top: 42px; padding-bottom: 22px; } }
-    @media (min-width: 768px) { .plan-card--monthly .plan-card__body { padding-top: 20px; padding-bottom: 20px; } }
-    @media (min-width: 768px) { .plan-card--monthly .plan-card__footer { padding-bottom: 26px; } }
-    /* Slightly larger price on Monthly */
-    .plan-card--monthly .plan-card__amount { font-size: 42px; }
-    @media (min-width: 768px) { .plan-card--monthly .plan-card__amount { font-size: 46px; } }
-
-    .plan-card.is-selected .plan-card__header { background: var(--color-black); border-bottom-color: transparent; }
+    /* Selected card taller — creates floating centred effect */
+    .plan-card.is-selected .plan-card__header { background: var(--color-black); border-bottom-color: transparent; padding-top: 26px; padding-bottom: 18px; }
+    .plan-card.is-selected .plan-card__body { padding-top: 18px; padding-bottom: 18px; }
+    .plan-card.is-selected .plan-card__footer { padding-bottom: 22px; }
+    /* Even more prominent on desktop */
+    @media (min-width: 768px) { .plan-card.is-selected .plan-card__header { padding-top: 42px; padding-bottom: 22px; } }
+    @media (min-width: 768px) { .plan-card.is-selected .plan-card__body { padding-top: 20px; padding-bottom: 20px; } }
+    @media (min-width: 768px) { .plan-card.is-selected .plan-card__footer { padding-bottom: 26px; } }
+    /* Larger price on selected card */
+    .plan-card.is-selected .plan-card__amount { font-size: 42px; }
+    @media (min-width: 768px) { .plan-card.is-selected .plan-card__amount { font-size: 46px; } }
 
     .plan-card__badge {
       display: inline-block; margin-bottom: 8px;
