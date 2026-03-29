@@ -276,14 +276,14 @@
     ═══════════════════════════════════ */
     /* Mobile: section-level padding creates equal breathing room around image (Youi pattern) */
     /* Height determined naturally by content — next white section peeks based on content length */
-    .hero { background: var(--color-hero); display: flex; flex-direction: column; padding: 32px 32px 0; }
+    .hero { background: var(--color-hero); display: flex; flex-direction: column; padding: 16px 16px 0; }
     /* Image container has no padding — breathing room comes from the section */
     .hero__visual { width: 100%; overflow: hidden; line-height: 0; }
     /* Youi-style: rounded corners float naturally within the section padding */
     .hero__visual img { width: 100%; height: 240px; object-fit: cover; object-position: center 20%; display: block; border-radius: 16px; }
     .hero__content {
       background: var(--color-hero);
-      padding: 32px 0 32px; /* equal 32px on top and bottom matches hero section's side/top padding */
+      padding: 16px 0 32px; /* top matches hero section's 16px side/top padding; left/right 0 aligns with image edges */
       display: flex; flex-direction: column;
       align-items: flex-start; text-align: left; /* Youi-style: left-aligned editorial feel */
       flex: 1;                  /* fills remaining height below image */
