@@ -170,8 +170,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 0;
-      pointer-events: none;
+      opacity: 1;
+      pointer-events: auto;
       transition: opacity var(--transition-fast);
     }
     .header__icon-img { width: 24px; height: 24px; }
@@ -274,10 +274,11 @@
        Mobile: img top → dark content below
        Desktop: full-bleed bg-image, dark left panel, content overlaid
     ═══════════════════════════════════ */
-    .hero { background: var(--color-hero); display: flex; flex-direction: column; }
+    /* min-height fills viewport on mobile; desktop overrides this with 660px in its own media query */
+    .hero { background: var(--color-hero); display: flex; flex-direction: column; min-height: calc(100vh - 64px); }
     .hero__visual { width: 100%; overflow: hidden; line-height: 0; }
     /* Mobile: image tall enough to show subject naturally, content tightened to fit above fold */
-    .hero__visual img { width: 100%; height: 200px; object-fit: cover; object-position: center 20%; display: block; }
+    .hero__visual img { width: 100%; height: 240px; object-fit: cover; object-position: center 20%; display: block; }
     .hero__content {
       background: var(--color-hero);
       padding: 14px 20px 24px;
@@ -656,7 +657,7 @@
 
       <!-- Col 3: Right (44px) — icon mark on mobile scroll / CTA on desktop -->
       <div class="header__right">
-        <a href="index.html" class="header__icon-link" aria-label="Prisoncall Australia — home">
+        <a href="choose-plan.html" class="header__icon-link" aria-label="Get Prisoncall now">
           <img src="assets/brand_logos/Prisoncall_Icon_BLACK.svg" alt="Prisoncall Australia" class="header__icon-img">
         </a>
         <div class="header__desktop-cta">
