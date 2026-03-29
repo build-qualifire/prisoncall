@@ -276,18 +276,17 @@
     ═══════════════════════════════════ */
     /* 100vh - 80px = header (64px) + desired peek gap (16px) — next section always peeks by exactly 16px */
     /* Mobile: section-level padding creates equal breathing room around image (Youi pattern) */
-    .hero { background: var(--color-hero); display: flex; flex-direction: column; min-height: calc(100vh - 80px); padding: 16px 16px 0; }
+    .hero { background: var(--color-hero); display: flex; flex-direction: column; min-height: calc(100vh - 80px); padding: 32px 32px 0; }
     /* Image container has no padding — breathing room comes from the section */
     .hero__visual { width: 100%; overflow: hidden; line-height: 0; }
     /* Youi-style: rounded corners float naturally within the section padding */
     .hero__visual img { width: 100%; height: 240px; object-fit: cover; object-position: center 20%; display: block; border-radius: 16px; }
     .hero__content {
       background: var(--color-hero);
-      padding: 20px 0 28px; /* left/right 0 — section padding already provides 16px from edge; content aligns with image */
+      padding: 0 0 28px; /* left/right 0 — section padding provides 32px from edge; content aligns with image */
       display: flex; flex-direction: column;
       align-items: flex-start; text-align: left; /* Youi-style: left-aligned editorial feel */
       flex: 1;                  /* fills remaining height below image */
-      justify-content: flex-end; /* pushes content cluster to bottom — white section peeks below */
     }
     .hero__inner { max-width: 520px; width: 100%; }
     .hero__badge {
