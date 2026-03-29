@@ -985,10 +985,28 @@
       scrollToEl(getStepEl(2), true);
     });
 
-    /* Format as user types */
+    /* Format as user types — preserving cursor position */
     input.addEventListener('input', function(){
-      var d = input.value.replace(/\D/g,'').slice(0,10);
-      input.value = formatMobile(d);
+      var val     = input.value;
+      var pos     = input.selectionStart;
+      /* How many digit characters sat before the cursor in the raw string */
+      var dBefore = val.slice(0, pos).replace(/\D/g, '').length;
+      /* Rebuild formatted value */
+      var digits  = val.replace(/\D/g, '').slice(0, 10);
+      var fmt     = formatMobile(digits);
+      input.value = fmt;
+      /* Restore cursor: walk the formatted string counting digits until we reach dBefore */
+      var newPos = fmt.length; /* default: end of string */
+      var cnt    = 0;
+      for (var i = 0; i < fmt.length; i++) {
+        if (cnt === dBefore) {
+          /* Skip a formatting space so the cursor lands on the next digit slot */
+          newPos = (fmt[i] === ' ') ? i + 1 : i;
+          break;
+        }
+        if (/\d/.test(fmt[i])) cnt++;
+      }
+      input.setSelectionRange(newPos, newPos);
       input.classList.remove('has-error'); error.classList.remove('is-visible');
     });
 
@@ -1011,7 +1029,30 @@
       snapCarouselToKey(s4, 'monthly');
     }
     cont.addEventListener('click', doValidate);
-    input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doValidate(); } });
+
+    /* Backspace on a formatting space: delete the digit before the space instead of the space */
+    input.addEventListener('keydown', function(e){
+      if (e.key === 'Backspace' && input.selectionStart === input.selectionEnd) {
+        var pos = input.selectionStart;
+        var val = input.value;
+        if (pos > 1 && val[pos - 1] === ' ') {
+          e.preventDefault();
+          /* Remove the digit immediately before the space */
+          var digits  = (val.slice(0, pos - 2) + val.slice(pos - 1)).replace(/\D/g, '').slice(0, 10);
+          var dBefore = val.slice(0, pos - 2).replace(/\D/g, '').length;
+          var fmt     = formatMobile(digits);
+          input.value = fmt;
+          var newPos = fmt.length, cnt = 0;
+          for (var i = 0; i < fmt.length; i++) {
+            if (cnt === dBefore) { newPos = (fmt[i] === ' ') ? i + 1 : i; break; }
+            if (/\d/.test(fmt[i])) cnt++;
+          }
+          input.setSelectionRange(newPos, newPos);
+          input.classList.remove('has-error'); error.classList.remove('is-visible');
+        }
+      }
+      if (e.key === 'Enter') { e.preventDefault(); doValidate(); }
+    });
   }
 
   function wireStep4(el){
