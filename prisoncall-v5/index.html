@@ -634,7 +634,11 @@
       z-index: 100; display: none;
     }
     .floating-cta .btn { width: 100%; font-size: 16px; padding: 16px 24px; }
-    @media (max-width: 767px) { .floating-cta { display: block; } }
+    @media (max-width: 767px) {
+      .floating-cta { display: block; }
+      /* Push footer content above the fixed floating CTA (12px top + 16px btn padding + 16px font + 20px bottom ≈ 85px) */
+      .footer { padding-bottom: 90px; }
+    }
 
     /* ─── Utility ─── */
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
