@@ -275,15 +275,15 @@
        Desktop: full-bleed bg-image, dark left panel, content overlaid
     ═══════════════════════════════════ */
     /* 100vh - 80px = header (64px) + desired peek gap (16px) — next section always peeks by exactly 16px */
-    .hero { background: var(--color-hero); display: flex; flex-direction: column; min-height: calc(100vh - 80px); }
-    /* Equal 16px gap on all four sides — image floats as a card with consistent breathing room */
-    .hero__visual { width: 100%; overflow: hidden; line-height: 0; padding: 16px; }
-    /* Mobile: image tall enough to show subject naturally, content tightened to fit above fold */
-    /* Youi-style: inset from screen edges with rounded corners — card-like, not flush */
+    /* Mobile: section-level padding creates equal breathing room around image (Youi pattern) */
+    .hero { background: var(--color-hero); display: flex; flex-direction: column; min-height: calc(100vh - 80px); padding: 16px 16px 0; }
+    /* Image container has no padding — breathing room comes from the section */
+    .hero__visual { width: 100%; overflow: hidden; line-height: 0; }
+    /* Youi-style: rounded corners float naturally within the section padding */
     .hero__visual img { width: 100%; height: 240px; object-fit: cover; object-position: center 20%; display: block; border-radius: 16px; }
     .hero__content {
       background: var(--color-hero);
-      padding: 20px 20px 28px;
+      padding: 20px 0 28px; /* left/right 0 — section padding already provides 16px from edge; content aligns with image */
       display: flex; flex-direction: column;
       align-items: flex-start; text-align: left; /* Youi-style: left-aligned editorial feel */
       flex: 1;                  /* fills remaining height below image */
@@ -338,6 +338,7 @@
         min-height: 660px; background-color: var(--color-hero);
         background-image: url('assets/images/hero1.png');
         background-size: cover; background-position: center right; background-repeat: no-repeat;
+        padding: 0; /* reset mobile section padding — desktop uses full-bleed layout */
       }
       .hero__visual { display: none; }
       .hero__content {
