@@ -176,8 +176,8 @@
       margin: 0 auto;
       padding: 32px 20px 80px;
     }
-    @media (min-width: 768px) { .cp-wrap { padding: 48px 32px 96px; } }
-    @media (min-width: 1024px) { .cp-wrap { padding: 56px 0 96px; } }
+    @media (min-width: 768px) { .cp-wrap { max-width: 920px; padding: 48px 32px 96px; } }
+    @media (min-width: 1024px) { .cp-wrap { max-width: 920px; padding: 56px 40px 96px; } }
 
     .cp-heading { font-size: 26px; font-weight: 800; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 4px; }
     @media (min-width: 768px) { .cp-heading { font-size: 34px; } }
@@ -191,15 +191,14 @@
       background: var(--color-green-mid); border-radius: var(--radius-md);
       padding: 14px 18px; margin-bottom: 40px;
     }
-    .trust-avatars { display: flex; flex-shrink: 0; }
+    .trust-avatars { display: flex; flex-shrink: 0; transition: opacity 220ms ease; }
     .trust-av {
       width: 34px; height: 34px; border-radius: 50%;
       border: 2.5px solid var(--color-white); object-fit: cover;
       background: var(--color-border); display: block;
-      transition: opacity 350ms ease;
     }
     .trust-av + .trust-av { margin-left: -9px; }
-    .trust-text { font-size: 13px; font-weight: 600; color: #1a5c33; line-height: 1.4; }
+    .trust-text { font-size: 13px; font-weight: 600; color: #1a5c33; line-height: 1.4; transition: opacity 220ms ease; }
 
     /* ═══════════════════════════════
        STEP SECTIONS
@@ -288,32 +287,34 @@
     @media (min-width: 768px) { .carousel-outer { overflow: visible; margin: 0; } }
 
     .carousel-track {
-      display: flex; gap: 12px;
+      display: flex; gap: 12px; align-items: center;
       overflow-x: scroll; scroll-snap-type: x mandatory; scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch; scrollbar-width: none;
-      padding: 6px 10% 20px;
+      padding: 8px 10% 20px;
     }
     .carousel-track::-webkit-scrollbar { display: none; }
 
     @media (min-width: 768px) {
       .carousel-track {
         overflow: visible; scroll-snap-type: none;
-        padding: 24px 0 16px; gap: 10px;
-        align-items: flex-end; /* cards bottom-align so Monthly grows up */
+        padding: 28px 0 16px; gap: 12px;
+        align-items: center; /* Monthly floats by being taller, centred vertically */
       }
     }
 
     /* ─── Plan card ─── */
     .plan-card {
-      flex: 0 0 80%; scroll-snap-align: center;
+      flex: 0 0 76%; scroll-snap-align: center; /* non-monthly cards slightly narrower */
       border: 2px solid var(--color-border); border-radius: var(--radius-md);
       overflow: hidden; cursor: pointer; background: var(--color-white);
       transition: border-color var(--tr); display: flex; flex-direction: column;
       user-select: none;
     }
+    /* Monthly visibly wider on mobile */
+    .plan-card--monthly { flex: 0 0 84%; }
     @media (min-width: 768px) { .plan-card { flex: 1; scroll-snap-align: none; } }
-    /* Monthly card is larger on desktop */
-    @media (min-width: 768px) { .plan-card--monthly { flex: 1.45; } }
+    /* Monthly card is larger on desktop — overrides mobile width */
+    @media (min-width: 768px) { .plan-card--monthly { flex: 1.5; } }
 
     .plan-card:hover { border-color: #bbb; }
     .plan-card.is-selected { border-color: var(--color-black); }
@@ -323,8 +324,17 @@
       border-bottom: 1px solid var(--color-border);
       transition: background var(--tr), border-color var(--tr);
     }
-    /* Monthly gets taller header on desktop for prominence */
-    @media (min-width: 768px) { .plan-card--monthly .plan-card__header { padding-top: 32px; } }
+    /* Monthly taller on mobile — creates floating centred effect */
+    .plan-card--monthly .plan-card__header { padding-top: 26px; padding-bottom: 18px; }
+    .plan-card--monthly .plan-card__body { padding-top: 18px; padding-bottom: 18px; }
+    .plan-card--monthly .plan-card__footer { padding-bottom: 22px; }
+    /* Monthly even more prominent on desktop */
+    @media (min-width: 768px) { .plan-card--monthly .plan-card__header { padding-top: 42px; padding-bottom: 22px; } }
+    @media (min-width: 768px) { .plan-card--monthly .plan-card__body { padding-top: 20px; padding-bottom: 20px; } }
+    @media (min-width: 768px) { .plan-card--monthly .plan-card__footer { padding-bottom: 26px; } }
+    /* Slightly larger price on Monthly */
+    .plan-card--monthly .plan-card__amount { font-size: 42px; }
+    @media (min-width: 768px) { .plan-card--monthly .plan-card__amount { font-size: 46px; } }
 
     .plan-card.is-selected .plan-card__header { background: var(--color-black); border-bottom-color: transparent; }
 
@@ -401,6 +411,8 @@
       transition: background var(--tr), color var(--tr);
     }
     .summary-line__remove:hover { background: #d0d0d0; color: var(--color-black); }
+    .summary-line--editing { opacity: 0.45; pointer-events: none; }
+    .summary-line__editing-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-muted); margin-left: 8px; }
 
     /* ─── Add another plan ─── */
     .add-plan-btn {
@@ -690,7 +702,7 @@
   });
 
   /* ═══════════════════════════════════════════════════════
-     TRUST BANNER — randomise + cycle
+     TRUST BANNER — randomise + cycle all 3 + text together
   ═══════════════════════════════════════════════════════ */
   function pickRand(arr, exclude){
     var pool = exclude ? arr.filter(function(x){ return exclude.indexOf(x)<0; }) : arr.slice();
@@ -698,65 +710,64 @@
     return pool[Math.floor(Math.random()*pool.length)];
   }
 
-  var trustImgs  = []; // the 3 <img> elements
-  var trustSlots = []; // { name, av } — slot 0 & 1 have names, slot 2 has null name
+  var trustImgs = []; // the 3 <img> elements
+  var currentTrustSet = null; // { names:[n1,n2], avatars:[a1,a2,a3] }
 
-  function buildInitialTrust(){
+  function buildTrustSet(prevAvatars, prevNames){
     var g1 = Math.random()<0.5?'f':'m';
-    var n1 = pickRand(g1==='f'?F_NAMES:M_NAMES, null);
-    var a1 = pickRand(g1==='f'?F_AV:M_AV, null);
+    var n1 = pickRand(g1==='f'?F_NAMES:M_NAMES, prevNames||null);
+    var a1 = pickRand(g1==='f'?F_AV:M_AV, prevAvatars||null);
     var g2 = Math.random()<0.5?'f':'m';
-    var n2 = pickRand(g2==='f'?F_NAMES:M_NAMES, [n1]);
+    var n2 = pickRand(g2==='f'?F_NAMES:M_NAMES, (prevNames||[]).concat([n1]));
     var a2 = pickRand(g2==='f'?F_AV:M_AV, [a1]);
-    var a3 = pickRand(ALL_AV, [a1,a2]);
-    trustSlots = [
-      {name:n1, av:a1, gender:g1},
-      {name:n2, av:a2, gender:g2},
-      {name:null, av:a3, gender:null}
-    ];
+    var a3 = pickRand(ALL_AV, [a1, a2]);
+    return { names:[n1,n2], avatars:[a1,a2,a3] };
+  }
+
+  /* Build and show initial trust set */
+  (function initTrust(){
+    var set = buildTrustSet(null, null);
+    currentTrustSet = set;
     var wrap = document.getElementById('trustAvatars');
-    trustSlots.forEach(function(slot, i){
+    set.avatars.forEach(function(av){
       var img = document.createElement('img');
-      img.className = 'trust-av'; img.alt = ''; img.src = 'assets/images/'+slot.av;
+      img.className = 'trust-av'; img.alt = ''; img.src = 'assets/images/'+av;
       wrap.appendChild(img);
       trustImgs.push(img);
     });
-    updateTrustText();
-  }
-
-  function updateTrustText(){
     document.getElementById('trustText').textContent =
-      trustSlots[0].name + ', ' + trustSlots[1].name + ' & 2,500+ others recommend Prisoncall';
-  }
+      set.names[0]+', '+set.names[1]+' & 2,500+ others recommend Prisoncall';
+  })();
 
-  function cycleSlot(idx){
-    var img = trustImgs[idx];
-    img.style.opacity = '0';
-    setTimeout(function(){
-      var curAvs = trustSlots.map(function(s){ return s.av; });
-      if(idx < 2){
-        var g = Math.random()<0.5?'f':'m';
-        var otherNames = trustSlots.filter(function(s,i){ return i!==idx && s.name; }).map(function(s){ return s.name; });
-        var newName = pickRand(g==='f'?F_NAMES:M_NAMES, otherNames);
-        var newAv   = pickRand(g==='f'?F_AV:M_AV, curAvs.filter(function(a,i){ return i!==idx; }));
-        trustSlots[idx] = {name:newName, av:newAv, gender:g};
-        updateTrustText();
-      } else {
-        var newAv = pickRand(ALL_AV, [trustSlots[0].av, trustSlots[1].av]);
-        trustSlots[2] = {name:null, av:newAv, gender:null};
-      }
-      img.src = 'assets/images/'+trustSlots[idx].av;
-      img.style.opacity = '1';
-    }, 360);
-  }
-
-  buildInitialTrust();
-
-  var cycleSlotIdx = 0;
+  /* Cycle all 3 avatars + text simultaneously every 2s */
   setInterval(function(){
-    cycleSlot(cycleSlotIdx % 3);
-    cycleSlotIdx++;
-  }, 3500);
+    var avWrap = document.getElementById('trustAvatars');
+    var textEl = document.getElementById('trustText');
+    /* Fade out everything at once */
+    avWrap.style.opacity = '0';
+    textEl.style.opacity = '0';
+    setTimeout(function(){
+      /* Pick new set avoiding current combination */
+      var prevAv = currentTrustSet ? currentTrustSet.avatars : [];
+      var prevNm = currentTrustSet ? currentTrustSet.names   : [];
+      var newSet;
+      var tries = 0;
+      do {
+        newSet = buildTrustSet(prevAv, prevNm);
+        tries++;
+      } while(tries < 10 &&
+              newSet.avatars.join(',') === prevAv.join(',') &&
+              newSet.names.join(',')   === prevNm.join(','));
+      currentTrustSet = newSet;
+      /* Update all images */
+      trustImgs.forEach(function(img, i){ img.src = 'assets/images/'+newSet.avatars[i]; });
+      /* Update text */
+      textEl.textContent = newSet.names[0]+', '+newSet.names[1]+' & 2,500+ others recommend Prisoncall';
+      /* Fade in everything at once */
+      avWrap.style.opacity = '1';
+      textEl.style.opacity = '1';
+    }, 240); /* matches CSS transition duration */
+  }, 2000);
 
   /* ═══════════════════════════════════════════════════════
      APP STATE
@@ -770,6 +781,19 @@
   var planFlow      = document.getElementById('planFlow');
   var completedArea = document.getElementById('completedArea');
 
+  /* ─── Scroll gating — prevents scrolling back above the active step ─── */
+  var gateY      = 0;
+  var gateActive = false;
+
+  function setGate(y){ gateY = Math.max(0, Math.round(y)); gateActive = true; }
+  function clearGate(){ gateActive = false; gateY = 0; }
+
+  window.addEventListener('scroll', function(){
+    if(gateActive && window.pageYOffset < gateY){
+      window.scrollTo(0, gateY);
+    }
+  });
+
   /* ─── URL param ─── */
   function getUrlState(){
     try {
@@ -780,12 +804,16 @@
   }
 
   /* ─── Smooth scroll to element (below sticky header) ─── */
-  function scrollToEl(el){
+  function scrollToEl(el, enableGate){
     if(!el) return;
     setTimeout(function(){
       var headerH = document.getElementById('siteHeader').offsetHeight;
-      var top = el.getBoundingClientRect().top + window.pageYOffset - headerH - 16;
-      window.scrollTo({ top: Math.max(0, top), behavior:'smooth' });
+      var top = Math.max(0, el.getBoundingClientRect().top + window.pageYOffset - headerH - 16);
+      window.scrollTo({ top: top, behavior:'smooth' });
+      if(enableGate){
+        /* Set gate after smooth scroll animation completes (~650ms) */
+        setTimeout(function(){ setGate(window.pageYOffset); }, 700);
+      }
     }, 60);
   }
 
@@ -847,7 +875,7 @@
       '<h2 class="step-heading">Your mobile number</h2>',
       '<p class="mobile-hint">Your loved one\'s calls will be forwarded to this number.</p>',
       '<input class="mobile-input" type="tel" inputmode="numeric" placeholder="04xx xxx xxx" maxlength="14" autocomplete="tel" value="'+fmtMobile+'">',
-      '<p class="mobile-error">Please enter a valid Australian mobile starting with 04 (10 digits total).</p>',
+      '<p class="mobile-error">Please enter a valid Australian mobile number (e.g. 0412 345 678)</p>',
       '<button class="mobile-continue" type="button">Continue &rarr;</button>'
     ].join('');
     return el;
@@ -913,14 +941,15 @@
         var s2 = buildStep2El(sv, null);
         planFlow.appendChild(s2);
         wireStep2(s2);
-        scrollToEl(s2);
+        scrollToEl(s2, true);
       });
     });
   }
 
   function wireStep2(el){
-    /* Back */
+    /* Back — release gate so user can scroll back to step 1 */
     el.querySelector('[data-back="2"]').addEventListener('click', function(){
+      clearGate();
       removeStepsFrom(2);
       if(cur){ cur.prison = null; cur.mobile = null; cur.planKey = null; }
       scrollToEl(getStepEl(1));
@@ -932,7 +961,7 @@
         /* Same prison: just scroll to step 3 */
         if(cur && cur.prison === prison){
           var s3 = getStepEl(3);
-          if(s3){ scrollToEl(s3); return; }
+          if(s3){ scrollToEl(s3, true); return; }
         }
         el.querySelectorAll('.prison-pill').forEach(function(p){ p.classList.remove('is-active'); });
         pill.classList.add('is-active');
@@ -941,7 +970,7 @@
         var s3 = buildStep3El(null);
         planFlow.appendChild(s3);
         wireStep3(s3);
-        scrollToEl(s3);
+        scrollToEl(s3, true);
       });
     });
   }
@@ -951,11 +980,12 @@
     var error = el.querySelector('.mobile-error');
     var cont  = el.querySelector('.mobile-continue');
 
-    /* Back */
+    /* Back — release gate so user can scroll to step 2, then re-gate at step 2 */
     el.querySelector('[data-back="3"]').addEventListener('click', function(){
+      clearGate();
       removeStepsFrom(3);
       if(cur){ cur.mobile = null; cur.planKey = null; }
-      scrollToEl(getStepEl(2));
+      scrollToEl(getStepEl(2), true);
     });
 
     /* Format as user types */
@@ -974,12 +1004,12 @@
       if(cur){ cur.mobile = digits; }
       /* Same mobile — scroll to step 4 if it exists */
       var s4 = getStepEl(4);
-      if(s4){ scrollToEl(s4); return; }
+      if(s4){ scrollToEl(s4, true); return; }
       removeStepsFrom(4);
       s4 = buildStep4El(null);
       planFlow.appendChild(s4);
       wireStep4(s4);
-      scrollToEl(s4);
+      scrollToEl(s4, true);
       /* Pre-scroll carousel to Monthly after render */
       snapCarouselToKey(s4, 'monthly');
     }
@@ -988,11 +1018,12 @@
   }
 
   function wireStep4(el){
-    /* Back */
+    /* Back — release gate so user can scroll to step 3, then re-gate at step 3 */
     el.querySelector('[data-back="4"]').addEventListener('click', function(){
+      clearGate();
       removeStepsFrom(4);
       if(cur){ cur.planKey = null; }
-      scrollToEl(getStepEl(3));
+      scrollToEl(getStepEl(3), true);
     });
 
     /* Carousel scroll debounce for tap-vs-swipe detection */
@@ -1065,17 +1096,20 @@
     if(!cur) return;
     cur.planKey = planKey;
     if(editId !== null){
+      /* Entry stays in entries — update it in-place */
       var idx = entries.findIndex(function(e){ return e.id === editId; });
       if(idx >= 0) entries[idx] = Object.assign({}, cur, {id:editId});
+      else entries.push(Object.assign({}, cur, {id:editId}));
       editId = null;
     } else {
       entries.push(Object.assign({}, cur));
     }
     cur = null;
     planFlow.innerHTML = '';
+    clearGate();
     renderCompletedArea();
-    /* Scroll to completed area */
-    scrollToEl(completedArea);
+    /* Scroll to completed area and gate there */
+    scrollToEl(completedArea, true);
   }
 
   /* ═══════════════════════════════════════════════════════
@@ -1087,31 +1121,29 @@
     cur = Object.assign({}, entry);
     editId = id;
 
-    /* Remove from entries temporarily so summary doesn't show it */
-    entries = entries.filter(function(e){ return e.id !== id; });
+    /* Keep entry in entries so summary (+ CTA + add button) remains visible */
 
     planFlow.innerHTML = '';
 
-    /* Inject step 1 (pre-selected state, no cascade) */
+    /* Inject all 4 steps pre-filled so user can jump to any step */
     var s1 = buildStep1El(entry.state);
     planFlow.appendChild(s1);
     wireStep1(s1);
 
-    /* Inject step 2 pre-filled (no scroll) */
     var s2 = buildStep2El(entry.state, entry.prison);
     planFlow.appendChild(s2);
     wireStep2(s2);
 
-    /* Inject step 3 pre-filled (no scroll) */
     var s3 = buildStep3El(entry.mobile);
     planFlow.appendChild(s3);
     wireStep3(s3);
 
-    /* Inject step 4 pre-filled (no scroll) */
     var s4 = buildStep4El(entry.planKey);
     planFlow.appendChild(s4);
     wireStep4(s4);
 
+    /* Release gate so page can scroll back up to the edit steps */
+    clearGate();
     renderCompletedArea();
     scrollToEl(s1);
 
@@ -1124,23 +1156,24 @@
   ═══════════════════════════════════════════════════════ */
   function renderCompletedArea(){
     var html = '';
-    var hasEntries = entries.length > 0;
-    var isEditing  = editId !== null || (cur !== null);
-    var isBundle   = entries.length >= 2;
-    var rawTotal   = entries.reduce(function(s,e){
+    var hasEntries      = entries.length > 0;
+    var isActivelyAdding = cur !== null && editId === null; /* filling a brand new plan */
+    var isBundle        = entries.length >= 2;
+    var rawTotal        = entries.reduce(function(s,e){
       var p = PLANS.find(function(p){ return p.key===e.planKey; });
       return s + (p ? p.amount : 0);
     }, 0);
     var finalTotal = isBundle ? Math.round(rawTotal * 0.9) : rawTotal;
 
-    /* Summary lines */
+    /* Summary lines — entry being edited shown dimmed with tag */
     entries.forEach(function(e){
       var plan = PLANS.find(function(p){ return p.key===e.planKey; });
       if(!plan) return;
+      var isBeingEdited = (editId === e.id);
       html += [
-        '<div class="summary-line">',
+        '<div class="summary-line'+(isBeingEdited?' summary-line--editing':'')+'">',
           '<div class="summary-line__info">',
-            '<p class="summary-line__prison">'+escHtml(e.prison)+'</p>',
+            '<p class="summary-line__prison">'+escHtml(e.prison)+(isBeingEdited?'<span class="summary-line__editing-tag">Editing&hellip;</span>':'')+'</p>',
             '<p class="summary-line__meta">'+e.state.toUpperCase()+' &middot; '+escHtml(maskMobile(e.mobile))+' &middot; '+plan.name+'</p>',
           '</div>',
           '<div class="summary-line__right">',
@@ -1167,15 +1200,16 @@
       html += '<div class="order-total"><span class="order-total__label">Total</span><span class="order-total__val">'+totalHtml+'</span></div>';
     }
 
-    /* Add another plan button */
-    var showAdd = hasEntries && !isEditing && entries.length < MAX_PLANS && cur === null;
+    /* Add another plan: always visible when entries exist and below max.
+       Hidden only while actively filling a brand-new plan (not during edit). */
+    var showAdd = hasEntries && entries.length < MAX_PLANS && !isActivelyAdding;
     if(showAdd){
       html += '<button class="add-plan-btn" id="addPlanBtn" type="button">'+
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'+
-        'Add another plan for a different person</button>';
+        'Add another plan</button>';
     }
 
-    /* Checkout CTA */
+    /* Checkout CTA: always rendered, disabled only when no completed entries */
     var ctaDisabled = !hasEntries;
     html += '<a href="#" class="checkout-cta'+(ctaDisabled?' is-disabled':'')+'" id="checkoutBtn"'+(ctaDisabled?' aria-disabled="true"':'')+'>Activate my number now</a>';
 
@@ -1187,7 +1221,10 @@
     });
     completedArea.querySelectorAll('[data-remove-id]').forEach(function(btn){
       btn.addEventListener('click', function(){
-        entries = entries.filter(function(e){ return e.id !== parseInt(btn.dataset.removeId, 10); });
+        var removedId = parseInt(btn.dataset.removeId, 10);
+        /* If removing the entry currently being edited, cancel the edit */
+        if(editId === removedId){ editId = null; cur = null; planFlow.innerHTML = ''; clearGate(); }
+        entries = entries.filter(function(e){ return e.id !== removedId; });
         renderCompletedArea();
       });
     });
@@ -1211,6 +1248,7 @@
   function startNewPlan(preState){
     cur    = { id: nextId++, state: null, prison: null, mobile: null, planKey: null };
     editId = null;
+    clearGate(); /* allow scrolling up to the new step 1 */
     planFlow.innerHTML = '';
     var s1 = buildStep1El(preState);
     planFlow.appendChild(s1);
