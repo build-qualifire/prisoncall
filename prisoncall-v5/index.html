@@ -72,30 +72,31 @@
       font-weight: 700;
       line-height: 1;
       padding: 15px 28px;
-      transition: opacity var(--transition-fast), transform var(--transition-fast);
+      transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast), transform var(--transition-fast);
       white-space: nowrap;
       cursor: pointer;
       text-decoration: none;
     }
     .btn:hover { opacity: 0.88; transform: translateY(-1px); }
     .btn:active { transform: translateY(0); opacity: 1; }
-    .btn--green  { background: var(--color-green); color: var(--color-black); border: 2px solid var(--color-green); }
-    .btn--black  { background: var(--color-black); color: var(--color-white); border: 2px solid var(--color-black); }
+    .btn--green { background: var(--color-green); color: var(--color-black); border: 2px solid var(--color-green); }
+    .btn--black { background: var(--color-black); color: var(--color-white); border: 2px solid var(--color-black); }
     .btn--ghost  { background: var(--color-white); color: var(--color-black); border: 2px solid var(--color-green); }
     .btn--lg     { font-size: 17px; padding: 18px 36px; }
-    @media (max-width: 767px) {
-      .btn--mobile-full { width: 100%; }
-    }
+    @media (max-width: 767px) { .btn--mobile-full { width: 100%; } }
 
-    /* ─── Gold star filter ─── */
+    /* ─── Gold star filter (hero + reviews rating row only) ─── */
     .star-gold {
       filter: brightness(0) saturate(100%) invert(71%) sepia(93%) saturate(448%) hue-rotate(358deg) brightness(102%);
     }
 
-    /* ═══════════════════════════════════
-       HEADER — 3 elements, all screen sizes
-       grid: [hamburger] [logo] [cta]
-    ═══════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════════════
+       HEADER
+       Layout: grid [hamburger] [logo] [cta] — all screen sizes
+       Scroll behaviour:
+         Desktop — CTA black → green when hero CTA leaves view
+         Mobile  — CTA hidden, wordmark logo → on scroll: show green CTA, swap to icon mark
+    ═══════════════════════════════════════════════════════════ */
     .header {
       position: sticky;
       top: 0;
@@ -110,6 +111,8 @@
       align-items: center;
       height: 100%;
     }
+
+    /* Hamburger — always left */
     .header__hamburger {
       justify-self: start;
       display: flex;
@@ -117,17 +120,37 @@
       justify-content: center;
       width: 44px;
       height: 44px;
-      flex-shrink: 0;
     }
     .header__hamburger img { width: 24px; height: 24px; }
+
+    /* Logo — always centred, contains both wordmark and icon */
     .header__logo {
       justify-self: center;
       display: flex;
       align-items: center;
+      position: relative;
+      height: 32px;
     }
-    .header__logo img { height: 26px; width: auto; }
+    .header__logo-wordmark,
+    .header__logo-icon {
+      height: 26px;
+      width: auto;
+      transition: opacity var(--transition-fast);
+    }
+    /* Icon sits on top of wordmark, invisible by default */
+    .header__logo-icon {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      pointer-events: none;
+      height: 28px; /* icon mark is square — slightly larger */
+    }
+
+    /* CTA — always right */
     .header__cta {
       justify-self: end;
+      transition: opacity var(--transition-fast);
     }
     .header__cta .btn {
       padding: 9px 16px;
@@ -135,14 +158,48 @@
       white-space: nowrap;
     }
 
-    @media (min-width: 640px) {
-      .header__logo img { height: 30px; }
-      .header__cta .btn { padding: 11px 20px; font-size: 14px; }
+    /* ── Mobile: hide CTA + keep wordmark by default ── */
+    @media (max-width: 767px) {
+      .header__cta {
+        opacity: 0;
+        pointer-events: none;
+      }
+      /* When scrolled: show green CTA + swap to icon */
+      .header--scrolled .header__cta {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .header--scrolled .header__cta .btn {
+        background: var(--color-green);
+        color: var(--color-black);
+        border-color: var(--color-green);
+      }
+      .header--scrolled .header__logo-wordmark {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .header--scrolled .header__logo-icon {
+        opacity: 1;
+        pointer-events: auto;
+      }
     }
+
+    /* ── Desktop: always show CTA (black), turns green on scroll ── */
     @media (min-width: 768px) {
       .header { height: var(--header-height); }
-      .header__logo img { height: 32px; }
+      .header__logo-wordmark { height: 32px; }
+      .header__logo-icon { height: 34px; }
       .header__cta .btn { padding: 12px 24px; font-size: 15px; }
+      /* CTA always visible on desktop */
+      .header__cta { opacity: 1; pointer-events: auto; }
+      /* Turn green when scrolled */
+      .header--scrolled .header__cta .btn {
+        background: var(--color-green);
+        color: var(--color-black);
+        border-color: var(--color-green);
+      }
+      /* Never show icon mark on desktop */
+      .header__logo-icon { display: none; }
     }
 
     /* ═══════════════════════════════════
@@ -173,41 +230,24 @@
       justify-self: start;
     }
     .mobile-menu__logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
     }
     .mobile-menu__logo img { height: 26px; width: auto; }
     .mobile-menu__body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0 24px 40px;
+      flex: 1; overflow-y: auto; padding: 0 24px 40px;
     }
     .mobile-menu__links { display: flex; flex-direction: column; }
     .mobile-menu__links a {
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--color-black);
-      padding: 18px 0;
-      border-bottom: 1px solid var(--color-border);
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      font-size: 17px; font-weight: 600; color: var(--color-black);
+      padding: 18px 0; border-bottom: 1px solid var(--color-border);
+      display: flex; align-items: center; gap: 10px;
     }
     .mobile-menu__links a:hover { color: var(--color-muted); }
-    .mobile-menu__social {
-      display: flex;
-      flex-direction: column;
-    }
+    .mobile-menu__social { display: flex; flex-direction: column; }
     .mobile-menu__social a {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--color-muted);
-      padding: 16px 0;
-      border-bottom: 1px solid var(--color-border);
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      font-size: 15px; font-weight: 500; color: var(--color-muted);
+      padding: 16px 0; border-bottom: 1px solid var(--color-border);
+      display: flex; align-items: center; gap: 10px;
     }
     .mobile-menu__cta { margin-top: 28px; }
     .mobile-menu__cta .btn { width: 100%; font-size: 16px; padding: 17px 24px; }
@@ -215,132 +255,79 @@
     /* ═══════════════════════════════════
        HERO
        Mobile: img top → dark content below
-       Desktop: full-bleed bg-image, dark left panel, content overlaid left
+       Desktop: full-bleed bg-image, dark left panel, content overlaid
     ═══════════════════════════════════ */
-    .hero {
-      background: var(--color-hero);
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── Mobile image (shown only on mobile via <picture>) ── */
+    .hero { background: var(--color-hero); display: flex; flex-direction: column; }
     .hero__visual { width: 100%; overflow: hidden; line-height: 0; }
     .hero__visual img { width: 100%; height: auto; display: block; }
-
-    /* ── Mobile content panel ── */
     .hero__content {
       background: var(--color-hero);
-      padding: 40px 24px 80px; /* extra bottom pad for floating CTA */
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
+      padding: 40px 24px 80px;
+      display: flex; flex-direction: column;
+      align-items: center; text-align: center;
     }
     .hero__inner { max-width: 520px; width: 100%; }
-
     .hero__badge {
-      display: inline-flex;
-      align-items: center;
-      background: rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.9);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 6px 14px;
-      border-radius: var(--radius-pill);
-      margin-bottom: 18px;
+      display: inline-flex; align-items: center;
+      background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9);
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 6px 14px; border-radius: var(--radius-pill); margin-bottom: 18px;
     }
     .hero__h1 {
-      font-size: 36px;
-      font-weight: 800;
-      line-height: 1.08;
-      color: var(--color-white);
-      letter-spacing: -0.02em;
-      margin-bottom: 14px;
+      font-size: 36px; font-weight: 800; line-height: 1.08;
+      color: var(--color-white); letter-spacing: -0.02em; margin-bottom: 14px;
     }
     .hero__subtext {
-      font-size: 17px;
-      font-weight: 400;
-      color: rgba(255,255,255,0.8);
-      margin-bottom: 18px;
-      line-height: 1.55;
+      font-size: 17px; font-weight: 400;
+      color: rgba(255,255,255,0.8); margin-bottom: 18px; line-height: 1.55;
     }
     .hero__rating {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      margin-bottom: 22px;
-      flex-wrap: wrap;
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; margin-bottom: 22px; flex-wrap: wrap;
     }
     .hero__stars { display: flex; gap: 2px; }
     .hero__stars img { width: 15px; height: 15px; }
     .hero__rating-text { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.72); }
     .hero__pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 28px;
+      display: flex; flex-wrap: wrap; gap: 8px;
+      justify-content: center; margin-bottom: 28px;
     }
     .hero__pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255,255,255,0.10);
-      color: rgba(255,255,255,0.88);
-      font-size: 13px;
-      font-weight: 500;
-      padding: 8px 14px;
-      border-radius: var(--radius-pill);
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.10); color: rgba(255,255,255,0.88);
+      font-size: 13px; font-weight: 500;
+      padding: 8px 14px; border-radius: var(--radius-pill);
     }
     .hero__pill img { width: 14px; height: 14px; flex-shrink: 0; }
     .hero__cta-wrap { width: 100%; margin-bottom: 22px; }
     .hero__cta-wrap .btn { width: 100%; font-size: 17px; padding: 18px 32px; }
     .hero__trust { display: flex; flex-direction: column; gap: 10px; align-items: center; }
     .hero__trust-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      color: rgba(255,255,255,0.72);
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.72);
     }
     .hero__trust-item img { width: 15px; height: 15px; flex-shrink: 0; }
 
-    /* ── Desktop hero: full-bleed background image ── */
     @media (min-width: 768px) {
       .hero {
-        position: relative;
-        flex-direction: row;
-        align-items: stretch;
-        min-height: 660px;
-        background-color: var(--color-hero);
+        position: relative; flex-direction: row; align-items: stretch;
+        min-height: 660px; background-color: var(--color-hero);
         background-image: url('assets/images/hero1.png');
-        background-size: cover;
-        background-position: center right;
-        background-repeat: no-repeat;
+        background-size: cover; background-position: center right; background-repeat: no-repeat;
       }
-      /* Hide the <picture> img on desktop — image is now in CSS background */
       .hero__visual { display: none; }
-
       .hero__content {
-        position: relative;
-        z-index: 2;
-        flex: 0 0 54%;
-        max-width: 54%;
-        background: rgba(16, 16, 16, 0.91);
+        position: relative; z-index: 2;
+        flex: 0 0 54%; max-width: 54%;
+        background: rgba(16,16,16,0.91);
         padding: 72px 56px;
-        align-items: flex-start;
-        text-align: left;
-        min-height: 660px;
-        justify-content: center;
+        align-items: flex-start; text-align: left;
+        min-height: 660px; justify-content: center;
       }
       .hero__inner { max-width: none; width: 100%; }
       .hero__h1 { font-size: 50px; }
       .hero__subtext { font-size: 18px; }
-      .hero__badge { margin-bottom: 22px; }
       .hero__pills { justify-content: flex-start; }
       .hero__trust { align-items: flex-start; }
       .hero__rating { justify-content: flex-start; }
@@ -355,12 +342,8 @@
     .section-pad { padding: 64px 0; }
     @media (min-width: 768px) { .section-pad { padding: 80px 0; } }
     .section-title {
-      font-size: 32px;
-      font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: -0.01em;
-      color: var(--color-black);
-      margin-bottom: 16px;
+      font-size: 32px; font-weight: 700; line-height: 1.1;
+      letter-spacing: -0.01em; color: var(--color-black); margin-bottom: 16px;
     }
     @media (min-width: 768px) { .section-title { font-size: 40px; } }
 
@@ -385,16 +368,10 @@
     .hiw__step:last-child .hiw__step-line { display: none; }
     .hiw__step-right { flex: 1; padding-top: 8px; }
     .hiw__step-badge {
-      display: inline-flex;
-      align-items: center;
-      background: var(--color-black);
-      color: var(--color-white);
-      font-size: 11px; font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 5px 14px;
-      border-radius: var(--radius-pill);
-      margin-bottom: 12px;
+      display: inline-flex; align-items: center;
+      background: var(--color-black); color: var(--color-white);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 5px 14px; border-radius: var(--radius-pill); margin-bottom: 12px;
     }
     .hiw__step-title { font-size: 20px; font-weight: 700; color: var(--color-black); margin-bottom: 10px; }
     .hiw__step-body { font-size: 15px; color: #333; line-height: 1.65; }
@@ -408,49 +385,71 @@
     ═══════════════════════════════════ */
     .why { background: var(--color-green-mid); }
     .why__header { margin-bottom: 48px; }
-    .why__grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
+    .why__grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
     @media (min-width: 640px) { .why__grid { grid-template-columns: 1fr 1fr; } }
     @media (min-width: 1024px) { .why__grid { grid-template-columns: repeat(4, 1fr); } }
 
     .feature-card {
-      background: var(--color-white);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      background: var(--color-white); border-radius: var(--radius-md);
+      overflow: hidden; display: flex; flex-direction: column;
     }
-    .feature-card__img-wrap {
-      position: relative;
-      aspect-ratio: 4/3;
-      overflow: hidden;
-    }
+    .feature-card__img-wrap { position: relative; aspect-ratio: 4/3; overflow: hidden; }
     .feature-card__img {
       width: 100%; height: 100%;
-      object-fit: cover; object-position: center;
-      display: block;
+      object-fit: cover; object-position: center; display: block;
     }
-    .feature-card__overlay {
-      position: absolute; inset: 0;
-      background: rgba(0,0,0,0.30);
-    }
-    .feature-card__badge {
-      position: absolute;
-      bottom: 12px; left: 12px;
-      z-index: 2;
-    }
-    .feature-card__badge img { height: 30px; width: auto; }
+    .feature-card__overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.30); }
     .feature-card__body { padding: 20px 20px 24px; flex: 1; }
     .feature-card__eyebrow {
-      font-size: 11px; font-weight: 700;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--color-muted); margin-bottom: 6px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--color-muted); margin-bottom: 6px;
     }
     .feature-card__title { font-size: 18px; font-weight: 700; color: var(--color-black); margin-bottom: 8px; }
     .feature-card__desc { font-size: 14px; color: #333; line-height: 1.6; }
+
+    /* ── Animated stat counter (replaces badge overlay) ── */
+    .feat-stat {
+      position: absolute;
+      bottom: 12px; left: 12px;
+      z-index: 2;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border-radius: 10px;
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      line-height: 1;
+    }
+    .feat-stat__number { display: flex; align-items: baseline; gap: 1px; }
+    .feat-stat__val {
+      font-size: 24px; font-weight: 800;
+      color: var(--color-green);
+      font-family: var(--font-family);
+    }
+    .feat-stat__sfx {
+      font-size: 15px; font-weight: 700;
+      color: var(--color-green);
+    }
+    .feat-stat__lbl {
+      font-size: 10px; font-weight: 600;
+      color: rgba(255,255,255,0.72);
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    /* Infinity card: starts invisible, scales in on trigger */
+    .feat-stat--infinity .feat-stat__val {
+      font-size: 28px;
+      display: inline-block;
+      transform: scale(0.4);
+      opacity: 0;
+      transition: transform 500ms cubic-bezier(0.34,1.56,0.64,1), opacity 350ms ease;
+    }
+    .feat-stat--infinity.stat-active .feat-stat__val {
+      transform: scale(1);
+      opacity: 1;
+    }
+
     .why__cta { margin-top: 48px; text-align: center; }
 
     /* ═══════════════════════════════════
@@ -460,17 +459,11 @@
     @media (min-width: 768px) { .reviews { padding: 80px 0; } }
     .reviews__header { text-align: center; margin-bottom: 12px; }
     .reviews__rating-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 44px;
-      flex-wrap: wrap;
-      row-gap: 8px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; margin-bottom: 44px; flex-wrap: wrap; row-gap: 8px;
     }
     .reviews__label {
-      font-size: 12px; font-weight: 700;
-      letter-spacing: 0.06em; text-transform: uppercase;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       background: var(--color-black); color: var(--color-white);
       padding: 5px 12px; border-radius: var(--radius-pill);
     }
@@ -479,17 +472,14 @@
     .reviews__stars { display: flex; gap: 3px; }
     .reviews__stars img { width: 20px; height: 20px; }
     .reviews__count { font-size: 13px; color: var(--color-muted); }
-
     .reviews__carousel-wrap { position: relative; margin: 0 -16px; }
     @media (min-width: 768px) { .reviews__carousel-wrap { margin: 0 -24px; } }
     @media (min-width: 1024px) { .reviews__carousel-wrap { margin: 0 -32px; } }
     .reviews__track-outer { overflow: hidden; }
     .reviews__track {
-      display: flex;
-      gap: 16px;
+      display: flex; gap: 16px;
       animation: scrollCarousel 40s linear infinite;
-      width: max-content;
-      padding: 4px 16px 12px;
+      width: max-content; padding: 4px 16px 12px;
     }
     .reviews__track:hover { animation-play-state: paused; }
     @media (min-width: 768px) { .reviews__track { gap: 20px; } }
@@ -498,14 +488,9 @@
       100% { transform: translateX(-50%); }
     }
     .review-card {
-      background: var(--color-white);
-      border-radius: var(--radius-md);
-      padding: 24px;
-      width: 300px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      background: var(--color-white); border-radius: var(--radius-md);
+      padding: 24px; width: 300px; flex-shrink: 0;
+      display: flex; flex-direction: column; gap: 12px;
     }
     @media (min-width: 768px) { .review-card { width: 340px; } }
     .review-card__stars { display: flex; gap: 2px; }
@@ -529,8 +514,7 @@
     .faq__item { border-bottom: 1px solid var(--color-border); }
     .faq__question {
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
-      padding: 20px 0;
-      font-size: 16px; font-weight: 600; color: var(--color-black);
+      padding: 20px 0; font-size: 16px; font-weight: 600; color: var(--color-black);
       cursor: pointer; width: 100%; text-align: left; min-height: 56px;
       transition: color var(--transition-fast);
       background: none; border: none; font-family: inherit;
@@ -540,8 +524,7 @@
     .faq__answer-wrap { overflow: hidden; max-height: 0; transition: max-height 300ms ease; }
     .faq__answer {
       font-size: 15px; color: #333; line-height: 1.65;
-      padding: 4px 0 20px 16px;
-      border-left: 3px solid var(--color-green);
+      padding: 4px 0 20px 16px; border-left: 3px solid var(--color-green);
     }
     .faq__answer p + p { margin-top: 12px; }
     .faq__answer a { color: var(--color-black); text-decoration: underline; text-underline-offset: 3px; }
@@ -567,11 +550,8 @@
     ═══════════════════════════════════ */
     .footer { background: var(--color-black); color: var(--color-white); padding: 56px 0 0; }
     .footer__top {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 40px;
-      padding-bottom: 48px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: grid; grid-template-columns: 1fr; gap: 40px;
+      padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,0.1);
     }
     @media (min-width: 900px) {
       .footer__top { grid-template-columns: 210px 1fr; gap: 48px; }
@@ -588,40 +568,25 @@
     }
     .footer__social-link:hover { background: rgba(255,255,255,0.18); }
     .footer__social-link svg { width: 20px; height: 20px; }
-
-    /* 4-column link grid */
-    .footer__links {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 28px;
-    }
-    @media (min-width: 640px) {
-      .footer__links { grid-template-columns: 1fr 1fr 1fr 1fr; }
-    }
+    .footer__links { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    @media (min-width: 640px) { .footer__links { grid-template-columns: 1fr 1fr 1fr 1fr; } }
     .footer__col-title {
-      font-size: 11px; font-weight: 700;
-      letter-spacing: 0.08em; text-transform: uppercase;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
       color: rgba(255,255,255,0.38); margin-bottom: 16px;
     }
     .footer__col ul { display: flex; flex-direction: column; gap: 10px; }
     .footer__col li a { font-size: 13px; color: rgba(255,255,255,0.62); transition: color var(--transition-fast); }
     .footer__col li a:hover { color: var(--color-white); }
-
-    /* Footer bottom bar */
     .footer__bottom {
-      padding: 28px 0 32px;
-      display: flex; flex-direction: column;
+      padding: 28px 0 32px; display: flex; flex-direction: column;
       gap: 20px; align-items: center;
     }
     @media (min-width: 768px) {
       .footer__bottom { flex-direction: row; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
     }
-
-    /* Payment icons — direct on black, no white boxes */
     .footer__payments { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
     .footer__payment-icon { display: flex; align-items: center; justify-content: center; height: 40px; }
     .footer__payment-icon img { height: 40px; width: auto; display: block; }
-
     .footer__policies { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
     .footer__policies a { font-size: 12px; color: rgba(255,255,255,0.42); transition: color var(--transition-fast); }
     .footer__policies a:hover { color: rgba(255,255,255,0.75); }
@@ -631,13 +596,10 @@
        FLOATING CTA — mobile only
     ═══════════════════════════════════ */
     .floating-cta {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
+      position: fixed; bottom: 0; left: 0; right: 0;
       padding: 12px 16px 20px;
-      background: var(--color-white);
-      border-top: 1px solid var(--color-border);
-      z-index: 100;
-      display: none;
+      background: var(--color-white); border-top: 1px solid var(--color-border);
+      z-index: 100; display: none;
     }
     .floating-cta .btn { width: 100%; font-size: 16px; padding: 16px 24px; }
     @media (max-width: 767px) { .floating-cta { display: block; } }
@@ -648,20 +610,23 @@
 </head>
 <body>
 
-  <!-- ═══ HEADER — hamburger | logo | cta (all screen sizes) ═══ -->
-  <header class="header">
+  <!-- ═══ HEADER ═══ -->
+  <header class="header" id="siteHeader">
     <div class="container header__inner">
 
       <button class="header__hamburger" id="menuToggle" aria-label="Open menu" aria-expanded="false">
         <img src="assets/icons/feature_icons/icon-hamburger.svg" alt="">
       </button>
 
+      <!-- Logo: wordmark + icon mark (CSS controls which is visible) -->
       <a href="index.html" class="header__logo" aria-label="Prisoncall Australia — home">
-        <img src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
+        <img class="header__logo-wordmark" src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
+        <img class="header__logo-icon" src="assets/brand_logos/Prisoncall_Icon_BLACK.svg" alt="Prisoncall Australia">
       </a>
 
+      <!-- CTA: always black on desktop; hidden on mobile until scroll -->
       <div class="header__cta">
-        <a href="choose-plan.html" class="btn btn--black">Get Prisoncall now</a>
+        <a href="choose-plan.html" class="btn btn--black" id="headerCtaBtn">Get Prisoncall now</a>
       </div>
 
     </div>
@@ -702,16 +667,12 @@
 
     <!-- ═══ HERO ═══ -->
     <section class="hero" aria-label="Hero">
-
-      <!-- Mobile: square image on top (hidden on desktop via CSS) -->
       <div class="hero__visual">
         <picture>
           <source media="(max-width: 767px)" srcset="assets/images/hero1square.png">
           <img src="assets/images/hero1.png" alt="A family staying connected with a loved one in prison through Prisoncall" loading="eager" fetchpriority="high">
         </picture>
       </div>
-
-      <!-- Content — centred on mobile, left-aligned overlaid on desktop -->
       <div class="hero__content">
         <div class="hero__inner">
 
@@ -732,22 +693,24 @@
             <span class="hero__rating-text">4.9/5 based on 2,500+ reviews</span>
           </div>
 
+          <!-- Benefit pills — icon: Prison_Approved_Prisoncall.svg (white version) -->
           <div class="hero__pills">
             <span class="hero__pill">
-              <img src="assets/icons/feature_icons/icon-shield-check-white.svg" alt="">Unlimited minutes
+              <img src="assets/icons/feature_icons/Prison_Approved_Prisoncall.svg" alt="">Unlimited minutes
             </span>
             <span class="hero__pill">
-              <img src="assets/icons/feature_icons/icon-shield-check-white.svg" alt="">One flat fee
+              <img src="assets/icons/feature_icons/Prison_Approved_Prisoncall.svg" alt="">One flat fee
             </span>
             <span class="hero__pill">
-              <img src="assets/icons/feature_icons/icon-shield-check-white.svg" alt="">No top-ups
+              <img src="assets/icons/feature_icons/Prison_Approved_Prisoncall.svg" alt="">No top-ups
             </span>
             <span class="hero__pill">
-              <img src="assets/icons/feature_icons/icon-shield-check-white.svg" alt="">Cancel anytime
+              <img src="assets/icons/feature_icons/Prison_Approved_Prisoncall.svg" alt="">Cancel anytime
             </span>
           </div>
 
-          <div class="hero__cta-wrap">
+          <!-- Hero CTA — observed by IntersectionObserver to control header state -->
+          <div class="hero__cta-wrap" id="heroCta">
             <a href="choose-plan.html" class="btn btn--green btn--lg">Get started now</a>
           </div>
 
@@ -773,7 +736,6 @@
           <h2 class="section-title" id="hiw-title">Your journey to affordable prison calls</h2>
           <p>It doesn't take long after you sign up to go from setup to savings.</p>
         </div>
-
         <div class="hiw__timeline" role="list">
 
           <div class="hiw__step" role="listitem">
@@ -845,12 +807,16 @@
 
         <div class="why__grid">
 
+          <!-- Card 1 — Unlimited minutes · counter: ∞ -->
           <article class="feature-card">
             <div class="feature-card__img-wrap">
-              <img class="feature-card__img" src="assets/images/feature-1.jpg" alt="Unlimited minutes — no top-ups needed" loading="lazy">
+              <img class="feature-card__img" src="assets/images/feature-1.png" alt="Unlimited minutes — no top-ups needed" loading="lazy">
               <div class="feature-card__overlay"></div>
-              <div class="feature-card__badge">
-                <img src="assets/icons/feature_icons/Prison_Approved_Prisoncall.svg" alt="Prison Approved">
+              <div class="feat-stat feat-stat--infinity">
+                <div class="feat-stat__number">
+                  <span class="feat-stat__val">&#8734;</span>
+                </div>
+                <span class="feat-stat__lbl">minutes</span>
               </div>
             </div>
             <div class="feature-card__body">
@@ -860,12 +826,16 @@
             </div>
           </article>
 
+          <!-- Card 2 — One flat fee · counter: 70%+ -->
           <article class="feature-card">
             <div class="feature-card__img-wrap">
-              <img class="feature-card__img" src="assets/images/feature-2.jpg" alt="One flat fee — save more every month" loading="lazy">
+              <img class="feature-card__img" src="assets/images/feature-2.png" alt="One flat fee — save more every month" loading="lazy">
               <div class="feature-card__overlay"></div>
-              <div class="feature-card__badge">
-                <img src="assets/icons/feature_icons/Prison_Approved_Prisoncall.svg" alt="Prison Approved">
+              <div class="feat-stat" data-target="70">
+                <div class="feat-stat__number">
+                  <span class="feat-stat__val">0</span><span class="feat-stat__sfx">%+</span>
+                </div>
+                <span class="feat-stat__lbl">avg. savings</span>
               </div>
             </div>
             <div class="feature-card__body">
@@ -875,12 +845,16 @@
             </div>
           </article>
 
+          <!-- Card 3 — Talk more · counter: 5× -->
           <article class="feature-card">
             <div class="feature-card__img-wrap">
-              <img class="feature-card__img" src="assets/images/feature-3.jpg" alt="Talk more than 5 times a day" loading="lazy">
+              <img class="feature-card__img" src="assets/images/feature-3.png" alt="Talk more than 5 times a day" loading="lazy">
               <div class="feature-card__overlay"></div>
-              <div class="feature-card__badge">
-                <img src="assets/icons/feature_icons/Prison_Approved_Prisoncall.svg" alt="Prison Approved">
+              <div class="feat-stat" data-target="5">
+                <div class="feat-stat__number">
+                  <span class="feat-stat__val">0</span><span class="feat-stat__sfx">&times;</span>
+                </div>
+                <span class="feat-stat__lbl">calls per day</span>
               </div>
             </div>
             <div class="feature-card__body">
@@ -890,12 +864,16 @@
             </div>
           </article>
 
+          <!-- Card 4 — Secure + quality audio · counter: 99.9% -->
           <article class="feature-card">
             <div class="feature-card__img-wrap">
-              <img class="feature-card__img" src="assets/images/feature-4.jpg" alt="Secure and quality audio — no app required" loading="lazy">
+              <img class="feature-card__img" src="assets/images/feature-4.png" alt="Secure and quality audio — no app required" loading="lazy">
               <div class="feature-card__overlay"></div>
-              <div class="feature-card__badge">
-                <img src="assets/icons/feature_icons/Prison_Approved_Prisoncall.svg" alt="Prison Approved">
+              <div class="feat-stat" data-target="99.9">
+                <div class="feat-stat__number">
+                  <span class="feat-stat__val">0</span><span class="feat-stat__sfx">%</span>
+                </div>
+                <span class="feat-stat__lbl">uptime</span>
               </div>
             </div>
             <div class="feature-card__body">
@@ -922,6 +900,7 @@
         <div class="reviews__rating-row">
           <span class="reviews__label">Excellent</span>
           <div class="reviews__score">4.9<span> / 5</span></div>
+          <!-- Rating row stars: gold -->
           <div class="reviews__stars" aria-label="4.9 out of 5 stars">
             <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
             <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
@@ -937,144 +916,144 @@
         <div class="reviews__track-outer">
           <div class="reviews__track" id="carouselTrack" aria-label="Customer reviews">
 
-            <!-- Set 1 -->
+            <!-- Set 1 — review card stars are BLACK (no star-gold) -->
             <article class="review-card">
               <div class="review-card__stars" aria-label="5 stars">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
               </div>
               <p class="review-card__title">Works in NSW</p>
               <p class="review-card__body">Partner in NSW. Prisoncall works. Other engin numbers always work in the beginning then fails. Or they don't even get approved by the screws. Not Prisoncall, gets approved the first time around, the call quality is also perfect.</p>
               <div class="review-card__author">
-                <img class="review-card__avatar" src="assets/images/avatar-1.png" alt="Sydney S.">
+                <img class="review-card__avatar" src="assets/images/avatar-1.svg" alt="Sydney S.">
                 <span class="review-card__name">Sydney, S.</span>
               </div>
             </article>
 
             <article class="review-card">
               <div class="review-card__stars" aria-label="5 stars">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
               </div>
               <p class="review-card__title">Real people for support</p>
               <p class="review-card__body">I give 5 stars because they actually have real people to support you with your questions, none of the AI bullsh*t! I requested an extension because of my partner getting released like two days after the plan renewal, they understood and gave me two days free rather than charging me for the entire month. I used them for 8 months and saved over thousands of dollars.</p>
               <div class="review-card__author">
-                <img class="review-card__avatar" src="assets/images/avatar-2.png" alt="J.J.">
+                <img class="review-card__avatar" src="assets/images/avatar-2.svg" alt="J.J.">
                 <span class="review-card__name">J.J.</span>
               </div>
             </article>
 
             <article class="review-card">
               <div class="review-card__stars" aria-label="5 stars">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
               </div>
               <p class="review-card__title">Best so far Victorian prisons</p>
               <p class="review-card__body">My partner has gone the full circle, MRC, Port Putrid, Marngoneet, Fulham, Barwon and even the new prison Western Plains. It just works! He's currently at Western Plains, one more year to go baby! Can't wait, and lucky Prisoncall helps you with number change free of charge when your loved one changes prisons.</p>
               <div class="review-card__author">
-                <img class="review-card__avatar" src="assets/images/avatar-3.png" alt="Jamie C.">
+                <img class="review-card__avatar" src="assets/images/avatar-3.svg" alt="Jamie C.">
                 <span class="review-card__name">Jamie, C.</span>
               </div>
             </article>
 
             <article class="review-card">
               <div class="review-card__stars" aria-label="5 stars">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
               </div>
               <p class="review-card__title">Perfect</p>
               <p class="review-card__body">Perfect sign up process, no stuff around. Exactly like your receiving a normal call.</p>
               <div class="review-card__author">
-                <img class="review-card__avatar" src="assets/images/avatar-4.png" alt="Monique">
+                <img class="review-card__avatar" src="assets/images/avatar-4.svg" alt="Monique">
                 <span class="review-card__name">Monique</span>
               </div>
             </article>
 
             <article class="review-card">
               <div class="review-card__stars" aria-label="5 stars">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
               </div>
               <p class="review-card__title">10 out of 10!</p>
               <p class="review-card__body">I am so glad something like this exists to make it more cost efficient and so easy to talk to your loved one. Seamless experience! I've recommended this to many people and will continue to do so. Thank you!</p>
               <div class="review-card__author">
-                <img class="review-card__avatar" src="assets/images/avatar-5.png" alt="C.C.">
+                <img class="review-card__avatar" src="assets/images/avatar-5.svg" alt="C.C.">
                 <span class="review-card__name">C.C.</span>
               </div>
             </article>
 
             <article class="review-card">
               <div class="review-card__stars" aria-label="5 stars">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
-                <img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
+                <img src="assets/icons/feature_icons/icon-star.svg" alt="">
               </div>
               <p class="review-card__title">It's so easy to use</p>
               <p class="review-card__body">I thought I needed to install an app and work out how to use it. It was unreal that the sign-up process was so simple and fast. Got the number within the hour, and I gave it to my son. The guards called in a couple of days, everything was verified without dramas, and now my son calls me at least five times every day.</p>
               <div class="review-card__author">
-                <img class="review-card__avatar" src="assets/images/avatar-6.png" alt="Tony W.">
+                <img class="review-card__avatar" src="assets/images/avatar-6.svg" alt="Tony W.">
                 <span class="review-card__name">Tony, W.</span>
               </div>
             </article>
 
-            <!-- Set 2 — duplicate for seamless loop -->
+            <!-- Set 2 — duplicated for seamless loop, avatars cycle from 1 -->
             <article class="review-card" aria-hidden="true">
-              <div class="review-card__stars"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"></div>
+              <div class="review-card__stars"><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""></div>
               <p class="review-card__title">Works in NSW</p>
               <p class="review-card__body">Partner in NSW. Prisoncall works. Other engin numbers always work in the beginning then fails. Or they don't even get approved by the screws. Not Prisoncall, gets approved the first time around, the call quality is also perfect.</p>
-              <div class="review-card__author"><img class="review-card__avatar" src="assets/images/avatar-1.png" alt=""><span class="review-card__name">Sydney, S.</span></div>
+              <div class="review-card__author"><img class="review-card__avatar" src="assets/images/avatar-1.svg" alt=""><span class="review-card__name">Sydney, S.</span></div>
             </article>
 
             <article class="review-card" aria-hidden="true">
-              <div class="review-card__stars"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"></div>
+              <div class="review-card__stars"><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""></div>
               <p class="review-card__title">Real people for support</p>
               <p class="review-card__body">I give 5 stars because they actually have real people to support you with your questions, none of the AI bullsh*t! I requested an extension because of my partner getting released like two days after the plan renewal, they understood and gave me two days free rather than charging me for the entire month. I used them for 8 months and saved over thousands of dollars.</p>
-              <div class="review-card__author"><img class="review-card__avatar" src="assets/images/avatar-2.png" alt=""><span class="review-card__name">J.J.</span></div>
+              <div class="review-card__author"><img class="review-card__avatar" src="assets/images/avatar-2.svg" alt=""><span class="review-card__name">J.J.</span></div>
             </article>
 
             <article class="review-card" aria-hidden="true">
-              <div class="review-card__stars"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"></div>
+              <div class="review-card__stars"><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""></div>
               <p class="review-card__title">Best so far Victorian prisons</p>
               <p class="review-card__body">My partner has gone the full circle, MRC, Port Putrid, Marngoneet, Fulham, Barwon and even the new prison Western Plains. It just works! He's currently at Western Plains, one more year to go baby! Lucky Prisoncall helps you with number change free of charge when your loved one changes prisons.</p>
-              <div class="review-card__author"><img class="review-card__avatar" src="assets/images/avatar-3.png" alt=""><span class="review-card__name">Jamie, C.</span></div>
+              <div class="review-card__author"><img class="review-card__avatar" src="assets/images/avatar-3.svg" alt=""><span class="review-card__name">Jamie, C.</span></div>
             </article>
 
             <article class="review-card" aria-hidden="true">
-              <div class="review-card__stars"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"></div>
+              <div class="review-card__stars"><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""></div>
               <p class="review-card__title">Perfect</p>
               <p class="review-card__body">Perfect sign up process, no stuff around. Exactly like your receiving a normal call.</p>
-              <div class="review-card__author"><img class="review-card__avatar" src="assets/images/avatar-4.png" alt=""><span class="review-card__name">Monique</span></div>
+              <div class="review-card__author"><img class="review-card__avatar" src="assets/images/avatar-4.svg" alt=""><span class="review-card__name">Monique</span></div>
             </article>
 
             <article class="review-card" aria-hidden="true">
-              <div class="review-card__stars"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"></div>
+              <div class="review-card__stars"><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""></div>
               <p class="review-card__title">10 out of 10!</p>
               <p class="review-card__body">I am so glad something like this exists to make it more cost efficient and so easy to talk to your loved one. Seamless experience! I've recommended this to many people and will continue to do so. Thank you!</p>
-              <div class="review-card__author"><img class="review-card__avatar" src="assets/images/avatar-5.png" alt=""><span class="review-card__name">C.C.</span></div>
+              <div class="review-card__author"><img class="review-card__avatar" src="assets/images/avatar-5.svg" alt=""><span class="review-card__name">C.C.</span></div>
             </article>
 
             <article class="review-card" aria-hidden="true">
-              <div class="review-card__stars"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"><img src="assets/icons/feature_icons/icon-star.svg" alt="" class="star-gold"></div>
+              <div class="review-card__stars"><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""><img src="assets/icons/feature_icons/icon-star.svg" alt=""></div>
               <p class="review-card__title">It's so easy to use</p>
               <p class="review-card__body">I thought I needed to install an app and work out how to use it. It was unreal that the sign-up process was so simple and fast. Got the number within the hour, and I gave it to my son. The guards called in a couple of days, everything was verified without dramas, and now my son calls me at least five times every day.</p>
-              <div class="review-card__author"><img class="review-card__avatar" src="assets/images/avatar-6.png" alt=""><span class="review-card__name">Tony, W.</span></div>
+              <div class="review-card__author"><img class="review-card__avatar" src="assets/images/avatar-6.svg" alt=""><span class="review-card__name">Tony, W.</span></div>
             </article>
 
           </div>
@@ -1094,7 +1073,6 @@
         <div class="faq__header">
           <h2 class="section-title" id="faq-title">Frequently Asked Questions</h2>
         </div>
-
         <div class="faq__list">
 
           <div class="faq__item">
@@ -1183,7 +1161,6 @@
             </div>
           </div>
 
-          <!-- Q8 — UPDATED: VIC & NSW only -->
           <div class="faq__item">
             <button class="faq__question" aria-expanded="false">
               Which prisons in Australia support Prisoncall for cheap phone calls from prison?
@@ -1220,7 +1197,6 @@
             </div>
           </div>
 
-          <!-- Q11 — UPDATED answer -->
           <div class="faq__item">
             <button class="faq__question" aria-expanded="false">
               What is an engine number for prison?
@@ -1270,7 +1246,6 @@
 
         <div class="footer__links">
 
-          <!-- Victoria -->
           <div class="footer__col">
             <p class="footer__col-title">Victoria</p>
             <ul>
@@ -1291,7 +1266,6 @@
             </ul>
           </div>
 
-          <!-- New South Wales -->
           <div class="footer__col">
             <p class="footer__col-title">New South Wales</p>
             <ul>
@@ -1318,7 +1292,6 @@
             </ul>
           </div>
 
-          <!-- Help -->
           <div class="footer__col">
             <p class="footer__col-title">Help</p>
             <ul>
@@ -1329,16 +1302,13 @@
             </ul>
           </div>
 
-          <!-- Resources -->
+          <!-- Resources — 3 links only -->
           <div class="footer__col">
             <p class="footer__col-title">Resources</p>
             <ul>
               <li><a href="index.html">Cheap Prison Calls</a></li>
               <li><a href="engine-number-for-prison.html">Prison Engine Number</a></li>
               <li><a href="jail-engine-number.html">Jail Engine Number</a></li>
-              <li><a href="metropolitan-remand-centre.html">MRC Prison</a></li>
-              <li><a href="clarence-correctional-centre.html">Clarence Correctional Centre</a></li>
-              <li><a href="ravenhall-prison.html">Ravenhall Prison</a></li>
             </ul>
           </div>
 
@@ -1353,14 +1323,12 @@
           <div class="footer__payment-icon"><img src="assets/icons/payments_icons/ApplePay.svg" alt="Apple Pay"></div>
           <div class="footer__payment-icon"><img src="assets/icons/payments_icons/GooglePay.svg" alt="Google Pay"></div>
         </div>
-
         <div class="footer__policies">
           <a href="privacy-policy.html">Privacy Policy</a>
           <a href="terms-of-service.html">Terms of Service</a>
           <a href="refund-policy.html">Refund Policy</a>
           <a href="cancellation-policy.html">Cancellation Policy</a>
         </div>
-
         <p class="footer__copyright">© <span id="copyrightYear"></span> Prisoncall Australia by The Freebird &amp; Co Pty Ltd. All prices GST-inclusive.</p>
       </div>
     </div>
@@ -1376,10 +1344,35 @@
     // ─── Copyright year ───
     document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 
+    // ═══════════════════════════════════════════════════════════
+    // HEADER SCROLL BEHAVIOUR
+    // Observes the hero CTA element. When it leaves the viewport:
+    //   Desktop → header CTA turns green
+    //   Mobile  → header CTA appears (green) + logo swaps to icon mark
+    // Reverses when hero CTA re-enters viewport.
+    // ═══════════════════════════════════════════════════════════
+    (function() {
+      var header  = document.getElementById('siteHeader');
+      var heroCta = document.getElementById('heroCta');
+      if (!header || !heroCta || !('IntersectionObserver' in window)) return;
+
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            header.classList.remove('header--scrolled');
+          } else {
+            header.classList.add('header--scrolled');
+          }
+        });
+      }, { threshold: 0 });
+
+      obs.observe(heroCta);
+    })();
+
     // ─── Mobile Menu ───
-    const menuToggle = document.getElementById('menuToggle');
-    const menuClose  = document.getElementById('menuClose');
-    const mobileMenu = document.getElementById('mobileMenu');
+    var menuToggle = document.getElementById('menuToggle');
+    var menuClose  = document.getElementById('menuClose');
+    var mobileMenu = document.getElementById('mobileMenu');
 
     function openMenu() {
       mobileMenu.classList.add('is-open');
@@ -1394,10 +1387,7 @@
 
     menuToggle.addEventListener('click', openMenu);
     menuClose.addEventListener('click', closeMenu);
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeMenu();
-    });
-    // Close when a nav link inside the menu is clicked
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeMenu(); });
     mobileMenu.querySelectorAll('a').forEach(function(link) {
       link.addEventListener('click', closeMenu);
     });
@@ -1405,13 +1395,11 @@
     // ─── FAQ Accordion ───
     document.querySelectorAll('.faq__item').forEach(function(item) {
       item.querySelector('.faq__question').addEventListener('click', function() {
-        const isOpen = item.classList.contains('is-open');
-        // Close all
+        var isOpen = item.classList.contains('is-open');
         document.querySelectorAll('.faq__item').forEach(function(other) {
           other.classList.remove('is-open');
           other.querySelector('.faq__question').setAttribute('aria-expanded', 'false');
         });
-        // Open clicked (if it wasn't already open)
         if (!isOpen) {
           item.classList.add('is-open');
           item.querySelector('.faq__question').setAttribute('aria-expanded', 'true');
@@ -1419,29 +1407,85 @@
       });
     });
 
-    // ─── Reviews carousel — pause on hover, resume after touch ───
-    const track = document.getElementById('carouselTrack');
+    // ─── Reviews carousel ───
+    var track = document.getElementById('carouselTrack');
     if (track) {
       track.addEventListener('mouseenter', function() { track.style.animationPlayState = 'paused'; });
       track.addEventListener('mouseleave', function() { track.style.animationPlayState = 'running'; });
-      track.addEventListener('touchstart', function() {
-        track.style.animationPlayState = 'paused';
-      }, { passive: true });
-      track.addEventListener('touchend', function() {
+      track.addEventListener('touchstart', function() { track.style.animationPlayState = 'paused'; }, { passive: true });
+      track.addEventListener('touchend',   function() {
         setTimeout(function() { track.style.animationPlayState = 'running'; }, 1500);
       }, { passive: true });
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // ANIMATED STAT COUNTERS
+    // Triggered by IntersectionObserver when card scrolls into view.
+    // Cards with data-target get a numeric count-up animation.
+    // The infinity card (feat-stat--infinity) gets a CSS scale-in.
+    // ═══════════════════════════════════════════════════════════
+    (function() {
+      if (!('IntersectionObserver' in window)) return;
+
+      function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+      function runCounter(valEl, target, duration) {
+        var isFloat = target !== Math.floor(target);
+        var startTime = null;
+
+        function tick(now) {
+          if (!startTime) startTime = now;
+          var elapsed  = now - startTime;
+          var progress = Math.min(elapsed / duration, 1);
+          var eased    = easeOutCubic(progress);
+          var current  = isFloat
+            ? (eased * target).toFixed(1)
+            : Math.round(eased * target);
+          valEl.textContent = current;
+          if (progress < 1) {
+            requestAnimationFrame(tick);
+          } else {
+            valEl.textContent = isFloat ? target.toFixed(1) : target;
+          }
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      var statEls = document.querySelectorAll('.feat-stat');
+      if (!statEls.length) return;
+
+      var statObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (!entry.isIntersecting) return;
+          var el = entry.target;
+          if (el.classList.contains('stat-active')) return;
+          el.classList.add('stat-active');
+
+          if (el.classList.contains('feat-stat--infinity')) {
+            // CSS transition handles the scale-in animation
+            return;
+          }
+
+          var valEl  = el.querySelector('.feat-stat__val');
+          var target = parseFloat(el.dataset.target);
+          if (valEl && !isNaN(target)) {
+            runCounter(valEl, target, 1600);
+          }
+          statObs.unobserve(el);
+        });
+      }, { threshold: 0.45 });
+
+      statEls.forEach(function(el) { statObs.observe(el); });
+    })();
+
     // ─── Floating CTA — hide when hero in view (mobile only) ───
-    const floatingCta = document.getElementById('floatingCta');
-    const heroSection = document.querySelector('.hero');
+    var floatingCta = document.getElementById('floatingCta');
+    var heroSection = document.querySelector('.hero');
     if (floatingCta && heroSection && 'IntersectionObserver' in window) {
       new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
-          if (window.innerWidth >= 768) {
-            floatingCta.style.display = 'none';
-            return;
-          }
+          if (window.innerWidth >= 768) { floatingCta.style.display = 'none'; return; }
           floatingCta.style.display = entry.isIntersecting ? 'none' : 'block';
           floatingCta.setAttribute('aria-hidden', entry.isIntersecting ? 'true' : 'false');
         });
