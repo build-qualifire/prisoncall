@@ -1209,9 +1209,10 @@
         'Add another plan</button>';
     }
 
-    /* Checkout CTA: always rendered, disabled only when no completed entries */
-    var ctaDisabled = !hasEntries;
-    html += '<a href="#" class="checkout-cta'+(ctaDisabled?' is-disabled':'')+'" id="checkoutBtn"'+(ctaDisabled?' aria-disabled="true"':'')+'>Activate my number now</a>';
+    /* Checkout CTA: only shown when there are completed entries */
+    if(hasEntries){
+      html += '<a href="#" class="checkout-cta" id="checkoutBtn">Activate my number now</a>';
+    }
 
     completedArea.innerHTML = html;
 
@@ -1225,7 +1226,14 @@
         /* If removing the entry currently being edited, cancel the edit */
         if(editId === removedId){ editId = null; cur = null; planFlow.innerHTML = ''; clearGate(); }
         entries = entries.filter(function(e){ return e.id !== removedId; });
-        renderCompletedArea();
+        /* If the summary is now empty and no plan is being built, reset to Step 1 */
+        if(entries.length === 0 && cur === null){
+          completedArea.innerHTML = '';
+          startNewPlan(null);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          renderCompletedArea();
+        }
       });
     });
     var addBtn = document.getElementById('addPlanBtn');
