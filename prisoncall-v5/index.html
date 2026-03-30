@@ -302,7 +302,7 @@
     }
     .hero__subtext {
       font-size: 14px; font-weight: 400;
-      color: rgba(255,255,255,0.8); margin-bottom: 10px; line-height: 1.5;
+      color: rgba(255,255,255,0.8); margin-bottom: 18px; line-height: 1.5;
     }
     .hero__rating {
       display: flex; align-items: center; justify-content: flex-start;
@@ -313,7 +313,7 @@
     .hero__rating-text { font-size: 9px; font-weight: 500; color: rgba(255,255,255,0.72); }
     .hero__pills {
       display: flex; flex-wrap: nowrap; gap: 4px;
-      justify-content: flex-start; margin-bottom: 10px;
+      justify-content: flex-start; margin-bottom: 20px;
     }
     .hero__pill {
       display: inline-flex; align-items: center; gap: 3px;
@@ -322,7 +322,7 @@
       padding: 3px 7px; border-radius: var(--radius-pill); white-space: nowrap;
     }
     .hero__pill img { width: 10px; height: 10px; flex-shrink: 0; }
-    .hero__cta-wrap { width: 100%; margin-bottom: 12px; }
+    .hero__cta-wrap { width: 100%; margin-bottom: 20px; }
     .hero__cta-wrap .btn { width: 100%; font-size: 16px; padding: 15px 28px; }
     .hero__trust { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
     .hero__trust-item {
@@ -373,6 +373,8 @@
     /* ─── Section shared ─── */
     .section-pad { padding: 64px 0; }
     @media (min-width: 768px) { .section-pad { padding: 80px 0; } }
+    /* Reduce HIW padding on mobile so the section title peeks into view on the first fold */
+    @media (max-width: 767px) { .hiw { padding-top: 32px; padding-bottom: 40px; } }
     .section-title {
       font-size: 32px; font-weight: 700; line-height: 1.1;
       letter-spacing: -0.01em; color: var(--color-black); margin-bottom: 16px;
