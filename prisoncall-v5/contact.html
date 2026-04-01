@@ -320,15 +320,38 @@
     /* ═══════════════════════════════════
        TIER 3 — CONTACT FORM
     ═══════════════════════════════════ */
-    .form-toggle {
-      display: inline;
+    /* Trigger row — always flex so toggle text and close button sit side-by-side when open */
+    .tier3-trigger {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    /* Toggle button — default (closed): small muted underlined link */
+    .tier3-toggle-btn {
       font-size: 13px; color: var(--color-muted);
       text-decoration: underline; text-underline-offset: 3px;
       cursor: pointer; background: none; border: none; padding: 0;
-      font-family: inherit; font-weight: 400;
+      font-family: inherit; font-weight: 400; text-align: left;
       transition: color var(--tr);
     }
-    .form-toggle:hover { color: var(--color-black); }
+    .tier3-toggle-btn:hover { color: var(--color-black); }
+    /* Close button — hidden by default, shown when open */
+    .tier3-close-btn {
+      display: none; flex-shrink: 0;
+      width: 32px; height: 32px;
+      align-items: center; justify-content: center;
+      font-size: 18px; line-height: 1; font-weight: 400;
+      color: var(--color-muted); background: none; border: none;
+      cursor: pointer; font-family: inherit;
+      transition: color var(--tr);
+    }
+    .tier3-close-btn:hover { color: var(--color-black); }
+    /* Open state — toggle text becomes bold heading, close button appears */
+    #tier3.is-open .tier3-toggle-btn {
+      font-size: 20px; font-weight: 700;
+      color: var(--color-black); text-decoration: none;
+      cursor: default; pointer-events: none;
+    }
+    @media (min-width: 768px) { #tier3.is-open .tier3-toggle-btn { font-size: 22px; } }
+    #tier3.is-open .tier3-close-btn { display: flex; }
     .form-collapse {
       overflow: hidden; max-height: 0;
       transition: max-height 400ms ease;
@@ -768,8 +791,11 @@
       <!-- ─────────────────────────────────────
            TIER 3 — SUBMIT ENQUIRY
       ───────────────────────────────────── -->
-      <div class="tier">
-        <button class="form-toggle" id="tier3Toggle" aria-expanded="false" aria-controls="tier3FormWrap">Still need help? Send us a message</button>
+      <div class="tier" id="tier3">
+        <div class="tier3-trigger">
+          <button class="tier3-toggle-btn" id="tier3Toggle" aria-expanded="false" aria-controls="tier3FormWrap">Still need help? Send us a message</button>
+          <button class="tier3-close-btn" id="tier3Close" aria-label="Close form" aria-hidden="true">&#x2715;</button>
+        </div>
 
         <div class="form-collapse" id="tier3FormWrap" role="region">
         <p class="tier__sub" style="margin-top:16px;">We'll get back to you as soon as possible.</p>
@@ -1200,13 +1226,24 @@
      TIER 3 — COLLAPSIBLE FORM TOGGLE
   ═══════════════════════════════════════════════════════ */
   var tier3Toggle   = document.getElementById('tier3Toggle');
+  var tier3Close    = document.getElementById('tier3Close');
   var tier3FormWrap = document.getElementById('tier3FormWrap');
+  var tier3Div      = document.getElementById('tier3');
 
+  /* Open: toggle button transforms to bold heading, close button appears */
   tier3Toggle.addEventListener('click', function() {
-    var isOpen = tier3FormWrap.classList.contains('is-open');
-    tier3FormWrap.classList.toggle('is-open', !isOpen);
-    tier3Toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
-    tier3Toggle.textContent = isOpen ? 'Still need help? Send us a message' : 'Never mind, close this';
+    tier3Div.classList.add('is-open');
+    tier3FormWrap.classList.add('is-open');
+    tier3Toggle.setAttribute('aria-expanded', 'true');
+    tier3Close.setAttribute('aria-hidden', 'false');
+  });
+
+  /* Close: revert everything back to muted link state */
+  tier3Close.addEventListener('click', function() {
+    tier3Div.classList.remove('is-open');
+    tier3FormWrap.classList.remove('is-open');
+    tier3Toggle.setAttribute('aria-expanded', 'false');
+    tier3Close.setAttribute('aria-hidden', 'true');
   });
   </script>
 
