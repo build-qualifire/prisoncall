@@ -610,19 +610,19 @@
     }
     .checker__error.is-visible { display: block; }
 
-    /* Mid-page checker — dark band (journey → why) */
+    /* Mid-page checker — white section, black card (journey → why) */
     .prison-checker {
-      background: var(--color-hero);
+      background: var(--color-white);
       padding: 20px 0 36px;
     }
     @media (min-width: 768px) {
       .prison-checker { padding: 28px 0 64px; }
     }
     .prison-checker .checker {
-      background: transparent;
-      border: none;
-      border-radius: 0;
-      padding: 0;
+      background: var(--color-hero);
+      border: 1.5px solid rgba(255,255,255,0.14);
+      border-radius: var(--radius-md);
+      padding: 24px;
       max-width: 768px;
       margin-left: auto;
       margin-right: auto;
@@ -644,7 +644,7 @@
       color: var(--color-white);
     }
     .prison-checker .checker__input::placeholder {
-      color: rgba(255,255,255,0.42);
+      color: rgba(255,255,255,0.78);
     }
     .prison-checker .checker__input:focus {
       border-color: var(--color-white);
