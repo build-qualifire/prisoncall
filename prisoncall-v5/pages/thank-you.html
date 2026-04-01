@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed | Prisoncall Australia</title>
+  <meta name="description" content="Your Prisoncall order is confirmed. Your Prisoncall number is on its way — check your SMS and email within minutes.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="../assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ─── CSS Variables ─── */
+    :root {
+      --color-black: #000000;
+      --color-white: #ffffff;
+      --color-green: #00D258;
+      --color-green-mid: #E6FAF0;
+      --color-green-pale: #F2F6F0;
+      --color-hero: #101010;
+      --color-muted: #666666;
+      --color-border: #E5E5E5;
+      --color-surface: #F9F9F9;
+      --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 80px;
+      --tr: 150ms ease;
+      --container-max: 1312px;
+      --header-height: 72px;
+      --header-height-mobile: 48px;
+    }
+
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-family);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--color-black);
+      background: var(--color-white);
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ─── Container ─── */
+    .container { max-width: var(--container-max); margin: 0 auto; padding: 0 16px; }
+    @media (min-width: 768px) { .container { padding: 0 24px; } }
+    @media (min-width: 1024px) { .container { padding: 0 32px; } }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border-radius: var(--radius-pill); font-family: var(--font-family);
+      font-size: 16px; font-weight: 700; line-height: 1; padding: 15px 28px;
+      transition: background var(--tr), color var(--tr), border-color var(--tr), opacity var(--tr), transform var(--tr);
+      white-space: nowrap; cursor: pointer; text-decoration: none;
+    }
+    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); opacity: 1; }
+    .btn--green { background: var(--color-green); color: var(--color-black); border: 2px solid var(--color-green); }
+    .btn--black { background: var(--color-black); color: var(--color-white); border: 2px solid var(--color-black); }
+    .btn--ghost  { background: var(--color-white); color: var(--color-black); border: 2px solid var(--color-green); }
+
+    /* ═══════════════════════════════════
+       HEADER (identical to other pages)
+    ═══════════════════════════════════ */
+    .header {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--color-white); height: var(--header-height-mobile);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .header__inner {
+      display: grid; grid-template-columns: 44px 1fr 44px;
+      align-items: center; height: 100%;
+    }
+    .header__hamburger { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+    .header__hamburger img { width: 24px; height: 24px; }
+    .header__center { display: flex; align-items: center; justify-content: center; position: relative; height: 100%; overflow: hidden; }
+    .header__wordmark { display: flex; align-items: center; transition: opacity var(--tr); }
+    .header__wordmark img { height: 20px; width: auto; }
+    .header__mobile-cta {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      opacity: 0; pointer-events: none; transition: opacity var(--tr);
+      padding: 9px 20px; font-size: 13px; font-weight: 700; font-family: var(--font-family);
+      white-space: nowrap; border-radius: var(--radius-pill);
+      background: var(--color-green); color: var(--color-black);
+      border: 2px solid var(--color-green); line-height: 1; text-decoration: none;
+    }
+    .header__right { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+    .header__icon-link { display: flex; align-items: center; justify-content: center; opacity: 1; pointer-events: auto; transition: opacity var(--tr); }
+    .header__icon-img { width: 24px; height: 24px; }
+    .header__desktop-cta { display: none; }
+    /* This page always shows scrolled state (no hero) */
+    @media (max-width: 767px) {
+      .header--scrolled .header__wordmark { opacity: 0; pointer-events: none; }
+      .header--scrolled .header__mobile-cta { opacity: 1; pointer-events: auto; }
+    }
+    @media (min-width: 768px) {
+      .header { height: var(--header-height); }
+      .header__inner { grid-template-columns: 1fr auto 1fr; }
+      .header__center { justify-self: center; position: static; overflow: visible; }
+      .header__wordmark img { height: 32px; }
+      .header--scrolled .header__wordmark { opacity: 1; pointer-events: auto; }
+      .header__mobile-cta { display: none; }
+      .header__right { width: auto; justify-self: end; }
+      .header__icon-link { display: none; }
+      .header__desktop-cta { display: block; }
+      .header__desktop-cta .btn { padding: 12px 24px; font-size: 15px; }
+      .header__desktop-cta .btn,
+      .header--scrolled .header__desktop-cta .btn {
+        background: var(--color-green); color: var(--color-black); border-color: var(--color-green);
+      }
+    }
+
+    /* ═══════════════════════════════════
+       MOBILE MENU
+    ═══════════════════════════════════ */
+    .mobile-menu { display: none; position: fixed; inset: 0; z-index: 300; background: var(--color-white); flex-direction: column; }
+    .mobile-menu.is-open { display: flex; }
+    .mobile-menu__top {
+      display: grid; grid-template-columns: 44px 1fr 44px; align-items: center;
+      height: var(--header-height-mobile); border-bottom: 1px solid var(--color-border);
+      padding: 0 16px; flex-shrink: 0;
+    }
+    .mobile-menu__close { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--color-black); justify-self: start; }
+    .mobile-menu__logo { display: flex; align-items: center; justify-content: center; }
+    .mobile-menu__logo img { height: 26px; width: auto; }
+    .mobile-menu__body { flex: 1; overflow-y: auto; padding: 0 24px 40px; }
+    .mobile-menu__links { display: flex; flex-direction: column; }
+    .mobile-menu__links a { font-size: 17px; font-weight: 600; padding: 18px 0; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: 10px; color: var(--color-black); }
+    .mobile-menu__links a:hover { color: var(--color-muted); }
+    .mobile-menu__social { display: flex; flex-direction: column; }
+    .mobile-menu__social a { font-size: 15px; font-weight: 500; color: var(--color-muted); padding: 16px 0; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: 10px; }
+    .mobile-menu__cta { margin-top: 28px; }
+    .mobile-menu__cta .btn { width: 100%; font-size: 16px; padding: 17px 24px; }
+
+    /* ═══════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════ */
+    .footer { background: var(--color-black); color: var(--color-white); padding: 56px 0 48px; }
+    .footer__top { display: grid; grid-template-columns: 1fr; gap: 40px; padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    @media (min-width: 900px) { .footer__top { grid-template-columns: 210px 1fr; gap: 48px; } }
+    .footer__brand { display: flex; flex-direction: column; gap: 20px; }
+    .footer__logo img { height: 28px; width: auto; }
+    .footer__tagline { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; max-width: 200px; }
+    .footer__social { display: flex; gap: 10px; }
+    .footer__social-link { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; transition: background var(--tr); }
+    .footer__social-link:hover { background: rgba(255,255,255,0.18); }
+    .footer__social-link svg { width: 20px; height: 20px; }
+    .footer__links { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    @media (min-width: 640px) { .footer__links { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+    .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.38); margin-bottom: 16px; }
+    .footer__col ul { display: flex; flex-direction: column; gap: 10px; }
+    .footer__col li a { font-size: 13px; color: rgba(255,255,255,0.62); transition: color var(--tr); }
+    .footer__col li a:hover { color: var(--color-white); }
+    .footer__bottom { padding: 28px 0 0; display: flex; flex-direction: column; gap: 20px; align-items: center; }
+    @media (min-width: 768px) { .footer__bottom { flex-direction: row; justify-content: space-between; flex-wrap: wrap; gap: 16px; } }
+    .footer__payments { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .footer__payment-icon { display: flex; align-items: center; justify-content: center; height: 40px; background: none; padding: 0; }
+    .footer__payment-icon img { height: 40px; width: auto; display: block; }
+    .footer__policies { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+    .footer__policies a { font-size: 12px; color: rgba(255,255,255,0.42); transition: color var(--tr); }
+    .footer__policies a:hover { color: rgba(255,255,255,0.75); }
+    .footer__copyright { font-size: 12px; color: rgba(255,255,255,0.32); text-align: center; }
+
+    /* ═══════════════════════════════════
+       PAGE LAYOUT
+    ═══════════════════════════════════ */
+    .ty-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+    @media (min-width: 768px) { .ty-wrap { padding: 56px 32px 96px; } }
+
+    /* ═══════════════════════════════════
+       SECTION 1 — CONFIRMATION HEADER
+    ═══════════════════════════════════ */
+    .ty-confirm {
+      text-align: center;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: 36px;
+    }
+    .ty-confirm__tick {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--color-green-mid);
+      margin: 0 auto 24px;
+    }
+    .ty-confirm__tick svg {
+      display: block;
+    }
+    .ty-confirm__heading {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--color-black);
+      margin-bottom: 10px;
+    }
+    @media (min-width: 768px) { .ty-confirm__heading { font-size: 38px; } }
+    .ty-confirm__sub {
+      font-size: 15px;
+      color: var(--color-muted);
+      line-height: 1.6;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+    @media (min-width: 768px) { .ty-confirm__sub { font-size: 17px; } }
+
+    /* ═══════════════════════════════════
+       SECTION 2 — ORDER SUMMARY CARD
+    ═══════════════════════════════════ */
+    .ty-summary {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 36px;
+    }
+    .ty-summary__title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 18px;
+    }
+    .ty-summary__rows { display: flex; flex-direction: column; gap: 14px; }
+    .ty-summary__row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .ty-summary__row + .ty-summary__row {
+      padding-top: 14px;
+      border-top: 1px solid var(--color-border);
+    }
+    .ty-summary__label {
+      font-size: 13px;
+      color: var(--color-muted);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .ty-summary__value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-black);
+      text-align: right;
+    }
+    .ty-summary__fallback {
+      font-size: 14px;
+      color: var(--color-muted);
+      font-style: italic;
+    }
+
+    /* ═══════════════════════════════════
+       SECTION 3 — WHAT HAPPENS NEXT
+    ═══════════════════════════════════ */
+    .ty-next {
+      margin-bottom: 36px;
+    }
+    .ty-section-heading {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-black);
+      margin-bottom: 24px;
+      line-height: 1.2;
+    }
+    @media (min-width: 768px) { .ty-section-heading { font-size: 22px; } }
+
+    /* Timeline steps — mirrors index.html hiw__timeline style */
+    .ty-steps { display: flex; flex-direction: column; }
+    .ty-step { display: flex; gap: 20px; position: relative; padding-bottom: 28px; }
+    .ty-step:last-child { padding-bottom: 0; }
+    .ty-step__left {
+      display: flex; flex-direction: column; align-items: center;
+      flex-shrink: 0; width: 40px;
+    }
+    .ty-step__dot {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--color-black);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; position: relative; z-index: 1;
+      font-size: 14px; font-weight: 800; color: var(--color-white);
+      line-height: 1;
+    }
+    .ty-step__line { width: 2px; background: var(--color-border); flex: 1; margin-top: 4px; }
+    .ty-step:last-child .ty-step__line { display: none; }
+    .ty-step__right { flex: 1; padding-top: 8px; }
+    .ty-step__text {
+      font-size: 15px;
+      color: #333;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+    @media (min-width: 768px) { .ty-step__text { font-size: 16px; } }
+
+    /* ═══════════════════════════════════
+       SECTION 4 — IMPORTANT TIPS
+    ═══════════════════════════════════ */
+    .ty-tips {
+      background: var(--color-green-mid);
+      border: 1px solid #a3e9c5;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 36px;
+    }
+    .ty-tips__heading {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a5c33;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ty-tips__list { display: flex; flex-direction: column; gap: 14px; }
+    .ty-tips__item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .ty-tips__icon {
+      flex-shrink: 0;
+      margin-top: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--color-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ty-tips__icon svg { display: block; }
+    .ty-tips__text {
+      font-size: 14px;
+      color: #1a5c33;
+      line-height: 1.65;
+    }
+    @media (min-width: 768px) { .ty-tips__text { font-size: 15px; } }
+
+    /* ═══════════════════════════════════
+       SECTION 5 — NEED HELP
+    ═══════════════════════════════════ */
+    .ty-help {
+      text-align: center;
+      padding-top: 8px;
+    }
+    .ty-help__text {
+      font-size: 14px;
+      color: var(--color-muted);
+    }
+    .ty-help__link {
+      color: var(--color-black);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color var(--tr);
+    }
+    .ty-help__link:hover { color: var(--color-muted); }
+
+    /* ─── Utility ─── */
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header header--scrolled" id="siteHeader">
+    <div class="container header__inner">
+
+      <button class="header__hamburger" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+        <img src="../assets/icons/feature_icons/icon-hamburger.svg" alt="">
+      </button>
+
+      <div class="header__center">
+        <a href="../index.html" class="header__wordmark" aria-label="Prisoncall Australia — home">
+          <img src="../assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
+        </a>
+        <a href="../choose-plan.html" class="header__mobile-cta">Get Prisoncall now</a>
+      </div>
+
+      <div class="header__right">
+        <!-- STANDING RULE: brand icon always links to index.html on every page — never blocked by JS -->
+        <a href="../index.html" class="header__icon-link" aria-label="Prisoncall Australia — home">
+          <img src="../assets/brand_logos/Prisoncall_Icon_BLACK.svg" alt="Prisoncall Australia" class="header__icon-img">
+        </a>
+        <div class="header__desktop-cta">
+          <a href="../choose-plan.html" class="btn btn--green">Get Prisoncall now</a>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══ MOBILE MENU ═══ -->
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <div class="mobile-menu__top">
+      <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">&#x2715;</button>
+      <div class="mobile-menu__logo">
+        <img src="../assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
+      </div>
+      <div></div>
+    </div>
+    <div class="mobile-menu__body">
+      <nav class="mobile-menu__links">
+        <a href="../choose-plan.html">Choose Prisoncall plan</a>
+        <a href="https://account.prisoncall.com.au/pages/121f6795-04f1-44c5-ac65-0408561ac72e?locale=en&region_country=AU" target="_blank" rel="noopener">Manage my plan</a>
+        <a href="../contact.html">Contact us</a>
+      </nav>
+      <div class="mobile-menu__social">
+        <a href="https://www.facebook.com/prisoncallaustralia" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          Follow us on Facebook
+        </a>
+        <a href="https://www.instagram.com/prisoncallaustralia/" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          Follow us on Instagram
+        </a>
+      </div>
+      <div class="mobile-menu__cta">
+        <a href="../choose-plan.html" class="btn btn--green">Get started now</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN ═══ -->
+  <main>
+    <div class="ty-wrap">
+
+      <!-- ─── Section 1: Confirmation header ─── -->
+      <section class="ty-confirm" aria-label="Order confirmed">
+        <div class="ty-confirm__tick" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 21L16.5 29.5L32 12" stroke="#00D258" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1 class="ty-confirm__heading">You're all set!</h1>
+        <p class="ty-confirm__sub">Your Prisoncall number is on its way — check your SMS and email within minutes.</p>
+      </section>
+
+      <!-- ─── Section 2: Order summary ─── -->
+      <section class="ty-summary" aria-label="Order summary">
+        <p class="ty-summary__title">Order summary</p>
+        <div class="ty-summary__rows" id="summaryRows">
+          <!-- Populated by JS from URL params or fallback -->
+        </div>
+      </section>
+
+      <!-- ─── Section 3: What happens next ─── -->
+      <section class="ty-next" aria-labelledby="ty-next-heading">
+        <h2 class="ty-section-heading" id="ty-next-heading">What happens next</h2>
+        <div class="ty-steps" role="list">
+
+          <div class="ty-step" role="listitem">
+            <div class="ty-step__left">
+              <div class="ty-step__dot" aria-hidden="true">1</div>
+              <div class="ty-step__line"></div>
+            </div>
+            <div class="ty-step__right">
+              <p class="ty-step__text">Check your SMS and email for your Prisoncall number</p>
+            </div>
+          </div>
+
+          <div class="ty-step" role="listitem">
+            <div class="ty-step__left">
+              <div class="ty-step__dot" aria-hidden="true">2</div>
+              <div class="ty-step__line"></div>
+            </div>
+            <div class="ty-step__right">
+              <p class="ty-step__text">Save the number in your phone contacts</p>
+            </div>
+          </div>
+
+          <div class="ty-step" role="listitem">
+            <div class="ty-step__left">
+              <div class="ty-step__dot" aria-hidden="true">3</div>
+              <div class="ty-step__line"></div>
+            </div>
+            <div class="ty-step__right">
+              <p class="ty-step__text">Share the number with your loved one to register with the prison</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ─── Section 4: Important tips ─── -->
+      <section class="ty-tips" aria-labelledby="ty-tips-heading">
+        <h2 class="ty-tips__heading" id="ty-tips-heading">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a5c33" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Important tips
+        </h2>
+        <ul class="ty-tips__list">
+
+          <li class="ty-tips__item">
+            <span class="ty-tips__icon" aria-hidden="true">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <p class="ty-tips__text">Check your SMS and email — your Prisoncall number will arrive within minutes</p>
+          </li>
+
+          <li class="ty-tips__item">
+            <span class="ty-tips__icon" aria-hidden="true">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <p class="ty-tips__text">Turn off voicemail temporarily — the prison may call to verify your number</p>
+          </li>
+
+          <li class="ty-tips__item">
+            <span class="ty-tips__icon" aria-hidden="true">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <p class="ty-tips__text">Answer all unknown incoming calls — it could be the prison calling to verify</p>
+          </li>
+
+          <li class="ty-tips__item">
+            <span class="ty-tips__icon" aria-hidden="true">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <p class="ty-tips__text">Save your Prisoncall number in your contacts — when the prison officer calls to verify, they will ask you to confirm your number. Quote your Prisoncall number, not your personal mobile number.</p>
+          </li>
+
+        </ul>
+      </section>
+
+      <!-- ─── Section 5: Need help ─── -->
+      <section class="ty-help" aria-label="Support">
+        <p class="ty-help__text">Need help? <a href="../contact.html" class="ty-help__link">Contact us</a></p>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+
+        <div class="footer__brand">
+          <a href="../index.html" class="footer__logo" aria-label="Prisoncall Australia — home">
+            <img src="../assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall Australia">
+          </a>
+          <p class="footer__tagline">Providing cheap prison phone calls for inmates and families in Victoria and New South Wales since 2023.</p>
+          <div class="footer__social">
+            <a href="https://www.facebook.com/prisoncallaustralia" target="_blank" rel="noopener" class="footer__social-link" aria-label="Follow Prisoncall on Facebook">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/prisoncallaustralia/" target="_blank" rel="noopener" class="footer__social-link" aria-label="Follow Prisoncall on Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer__links">
+
+          <div class="footer__col">
+            <p class="footer__col-title">Victoria</p>
+            <ul>
+              <li><a href="../barwon-prison.html">Barwon Prison</a></li>
+              <li><a href="../beechworth-correctional-centre.html">Beechworth CC</a></li>
+              <li><a href="../dame-phyllis-frost-centre.html">Dame Phyllis Frost Centre</a></li>
+              <li><a href="../fulham-correctional-centre.html">Fulham CC</a></li>
+              <li><a href="../hopkins-correctional-centre.html">Hopkins CC</a></li>
+              <li><a href="../langi-kal-kal-prison.html">Langi Kal Kal Prison</a></li>
+              <li><a href="../loddon-middleton-prison.html">Loddon / Middleton Prison</a></li>
+              <li><a href="../marngoneet-correctional-centre.html">Marngoneet CC</a></li>
+              <li><a href="../melbourne-assessment-prison.html">Melbourne Assessment Prison</a></li>
+              <li><a href="../metropolitan-remand-centre.html">Metropolitan Remand Centre</a></li>
+              <li><a href="../port-phillip-prison.html">Port Phillip Prison</a></li>
+              <li><a href="../ravenhall-correctional-centre.html">Ravenhall CC</a></li>
+              <li><a href="../tarrengower-prison.html">Tarrengower Prison</a></li>
+              <li><a href="../western-plains-correctional-centre.html">Western Plains CC</a></li>
+            </ul>
+          </div>
+
+          <div class="footer__col">
+            <p class="footer__col-title">New South Wales</p>
+            <ul>
+              <li><a href="../cessnock-correctional-centre.html">Cessnock CC</a></li>
+              <li><a href="../clarence-correctional-centre.html">Clarence CC</a></li>
+              <li><a href="../cooma-correctional-centre.html">Cooma CC</a></li>
+              <li><a href="../dillwynia-correctional-centre.html">Dillwynia CC</a></li>
+              <li><a href="../emu-plains-correctional-centre.html">Emu Plains CC</a></li>
+              <li><a href="../goulburn-correctional-centre.html">Goulburn CC</a></li>
+              <li><a href="../john-morony-correctional-centre.html">John Morony CC</a></li>
+              <li><a href="../junee-correctional-centre.html">Junee CC</a></li>
+              <li><a href="../kariong-intake-transit.html">Kariong Intake &amp; Transit</a></li>
+              <li><a href="../kirkconnell-correctional-centre.html">Kirkconnell CC</a></li>
+              <li><a href="../lithgow-correctional-centre.html">Lithgow CC</a></li>
+              <li><a href="../long-bay-correctional-centre.html">Long Bay Complex</a></li>
+              <li><a href="../mrrc-silverwater-prison.html">MRRC Silverwater</a></li>
+              <li><a href="../oberon-correctional-centre.html">Oberon CC</a></li>
+              <li><a href="../parklea-correctional-centre.html">Parklea CC</a></li>
+              <li><a href="../silverwater-womens-correctional-centre.html">Silverwater Women's CC</a></li>
+              <li><a href="../south-coast-correctional-centre.html">South Coast CC</a></li>
+              <li><a href="../st-heliers-correctional-centre.html">St Heliers CC</a></li>
+              <li><a href="../tamworth-correctional-centre.html">Tamworth CC</a></li>
+              <li><a href="../wellington-correctional-centre.html">Wellington CC</a></li>
+            </ul>
+          </div>
+
+          <div class="footer__col">
+            <p class="footer__col-title">Help</p>
+            <ul>
+              <li><a href="../choose-plan.html">Buy a Prisoncall plan</a></li>
+              <li><a href="https://account.prisoncall.com.au/pages/121f6795-04f1-44c5-ac65-0408561ac72e?locale=en&region_country=AU" target="_blank" rel="noopener">Manage my plan</a></li>
+              <li><a href="../contact.html">Contact support</a></li>
+            </ul>
+          </div>
+
+          <div class="footer__col">
+            <p class="footer__col-title">Resources</p>
+            <ul>
+              <li><a href="../index.html">Cheap Prison Calls</a></li>
+              <li><a href="../engine-number-for-prison.html">Prison Engine Number</a></li>
+              <li><a href="../jail-engine-number.html">Jail Engine Number</a></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <div class="footer__payments" aria-label="Accepted payment methods">
+          <div class="footer__payment-icon"><img src="../assets/icons/payments_icons/Visa.svg" alt="Visa"></div>
+          <div class="footer__payment-icon"><img src="../assets/icons/payments_icons/Mastercard.svg" alt="Mastercard"></div>
+          <div class="footer__payment-icon"><img src="../assets/icons/payments_icons/Amex.svg" alt="American Express"></div>
+          <div class="footer__payment-icon"><img src="../assets/icons/payments_icons/ApplePay.svg" alt="Apple Pay"></div>
+          <div class="footer__payment-icon"><img src="../assets/icons/payments_icons/GooglePay.svg" alt="Google Pay"></div>
+        </div>
+        <div class="footer__policies">
+          <a href="../privacy-policy.html">Privacy Policy</a>
+          <a href="../terms-of-service.html">Terms of Service</a>
+          <a href="../refund-policy.html">Refund Policy</a>
+          <a href="../cancellation-policy.html">Cancellation Policy</a>
+        </div>
+        <p class="footer__copyright">© <span id="copyrightYear"></span> Prisoncall Australia by The Freebird &amp; Co Pty Ltd. All prices GST-inclusive.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══ SCRIPTS ═══ -->
+  <script>
+  'use strict';
+
+  /* ─── Copyright year ─── */
+  document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+
+  /* ─── Mobile menu ─── */
+  var menuToggle = document.getElementById('menuToggle');
+  var menuClose  = document.getElementById('menuClose');
+  var mobileMenu = document.getElementById('mobileMenu');
+  function openMenu()  { mobileMenu.classList.add('is-open');    document.body.style.overflow = 'hidden'; menuToggle.setAttribute('aria-expanded','true'); }
+  function closeMenu() { mobileMenu.classList.remove('is-open'); document.body.style.overflow = '';       menuToggle.setAttribute('aria-expanded','false'); }
+  menuToggle.addEventListener('click', openMenu);
+  menuClose.addEventListener('click', closeMenu);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeMenu(); });
+  mobileMenu.querySelectorAll('a').forEach(function(l){ l.addEventListener('click', closeMenu); });
+
+  /* ─── Mask mobile number: show only last 3 digits ─── */
+  function maskMobile(raw) {
+    var digits = (raw || '').replace(/\D/g, '');
+    if (digits.length < 3) return raw || '';
+    return '04\u2022\u2022 \u2022\u2022\u2022 ' + digits.slice(-3);
+  }
+
+  /* ─── Escape HTML ─── */
+  function escHtml(str) {
+    return String(str || '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  /* ─── Read URL params and populate order summary ─── */
+  (function renderSummary() {
+    var params;
+    try { params = new URLSearchParams(window.location.search); } catch(e) { params = null; }
+
+    var prison = params ? (params.get('prison') || '').trim() : '';
+    var plan   = params ? (params.get('plan')   || '').trim() : '';
+    var mobile = params ? (params.get('mobile') || '').trim() : '';
+
+    var hasData = prison || plan || mobile;
+    var rows    = document.getElementById('summaryRows');
+    if (!rows) return;
+
+    if (!hasData) {
+      /* Fallback — clean and professional, no empty fields */
+      rows.innerHTML =
+        '<div class="ty-summary__row">' +
+          '<span class="ty-summary__label">Order status</span>' +
+          '<span class="ty-summary__value">Confirmed</span>' +
+        '</div>' +
+        '<div class="ty-summary__row">' +
+          '<span class="ty-summary__label">Prisoncall number</span>' +
+          '<span class="ty-summary__fallback">On its way — check your SMS &amp; email</span>' +
+        '</div>';
+      return;
+    }
+
+    var html = '';
+
+    if (prison) {
+      html +=
+        '<div class="ty-summary__row">' +
+          '<span class="ty-summary__label">Prison</span>' +
+          '<span class="ty-summary__value">' + escHtml(prison) + '</span>' +
+        '</div>';
+    }
+
+    if (plan) {
+      html +=
+        '<div class="ty-summary__row">' +
+          '<span class="ty-summary__label">Plan</span>' +
+          '<span class="ty-summary__value">' + escHtml(plan) + '</span>' +
+        '</div>';
+    }
+
+    if (mobile) {
+      html +=
+        '<div class="ty-summary__row">' +
+          '<span class="ty-summary__label">Mobile</span>' +
+          '<span class="ty-summary__value">' + escHtml(maskMobile(mobile)) + '</span>' +
+        '</div>';
+    }
+
+    /* Always append the Prisoncall number delivery note */
+    html +=
+      '<div class="ty-summary__row">' +
+        '<span class="ty-summary__label">Prisoncall number</span>' +
+        '<span class="ty-summary__fallback">On its way — check your SMS &amp; email</span>' +
+      '</div>';
+
+    rows.innerHTML = html;
+  })();
+  </script>
+
+</body>
+</html>
