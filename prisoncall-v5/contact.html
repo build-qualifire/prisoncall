@@ -1047,16 +1047,72 @@
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  /* ─── Native fuzzy search (no external libraries) ─── */
+
+  /* Levenshtein edit distance between two strings */
+  function editDist(a, b) {
+    var m = a.length, n = b.length, i, j;
+    var dp = [];
+    for (i = 0; i <= m; i++) {
+      dp[i] = [];
+      dp[i][0] = i;
+    }
+    for (j = 0; j <= n; j++) dp[0][j] = j;
+    for (i = 1; i <= m; i++) {
+      for (j = 1; j <= n; j++) {
+        dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1]
+                  : 1 + Math.min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]);
+      }
+    }
+    return dp[m][n];
+  }
+
+  /*
+   * Returns a score > 0 if query matches name, 0 if no match.
+   * Priority: exact substring (1000) > all words substring (700) > fuzzy word match (400).
+   * Fuzzy tolerance: 0 edits for ≤3 chars, floor(maxLen/4) edits for longer words.
+   */
+  function fuzzyScore(query, name) {
+    var q = query.toLowerCase().trim();
+    var t = name.toLowerCase();
+
+    /* 1. Exact substring anywhere in name — highest priority */
+    var idx = t.indexOf(q);
+    if (idx >= 0) return 1000 - idx;
+
+    var qWords = q.split(/\s+/).filter(Boolean);
+    var tWords = t.split(/[\s\/\-&]+/).filter(Boolean);
+
+    /* 2. Every query word is a substring of the full target */
+    if (qWords.every(function(w) { return t.indexOf(w) >= 0; })) return 700;
+
+    /* 3. Each query word fuzzy-matches at least one target word by edit distance */
+    var allFuzzy = qWords.every(function(qw) {
+      return tWords.some(function(tw) {
+        var maxLen = Math.max(qw.length, tw.length);
+        var minLen = Math.min(qw.length, tw.length);
+        if (maxLen > minLen * 2.5) return false; /* too different in length — skip */
+        var tol = maxLen <= 3 ? 0 : Math.floor(maxLen / 4);
+        return editDist(qw, tw) <= tol;
+      });
+    });
+    if (allFuzzy) return 400;
+
+    return 0;
+  }
+
   function showSuggestions(query) {
     activeIndex = -1;
-    if (!query) { hideSuggestions(); return; }
-    var q = query.toLowerCase();
-    var matches = CHECKER_LIST.filter(function(p) {
-      return p.name.toLowerCase().indexOf(q) >= 0;
-    }).slice(0, 8);
-    if (!matches.length) { hideSuggestions(); return; }
+    if (!query || query.length < 2) { hideSuggestions(); return; }
+    var scored = CHECKER_LIST
+      .map(function(p) { return { p: p, score: fuzzyScore(query, p.name) }; })
+      .filter(function(x) { return x.score > 0; })
+      .sort(function(a, b) { return b.score - a.score; })
+      .slice(0, 8)
+      .map(function(x) { return x.p; });
+    if (!scored.length) { hideSuggestions(); return; }
 
-    suggestions.innerHTML = matches.map(function(p, i) {
+    suggestions.innerHTML = scored.map(function(p, i) {
       return '<div class="checker__suggestion" role="option" tabindex="-1"' +
         ' data-index="' + i + '"' +
         ' data-name="' + escHtml(p.name) + '"' +
