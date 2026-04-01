@@ -649,6 +649,13 @@
     .final-cta__sub { font-size: 17px; color: rgba(255,255,255,0.72); margin-bottom: 36px; }
     .final-cta .btn { font-size: 17px; padding: 18px 40px; }
     @media (max-width: 767px) { .final-cta .btn { width: 100%; } }
+    .final-cta__checker { max-width: 600px; margin: 0 auto; text-align: left; }
+    .final-cta__checker .checker__btn { font-size: 15px; padding: 14px 22px; }
+    @media (max-width: 767px) { .final-cta__checker .checker__btn { width: auto; } }
+    @media (max-width: 559px) { .final-cta__checker .checker__btn { width: 100%; } }
+    .final-cta__checker .checker__input { border-color: rgba(255,255,255,0.25); }
+    .final-cta__checker .checker__input:focus { border-color: var(--color-white); }
+    .final-cta__checker .checker__error { color: #ff9e9e; }
 
     /* ═══════════════════════════════════
        FOOTER
@@ -913,6 +920,33 @@
             </div>
           </div>
 
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PRISON CHECKER (mid-page) ═══ -->
+    <section class="prison-checker section-pad" aria-labelledby="hiw-checker-title">
+      <div class="container">
+        <div class="checker" id="hiwCheckerPanel">
+          <h2 class="checker__heading" id="hiw-checker-title">Not sure if Prisoncall covers your loved one's prison?</h2>
+          <div class="checker__body">
+            <div class="checker__input-wrap">
+              <input
+                type="text"
+                class="checker__input"
+                id="hiwCheckerInput"
+                placeholder="Start typing your prison name..."
+                autocomplete="off"
+                aria-label="Prison name"
+                aria-autocomplete="list"
+                aria-controls="hiwCheckerSuggestions"
+                aria-haspopup="listbox"
+              >
+              <div class="checker__suggestions" id="hiwCheckerSuggestions" role="listbox" aria-label="Prison suggestions"></div>
+            </div>
+            <button class="checker__btn btn btn--green" id="hiwCheckerBtn" type="button">Check my prison</button>
+          </div>
+          <p class="checker__error" id="hiwCheckerError" role="alert">Please select a prison from the list to continue.</p>
         </div>
       </div>
     </section>
@@ -1208,33 +1242,6 @@
       </div>
     </section>
 
-    <!-- ═══ PRISON CHECKER ═══ -->
-    <section class="prison-checker section-pad" aria-labelledby="hp-checker-title">
-      <div class="container">
-        <div class="checker" id="hpCheckerPanel">
-          <h2 class="checker__heading" id="hp-checker-title">Not sure if Prisoncall covers your loved one's prison?</h2>
-          <div class="checker__body">
-            <div class="checker__input-wrap">
-              <input
-                type="text"
-                class="checker__input"
-                id="hpCheckerInput"
-                placeholder="Start typing your prison name..."
-                autocomplete="off"
-                aria-label="Prison name"
-                aria-autocomplete="list"
-                aria-controls="hpCheckerSuggestions"
-                aria-haspopup="listbox"
-              >
-              <div class="checker__suggestions" id="hpCheckerSuggestions" role="listbox" aria-label="Prison suggestions"></div>
-            </div>
-            <button class="checker__btn btn btn--green" id="hpCheckerBtn" type="button">Check my prison</button>
-          </div>
-          <p class="checker__error" id="hpCheckerError" role="alert">Please select a prison from the list to continue.</p>
-        </div>
-      </div>
-    </section>
-
     <!-- ═══ FAQ ═══ -->
     <section class="faq section-pad" aria-labelledby="faq-title">
       <div class="container">
@@ -1385,8 +1392,27 @@
     <section class="final-cta" aria-label="Get started with Prisoncall">
       <div class="container">
         <h2 class="final-cta__title">Cheap prison calls made easy</h2>
-        <p class="final-cta__sub">Set up your Prisoncall number in 1 minute.</p>
-        <a href="choose-plan.html" class="btn btn--green btn--lg">Get started now</a>
+        <p class="final-cta__sub">Exclusively for VIC &amp; NSW prisons. Check your loved one's prison now.</p>
+        <div class="final-cta__checker">
+          <div class="checker__body">
+            <div class="checker__input-wrap">
+              <input
+                type="text"
+                class="checker__input"
+                id="fcCheckerInput"
+                placeholder="Start typing your prison name..."
+                autocomplete="off"
+                aria-label="Prison name"
+                aria-autocomplete="list"
+                aria-controls="fcCheckerSuggestions"
+                aria-haspopup="listbox"
+              >
+              <div class="checker__suggestions" id="fcCheckerSuggestions" role="listbox" aria-label="Prison suggestions"></div>
+            </div>
+            <button class="checker__btn btn btn--green" id="fcCheckerBtn" type="button">Check my prison</button>
+          </div>
+          <p class="checker__error" id="fcCheckerError" role="alert">Please select a prison from the list to continue.</p>
+        </div>
       </div>
     </section>
 
@@ -1651,9 +1677,9 @@
       statEls.forEach(function(el) { statObs.observe(el); });
     })();
 
-    // ─── Homepage Prison Checker ───
+    // ─── Prison Checker (shared logic — powers all checker instances on page) ───
     (function() {
-      var HP_PRISONS = {
+      var PRISONS = {
         vic: [
           'Barwon Prison',
           'Beechworth Correctional Centre',
@@ -1694,25 +1720,17 @@
         ]
       };
 
-      var hpList = [];
-      Object.keys(HP_PRISONS).forEach(function(state) {
-        HP_PRISONS[state].forEach(function(name) { hpList.push({ name: name, state: state }); });
+      var LIST = [];
+      Object.keys(PRISONS).forEach(function(state) {
+        PRISONS[state].forEach(function(name) { LIST.push({ name: name, state: state }); });
       });
 
-      var hpInput       = document.getElementById('hpCheckerInput');
-      var hpSuggestions = document.getElementById('hpCheckerSuggestions');
-      var hpBtn         = document.getElementById('hpCheckerBtn');
-      var hpError       = document.getElementById('hpCheckerError');
-      if (!hpInput) return;
-
-      var hpSelected = null, hpState = null, hpActive = -1;
-
-      function hpEsc(s) {
+      function escHtml(s) {
         return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
       }
 
       /* Levenshtein edit distance */
-      function hpEditDist(a, b) {
+      function editDist(a, b) {
         var m = a.length, n = b.length, i, j, dp = [];
         for (i = 0; i <= m; i++) { dp[i] = []; dp[i][0] = i; }
         for (j = 0; j <= n; j++) dp[0][j] = j;
@@ -1726,7 +1744,7 @@
       }
 
       /* Fuzzy score: exact substring > all words substring > fuzzy word match */
-      function hpFuzzyScore(query, name) {
+      function fuzzyScore(query, name) {
         var q = query.toLowerCase().trim(), t = name.toLowerCase();
         var idx = t.indexOf(q);
         if (idx >= 0) return 1000 - idx;
@@ -1739,93 +1757,107 @@
             var minLen = Math.min(qw.length, tw.length);
             if (maxLen > minLen * 2.5) return false;
             var tol = maxLen <= 3 ? 0 : Math.floor(maxLen / 4);
-            return hpEditDist(qw, tw) <= tol;
+            return editDist(qw, tw) <= tol;
           });
         });
         return allFuzzy ? 400 : 0;
       }
 
-      function hpHide() {
-        hpSuggestions.style.display = 'none';
-        hpSuggestions.innerHTML = '';
-        hpActive = -1;
-      }
+      /* Wire up a single checker instance by element IDs */
+      function makeChecker(inputId, suggestionsId, btnId, errorId) {
+        var input       = document.getElementById(inputId);
+        var suggestions = document.getElementById(suggestionsId);
+        var btn         = document.getElementById(btnId);
+        var error       = document.getElementById(errorId);
+        if (!input) return;
 
-      function hpShow(query) {
-        hpActive = -1;
-        if (!query || query.length < 2) { hpHide(); return; }
-        var scored = hpList
-          .map(function(p) { return { p: p, score: hpFuzzyScore(query, p.name) }; })
-          .filter(function(x) { return x.score > 0; })
-          .sort(function(a, b) { return b.score - a.score; })
-          .slice(0, 8)
-          .map(function(x) { return x.p; });
-        if (!scored.length) { hpHide(); return; }
-        hpSuggestions.innerHTML = scored.map(function(p, i) {
-          return '<div class="checker__suggestion" role="option" tabindex="-1"' +
-            ' data-index="' + i + '" data-name="' + hpEsc(p.name) + '" data-state="' + p.state + '">' +
-            '<span class="checker__suggestion-name">' + hpEsc(p.name) + '</span>' +
-            '<span class="checker__badge checker__badge--' + p.state + '">' + p.state.toUpperCase() + '</span>' +
-            '</div>';
-        }).join('');
-        hpSuggestions.style.display = 'block';
-      }
+        var selected = null, state = null, active = -1;
 
-      function hpSelect(el) {
-        hpSelected = el.dataset.name;
-        hpState    = el.dataset.state;
-        hpInput.value = hpSelected;
-        hpInput.classList.remove('has-error');
-        hpError.classList.remove('is-visible');
-        hpHide();
-      }
-
-      function hpUpdateActive(items) {
-        items.forEach(function(el, i) { el.classList.toggle('is-active', i === hpActive); });
-      }
-
-      hpInput.addEventListener('input', function() {
-        hpSelected = null; hpState = null;
-        hpShow(hpInput.value.trim());
-      });
-
-      hpInput.addEventListener('keydown', function(e) {
-        var items = hpSuggestions.querySelectorAll('.checker__suggestion');
-        if (!items.length) return;
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          hpActive = Math.min(hpActive + 1, items.length - 1);
-          hpUpdateActive(items);
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          hpActive = Math.max(hpActive - 1, 0);
-          hpUpdateActive(items);
-        } else if (e.key === 'Enter') {
-          e.preventDefault();
-          var target = hpActive >= 0 ? items[hpActive] : items[0];
-          if (target) hpSelect(target);
-        } else if (e.key === 'Escape') {
-          hpHide();
+        function hide() {
+          suggestions.style.display = 'none';
+          suggestions.innerHTML = '';
+          active = -1;
         }
-      });
 
-      hpSuggestions.addEventListener('mousedown', function(e) {
-        var item = e.target.closest('.checker__suggestion');
-        if (item) { e.preventDefault(); hpSelect(item); }
-      });
-
-      hpInput.addEventListener('blur', function() { setTimeout(hpHide, 160); });
-
-      hpBtn.addEventListener('click', function() {
-        if (!hpSelected || !hpState) {
-          hpInput.classList.add('has-error');
-          hpError.classList.add('is-visible');
-          hpInput.focus();
-          return;
+        function show(query) {
+          active = -1;
+          if (!query || query.length < 2) { hide(); return; }
+          var scored = LIST
+            .map(function(p) { return { p: p, score: fuzzyScore(query, p.name) }; })
+            .filter(function(x) { return x.score > 0; })
+            .sort(function(a, b) { return b.score - a.score; })
+            .slice(0, 8)
+            .map(function(x) { return x.p; });
+          if (!scored.length) { hide(); return; }
+          suggestions.innerHTML = scored.map(function(p, i) {
+            return '<div class="checker__suggestion" role="option" tabindex="-1"' +
+              ' data-index="' + i + '" data-name="' + escHtml(p.name) + '" data-state="' + p.state + '">' +
+              '<span class="checker__suggestion-name">' + escHtml(p.name) + '</span>' +
+              '<span class="checker__badge checker__badge--' + p.state + '">' + p.state.toUpperCase() + '</span>' +
+              '</div>';
+          }).join('');
+          suggestions.style.display = 'block';
         }
-        window.location.href = 'choose-plan.html?state=' + hpState +
-          '&prison=' + encodeURIComponent(hpSelected);
-      });
+
+        function select(el) {
+          selected = el.dataset.name;
+          state    = el.dataset.state;
+          input.value = selected;
+          input.classList.remove('has-error');
+          error.classList.remove('is-visible');
+          hide();
+        }
+
+        function updateActive(items) {
+          items.forEach(function(el, i) { el.classList.toggle('is-active', i === active); });
+        }
+
+        input.addEventListener('input', function() {
+          selected = null; state = null;
+          show(input.value.trim());
+        });
+
+        input.addEventListener('keydown', function(e) {
+          var items = suggestions.querySelectorAll('.checker__suggestion');
+          if (!items.length) return;
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            active = Math.min(active + 1, items.length - 1);
+            updateActive(items);
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            active = Math.max(active - 1, 0);
+            updateActive(items);
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            var target = active >= 0 ? items[active] : items[0];
+            if (target) select(target);
+          } else if (e.key === 'Escape') {
+            hide();
+          }
+        });
+
+        suggestions.addEventListener('mousedown', function(e) {
+          var item = e.target.closest('.checker__suggestion');
+          if (item) { e.preventDefault(); select(item); }
+        });
+
+        input.addEventListener('blur', function() { setTimeout(hide, 160); });
+
+        btn.addEventListener('click', function() {
+          if (!selected || !state) {
+            input.classList.add('has-error');
+            error.classList.add('is-visible');
+            input.focus();
+            return;
+          }
+          window.location.href = 'choose-plan.html?state=' + state +
+            '&prison=' + encodeURIComponent(selected);
+        });
+      }
+
+      makeChecker('hiwCheckerInput', 'hiwCheckerSuggestions', 'hiwCheckerBtn', 'hiwCheckerError');
+      makeChecker('fcCheckerInput',  'fcCheckerSuggestions',  'fcCheckerBtn',  'fcCheckerError');
     })();
 
     // ─── Floating CTA — hide when hero in view (mobile only) ───
