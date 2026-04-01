@@ -373,7 +373,8 @@
     /* ─── Section shared ─── */
     .section-pad { padding: 28px 0; }
     @media (min-width: 768px) { .section-pad { padding: 80px 0; } }
-    @media (max-width: 767px) { .hiw { padding-top: 28px; padding-bottom: 28px; } }
+    @media (max-width: 767px) { .hiw { padding-top: 28px; padding-bottom: 20px; } }
+    @media (min-width: 768px) { .hiw.section-pad { padding-bottom: 44px; } }
     @media (max-width: 767px) { .reviews { padding-top: 28px; padding-bottom: 28px; } }
     @media (max-width: 767px) { .final-cta { padding-top: 28px; padding-bottom: 28px; } }
     .section-title {
@@ -541,9 +542,8 @@
     .reviews__cta { text-align: center; margin-top: 40px; }
 
     /* ═══════════════════════════════════
-       PRISON CHECKER
+       PRISON CHECKER (shared — mid-page + final CTA body)
     ═══════════════════════════════════ */
-    .prison-checker { background: var(--color-white); }
     .checker {
       background: var(--color-surface);
       border: 1.5px solid var(--color-border);
@@ -609,6 +609,65 @@
       margin-top: 8px; display: none;
     }
     .checker__error.is-visible { display: block; }
+
+    /* Mid-page checker — dark band (journey → why) */
+    .prison-checker {
+      background: var(--color-hero);
+      padding: 20px 0 36px;
+    }
+    @media (min-width: 768px) {
+      .prison-checker { padding: 28px 0 64px; }
+    }
+    .prison-checker .checker {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      max-width: 768px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .prison-checker .checker__heading {
+      color: var(--color-white);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 18px;
+      letter-spacing: -0.02em;
+    }
+    @media (min-width: 768px) {
+      .prison-checker .checker__heading { font-size: 24px; margin-bottom: 22px; }
+    }
+    .prison-checker .checker__input {
+      background: rgba(255,255,255,0.07);
+      border: 2px solid rgba(255,255,255,0.55);
+      color: var(--color-white);
+    }
+    .prison-checker .checker__input::placeholder {
+      color: rgba(255,255,255,0.42);
+    }
+    .prison-checker .checker__input:focus {
+      border-color: var(--color-white);
+    }
+    .prison-checker .checker__input.has-error {
+      border-color: #ff9e9e;
+    }
+    .prison-checker .checker__error {
+      color: #ff9e9e;
+    }
+    .prison-checker .checker__btn.btn--green {
+      background: #00D258;
+      border-color: #00D258;
+      color: var(--color-black);
+    }
+    .prison-checker .checker__suggestions {
+      z-index: 60;
+    }
+    /* Tighter rhythm: checker → why */
+    .prison-checker + .why.section-pad { padding-top: 28px; }
+    @media (min-width: 768px) {
+      .prison-checker + .why.section-pad { padding-top: 56px; }
+    }
 
     /* ═══════════════════════════════════
        FAQ
@@ -925,7 +984,7 @@
     </section>
 
     <!-- ═══ PRISON CHECKER (mid-page) ═══ -->
-    <section class="prison-checker section-pad" aria-labelledby="hiw-checker-title">
+    <section class="prison-checker" aria-labelledby="hiw-checker-title">
       <div class="container">
         <div class="checker" id="hiwCheckerPanel">
           <h2 class="checker__heading" id="hiw-checker-title">Not sure if Prisoncall covers your loved one's prison?</h2>
