@@ -800,12 +800,19 @@
     }
   });
 
-  /* ─── URL param ─── */
+  /* ─── URL params ─── */
   function getUrlState(){
     try {
       var p = new URLSearchParams(window.location.search);
       var s = (p.get('state')||'').toLowerCase();
       return (s==='vic'||s==='nsw') ? s : null;
+    } catch(e){ return null; }
+  }
+
+  function getUrlPrison(){
+    try {
+      var p = new URLSearchParams(window.location.search);
+      return (p.get('prison')||'').trim() || null;
     } catch(e){ return null; }
   }
 
@@ -1304,7 +1311,7 @@
   /* ═══════════════════════════════════════════════════════
      START NEW PLAN
   ═══════════════════════════════════════════════════════ */
-  function startNewPlan(preState){
+  function startNewPlan(preState, prePrison){
     cur    = { id: nextId++, state: null, prison: null, mobile: null, planKey: null };
     editId = null;
     clearGate(); /* allow scrolling up to the new step 1 */
@@ -1312,16 +1319,31 @@
     var s1 = buildStep1El(preState);
     planFlow.appendChild(s1);
     wireStep1(s1);
-    /* Auto-trigger URL state */
+    /* Auto-trigger URL state, then optionally auto-select prison from URL */
     if(preState){
       var btn = s1.querySelector('[data-sv="'+preState+'"]');
-      if(btn) setTimeout(function(){ btn.click(); }, 0);
+      if(btn) setTimeout(function(){
+        btn.click();
+        /* Step 2 is now in the DOM — auto-click the matching prison pill if provided */
+        if(prePrison){
+          var s2 = getStepEl(2);
+          if(s2){
+            var pills = s2.querySelectorAll('.prison-pill');
+            for(var i = 0; i < pills.length; i++){
+              if(pills[i].textContent.trim().toLowerCase() === prePrison.toLowerCase()){
+                pills[i].click();
+                break;
+              }
+            }
+          }
+        }
+      }, 0);
     }
     renderCompletedArea();
   }
 
   /* ─── Init ─── */
-  startNewPlan(getUrlState());
+  startNewPlan(getUrlState(), getUrlPrison());
   </script>
 
 </body>

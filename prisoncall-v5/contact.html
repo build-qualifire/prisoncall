@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help & Support | Prisoncall Australia</title>
+  <meta name="description" content="Get help with Prisoncall. Check if your prison is covered, find quick answers, manage your plan, or send us a message.">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/svg+xml" href="assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ─── CSS Variables ─── */
+    :root {
+      --color-black: #000000;
+      --color-white: #ffffff;
+      --color-green: #00D258;
+      --color-green-mid: #E6FAF0;
+      --color-green-pale: #F2F6F0;
+      --color-hero: #101010;
+      --color-muted: #666666;
+      --color-border: #E5E5E5;
+      --color-surface: #F9F9F9;
+      --color-error: #e53e3e;
+      --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 80px;
+      --tr: 150ms ease;
+      --container-max: 1312px;
+      --header-height: 72px;
+      --header-height-mobile: 48px;
+    }
+
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-family);
+      font-size: 16px; line-height: 1.5;
+      color: var(--color-black); background: var(--color-white);
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ─── Container ─── */
+    .container { max-width: var(--container-max); margin: 0 auto; padding: 0 16px; }
+    @media (min-width: 768px) { .container { padding: 0 24px; } }
+    @media (min-width: 1024px) { .container { padding: 0 32px; } }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border-radius: var(--radius-pill); font-family: var(--font-family);
+      font-size: 16px; font-weight: 700; line-height: 1; padding: 15px 28px;
+      transition: background var(--tr), color var(--tr), border-color var(--tr), opacity var(--tr), transform var(--tr);
+      white-space: nowrap; cursor: pointer; text-decoration: none;
+    }
+    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); opacity: 1; }
+    .btn--green { background: var(--color-green); color: var(--color-black); border: 2px solid var(--color-green); }
+    .btn--black { background: var(--color-black); color: var(--color-white); border: 2px solid var(--color-black); }
+
+    /* ═══════════════════════════════════
+       HEADER
+    ═══════════════════════════════════ */
+    .header {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--color-white); height: var(--header-height-mobile);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .header__inner {
+      display: grid; grid-template-columns: 44px 1fr 44px;
+      align-items: center; height: 100%;
+    }
+    .header__hamburger { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+    .header__hamburger img { width: 24px; height: 24px; }
+    .header__center { display: flex; align-items: center; justify-content: center; position: relative; height: 100%; overflow: hidden; }
+    .header__wordmark { display: flex; align-items: center; transition: opacity var(--tr); }
+    .header__wordmark img { height: 20px; width: auto; }
+    .header__mobile-cta {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      opacity: 0; pointer-events: none; transition: opacity var(--tr);
+      padding: 9px 20px; font-size: 13px; font-weight: 700; font-family: var(--font-family);
+      white-space: nowrap; border-radius: var(--radius-pill);
+      background: var(--color-green); color: var(--color-black);
+      border: 2px solid var(--color-green); line-height: 1; text-decoration: none;
+    }
+    .header__right { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+    .header__icon-link { display: flex; align-items: center; justify-content: center; opacity: 1; pointer-events: auto; transition: opacity var(--tr); }
+    .header__icon-img { width: 24px; height: 24px; }
+    .header__desktop-cta { display: none; }
+    @media (max-width: 767px) {
+      .header--scrolled .header__wordmark { opacity: 0; pointer-events: none; }
+      .header--scrolled .header__mobile-cta { opacity: 1; pointer-events: auto; }
+    }
+    @media (min-width: 768px) {
+      .header { height: var(--header-height); }
+      .header__inner { grid-template-columns: 1fr auto 1fr; }
+      .header__center { justify-self: center; position: static; overflow: visible; }
+      .header__wordmark img { height: 32px; }
+      .header--scrolled .header__wordmark { opacity: 1; pointer-events: auto; }
+      .header__mobile-cta { display: none; }
+      .header__right { width: auto; justify-self: end; }
+      .header__icon-link { display: none; }
+      .header__desktop-cta { display: block; }
+      .header__desktop-cta .btn { padding: 12px 24px; font-size: 15px; }
+      .header__desktop-cta .btn,
+      .header--scrolled .header__desktop-cta .btn {
+        background: var(--color-green); color: var(--color-black); border-color: var(--color-green);
+      }
+    }
+
+    /* ═══════════════════════════════════
+       MOBILE MENU
+    ═══════════════════════════════════ */
+    .mobile-menu { display: none; position: fixed; inset: 0; z-index: 300; background: var(--color-white); flex-direction: column; }
+    .mobile-menu.is-open { display: flex; }
+    .mobile-menu__top {
+      display: grid; grid-template-columns: 44px 1fr 44px; align-items: center;
+      height: var(--header-height-mobile); border-bottom: 1px solid var(--color-border);
+      padding: 0 16px; flex-shrink: 0;
+    }
+    .mobile-menu__close { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--color-black); justify-self: start; }
+    .mobile-menu__logo { display: flex; align-items: center; justify-content: center; }
+    .mobile-menu__logo img { height: 26px; width: auto; }
+    .mobile-menu__body { flex: 1; overflow-y: auto; padding: 0 24px 40px; }
+    .mobile-menu__links { display: flex; flex-direction: column; }
+    .mobile-menu__links a { font-size: 17px; font-weight: 600; padding: 18px 0; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: 10px; color: var(--color-black); }
+    .mobile-menu__links a:hover { color: var(--color-muted); }
+    .mobile-menu__social { display: flex; flex-direction: column; }
+    .mobile-menu__social a { font-size: 15px; font-weight: 500; color: var(--color-muted); padding: 16px 0; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: 10px; }
+    .mobile-menu__cta { margin-top: 28px; }
+    .mobile-menu__cta .btn { width: 100%; font-size: 16px; padding: 17px 24px; }
+
+    /* ═══════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════ */
+    .footer { background: var(--color-black); color: var(--color-white); padding: 56px 0 48px; }
+    .footer__top { display: grid; grid-template-columns: 1fr; gap: 40px; padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    @media (min-width: 900px) { .footer__top { grid-template-columns: 210px 1fr; gap: 48px; } }
+    .footer__brand { display: flex; flex-direction: column; gap: 20px; }
+    .footer__logo img { height: 28px; width: auto; }
+    .footer__tagline { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; max-width: 200px; }
+    .footer__social { display: flex; gap: 10px; }
+    .footer__social-link { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; transition: background var(--tr); }
+    .footer__social-link:hover { background: rgba(255,255,255,0.18); }
+    .footer__social-link svg { width: 20px; height: 20px; }
+    .footer__links { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    @media (min-width: 640px) { .footer__links { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+    .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.38); margin-bottom: 16px; }
+    .footer__col ul { display: flex; flex-direction: column; gap: 10px; }
+    .footer__col li a { font-size: 13px; color: rgba(255,255,255,0.62); transition: color var(--tr); }
+    .footer__col li a:hover { color: var(--color-white); }
+    .footer__bottom { padding: 28px 0 0; display: flex; flex-direction: column; gap: 20px; align-items: center; }
+    @media (min-width: 768px) { .footer__bottom { flex-direction: row; justify-content: space-between; flex-wrap: wrap; gap: 16px; } }
+    .footer__payments { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .footer__payment-icon { display: flex; align-items: center; justify-content: center; height: 40px; background: none; padding: 0; }
+    .footer__payment-icon img { height: 40px; width: auto; display: block; }
+    .footer__policies { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+    .footer__policies a { font-size: 12px; color: rgba(255,255,255,0.42); transition: color var(--tr); }
+    .footer__policies a:hover { color: rgba(255,255,255,0.75); }
+    .footer__copyright { font-size: 12px; color: rgba(255,255,255,0.32); text-align: center; }
+
+    /* ═══════════════════════════════════
+       PAGE LAYOUT
+    ═══════════════════════════════════ */
+    .cn-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+    @media (min-width: 768px) { .cn-wrap { padding: 48px 32px 96px; } }
+
+    .cn-heading { font-size: 26px; font-weight: 800; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 4px; }
+    @media (min-width: 768px) { .cn-heading { font-size: 34px; } }
+    .cn-subheading { font-size: 14px; color: var(--color-muted); margin-bottom: 32px; }
+
+    /* ═══════════════════════════════════
+       PRISON CHECKER PANEL
+    ═══════════════════════════════════ */
+    .checker {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 8px;
+    }
+    .checker__heading {
+      font-size: 17px; font-weight: 700; color: var(--color-black);
+      margin-bottom: 16px; line-height: 1.3;
+    }
+    @media (min-width: 768px) { .checker__heading { font-size: 18px; } }
+    .checker__body {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    @media (min-width: 560px) {
+      .checker__body { flex-direction: row; align-items: flex-start; }
+      .checker__input-wrap { flex: 1; }
+    }
+    .checker__input-wrap { position: relative; }
+    .checker__input {
+      display: block; width: 100%;
+      padding: 14px 18px; font-size: 15px; font-weight: 500;
+      font-family: var(--font-family); border: 2px solid var(--color-border);
+      border-radius: var(--radius-md); background: var(--color-white);
+      color: var(--color-black); outline: none;
+      transition: border-color var(--tr);
+    }
+    .checker__input:focus { border-color: var(--color-black); }
+    .checker__input.has-error { border-color: var(--color-error); }
+    .checker__suggestions {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: var(--color-white); border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md); overflow: hidden;
+      z-index: 50; display: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    .checker__suggestion {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 16px; cursor: pointer;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 14px; font-weight: 500; color: var(--color-black);
+      transition: background var(--tr);
+      gap: 12px;
+    }
+    .checker__suggestion:last-child { border-bottom: none; }
+    .checker__suggestion:hover,
+    .checker__suggestion.is-active { background: var(--color-surface); }
+    .checker__suggestion-name { flex: 1; min-width: 0; }
+    .checker__badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: var(--radius-pill); flex-shrink: 0;
+      background: var(--color-black); color: var(--color-white);
+    }
+    .checker__badge--nsw { background: var(--color-green); color: var(--color-black); }
+    .checker__btn {
+      white-space: nowrap; flex-shrink: 0;
+      padding: 14px 22px; font-size: 15px;
+    }
+    @media (max-width: 559px) { .checker__btn { width: 100%; } }
+    .checker__error {
+      font-size: 12px; color: var(--color-error);
+      margin-top: 8px; display: none;
+    }
+    .checker__error.is-visible { display: block; }
+
+    /* ═══════════════════════════════════
+       TIER SECTIONS
+    ═══════════════════════════════════ */
+    .tier {
+      padding-top: 36px;
+      margin-top: 36px;
+      border-top: 1px solid var(--color-border);
+    }
+    .tier__heading {
+      font-size: 20px; font-weight: 700; color: var(--color-black);
+      margin-bottom: 6px; line-height: 1.2;
+    }
+    @media (min-width: 768px) { .tier__heading { font-size: 22px; } }
+    .tier__sub {
+      font-size: 14px; color: var(--color-muted); margin-bottom: 24px;
+    }
+
+    /* ═══════════════════════════════════
+       FAQ ACCORDION (mirrors index.html)
+    ═══════════════════════════════════ */
+    .faq__list { margin-top: 20px; }
+    .faq__item { border-bottom: 1px solid var(--color-border); }
+    .faq__item:first-child { border-top: 1px solid var(--color-border); }
+    .faq__question {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 18px 0; font-size: 15px; font-weight: 600; color: var(--color-black);
+      cursor: pointer; width: 100%; text-align: left; min-height: 52px;
+      transition: color var(--tr);
+      background: none; border: none; font-family: inherit;
+    }
+    .faq__question:hover { color: var(--color-muted); }
+    .faq__chevron { width: 20px; height: 20px; flex-shrink: 0; transition: transform 200ms ease; }
+    .faq__answer-wrap { overflow: hidden; max-height: 0; transition: max-height 300ms ease; }
+    .faq__answer {
+      font-size: 15px; color: #333; line-height: 1.65;
+      padding: 4px 0 20px 16px; border-left: 3px solid var(--color-green);
+    }
+    .faq__answer p + p { margin-top: 10px; }
+    .faq__answer a {
+      color: var(--color-black); text-decoration: underline; text-underline-offset: 3px;
+    }
+    .faq__answer a:hover { color: var(--color-muted); }
+    .faq__answer ol { padding-left: 20px; margin: 10px 0; list-style: decimal; }
+    .faq__answer ul { padding-left: 20px; margin: 10px 0; list-style: disc; }
+    .faq__answer ol li,
+    .faq__answer ul li { margin-bottom: 6px; font-size: 15px; color: #333; line-height: 1.65; }
+    .faq__item.is-open .faq__chevron { transform: rotate(90deg); }
+    .faq__item.is-open .faq__answer-wrap { max-height: 2000px; }
+
+    /* ═══════════════════════════════════
+       TIER 2 — PORTAL PILLS
+    ═══════════════════════════════════ */
+    .portal-pills {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-top: 20px;
+    }
+    .portal-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 18px; font-size: 14px; font-weight: 600;
+      font-family: var(--font-family);
+      border: 2px solid var(--color-border); border-radius: var(--radius-pill);
+      background: var(--color-white); color: var(--color-black);
+      text-decoration: none; cursor: pointer;
+      transition: border-color var(--tr), background var(--tr);
+    }
+    .portal-pill:hover { border-color: var(--color-black); background: var(--color-surface); }
+
+    /* ═══════════════════════════════════
+       TIER 3 — CONTACT FORM
+    ═══════════════════════════════════ */
+    .contact-form { margin-top: 24px; }
+    .form-field { margin-bottom: 18px; }
+    .form-label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: var(--color-black); margin-bottom: 8px;
+    }
+    .form-label__opt { font-weight: 400; color: var(--color-muted); }
+    .form-input {
+      display: block; width: 100%;
+      padding: 14px 18px; font-size: 16px; font-weight: 500;
+      font-family: var(--font-family); border: 2px solid var(--color-border);
+      border-radius: var(--radius-md); background: var(--color-white);
+      color: var(--color-black); outline: none;
+      transition: border-color var(--tr);
+    }
+    .form-input:focus { border-color: var(--color-black); }
+    .form-input.has-error { border-color: var(--color-error); }
+    .form-textarea { resize: vertical; min-height: 130px; line-height: 1.5; }
+    .form-error {
+      font-size: 12px; color: var(--color-error);
+      margin-top: 6px; display: none;
+    }
+    .form-error.is-visible { display: block; }
+    .form-submit {
+      display: block; width: 100%; padding: 17px;
+      font-size: 16px; font-weight: 700; font-family: var(--font-family);
+      text-align: center; border-radius: var(--radius-pill); cursor: pointer;
+      background: var(--color-green); color: var(--color-black);
+      border: 2px solid var(--color-green);
+      transition: opacity var(--tr), transform var(--tr);
+      margin-top: 8px;
+    }
+    .form-submit:hover { opacity: 0.88; transform: translateY(-1px); }
+    .form-submit:active { transform: none; opacity: 1; }
+    @media (min-width: 768px) { .form-submit { width: auto; padding: 17px 40px; } }
+
+    /* ─── Utility ─── */
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header header--scrolled" id="siteHeader">
+    <div class="container header__inner">
+
+      <button class="header__hamburger" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+        <img src="assets/icons/feature_icons/icon-hamburger.svg" alt="">
+      </button>
+
+      <div class="header__center">
+        <a href="index.html" class="header__wordmark" aria-label="Prisoncall Australia — home">
+          <img src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
+        </a>
+        <a href="choose-plan.html" class="header__mobile-cta">Get Prisoncall now</a>
+      </div>
+
+      <div class="header__right">
+        <!-- STANDING RULE: brand icon always links to index.html on every page — never blocked by JS -->
+        <a href="index.html" class="header__icon-link" aria-label="Prisoncall Australia — home">
+          <img src="assets/brand_logos/Prisoncall_Icon_BLACK.svg" alt="Prisoncall Australia" class="header__icon-img">
+        </a>
+        <div class="header__desktop-cta">
+          <a href="choose-plan.html" class="btn btn--green">Get Prisoncall now</a>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══ MOBILE MENU ═══ -->
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <div class="mobile-menu__top">
+      <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">&#x2715;</button>
+      <div class="mobile-menu__logo">
+        <img src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
+      </div>
+      <div></div>
+    </div>
+    <div class="mobile-menu__body">
+      <nav class="mobile-menu__links">
+        <a href="choose-plan.html">Choose Prisoncall plan</a>
+        <a href="https://account.prisoncall.com.au/pages/121f6795-04f1-44c5-ac65-0408561ac72e?locale=en&region_country=AU" target="_blank" rel="noopener">Manage my plan</a>
+        <a href="contact.html">Contact us</a>
+      </nav>
+      <div class="mobile-menu__social">
+        <a href="https://www.facebook.com/prisoncallaustralia" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          Follow us on Facebook
+        </a>
+        <a href="https://www.instagram.com/prisoncallaustralia/" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          Follow us on Instagram
+        </a>
+      </div>
+      <div class="mobile-menu__cta">
+        <a href="choose-plan.html" class="btn btn--green">Get started now</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN ═══ -->
+  <main>
+    <div class="cn-wrap">
+
+      <h1 class="cn-heading">Get help</h1>
+      <p class="cn-subheading">Find answers fast, manage your plan, or send us a message.</p>
+
+      <!-- ─────────────────────────────────────
+           PRISON AVAILABILITY CHECKER
+      ───────────────────────────────────── -->
+      <div class="checker" id="checkerPanel">
+        <h2 class="checker__heading">Check if Prisoncall works for your prison</h2>
+        <div class="checker__body">
+          <div class="checker__input-wrap" id="checkerInputWrap">
+            <input
+              type="text"
+              class="checker__input"
+              id="checkerInput"
+              placeholder="Start typing your prison name..."
+              autocomplete="off"
+              aria-label="Prison name"
+              aria-autocomplete="list"
+              aria-controls="checkerSuggestions"
+              aria-haspopup="listbox"
+            >
+            <div class="checker__suggestions" id="checkerSuggestions" role="listbox" aria-label="Prison suggestions"></div>
+          </div>
+          <button class="checker__btn btn btn--green" id="checkerBtn" type="button">See my result</button>
+        </div>
+        <p class="checker__error" id="checkerError" role="alert">Please select a prison from the list to continue.</p>
+      </div>
+
+      <!-- ─────────────────────────────────────
+           TIER 1 — QUICK ANSWERS (FAQ)
+      ───────────────────────────────────── -->
+      <div class="tier" aria-labelledby="tier1-heading">
+        <h2 class="tier__heading" id="tier1-heading">Quick answers</h2>
+
+        <div class="faq__list" role="list">
+
+          <!-- Q1 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              What is Prisoncall and what problem does it solve?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>Calling a mobile phone from a prison is extremely expensive — prisoners are charged at high rates just to speak with their family, often burning through limited phone credits in minutes. Many families spend $300–$500 or more every month just to stay in contact.</p>
+                <p>Prisoncall solves this by giving you a dedicated local landline number. When your loved one calls that number from the prison phone system, the call is treated as a cheap local landline call — dramatically reducing the cost for them. And the best part? You don't need a landline at home. The call forwards directly to your mobile, so you can answer anywhere — at work, running errands, picking up the kids — without being tied to a home phone. Stay connected with your loved one without the financial stress, and without changing your life.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q2 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              Which prisons does Prisoncall work for?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>Prisoncall works exclusively for correctional facilities in Victoria (VIC) and New South Wales (NSW). Check if your prison is covered instantly using the prison checker above — it's free and takes seconds.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q3 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              How much can I save?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>Customers save more than 70% on average compared to per-minute providers. With Prisoncall there are no credits, no top-ups and no per-minute charges — just one flat subscription fee with unlimited minutes. Most customers who switched tell us they were spending over $500 a month before — now they pay as little as $15 a week.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q4 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              How does Prisoncall work — step by step?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>It's simple:</p>
+                <ol>
+                  <li>Choose a plan and subscribe — takes 2 minutes.</li>
+                  <li>We provision your dedicated local Prisoncall number within minutes of your order.</li>
+                  <li>You receive the number by SMS and email straight away.</li>
+                  <li>Save the number in your phone contacts.</li>
+                  <li>Give the number to your loved one at their next visit or phone call.</li>
+                  <li>Your loved one submits an application to the prison to add your Prisoncall number to their approved call list.</li>
+                  <li>The prison will make a verification call to your Prisoncall number — answer it and confirm the number when asked. Quote your Prisoncall number, not your personal mobile number.</li>
+                  <li>Once verified and approved by the prison (typically 4–7 days), your loved one can call your Prisoncall number and you'll receive it straight on your mobile.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q5 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              How long does it take to get my Prisoncall number?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>Your number is provisioned and delivered to you by SMS and email within minutes of your order being confirmed.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q6 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              How long does prison registration take and what is the verification call?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>After your loved one submits their application to the prison, the prison will make a verification call directly to your Prisoncall number — usually within 4–7 days. This is an important step that many people don't know about.</p>
+                <p>When that call comes through, make sure you answer it. The prison officer will ask you to confirm your number — quote your Prisoncall number (not your personal mobile number). Once confirmed, the prison approves the number and your loved one can start calling. Make sure you answer all unknown incoming calls during this period — it could be the prison verifying your number.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q7 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              My calls aren't connecting — what should I do?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>This depends on your situation.</p>
+                <p><strong>If your service is new:</strong> The most likely reason is that prison registration is still in progress. Check with your loved one that they have submitted the application. If they have, ask them to follow up with a prison officer about the status of the verification call. If verification calls have been made but calls still aren't connecting, your loved one should follow up directly with prison staff to confirm the number has been approved and added to the system.</p>
+                <p><strong>If your service was working fine and has recently stopped:</strong> This may be a network issue on our end. Please submit a support enquiry below — our team will investigate immediately. We aim to resolve confirmed network issues within 4 hours. If the issue is not resolved within 24 hours, please submit an escalation and it will be treated as urgent priority.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q8 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              What happens if my loved one is transferred to another prison?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>Most of our customers choose to keep their existing Prisoncall number after a transfer — it's convenient and ensures their loved one can still reach them from the new prison while they get settled. The cost may be slightly higher if the new prison is in a different exchange area, but many customers prefer continuity while their loved one finds their feet.</p>
+                <p>If call costs increase significantly at the new prison, we'll provide you with a new number matched to the new prison's local exchange — completely free of charge. Your old number stays active for 15 days so no calls are missed during the transition. Just log in to your portal to request a prison change.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q9 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              Do I need a landline at home to use Prisoncall?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>No — and this is one of the biggest benefits of Prisoncall. Many families used to think they needed to be sitting at home by a landline phone just to receive cheaper prison calls. With Prisoncall, your dedicated number forwards directly to your mobile. Answer calls at work, while shopping, while picking up the kids — wherever you are. You stay connected without being restricted to your home, and your loved one still benefits from the lower call rate. Life doesn't stop, and neither does your connection.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q10 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              Can I port my existing number to Prisoncall?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>We don't support number porting. However, our setup is fast and easy — your number is ready within minutes of ordering. Porting charges from your existing provider are typically very expensive and simply not worth it when getting started with Prisoncall is this quick.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q11 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              What plans are available?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>We offer four plans — Weekly ($15), Fortnightly ($25), Monthly ($45 — most popular), and Quarterly ($125 — best value). All plans include unlimited minutes with no per-call charges. The longer the plan, the better the value. <a href="choose-plan.html">View plans</a>.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q12 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              Can I have more than one Prisoncall number?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>Yes — you can add plans for multiple prisoners, or for multiple family members who all want to receive calls from the same prisoner. When you have 2 or more active plans on your account, a 10% bundle discount is automatically applied — even if you add the second plan in a separate session later on. It's always cheaper to consolidate plans under one account. You can manage and add plans anytime via your customer portal. <a href="portal.html">Go to your portal</a>.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q13 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              What happens if my payment fails?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>If a payment fails, your service is paused immediately and you'll receive an SMS and email notification. You can pay via your customer portal at any time to instantly reactivate — your next renewal date will not change.</p>
+                <p>Grace periods before cancellation:</p>
+                <ul>
+                  <li>Weekly — 1 day</li>
+                  <li>Fortnightly — 2 days</li>
+                  <li>Monthly — 3 days</li>
+                  <li>Quarterly — 5 days</li>
+                </ul>
+                <p>After the grace period, 3 consecutive daily final warning notifications are sent. If payment is still not received after those 3 days, your plan is cancelled and your number enters a 5-day permanent deletion grace period — during which you can still recover your number by paying via your portal. After 5 days, the number is permanently released and cannot be recovered. <a href="portal.html">Pay now and reactivate</a>.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q14 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              How do I cancel my plan?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>You can cancel at any time via your customer portal. If your loved one has been released — that's wonderful news. Your service will be cancelled immediately with no further charges. If you're thinking of switching providers, please reach out first — we may be able to offer a loyalty discount. <a href="portal.html">Manage your plan</a>.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q15 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              My plan was cancelled and I want to reinstate my number — can I get it back?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>We're sorry to hear you're in this situation. Unfortunately once a number has passed the 5-day permanent deletion grace period, it is released back into the telephone network and we are unable to guarantee its recovery — in most cases the number cannot be retrieved.</p>
+                <p>The good news is we can get you a new Prisoncall number matched to your prison within minutes. To avoid this in the future, please ensure your payment method is up to date before each renewal date. <a href="choose-plan.html">Start a new plan</a>.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q16 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              How do I manage my account?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>Log in to your customer portal to view your active plans, add new plans, request a prison change, update your mobile number, view call history and manage billing. <a href="portal.html">Go to your portal</a>.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q17 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              How do I add another plan?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>Log in to your customer portal and select "Add another plan." Your 10% bundle discount will automatically apply. <a href="portal.html">Go to your portal</a>.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q18 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              How do I change my prison after a transfer?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>Most customers keep their existing number for convenience after a transfer. If you'd like a new number matched to the new prison, submit a prison change request via your customer portal — free of charge, new number within minutes, old number active for 15 days. <a href="portal.html">Request a prison change</a>.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────
+           TIER 2 — PORTAL SELF-SERVICE
+      ───────────────────────────────────── -->
+      <div class="tier" aria-labelledby="tier2-heading">
+        <h2 class="tier__heading" id="tier2-heading">Already a customer? Manage your plan instantly.</h2>
+        <div class="portal-pills" role="list">
+          <a href="portal.html" class="portal-pill" role="listitem">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            Change my prison
+          </a>
+          <a href="portal.html" class="portal-pill" role="listitem">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add another plan
+          </a>
+          <a href="portal.html" class="portal-pill" role="listitem">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14z"/></svg>
+            Update my mobile number
+          </a>
+          <a href="portal.html" class="portal-pill" role="listitem">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            Cancel my plan
+          </a>
+          <a href="portal.html" class="portal-pill" role="listitem">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            View my call history
+          </a>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────
+           TIER 3 — SUBMIT ENQUIRY
+      ───────────────────────────────────── -->
+      <div class="tier" aria-labelledby="tier3-heading">
+        <h2 class="tier__heading" id="tier3-heading">Still need help? Send us a message.</h2>
+        <p class="tier__sub">We'll get back to you as soon as possible.</p>
+
+        <form class="contact-form" id="contactForm" action="#" method="post" novalidate>
+
+          <div class="form-field">
+            <label class="form-label" for="formMobile">Mobile number <span aria-hidden="true">*</span></label>
+            <input
+              type="tel"
+              id="formMobile"
+              name="mobile"
+              class="form-input"
+              placeholder="04xx xxx xxx"
+              inputmode="numeric"
+              autocomplete="tel"
+              required
+            >
+            <p class="form-error" id="mobileError">Please enter a valid Australian mobile number.</p>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="formEmail">
+              Email address <span class="form-label__opt">(optional)</span>
+            </label>
+            <input
+              type="email"
+              id="formEmail"
+              name="email"
+              class="form-input"
+              placeholder="you@example.com"
+              autocomplete="email"
+            >
+            <p class="form-error" id="emailError">Please enter a valid email address.</p>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="formMessage">Your message <span aria-hidden="true">*</span></label>
+            <textarea
+              id="formMessage"
+              name="message"
+              class="form-input form-textarea"
+              placeholder="Tell us how we can help..."
+              required
+            ></textarea>
+            <p class="form-error" id="messageError">Please enter your message.</p>
+          </div>
+
+          <button type="submit" class="form-submit">Send message</button>
+
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+
+        <div class="footer__brand">
+          <a href="index.html" class="footer__logo" aria-label="Prisoncall Australia — home">
+            <img src="assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall Australia">
+          </a>
+          <p class="footer__tagline">Providing cheap prison phone calls for inmates and families in Victoria and New South Wales since 2023.</p>
+          <div class="footer__social">
+            <a href="https://www.facebook.com/prisoncallaustralia" target="_blank" rel="noopener" class="footer__social-link" aria-label="Follow Prisoncall on Facebook">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/prisoncallaustralia/" target="_blank" rel="noopener" class="footer__social-link" aria-label="Follow Prisoncall on Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer__links">
+
+          <div class="footer__col">
+            <p class="footer__col-title">Victoria</p>
+            <ul>
+              <li><a href="barwon-prison.html">Barwon Prison</a></li>
+              <li><a href="beechworth-correctional-centre.html">Beechworth CC</a></li>
+              <li><a href="dame-phyllis-frost-centre.html">Dame Phyllis Frost Centre</a></li>
+              <li><a href="fulham-correctional-centre.html">Fulham CC</a></li>
+              <li><a href="hopkins-correctional-centre.html">Hopkins CC</a></li>
+              <li><a href="langi-kal-kal-prison.html">Langi Kal Kal Prison</a></li>
+              <li><a href="loddon-middleton-prison.html">Loddon / Middleton Prison</a></li>
+              <li><a href="marngoneet-correctional-centre.html">Marngoneet CC</a></li>
+              <li><a href="melbourne-assessment-prison.html">Melbourne Assessment Prison</a></li>
+              <li><a href="metropolitan-remand-centre.html">Metropolitan Remand Centre</a></li>
+              <li><a href="port-phillip-prison.html">Port Phillip Prison</a></li>
+              <li><a href="ravenhall-correctional-centre.html">Ravenhall CC</a></li>
+              <li><a href="tarrengower-prison.html">Tarrengower Prison</a></li>
+              <li><a href="western-plains-correctional-centre.html">Western Plains CC</a></li>
+            </ul>
+          </div>
+
+          <div class="footer__col">
+            <p class="footer__col-title">New South Wales</p>
+            <ul>
+              <li><a href="cessnock-correctional-centre.html">Cessnock CC</a></li>
+              <li><a href="clarence-correctional-centre.html">Clarence CC</a></li>
+              <li><a href="cooma-correctional-centre.html">Cooma CC</a></li>
+              <li><a href="dillwynia-correctional-centre.html">Dillwynia CC</a></li>
+              <li><a href="emu-plains-correctional-centre.html">Emu Plains CC</a></li>
+              <li><a href="goulburn-correctional-centre.html">Goulburn CC</a></li>
+              <li><a href="john-morony-correctional-centre.html">John Morony CC</a></li>
+              <li><a href="junee-correctional-centre.html">Junee CC</a></li>
+              <li><a href="kariong-intake-transit.html">Kariong Intake &amp; Transit</a></li>
+              <li><a href="kirkconnell-correctional-centre.html">Kirkconnell CC</a></li>
+              <li><a href="lithgow-correctional-centre.html">Lithgow CC</a></li>
+              <li><a href="long-bay-correctional-centre.html">Long Bay Complex</a></li>
+              <li><a href="mrrc-silverwater-prison.html">MRRC Silverwater</a></li>
+              <li><a href="oberon-correctional-centre.html">Oberon CC</a></li>
+              <li><a href="parklea-correctional-centre.html">Parklea CC</a></li>
+              <li><a href="silverwater-womens-correctional-centre.html">Silverwater Women's CC</a></li>
+              <li><a href="south-coast-correctional-centre.html">South Coast CC</a></li>
+              <li><a href="st-heliers-correctional-centre.html">St Heliers CC</a></li>
+              <li><a href="tamworth-correctional-centre.html">Tamworth CC</a></li>
+              <li><a href="wellington-correctional-centre.html">Wellington CC</a></li>
+            </ul>
+          </div>
+
+          <div class="footer__col">
+            <p class="footer__col-title">Help</p>
+            <ul>
+              <li><a href="choose-plan.html">Buy a Prisoncall plan</a></li>
+              <li><a href="https://account.prisoncall.com.au/pages/121f6795-04f1-44c5-ac65-0408561ac72e?locale=en&region_country=AU" target="_blank" rel="noopener">Manage my plan</a></li>
+              <li><a href="contact.html">Contact support</a></li>
+            </ul>
+          </div>
+
+          <div class="footer__col">
+            <p class="footer__col-title">Resources</p>
+            <ul>
+              <li><a href="index.html">Cheap Prison Calls</a></li>
+              <li><a href="engine-number-for-prison.html">Prison Engine Number</a></li>
+              <li><a href="jail-engine-number.html">Jail Engine Number</a></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <div class="footer__payments" aria-label="Accepted payment methods">
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/Visa.svg" alt="Visa"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/Mastercard.svg" alt="Mastercard"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/Amex.svg" alt="American Express"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/ApplePay.svg" alt="Apple Pay"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/GooglePay.svg" alt="Google Pay"></div>
+        </div>
+        <div class="footer__policies">
+          <a href="privacy-policy.html">Privacy Policy</a>
+          <a href="terms-of-service.html">Terms of Service</a>
+          <a href="refund-policy.html">Refund Policy</a>
+          <a href="cancellation-policy.html">Cancellation Policy</a>
+        </div>
+        <p class="footer__copyright">© <span id="copyrightYear"></span> Prisoncall Australia by The Freebird &amp; Co Pty Ltd. All prices GST-inclusive.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══ SCRIPTS ═══ -->
+  <script>
+  'use strict';
+
+  /* ─── Copyright year ─── */
+  document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+
+  /* ─── Mobile menu ─── */
+  var menuToggle = document.getElementById('menuToggle');
+  var menuClose  = document.getElementById('menuClose');
+  var mobileMenu = document.getElementById('mobileMenu');
+  function openMenu()  { mobileMenu.classList.add('is-open');    document.body.style.overflow = 'hidden'; menuToggle.setAttribute('aria-expanded','true'); }
+  function closeMenu() { mobileMenu.classList.remove('is-open'); document.body.style.overflow = '';       menuToggle.setAttribute('aria-expanded','false'); }
+  menuToggle.addEventListener('click', openMenu);
+  menuClose.addEventListener('click', closeMenu);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeMenu(); });
+  mobileMenu.querySelectorAll('a').forEach(function(l){ l.addEventListener('click', closeMenu); });
+
+  /* ═══════════════════════════════════════════════════════
+     PRISON CHECKER — DATA
+     Dhurringile Prison excluded (CLOSED).
+  ═══════════════════════════════════════════════════════ */
+  var CHECKER_PRISONS = {
+    vic: [
+      'Barwon Prison',
+      'Beechworth Correctional Centre',
+      'Bendigo Correctional Centre',
+      'Fulham Correctional Centre',
+      'Hopkins Correctional Centre',
+      'Langi Kal Kal Prison',
+      'Loddon Prison',
+      'MacKillop Residential',
+      'Marngoneet Correctional Centre',
+      'Melbourne Assessment Prison',
+      'Melbourne Remand Centre',
+      'Middleton Prison',
+      'Ravenhall Correctional Centre',
+      "St Augustine's Youth Justice Centre",
+      'Western Plains Correctional Centre'
+    ],
+    nsw: [
+      'Bathurst Correctional Centre',
+      'Cessnock Correctional Centre',
+      'Cooma Correctional Centre',
+      'Dillwynia Correctional Centre',
+      'Emu Plains Correctional Centre',
+      'Glen Innes Correctional Centre',
+      'Goulburn Correctional Centre',
+      'Grafton Correctional Centre',
+      'Hunter Correctional Centre',
+      'Junee Correctional Centre',
+      'Kariong Correctional Centre',
+      'Kirkconnell Correctional Centre',
+      'Lithgow Correctional Centre',
+      'Long Bay Correctional Complex',
+      'Mannus Correctional Centre',
+      'Metropolitan Remand and Reception Centre',
+      'Mid North Coast Correctional Centre',
+      'Oberon Correctional Centre',
+      'Parklea Correctional Centre',
+      'Silverwater Correctional Complex',
+      'St Heliers Correctional Centre',
+      'Tamworth Correctional Centre',
+      'Wellington Correctional Centre',
+      'Windsor Correctional Centre',
+      'Wolongbar Correctional Centre'
+    ]
+  };
+
+  /* Flatten to [{name, state}] */
+  var CHECKER_LIST = [];
+  Object.keys(CHECKER_PRISONS).forEach(function(state) {
+    CHECKER_PRISONS[state].forEach(function(name) {
+      CHECKER_LIST.push({ name: name, state: state });
+    });
+  });
+
+  /* ─── State ─── */
+  var selectedPrison = null;
+  var selectedState  = null;
+  var activeIndex    = -1;
+
+  var checkerInput   = document.getElementById('checkerInput');
+  var suggestions    = document.getElementById('checkerSuggestions');
+  var checkerBtn     = document.getElementById('checkerBtn');
+  var checkerError   = document.getElementById('checkerError');
+
+  /* ─── Helpers ─── */
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function showSuggestions(query) {
+    activeIndex = -1;
+    if (!query) { hideSuggestions(); return; }
+    var q = query.toLowerCase();
+    var matches = CHECKER_LIST.filter(function(p) {
+      return p.name.toLowerCase().indexOf(q) >= 0;
+    }).slice(0, 8);
+    if (!matches.length) { hideSuggestions(); return; }
+
+    suggestions.innerHTML = matches.map(function(p, i) {
+      return '<div class="checker__suggestion" role="option" tabindex="-1"' +
+        ' data-index="' + i + '"' +
+        ' data-name="' + escHtml(p.name) + '"' +
+        ' data-state="' + p.state + '">' +
+        '<span class="checker__suggestion-name">' + escHtml(p.name) + '</span>' +
+        '<span class="checker__badge checker__badge--' + p.state + '">' + p.state.toUpperCase() + '</span>' +
+        '</div>';
+    }).join('');
+    suggestions.style.display = 'block';
+  }
+
+  function hideSuggestions() {
+    suggestions.style.display = 'none';
+    suggestions.innerHTML = '';
+    activeIndex = -1;
+  }
+
+  function selectSuggestion(el) {
+    selectedPrison = el.dataset.name;
+    selectedState  = el.dataset.state;
+    checkerInput.value = selectedPrison;
+    checkerInput.classList.remove('has-error');
+    checkerError.classList.remove('is-visible');
+    hideSuggestions();
+  }
+
+  function updateActive(items) {
+    items.forEach(function(el, i) {
+      el.classList.toggle('is-active', i === activeIndex);
+    });
+  }
+
+  /* ─── Input events ─── */
+  checkerInput.addEventListener('input', function() {
+    selectedPrison = null;
+    selectedState  = null;
+    showSuggestions(checkerInput.value.trim());
+  });
+
+  checkerInput.addEventListener('keydown', function(e) {
+    var items = suggestions.querySelectorAll('.checker__suggestion');
+    if (!items.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIndex = Math.min(activeIndex + 1, items.length - 1);
+      updateActive(items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIndex = Math.max(activeIndex - 1, 0);
+      updateActive(items);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      var target = activeIndex >= 0 ? items[activeIndex] : items[0];
+      if (target) selectSuggestion(target);
+    } else if (e.key === 'Escape') {
+      hideSuggestions();
+    }
+  });
+
+  /* mousedown prevents input losing focus before click fires */
+  suggestions.addEventListener('mousedown', function(e) {
+    var item = e.target.closest('.checker__suggestion');
+    if (item) { e.preventDefault(); selectSuggestion(item); }
+  });
+
+  checkerInput.addEventListener('blur', function() {
+    /* Delay allows mousedown on suggestion to fire first */
+    setTimeout(hideSuggestions, 160);
+  });
+
+  /* ─── CTA click ─── */
+  checkerBtn.addEventListener('click', function() {
+    if (!selectedPrison || !selectedState) {
+      checkerInput.classList.add('has-error');
+      checkerError.classList.add('is-visible');
+      checkerInput.focus();
+      return;
+    }
+    window.location.href = 'choose-plan.html?state=' + selectedState +
+      '&prison=' + encodeURIComponent(selectedPrison);
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     FAQ ACCORDION
+  ═══════════════════════════════════════════════════════ */
+  document.querySelectorAll('.faq__item').forEach(function(item) {
+    item.querySelector('.faq__question').addEventListener('click', function() {
+      var isOpen = item.classList.contains('is-open');
+      document.querySelectorAll('.faq__item').forEach(function(other) {
+        other.classList.remove('is-open');
+        other.querySelector('.faq__question').setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        item.classList.add('is-open');
+        item.querySelector('.faq__question').setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     CONTACT FORM — VALIDATION
+  ═══════════════════════════════════════════════════════ */
+  var contactForm   = document.getElementById('contactForm');
+  var formMobile    = document.getElementById('formMobile');
+  var formEmail     = document.getElementById('formEmail');
+  var formMessage   = document.getElementById('formMessage');
+  var mobileError   = document.getElementById('mobileError');
+  var emailError    = document.getElementById('emailError');
+  var msgError      = document.getElementById('messageError');
+
+  contactForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var valid = true;
+
+    /* Mobile: required, must be Australian mobile (04xxxxxxxx) */
+    var mobileDigits = formMobile.value.replace(/\D/g, '');
+    if (!mobileDigits || !/^04\d{8}$/.test(mobileDigits)) {
+      formMobile.classList.add('has-error');
+      mobileError.classList.add('is-visible');
+      valid = false;
+    } else {
+      formMobile.classList.remove('has-error');
+      mobileError.classList.remove('is-visible');
+    }
+
+    /* Email: optional but must be valid if provided */
+    var emailVal = formEmail.value.trim();
+    if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+      formEmail.classList.add('has-error');
+      emailError.classList.add('is-visible');
+      valid = false;
+    } else {
+      formEmail.classList.remove('has-error');
+      emailError.classList.remove('is-visible');
+    }
+
+    /* Message: required */
+    if (!formMessage.value.trim()) {
+      formMessage.classList.add('has-error');
+      msgError.classList.add('is-visible');
+      valid = false;
+    } else {
+      formMessage.classList.remove('has-error');
+      msgError.classList.remove('is-visible');
+    }
+
+    /* Phase 1B: backend connected — form posts to # for now */
+    if (valid) {
+      /* placeholder: form.submit() or fetch() goes here */
+    }
+  });
+
+  /* Clear error state on input */
+  [formMobile, formEmail, formMessage].forEach(function(el) {
+    el.addEventListener('input', function() {
+      el.classList.remove('has-error');
+    });
+  });
+  </script>
+
+</body>
+</html>
