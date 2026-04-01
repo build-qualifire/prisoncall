@@ -320,6 +320,20 @@
     /* ═══════════════════════════════════
        TIER 3 — CONTACT FORM
     ═══════════════════════════════════ */
+    .form-toggle {
+      display: inline;
+      font-size: 13px; color: var(--color-muted);
+      text-decoration: underline; text-underline-offset: 3px;
+      cursor: pointer; background: none; border: none; padding: 0;
+      font-family: inherit; font-weight: 400;
+      transition: color var(--tr);
+    }
+    .form-toggle:hover { color: var(--color-black); }
+    .form-collapse {
+      overflow: hidden; max-height: 0;
+      transition: max-height 400ms ease;
+    }
+    .form-collapse.is-open { max-height: 1400px; }
     .contact-form { margin-top: 24px; }
     .form-field { margin-bottom: 18px; }
     .form-label {
@@ -754,9 +768,11 @@
       <!-- ─────────────────────────────────────
            TIER 3 — SUBMIT ENQUIRY
       ───────────────────────────────────── -->
-      <div class="tier" aria-labelledby="tier3-heading">
-        <h2 class="tier__heading" id="tier3-heading">Still need help? Send us a message.</h2>
-        <p class="tier__sub">We'll get back to you as soon as possible.</p>
+      <div class="tier">
+        <button class="form-toggle" id="tier3Toggle" aria-expanded="false" aria-controls="tier3FormWrap">Still need help? Send us a message</button>
+
+        <div class="form-collapse" id="tier3FormWrap" role="region">
+        <p class="tier__sub" style="margin-top:16px;">We'll get back to you as soon as possible.</p>
 
         <form class="contact-form" id="contactForm" action="#" method="post" novalidate>
 
@@ -805,6 +821,7 @@
           <button type="submit" class="form-submit">Send message</button>
 
         </form>
+        </div><!-- /.form-collapse -->
       </div>
 
     </div>
@@ -1177,6 +1194,19 @@
     el.addEventListener('input', function() {
       el.classList.remove('has-error');
     });
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     TIER 3 — COLLAPSIBLE FORM TOGGLE
+  ═══════════════════════════════════════════════════════ */
+  var tier3Toggle   = document.getElementById('tier3Toggle');
+  var tier3FormWrap = document.getElementById('tier3FormWrap');
+
+  tier3Toggle.addEventListener('click', function() {
+    var isOpen = tier3FormWrap.classList.contains('is-open');
+    tier3FormWrap.classList.toggle('is-open', !isOpen);
+    tier3Toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+    tier3Toggle.textContent = isOpen ? 'Still need help? Send us a message' : 'Never mind, close this';
   });
   </script>
 
