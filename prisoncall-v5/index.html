@@ -644,15 +644,16 @@
       .prison-checker .checker__heading { font-size: 24px; margin-bottom: 22px; }
     }
     .prison-checker .checker__input {
-      background: rgba(255,255,255,0.07);
-      border: 2px solid rgba(255,255,255,0.55);
-      color: var(--color-white);
+      background: #ffffff;
+      border: 2px solid #ffffff;
+      color: var(--color-black);
     }
     .prison-checker .checker__input::placeholder {
-      color: rgba(255,255,255,0.78);
+      color: var(--color-muted);
     }
     .prison-checker .checker__input:focus {
-      border-color: var(--color-white);
+      border-color: #00D258;
+      outline: none;
     }
     .prison-checker .checker__input.has-error {
       border-color: #ff9e9e;
@@ -717,8 +718,18 @@
     .final-cta__checker .checker__btn { font-size: 15px; padding: 14px 22px; }
     @media (max-width: 767px) { .final-cta__checker .checker__btn { width: auto; } }
     @media (max-width: 559px) { .final-cta__checker .checker__btn { width: 100%; } }
-    .final-cta__checker .checker__input { border-color: rgba(255,255,255,0.25); }
-    .final-cta__checker .checker__input:focus { border-color: var(--color-white); }
+    .final-cta__checker .checker__input {
+      background: #ffffff;
+      border: 2px solid #ffffff;
+      color: var(--color-black);
+    }
+    .final-cta__checker .checker__input::placeholder {
+      color: var(--color-muted);
+    }
+    .final-cta__checker .checker__input:focus {
+      border-color: #00D258;
+      outline: none;
+    }
     .final-cta__checker .checker__error { color: #ff9e9e; }
 
     /* ═══════════════════════════════════
