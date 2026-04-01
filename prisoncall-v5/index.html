@@ -622,10 +622,15 @@
       background: var(--color-hero);
       border: 1.5px solid rgba(255,255,255,0.14);
       border-radius: var(--radius-md);
-      padding: 24px;
+      padding: 28px 24px 32px;
       max-width: 768px;
       margin-left: auto;
       margin-right: auto;
+    }
+    @media (min-width: 768px) {
+      .prison-checker .checker {
+        padding: 48px 36px 52px;
+      }
     }
     .prison-checker .checker__heading {
       color: var(--color-white);
