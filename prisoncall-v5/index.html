@@ -541,6 +541,76 @@
     .reviews__cta { text-align: center; margin-top: 40px; }
 
     /* ═══════════════════════════════════
+       PRISON CHECKER
+    ═══════════════════════════════════ */
+    .prison-checker { background: var(--color-white); }
+    .checker {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      max-width: 768px;
+    }
+    .checker__heading {
+      font-size: 17px; font-weight: 700; color: var(--color-black);
+      margin-bottom: 16px; line-height: 1.3;
+    }
+    @media (min-width: 768px) { .checker__heading { font-size: 18px; } }
+    .checker__body {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    @media (min-width: 560px) {
+      .checker__body { flex-direction: row; align-items: flex-start; }
+      .checker__input-wrap { flex: 1; }
+    }
+    .checker__input-wrap { position: relative; }
+    .checker__input {
+      display: block; width: 100%;
+      padding: 14px 18px; font-size: 15px; font-weight: 500;
+      font-family: var(--font-family); border: 2px solid var(--color-border);
+      border-radius: var(--radius-md); background: var(--color-white);
+      color: var(--color-black); outline: none;
+      transition: border-color var(--transition-fast);
+    }
+    .checker__input:focus { border-color: var(--color-black); }
+    .checker__input.has-error { border-color: #e53e3e; }
+    .checker__suggestions {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: var(--color-white); border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md); overflow: hidden;
+      z-index: 50; display: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    .checker__suggestion {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 16px; cursor: pointer;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 14px; font-weight: 500; color: var(--color-black);
+      transition: background var(--transition-fast);
+      gap: 12px;
+    }
+    .checker__suggestion:last-child { border-bottom: none; }
+    .checker__suggestion:hover,
+    .checker__suggestion.is-active { background: var(--color-surface); }
+    .checker__suggestion-name { flex: 1; min-width: 0; }
+    .checker__badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: var(--radius-pill); flex-shrink: 0;
+      background: var(--color-black); color: var(--color-white);
+    }
+    .checker__badge--nsw { background: var(--color-green); color: var(--color-black); }
+    .checker__btn {
+      white-space: nowrap; flex-shrink: 0;
+      padding: 14px 22px; font-size: 15px;
+    }
+    @media (max-width: 559px) { .checker__btn { width: 100%; } }
+    .checker__error {
+      font-size: 12px; color: #e53e3e;
+      margin-top: 8px; display: none;
+    }
+    .checker__error.is-visible { display: block; }
+
+    /* ═══════════════════════════════════
        FAQ
     ═══════════════════════════════════ */
     .faq { background: var(--color-white); }
@@ -1138,6 +1208,33 @@
       </div>
     </section>
 
+    <!-- ═══ PRISON CHECKER ═══ -->
+    <section class="prison-checker section-pad" aria-labelledby="hp-checker-title">
+      <div class="container">
+        <div class="checker" id="hpCheckerPanel">
+          <h2 class="checker__heading" id="hp-checker-title">Not sure if Prisoncall covers your loved one's prison?</h2>
+          <div class="checker__body">
+            <div class="checker__input-wrap">
+              <input
+                type="text"
+                class="checker__input"
+                id="hpCheckerInput"
+                placeholder="Start typing your prison name..."
+                autocomplete="off"
+                aria-label="Prison name"
+                aria-autocomplete="list"
+                aria-controls="hpCheckerSuggestions"
+                aria-haspopup="listbox"
+              >
+              <div class="checker__suggestions" id="hpCheckerSuggestions" role="listbox" aria-label="Prison suggestions"></div>
+            </div>
+            <button class="checker__btn btn btn--green" id="hpCheckerBtn" type="button">Check my prison</button>
+          </div>
+          <p class="checker__error" id="hpCheckerError" role="alert">Please select a prison from the list to continue.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- ═══ FAQ ═══ -->
     <section class="faq section-pad" aria-labelledby="faq-title">
       <div class="container">
@@ -1552,6 +1649,183 @@
       }, { threshold: 0.45 });
 
       statEls.forEach(function(el) { statObs.observe(el); });
+    })();
+
+    // ─── Homepage Prison Checker ───
+    (function() {
+      var HP_PRISONS = {
+        vic: [
+          'Barwon Prison',
+          'Beechworth Correctional Centre',
+          'Dame Phyllis Frost Centre',
+          'Fulham Correctional Centre',
+          'Hopkins Correctional Centre',
+          'Langi Kal Kal Prison',
+          'Loddon Prison / Middleton Prison',
+          'Marngoneet Correctional Centre',
+          'Melbourne Assessment Prison',
+          'Metropolitan Remand Centre',
+          'Port Phillip Prison',
+          'Ravenhall Correctional Centre',
+          'Tarrengower Prison',
+          'Western Plains Correctional Centre'
+        ],
+        nsw: [
+          'Cessnock CC',
+          'Clarence CC',
+          'Cooma CC',
+          'Dillwynia CC',
+          'Emu Plains CC',
+          'Goulburn CC',
+          'John Morony CC',
+          'Junee CC',
+          'Kariong Intake & Transit',
+          'Kirkconnell CC',
+          'Lithgow CC',
+          'Long Bay Complex',
+          'MRRC Silverwater',
+          'Oberon CC',
+          'Parklea CC',
+          "Silverwater Women's CC",
+          'South Coast CC',
+          'St Heliers CC',
+          'Tamworth CC',
+          'Wellington CC'
+        ]
+      };
+
+      var hpList = [];
+      Object.keys(HP_PRISONS).forEach(function(state) {
+        HP_PRISONS[state].forEach(function(name) { hpList.push({ name: name, state: state }); });
+      });
+
+      var hpInput       = document.getElementById('hpCheckerInput');
+      var hpSuggestions = document.getElementById('hpCheckerSuggestions');
+      var hpBtn         = document.getElementById('hpCheckerBtn');
+      var hpError       = document.getElementById('hpCheckerError');
+      if (!hpInput) return;
+
+      var hpSelected = null, hpState = null, hpActive = -1;
+
+      function hpEsc(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+
+      /* Levenshtein edit distance */
+      function hpEditDist(a, b) {
+        var m = a.length, n = b.length, i, j, dp = [];
+        for (i = 0; i <= m; i++) { dp[i] = []; dp[i][0] = i; }
+        for (j = 0; j <= n; j++) dp[0][j] = j;
+        for (i = 1; i <= m; i++) {
+          for (j = 1; j <= n; j++) {
+            dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1]
+                      : 1 + Math.min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]);
+          }
+        }
+        return dp[m][n];
+      }
+
+      /* Fuzzy score: exact substring > all words substring > fuzzy word match */
+      function hpFuzzyScore(query, name) {
+        var q = query.toLowerCase().trim(), t = name.toLowerCase();
+        var idx = t.indexOf(q);
+        if (idx >= 0) return 1000 - idx;
+        var qWords = q.split(/\s+/).filter(Boolean);
+        var tWords = t.split(/[\s\/\-&]+/).filter(Boolean);
+        if (qWords.every(function(w) { return t.indexOf(w) >= 0; })) return 700;
+        var allFuzzy = qWords.every(function(qw) {
+          return tWords.some(function(tw) {
+            var maxLen = Math.max(qw.length, tw.length);
+            var minLen = Math.min(qw.length, tw.length);
+            if (maxLen > minLen * 2.5) return false;
+            var tol = maxLen <= 3 ? 0 : Math.floor(maxLen / 4);
+            return hpEditDist(qw, tw) <= tol;
+          });
+        });
+        return allFuzzy ? 400 : 0;
+      }
+
+      function hpHide() {
+        hpSuggestions.style.display = 'none';
+        hpSuggestions.innerHTML = '';
+        hpActive = -1;
+      }
+
+      function hpShow(query) {
+        hpActive = -1;
+        if (!query || query.length < 2) { hpHide(); return; }
+        var scored = hpList
+          .map(function(p) { return { p: p, score: hpFuzzyScore(query, p.name) }; })
+          .filter(function(x) { return x.score > 0; })
+          .sort(function(a, b) { return b.score - a.score; })
+          .slice(0, 8)
+          .map(function(x) { return x.p; });
+        if (!scored.length) { hpHide(); return; }
+        hpSuggestions.innerHTML = scored.map(function(p, i) {
+          return '<div class="checker__suggestion" role="option" tabindex="-1"' +
+            ' data-index="' + i + '" data-name="' + hpEsc(p.name) + '" data-state="' + p.state + '">' +
+            '<span class="checker__suggestion-name">' + hpEsc(p.name) + '</span>' +
+            '<span class="checker__badge checker__badge--' + p.state + '">' + p.state.toUpperCase() + '</span>' +
+            '</div>';
+        }).join('');
+        hpSuggestions.style.display = 'block';
+      }
+
+      function hpSelect(el) {
+        hpSelected = el.dataset.name;
+        hpState    = el.dataset.state;
+        hpInput.value = hpSelected;
+        hpInput.classList.remove('has-error');
+        hpError.classList.remove('is-visible');
+        hpHide();
+      }
+
+      function hpUpdateActive(items) {
+        items.forEach(function(el, i) { el.classList.toggle('is-active', i === hpActive); });
+      }
+
+      hpInput.addEventListener('input', function() {
+        hpSelected = null; hpState = null;
+        hpShow(hpInput.value.trim());
+      });
+
+      hpInput.addEventListener('keydown', function(e) {
+        var items = hpSuggestions.querySelectorAll('.checker__suggestion');
+        if (!items.length) return;
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          hpActive = Math.min(hpActive + 1, items.length - 1);
+          hpUpdateActive(items);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          hpActive = Math.max(hpActive - 1, 0);
+          hpUpdateActive(items);
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          var target = hpActive >= 0 ? items[hpActive] : items[0];
+          if (target) hpSelect(target);
+        } else if (e.key === 'Escape') {
+          hpHide();
+        }
+      });
+
+      hpSuggestions.addEventListener('mousedown', function(e) {
+        var item = e.target.closest('.checker__suggestion');
+        if (item) { e.preventDefault(); hpSelect(item); }
+      });
+
+      hpInput.addEventListener('blur', function() { setTimeout(hpHide, 160); });
+
+      hpBtn.addEventListener('click', function() {
+        if (!hpSelected || !hpState) {
+          hpInput.classList.add('has-error');
+          hpError.classList.add('is-visible');
+          hpInput.focus();
+          return;
+        }
+        window.location.href = 'choose-plan.html?state=' + hpState +
+          '&prison=' + encodeURIComponent(hpSelected);
+      });
     })();
 
     // ─── Floating CTA — hide when hero in view (mobile only) ───
