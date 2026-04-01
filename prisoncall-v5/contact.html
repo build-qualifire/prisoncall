@@ -182,20 +182,26 @@
     .cn-subheading { font-size: 14px; color: var(--color-muted); margin-bottom: 32px; }
 
     /* ═══════════════════════════════════
-       PRISON CHECKER PANEL
+       PRISON CHECKER PANEL (matches index mid-page black card)
     ═══════════════════════════════════ */
     .checker {
-      background: var(--color-surface);
-      border: 1.5px solid var(--color-border);
+      background: var(--color-hero);
+      border: 1.5px solid rgba(255,255,255,0.14);
       border-radius: var(--radius-md);
-      padding: 24px;
-      margin-bottom: 8px;
+      padding: 28px 24px 32px;
+      margin: 0 auto 8px;
+      max-width: 768px;
+    }
+    @media (min-width: 768px) {
+      .checker { padding: 48px 36px 52px; }
     }
     .checker__heading {
-      font-size: 17px; font-weight: 700; color: var(--color-black);
-      margin-bottom: 16px; line-height: 1.3;
+      font-size: 20px; font-weight: 700; color: var(--color-white);
+      margin-bottom: 18px; line-height: 1.25; letter-spacing: -0.02em;
     }
-    @media (min-width: 768px) { .checker__heading { font-size: 18px; } }
+    @media (min-width: 768px) {
+      .checker__heading { font-size: 24px; margin-bottom: 22px; }
+    }
     .checker__body {
       display: flex; flex-direction: column; gap: 10px;
     }
@@ -207,18 +213,21 @@
     .checker__input {
       display: block; width: 100%;
       padding: 14px 18px; font-size: 15px; font-weight: 500;
-      font-family: var(--font-family); border: 2px solid var(--color-border);
-      border-radius: var(--radius-md); background: var(--color-white);
-      color: var(--color-black); outline: none;
+      font-family: var(--font-family); border: 2px solid rgba(255,255,255,0.55);
+      border-radius: var(--radius-md); background: rgba(255,255,255,0.07);
+      color: var(--color-white); outline: none;
       transition: border-color var(--tr);
     }
-    .checker__input:focus { border-color: var(--color-black); }
-    .checker__input.has-error { border-color: var(--color-error); }
+    .checker__input::placeholder {
+      color: rgba(255,255,255,0.78);
+    }
+    .checker__input:focus { border-color: var(--color-white); }
+    .checker__input.has-error { border-color: #ff9e9e; }
     .checker__suggestions {
       position: absolute; top: calc(100% + 4px); left: 0; right: 0;
       background: var(--color-white); border: 1.5px solid var(--color-border);
       border-radius: var(--radius-md); overflow: hidden;
-      z-index: 50; display: none;
+      z-index: 60; display: none;
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
     .checker__suggestion {
@@ -244,8 +253,13 @@
       padding: 14px 22px; font-size: 15px;
     }
     @media (max-width: 559px) { .checker__btn { width: 100%; } }
+    .checker__btn.btn--green {
+      background: #00D258;
+      border-color: #00D258;
+      color: var(--color-black);
+    }
     .checker__error {
-      font-size: 12px; color: var(--color-error);
+      font-size: 12px; color: #ff9e9e;
       margin-top: 8px; display: none;
     }
     .checker__error.is-visible { display: block; }
