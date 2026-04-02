@@ -471,6 +471,27 @@
     /* ─── Utility ─── */
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
     .hidden { display: none !important; }
+
+    /* ═════════════════════════════════════════════════════════════
+       YOUI-STYLE ROUNDED SECTION PANELS — DESKTOP ONLY
+       Mobile layout is completely unchanged.
+
+       Pattern: white page canvas. Each <section> inside <main>
+       becomes a rounded-corner panel clipped to its background colour.
+       Footer sits as a distinct rounded black panel at the bottom.
+
+       ── FOR ALL FUTURE PAGES ─────────────────────────────────────
+       1. main: padding 8px 12px 0
+       2. Each <section>: border-radius var(--radius-lg) + margin-bottom 8px
+          + overflow:hidden only when a child bg bleeds into corners.
+          Do NOT add overflow:hidden to sections with dropdowns.
+       3. .footer: margin 0 12px + rounded top corners + overflow:hidden
+       ─────────────────────────────────────────────────────────────
+    ═════════════════════════════════════════════════════════════ */
+    @media (min-width: 768px) {
+      main    { padding: 8px 12px 0; }
+      .footer { margin: 0 12px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden; }
+    }
   </style>
 </head>
 <body>
