@@ -1406,6 +1406,17 @@
   var RETENTION_MESSAGE = "Can I get a loyalty discount so that I don't have to change providers? I'd rather keep my Prisoncall number with you guys.";
   var formOpenedViaRetention = false;
 
+  function scrollTier3BelowHeader() {
+    if (!tier3Div) return;
+    var header = document.getElementById('siteHeader');
+    var headerH = header ? header.getBoundingClientRect().height : 0;
+    var rect = tier3Div.getBoundingClientRect();
+    var scrollY = window.scrollY || window.pageYOffset || 0;
+    var elTopDoc = rect.top + scrollY;
+    var y = elTopDoc - headerH;
+    window.scrollTo(0, Math.max(0, Math.round(y)));
+  }
+
   function updateFormSubmitLabel() {
     if (formSubmitBtn) {
       formSubmitBtn.textContent = formOpenedViaRetention ? 'Yes, apply my discount' : 'Send message';
@@ -1430,7 +1441,7 @@
     function finishTier3Open() {
       if (instant && tier3FormWrap) tier3FormWrap.classList.remove('is-instant');
       if (options.retention && tier3Div) {
-        tier3Div.scrollIntoView({ block: 'start', behavior: 'instant' });
+        scrollTier3BelowHeader();
       }
     }
     if (instant && tier3FormWrap) {
@@ -1441,7 +1452,7 @@
       finishTier3Open();
       if (!options.retention && options.scrollForm && tier3Div) {
         window.setTimeout(function() {
-          tier3Div.scrollIntoView({ block: 'start', behavior: 'instant' });
+          scrollTier3BelowHeader();
         }, 420);
       }
     }
