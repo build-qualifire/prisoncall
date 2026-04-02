@@ -886,6 +886,11 @@
 
       /* prison-checker + final-cta: NO overflow:hidden — protects autocomplete dropdown */
 
+      /* Reviews + prison-checker: remove .container horizontal padding so their content
+         spans the full section width, matching all other sections visually. */
+      .reviews .container,
+      .prison-checker .container { padding-left: 0; padding-right: 0; }
+
       /* Footer: same container width as all sections, rounded top corners.
          margin: 0 auto centres it; no horizontal margin override needed. */
       .footer {
