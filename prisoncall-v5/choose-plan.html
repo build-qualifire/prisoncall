@@ -657,6 +657,21 @@
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeMenu(); });
   mobileMenu.querySelectorAll('a').forEach(function(l){ l.addEventListener('click', closeMenu); });
 
+  (function() {
+    var choosePlanSamePage = mobileMenu.querySelector('.mobile-menu__links a[href="choose-plan.html"]');
+    if (!choosePlanSamePage) return;
+    function isChoosePlanPage() {
+      var p = window.location.pathname || '';
+      return /(^|\/)choose-plan\.html$/i.test(p) || /choose-plan\.html/i.test(window.location.href);
+    }
+    choosePlanSamePage.addEventListener('click', function(e) {
+      if (!isChoosePlanPage()) return;
+      e.preventDefault();
+      closeMenu();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, true);
+  })();
+
   /* ═══════════════════════════════════════════════════════
      DATA
   ═══════════════════════════════════════════════════════ */
