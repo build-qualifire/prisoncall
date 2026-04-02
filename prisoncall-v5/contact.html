@@ -316,6 +316,25 @@
     .faq__item.is-open .faq__chevron { transform: rotate(90deg); }
     .faq__item.is-open .faq__answer-wrap { max-height: 2000px; }
 
+    .faq-group + .faq-group {
+      margin-top: 40px;
+      padding-top: 32px;
+      border-top: 1px solid var(--color-border);
+    }
+    .faq-group__title {
+      font-size: 20px; font-weight: 700; color: var(--color-black);
+      line-height: 1.2; margin-bottom: 6px;
+    }
+    @media (min-width: 768px) { .faq-group__title { font-size: 22px; } }
+    .faq-group__sub {
+      font-size: 14px; color: var(--color-muted);
+      margin-bottom: 16px; line-height: 1.5;
+    }
+    .faq__answer a.faq-answer-cta {
+      color: #00D258; text-decoration: underline; text-underline-offset: 3px;
+    }
+    .faq__answer a.faq-answer-cta:hover { opacity: 0.85; }
+
     /* ═══════════════════════════════════
        TIER 2 — PORTAL PILLS
     ═══════════════════════════════════ */
@@ -323,6 +342,16 @@
       display: flex; flex-wrap: wrap; gap: 10px;
       margin-top: 20px;
     }
+    .portal-section__title {
+      font-size: 20px; font-weight: 700; color: var(--color-black);
+      line-height: 1.2; margin-bottom: 6px;
+    }
+    @media (min-width: 768px) { .portal-section__title { font-size: 22px; } }
+    .portal-section__sub {
+      font-size: 14px; color: var(--color-muted);
+      margin-bottom: 4px; line-height: 1.5;
+    }
+    .portal-pills--secondary { margin-top: 14px; }
     .portal-pill {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 10px 18px; font-size: 14px; font-weight: 600;
@@ -330,9 +359,36 @@
       border: 2px solid var(--color-border); border-radius: var(--radius-pill);
       background: var(--color-white); color: var(--color-black);
       text-decoration: none; cursor: pointer;
-      transition: border-color var(--tr), background var(--tr);
+      transition: border-color var(--tr), background var(--tr), color var(--tr);
     }
     .portal-pill:hover { border-color: var(--color-black); background: var(--color-surface); }
+    button.portal-pill { font: inherit; text-align: center; }
+    .portal-pill--cancel {
+      border-color: #d0d0d0; color: var(--color-muted);
+    }
+    .portal-pill--cancel:hover {
+      border-color: #bdbdbd; color: #555; background: var(--color-surface);
+    }
+    .cancel-confirm {
+      display: none; margin-top: 14px;
+      font-size: 15px; color: #333; line-height: 1.55; max-width: 36em;
+    }
+    .cancel-confirm.is-visible { display: block; }
+    .cancel-confirm__text { margin-bottom: 12px; }
+    .cancel-confirm__actions {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 20px;
+    }
+    .cancel-confirm__yes {
+      color: var(--color-muted); text-decoration: underline; text-underline-offset: 3px;
+      font-size: 14px;
+    }
+    .cancel-confirm__yes:hover { color: var(--color-black); }
+    .cancel-confirm__no {
+      background: none; border: none; padding: 0; font: inherit; cursor: pointer;
+      color: #00D258; text-decoration: underline; text-underline-offset: 3px;
+      font-size: 14px;
+    }
+    .cancel-confirm__no:hover { opacity: 0.88; }
 
     /* ═══════════════════════════════════
        TIER 3 — CONTACT FORM
@@ -456,7 +512,7 @@
     <div class="mobile-menu__body">
       <nav class="mobile-menu__links">
         <a href="choose-plan.html">Choose Prisoncall plan</a>
-        <a href="https://account.prisoncall.com.au/pages/121f6795-04f1-44c5-ac65-0408561ac72e?locale=en&region_country=AU" target="_blank" rel="noopener">Manage my plan</a>
+        <a href="portal.html">My Prisoncall</a>
         <a href="contact.html">Contact us</a>
       </nav>
       <div class="mobile-menu__social">
@@ -485,7 +541,7 @@
       <!-- ─────────────────────────────────────
            PRISON AVAILABILITY CHECKER
       ───────────────────────────────────── -->
-      <div class="checker" id="checkerPanel">
+      <div class="checker" id="prison-checker">
         <h2 class="checker__heading">Not sure if Prisoncall covers your loved one's prison?</h2>
         <div class="checker__body">
           <div class="checker__input-wrap" id="checkerInputWrap">
@@ -510,12 +566,12 @@
       <!-- ─────────────────────────────────────
            TIER 1 — QUICK ANSWERS (FAQ)
       ───────────────────────────────────── -->
-      <div class="tier" aria-labelledby="tier1-heading">
-        <h2 class="tier__heading" id="tier1-heading">Quick answers</h2>
+      <div class="tier">
+        <div class="faq-group" aria-labelledby="faq-group1-title">
+          <h2 class="faq-group__title" id="faq-group1-title">New to Prisoncall?</h2>
+          <p class="faq-group__sub">Quick answers to help you decide which plan is right for you</p>
+          <div class="faq__list" role="list">
 
-        <div class="faq__list" role="list">
-
-          <!-- Q1 -->
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
               What is Prisoncall and what problem does it solve?
@@ -525,11 +581,11 @@
               <div class="faq__answer">
                 <p>Calling a mobile phone from a prison is extremely expensive — prisoners are charged at high rates just to speak with their family, often burning through limited phone credits in minutes. Many families spend $300–$500 or more every month just to stay in contact.</p>
                 <p>Prisoncall solves this by giving you a dedicated local landline number. When your loved one calls that number from the prison phone system, the call is treated as a cheap local landline call — dramatically reducing the cost for them. And the best part? You don't need a landline at home. The call forwards directly to your mobile, so you can answer anywhere — at work, running errands, picking up the kids — without being tied to a home phone. Stay connected with your loved one without the financial stress, and without changing your life.</p>
+                <p><a href="choose-plan.html" class="faq-answer-cta">Get started here</a></p>
               </div>
             </div>
           </div>
 
-          <!-- Q2 -->
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
               Which prisons does Prisoncall work for?
@@ -538,11 +594,11 @@
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
                 <p>Prisoncall works exclusively for correctional facilities in Victoria (VIC) and New South Wales (NSW). Check if your prison is covered instantly using the prison checker above — it's free and takes seconds.</p>
+                <p><a href="#prison-checker" class="faq-answer-cta">Check my prison</a></p>
               </div>
             </div>
           </div>
 
-          <!-- Q3 -->
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
               How much can I save?
@@ -551,11 +607,23 @@
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
                 <p>Customers save more than 70% on average compared to per-minute providers. With Prisoncall there are no credits, no top-ups and no per-minute charges — just one flat subscription fee with unlimited minutes. Most customers who switched tell us they were spending over $500 a month before — now they pay as little as $15 a week.</p>
+                <p><a href="choose-plan.html" class="faq-answer-cta">View plans here</a></p>
               </div>
             </div>
           </div>
 
-          <!-- Q4 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              What plans are available?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>We offer four flexible plans — Weekly, Fortnightly, Monthly, and Quarterly. All plans include unlimited minutes with no per-call charges. The longer the plan, the better the value. <a href="choose-plan.html" class="faq-answer-cta">Choose a plan here</a>.</p>
+              </div>
+            </div>
+          </div>
+
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
               How does Prisoncall work — step by step?
@@ -574,11 +642,11 @@
                   <li>The prison will make a verification call to your Prisoncall number — answer it and confirm the number when asked. Quote your Prisoncall number, not your personal mobile number.</li>
                   <li>Once verified and approved by the prison (typically 4–7 days), your loved one can call your Prisoncall number and you'll receive it straight on your mobile.</li>
                 </ol>
+                <p><a href="choose-plan.html" class="faq-answer-cta">Get started here</a></p>
               </div>
             </div>
           </div>
 
-          <!-- Q5 -->
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
               How long does it take to get my Prisoncall number?
@@ -587,11 +655,45 @@
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
                 <p>Your number is provisioned and delivered to you by SMS and email within minutes of your order being confirmed.</p>
+                <p><a href="choose-plan.html" class="faq-answer-cta">View plans here</a></p>
               </div>
             </div>
           </div>
 
-          <!-- Q6 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              Do I need a landline at home to use Prisoncall?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>No — and this is one of the biggest benefits of Prisoncall. Many families used to think they needed to be sitting at home by a landline phone just to receive cheaper prison calls. With Prisoncall, your dedicated number forwards directly to your mobile. Answer calls at work, while shopping, while picking up the kids — wherever you are. You stay connected without being restricted to your home, and your loved one still benefits from the lower call rate. Life doesn't stop, and neither does your connection.</p>
+                <p><a href="choose-plan.html" class="faq-answer-cta">Choose a plan here</a></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              Can I port my existing number to Prisoncall?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>We don't support number porting. However, our setup is fast and easy — your number is ready within minutes of ordering. Porting charges from your existing provider are typically very expensive and simply not worth it when getting started with Prisoncall is this quick.</p>
+                <p><a href="choose-plan.html" class="faq-answer-cta">Get started here</a></p>
+              </div>
+            </div>
+          </div>
+
+          </div>
+        </div>
+
+        <div class="faq-group" aria-labelledby="faq-group2-title">
+          <h2 class="faq-group__title" id="faq-group2-title">Just signed up?</h2>
+          <p class="faq-group__sub">Quick answers to help you get the most out of your new Prisoncall plan</p>
+          <div class="faq__list" role="list">
+
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
               How long does prison registration take and what is the verification call?
@@ -605,7 +707,6 @@
             </div>
           </div>
 
-          <!-- Q7 -->
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
               My calls aren't connecting — what should I do?
@@ -620,7 +721,6 @@
             </div>
           </div>
 
-          <!-- Q8 -->
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
               What happens if my loved one is transferred to another prison?
@@ -634,46 +734,18 @@
             </div>
           </div>
 
-          <!-- Q9 -->
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
-              Do I need a landline at home to use Prisoncall?
+              How do I change my prison after a transfer?
               <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
             </button>
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
-                <p>No — and this is one of the biggest benefits of Prisoncall. Many families used to think they needed to be sitting at home by a landline phone just to receive cheaper prison calls. With Prisoncall, your dedicated number forwards directly to your mobile. Answer calls at work, while shopping, while picking up the kids — wherever you are. You stay connected without being restricted to your home, and your loved one still benefits from the lower call rate. Life doesn't stop, and neither does your connection.</p>
+                <p>Most customers keep their existing number for convenience after a transfer. If you'd like a new number matched to the new prison, submit a prison change request via your customer portal — free of charge, new number within minutes, old number active for 15 days. <a href="portal.html">Request a prison change</a>.</p>
               </div>
             </div>
           </div>
 
-          <!-- Q10 -->
-          <div class="faq__item" role="listitem">
-            <button class="faq__question" aria-expanded="false">
-              Can I port my existing number to Prisoncall?
-              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
-            </button>
-            <div class="faq__answer-wrap" role="region">
-              <div class="faq__answer">
-                <p>We don't support number porting. However, our setup is fast and easy — your number is ready within minutes of ordering. Porting charges from your existing provider are typically very expensive and simply not worth it when getting started with Prisoncall is this quick.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Q11 -->
-          <div class="faq__item" role="listitem">
-            <button class="faq__question" aria-expanded="false">
-              What plans are available?
-              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
-            </button>
-            <div class="faq__answer-wrap" role="region">
-              <div class="faq__answer">
-                <p>We offer four plans — Weekly ($15), Fortnightly ($25), Monthly ($45 — most popular), and Quarterly ($125 — best value). All plans include unlimited minutes with no per-call charges. The longer the plan, the better the value. <a href="choose-plan.html">View plans</a>.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Q12 -->
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
               Can I have more than one Prisoncall number?
@@ -686,7 +758,30 @@
             </div>
           </div>
 
-          <!-- Q13 -->
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              How do I add another plan?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>Log in to your customer portal and select "Add another plan." Your 10% bundle discount will automatically apply. <a href="portal.html">Go to your portal</a>.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="faq__item" role="listitem">
+            <button class="faq__question" aria-expanded="false">
+              How do I manage my account?
+              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
+            </button>
+            <div class="faq__answer-wrap" role="region">
+              <div class="faq__answer">
+                <p>Log in to your customer portal to view your active plans, add new plans, request a prison change, update your mobile number, view call history and manage billing. <a href="portal.html">Go to your portal</a>.</p>
+              </div>
+            </div>
+          </div>
+
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
               What happens if my payment fails?
@@ -707,7 +802,6 @@
             </div>
           </div>
 
-          <!-- Q14 -->
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
               How do I cancel my plan?
@@ -720,7 +814,6 @@
             </div>
           </div>
 
-          <!-- Q15 -->
           <div class="faq__item" role="listitem">
             <button class="faq__question" aria-expanded="false">
               My plan was cancelled and I want to reinstate my number — can I get it back?
@@ -734,53 +827,16 @@
             </div>
           </div>
 
-          <!-- Q16 -->
-          <div class="faq__item" role="listitem">
-            <button class="faq__question" aria-expanded="false">
-              How do I manage my account?
-              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
-            </button>
-            <div class="faq__answer-wrap" role="region">
-              <div class="faq__answer">
-                <p>Log in to your customer portal to view your active plans, add new plans, request a prison change, update your mobile number, view call history and manage billing. <a href="portal.html">Go to your portal</a>.</p>
-              </div>
-            </div>
           </div>
-
-          <!-- Q17 -->
-          <div class="faq__item" role="listitem">
-            <button class="faq__question" aria-expanded="false">
-              How do I add another plan?
-              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
-            </button>
-            <div class="faq__answer-wrap" role="region">
-              <div class="faq__answer">
-                <p>Log in to your customer portal and select "Add another plan." Your 10% bundle discount will automatically apply. <a href="portal.html">Go to your portal</a>.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Q18 -->
-          <div class="faq__item" role="listitem">
-            <button class="faq__question" aria-expanded="false">
-              How do I change my prison after a transfer?
-              <img class="faq__chevron" src="assets/icons/feature_icons/icon-chevron-right.svg" alt="">
-            </button>
-            <div class="faq__answer-wrap" role="region">
-              <div class="faq__answer">
-                <p>Most customers keep their existing number for convenience after a transfer. If you'd like a new number matched to the new prison, submit a prison change request via your customer portal — free of charge, new number within minutes, old number active for 15 days. <a href="portal.html">Request a prison change</a>.</p>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
 
       <!-- ─────────────────────────────────────
            TIER 2 — PORTAL SELF-SERVICE
       ───────────────────────────────────── -->
-      <div class="tier" aria-labelledby="tier2-heading">
-        <h2 class="tier__heading" id="tier2-heading">Already a customer? Manage your plan instantly.</h2>
+      <div class="tier" aria-labelledby="portal-section-title">
+        <h2 class="portal-section__title" id="portal-section-title">Existing customer?</h2>
+        <p class="portal-section__sub">Manage your plan instantly.</p>
         <div class="portal-pills" role="list">
           <a href="portal.html" class="portal-pill" role="listitem">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
@@ -795,13 +851,22 @@
             Update my mobile number
           </a>
           <a href="portal.html" class="portal-pill" role="listitem">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-            Cancel my plan
-          </a>
-          <a href="portal.html" class="portal-pill" role="listitem">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             View my call history
           </a>
+        </div>
+        <div class="portal-pills--secondary">
+          <button type="button" class="portal-pill portal-pill--cancel" id="cancelPlanPill" aria-expanded="false" aria-controls="cancelPlanConfirm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            Cancel my plan
+          </button>
+          <div class="cancel-confirm" id="cancelPlanConfirm" role="region" aria-live="polite">
+            <p class="cancel-confirm__text">This will cancel your plan immediately. You can reactivate your number within 5 days via My Prisoncall.</p>
+            <div class="cancel-confirm__actions">
+              <a href="portal.html" class="cancel-confirm__yes">Yes, cancel my plan</a>
+              <button type="button" class="cancel-confirm__no" id="cancelPlanKeep">Keep my plan</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -942,7 +1007,7 @@
             <p class="footer__col-title">Help</p>
             <ul>
               <li><a href="choose-plan.html">Buy a Prisoncall plan</a></li>
-              <li><a href="https://account.prisoncall.com.au/pages/121f6795-04f1-44c5-ac65-0408561ac72e?locale=en&region_country=AU" target="_blank" rel="noopener">Manage my plan</a></li>
+              <li><a href="portal.html">My Prisoncall</a></li>
               <li><a href="contact.html">Contact support</a></li>
             </ul>
           </div>
@@ -1228,6 +1293,21 @@
       }
     });
   });
+
+  /* ─── Cancel plan pill — inline confirmation ─── */
+  var cancelPlanPill = document.getElementById('cancelPlanPill');
+  var cancelPlanConfirm = document.getElementById('cancelPlanConfirm');
+  var cancelPlanKeep = document.getElementById('cancelPlanKeep');
+  if (cancelPlanPill && cancelPlanConfirm && cancelPlanKeep) {
+    cancelPlanPill.addEventListener('click', function() {
+      cancelPlanConfirm.classList.add('is-visible');
+      cancelPlanPill.setAttribute('aria-expanded', 'true');
+    });
+    cancelPlanKeep.addEventListener('click', function() {
+      cancelPlanConfirm.classList.remove('is-visible');
+      cancelPlanPill.setAttribute('aria-expanded', 'false');
+    });
+  }
 
   /* ═══════════════════════════════════════════════════════
      CONTACT FORM — VALIDATION
