@@ -875,8 +875,9 @@
         border-radius: var(--radius-lg);
       }
 
-      /* hero: overflow:hidden clips hero__content child background to corners */
-      .hero           { overflow: hidden; }
+      /* hero: overflow:hidden clips hero__content child background to corners;
+         larger margin-bottom gives comfortable breathing room before the why section */
+      .hero           { overflow: hidden; margin-bottom: 20px; }
 
       /* why: overflow:hidden clips mint-green bg cleanly to corners */
       .why            { overflow: hidden; }
@@ -1118,10 +1119,6 @@
           </article>
 
         </div>
-
-        <div class="why__cta">
-          <a href="choose-plan.html" class="btn btn--black btn--lg">Set up in 1 minute</a>
-        </div>
       </div>
     </section>
 
@@ -1217,6 +1214,10 @@
             </div>
           </div>
 
+        </div>
+
+        <div class="why__cta">
+          <a href="choose-plan.html" class="btn btn--black btn--lg">Set up in 1 minute</a>
         </div>
       </div>
     </section>
