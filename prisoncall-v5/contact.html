@@ -436,6 +436,7 @@
       transition: max-height 400ms ease;
     }
     .form-collapse.is-open { max-height: 1400px; }
+    .form-collapse.is-instant { transition: none; }
     .contact-form { margin-top: 24px; }
     .form-field { margin-bottom: 18px; }
     .form-label {
@@ -471,6 +472,45 @@
     .form-submit:hover { opacity: 0.88; transform: translateY(-1px); }
     .form-submit:active { transform: none; opacity: 1; }
     @media (min-width: 768px) { .form-submit { width: auto; padding: 17px 40px; } }
+
+    /* Full-screen loyalty confirmation (retention flow — UI only until n8n Phase 1C) */
+    .retention-modal {
+      display: none; position: fixed; inset: 0; z-index: 99999;
+      align-items: center; justify-content: center; padding: 24px;
+      box-sizing: border-box;
+    }
+    .retention-modal.is-open {
+      display: flex;
+    }
+    .retention-modal__backdrop {
+      position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55);
+    }
+    .retention-modal__panel {
+      position: relative; z-index: 1;
+      max-width: 420px; width: 100%;
+      padding: 28px 24px 24px;
+      background: var(--color-white); border-radius: var(--radius-md);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+    .retention-modal__title {
+      font-size: 22px; font-weight: 700; color: var(--color-black);
+      margin: 0 0 14px; line-height: 1.25;
+    }
+    @media (min-width: 768px) { .retention-modal__title { font-size: 24px; } }
+    .retention-modal__body {
+      font-size: 15px; line-height: 1.55; color: var(--color-black);
+      margin: 0 0 22px;
+    }
+    .retention-modal__cta {
+      display: inline-block; width: 100%; padding: 16px 24px;
+      font-size: 16px; font-weight: 700; font-family: var(--font-family);
+      text-align: center; border-radius: var(--radius-pill); cursor: pointer;
+      background: var(--color-green); color: var(--color-black);
+      border: 2px solid var(--color-green);
+      transition: opacity var(--tr), transform var(--tr);
+    }
+    .retention-modal__cta:hover { opacity: 0.88; transform: translateY(-1px); }
 
     /* ─── Utility ─── */
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
@@ -815,7 +855,7 @@
             </button>
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
-                <p>You can cancel at any time via your customer portal. If your loved one has been released — that's wonderful news. Your service will be cancelled immediately with no further charges. If you're thinking of switching providers, please reach out first — we may be able to offer a loyalty discount. <a href="portal.html">Manage your plan</a>.</p>
+                <p>You can cancel at any time via your customer portal, or using the quick action pills below. If your loved one has been released, that's wonderful news. Your service will be cancelled immediately with no further charges. If you're thinking of switching providers, please reach out first. We may be able to offer a loyalty discount. <a href="#" class="faq-answer-cta js-tier3-retention-open">Send us a message</a></p>
               </div>
             </div>
           </div>
@@ -930,7 +970,7 @@
             <p class="form-error" id="messageError">Please enter your message.</p>
           </div>
 
-          <button type="submit" class="form-submit">Send message</button>
+          <button type="submit" class="form-submit" id="formSubmitBtn">Send message</button>
 
         </form>
         </div><!-- /.form-collapse -->
@@ -938,6 +978,15 @@
 
     </div>
   </main>
+
+  <div class="retention-modal" id="retentionModal" role="dialog" aria-modal="true" aria-labelledby="retentionModalTitle" aria-hidden="true">
+    <div class="retention-modal__backdrop" aria-hidden="true"></div>
+    <div class="retention-modal__panel">
+      <h2 class="retention-modal__title" id="retentionModalTitle">You're staying!</h2>
+      <p class="retention-modal__body">We've applied a 10% loyalty discount to your next 6 renewals. We really appreciate your loyalty. Your Prisoncall number stays active and your loved one won't miss a thing.</p>
+      <button type="button" class="retention-modal__cta" id="retentionModalClose">Got it, thanks</button>
+    </div>
+  </div>
 
   <!-- ═══ FOOTER ═══ -->
   <footer class="footer">
@@ -1331,17 +1380,116 @@
   }
 
   /* ═══════════════════════════════════════════════════════
-     CONTACT FORM — VALIDATION
+     TIER 3 + CONTACT FORM (toggle, retention CTA, validation)
   ═══════════════════════════════════════════════════════ */
+  var tier3Toggle   = document.getElementById('tier3Toggle');
+  var tier3Close    = document.getElementById('tier3Close');
+  var tier3FormWrap = document.getElementById('tier3FormWrap');
+  var tier3Div      = document.getElementById('tier3');
   var contactForm   = document.getElementById('contactForm');
   var formMobile    = document.getElementById('formMobile');
   var formEmail     = document.getElementById('formEmail');
   var formMessage   = document.getElementById('formMessage');
+  var formSubmitBtn = document.getElementById('formSubmitBtn');
   var mobileError   = document.getElementById('mobileError');
   var emailError    = document.getElementById('emailError');
   var msgError      = document.getElementById('messageError');
+  var retentionModal = document.getElementById('retentionModal');
+  var retentionModalClose = document.getElementById('retentionModalClose');
 
-  contactForm.addEventListener('submit', function(e) {
+  var RETENTION_MESSAGE = "I'm thinking of cancelling my plan to switch to another provider. I'd prefer to keep my Prisoncall number. Could I get a loyalty discount on my upcoming renewals?";
+  var formOpenedViaRetention = false;
+
+  function updateFormSubmitLabel() {
+    if (formSubmitBtn) {
+      formSubmitBtn.textContent = formOpenedViaRetention ? 'Yes, apply my discount' : 'Send message';
+    }
+  }
+
+  function openTier3(options) {
+    options = options || {};
+    var instant = !!options.instant;
+    if (options.retention) {
+      formOpenedViaRetention = true;
+      if (formMessage) formMessage.value = RETENTION_MESSAGE;
+    } else {
+      formOpenedViaRetention = false;
+    }
+    updateFormSubmitLabel();
+    if (tier3Div) tier3Div.classList.add('is-open');
+    if (tier3FormWrap) tier3FormWrap.classList.add('is-open');
+    if (instant && tier3FormWrap) tier3FormWrap.classList.add('is-instant');
+    if (tier3Toggle) tier3Toggle.setAttribute('aria-expanded', 'true');
+    if (tier3Close) tier3Close.setAttribute('aria-hidden', 'false');
+    if (instant && tier3FormWrap) {
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          if (tier3FormWrap) tier3FormWrap.classList.remove('is-instant');
+        });
+      });
+    }
+    if (options.retention && formMessage) {
+      formMessage.focus({ preventScroll: true });
+    }
+  }
+
+  function closeTier3() {
+    if (tier3Div) tier3Div.classList.remove('is-open');
+    if (tier3FormWrap) {
+      tier3FormWrap.classList.remove('is-instant');
+      tier3FormWrap.classList.remove('is-open');
+    }
+    if (tier3Toggle) tier3Toggle.setAttribute('aria-expanded', 'false');
+    if (tier3Close) tier3Close.setAttribute('aria-hidden', 'true');
+    if (formMessage && formMessage.value.trim() === RETENTION_MESSAGE.trim()) {
+      formMessage.value = '';
+    }
+    formOpenedViaRetention = false;
+    updateFormSubmitLabel();
+  }
+
+  function openRetentionModal() {
+    if (!retentionModal) return;
+    retentionModal.classList.add('is-open');
+    retentionModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    if (retentionModalClose) retentionModalClose.focus();
+  }
+
+  function closeRetentionModal() {
+    if (!retentionModal) return;
+    retentionModal.classList.remove('is-open');
+    retentionModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    closeTier3();
+  }
+
+  document.querySelectorAll('a.js-tier3-retention-open').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      openTier3({ retention: true, instant: true });
+    });
+  });
+
+  if (tier3Toggle) {
+    tier3Toggle.addEventListener('click', function() {
+      openTier3({ retention: false });
+    });
+  }
+
+  if (tier3Close) {
+    tier3Close.addEventListener('click', function() {
+      closeTier3();
+    });
+  }
+
+  if (retentionModalClose) {
+    retentionModalClose.addEventListener('click', function() {
+      closeRetentionModal();
+    });
+  }
+
+  if (contactForm) contactForm.addEventListener('submit', function(e) {
     e.preventDefault();
     var valid = true;
 
@@ -1377,10 +1525,15 @@
       msgError.classList.remove('is-visible');
     }
 
-    /* Phase 1B: backend connected — form posts to # for now */
-    if (valid) {
-      /* placeholder: form.submit() or fetch() goes here */
+    if (!valid) return;
+
+    if (formOpenedViaRetention) {
+      openRetentionModal();
+      return;
     }
+
+    /* Phase 1B: backend connected — form posts to # for now */
+    /* placeholder: form.submit() or fetch() goes here */
   });
 
   /* Clear error state on input */
@@ -1388,30 +1541,6 @@
     el.addEventListener('input', function() {
       el.classList.remove('has-error');
     });
-  });
-
-  /* ═══════════════════════════════════════════════════════
-     TIER 3 — COLLAPSIBLE FORM TOGGLE
-  ═══════════════════════════════════════════════════════ */
-  var tier3Toggle   = document.getElementById('tier3Toggle');
-  var tier3Close    = document.getElementById('tier3Close');
-  var tier3FormWrap = document.getElementById('tier3FormWrap');
-  var tier3Div      = document.getElementById('tier3');
-
-  /* Open: toggle button transforms to bold heading, close button appears */
-  tier3Toggle.addEventListener('click', function() {
-    tier3Div.classList.add('is-open');
-    tier3FormWrap.classList.add('is-open');
-    tier3Toggle.setAttribute('aria-expanded', 'true');
-    tier3Close.setAttribute('aria-hidden', 'false');
-  });
-
-  /* Close: revert everything back to muted link state */
-  tier3Close.addEventListener('click', function() {
-    tier3Div.classList.remove('is-open');
-    tier3FormWrap.classList.remove('is-open');
-    tier3Toggle.setAttribute('aria-expanded', 'false');
-    tier3Close.setAttribute('aria-hidden', 'true');
   });
   </script>
 
