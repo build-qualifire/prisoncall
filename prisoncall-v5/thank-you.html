@@ -178,7 +178,17 @@
       margin: 0 auto;
       padding: 40px 20px 80px;
     }
-    @media (min-width: 768px) { .ty-wrap { padding: 56px 32px 96px; } }
+    @media (min-width: 768px) {
+      .ty-wrap {
+        max-width: var(--container-max);
+        padding: 56px 24px 96px;
+      }
+    }
+    @media (min-width: 1024px) {
+      .ty-wrap {
+        padding: 56px 32px 96px;
+      }
+    }
 
     /* ═══════════════════════════════════
        SECTION 1 — CONFIRMATION HEADER

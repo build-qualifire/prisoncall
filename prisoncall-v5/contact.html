@@ -175,7 +175,17 @@
       margin: 0 auto;
       padding: 32px 20px 80px;
     }
-    @media (min-width: 768px) { .cn-wrap { padding: 48px 32px 96px; } }
+    @media (min-width: 768px) {
+      .cn-wrap {
+        max-width: var(--container-max);
+        padding: 48px 24px 96px;
+      }
+    }
+    @media (min-width: 1024px) {
+      .cn-wrap {
+        padding: 48px 32px 96px;
+      }
+    }
 
     .cn-heading { font-size: 26px; font-weight: 800; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 4px; }
     @media (min-width: 768px) { .cn-heading { font-size: 34px; } }

@@ -176,8 +176,17 @@
       margin: 0 auto;
       padding: 32px 20px 80px;
     }
-    @media (min-width: 768px) { .cp-wrap { max-width: 920px; padding: 48px 32px 96px; } }
-    @media (min-width: 1024px) { .cp-wrap { max-width: 920px; padding: 56px 40px 96px; } }
+    @media (min-width: 768px) {
+      .cp-wrap {
+        max-width: var(--container-max);
+        padding: 48px 24px 96px;
+      }
+    }
+    @media (min-width: 1024px) {
+      .cp-wrap {
+        padding: 56px 32px 96px;
+      }
+    }
 
     .cp-heading { font-size: 26px; font-weight: 800; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 4px; }
     @media (min-width: 768px) { .cp-heading { font-size: 34px; } }

@@ -277,6 +277,7 @@
     /* Mobile: section-level padding creates equal breathing room around image (Youi pattern) */
     /* Height determined naturally by content — next white section peeks based on content length */
     .hero { background: var(--color-hero); display: flex; flex-direction: column; padding: 16px 16px 0; }
+    .hero__constrain { width: 100%; }
     /* Image container has no padding — breathing room comes from the section */
     .hero__visual { width: 100%; overflow: hidden; line-height: 0; }
     /* Youi-style: rounded corners float naturally within the section padding */
@@ -340,6 +341,20 @@
         padding: 0; /* reset mobile section padding — desktop uses full-bleed layout */
       }
       .hero__visual { display: none; }
+      .hero__constrain {
+        flex: 1;
+        display: flex;
+        justify-content: flex-start;
+        align-items: stretch;
+        max-width: var(--container-max);
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+        padding-left: 24px;
+        padding-right: 24px;
+        box-sizing: border-box;
+        min-height: 660px;
+      }
       .hero__content {
         position: relative; z-index: 2;
         flex: 0 0 54%; max-width: 54%;
@@ -364,6 +379,12 @@
       .hero__trust-item { font-size: 13px; gap: 8px; }
       .hero__trust-item img { width: 15px; height: 15px; }
       .hero__rating { justify-content: flex-start; }
+    }
+    @media (min-width: 1024px) {
+      .hero__constrain {
+        padding-left: 32px;
+        padding-right: 32px;
+      }
     }
     @media (min-width: 1100px) {
       .hero__content { padding: 88px 72px; flex: 0 0 50%; max-width: 50%; }
@@ -491,7 +512,7 @@
     /* ═══════════════════════════════════
        REVIEWS
     ═══════════════════════════════════ */
-    .reviews { background: var(--color-green-mid); padding: 64px 0; overflow: hidden; }
+    .reviews { background: var(--color-white); padding: 64px 0; overflow: hidden; }
     @media (min-width: 768px) { .reviews { padding: 80px 0; } }
     .reviews__header { text-align: center; margin-bottom: 12px; }
     .reviews__rating-row {
@@ -509,13 +530,15 @@
     .reviews__stars img { width: 20px; height: 20px; }
     .reviews__count { font-size: 13px; color: var(--color-muted); }
     .reviews__carousel-wrap { position: relative; margin: 0 -16px; }
-    @media (min-width: 768px) { .reviews__carousel-wrap { margin: 0 -24px; } }
-    @media (min-width: 1024px) { .reviews__carousel-wrap { margin: 0 -32px; } }
+    @media (min-width: 768px) { .reviews__carousel-wrap { margin: 0; } }
     .reviews__track-outer { overflow: hidden; }
     .reviews__track {
       display: flex; gap: 16px;
       animation: scrollCarousel 40s linear infinite;
       width: max-content; padding: 4px 16px 12px;
+    }
+    @media (min-width: 768px) {
+      .reviews__track { padding-left: 0; padding-right: 0; }
     }
     .reviews__track:hover { animation-play-state: paused; }
     @media (min-width: 768px) { .reviews__track { gap: 20px; } }
@@ -524,7 +547,7 @@
       100% { transform: translateX(-50%); }
     }
     .review-card {
-      background: var(--color-white); border-radius: var(--radius-md);
+      background: var(--color-green-mid); border-radius: var(--radius-md);
       padding: 24px; width: 300px; flex-shrink: 0;
       display: flex; flex-direction: column; gap: 12px;
     }
@@ -681,6 +704,7 @@
     .faq { background: var(--color-white); }
     .faq__header { margin-bottom: 40px; }
     .faq__list { max-width: 768px; }
+    @media (min-width: 768px) { .faq__list { max-width: none; } }
     .faq__item { border-bottom: 1px solid var(--color-border); }
     .faq__question {
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
@@ -877,6 +901,7 @@
           <img src="assets/images/hero1.png" alt="A family staying connected with a loved one in prison through Prisoncall" loading="eager" fetchpriority="high">
         </picture>
       </div>
+      <div class="hero__constrain">
       <div class="hero__content">
         <div class="hero__inner">
 
@@ -931,6 +956,7 @@
           </div>
 
         </div>
+      </div>
       </div>
     </section>
 
@@ -1141,7 +1167,6 @@
           </div>
           <span class="reviews__count">based on 2,561 verified reviews</span>
         </div>
-      </div>
 
       <div class="reviews__carousel-wrap">
         <div class="reviews__track-outer">
@@ -1314,7 +1339,6 @@
         </div>
       </div>
 
-      <div class="container">
         <div class="reviews__cta">
           <a href="choose-plan.html" class="btn btn--black btn--lg">Get started now</a>
         </div>
