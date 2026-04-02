@@ -854,32 +854,46 @@
        ─────────────────────────────────────────────────────────────
     ═════════════════════════════════════════════════════════════ */
     @media (min-width: 768px) {
+      /* main: 8px top gap + 12px horizontal minimum gutter.
+         Sections use max-width + margin:auto to centre at container width —
+         the 12px gutter ensures a minimum breathing room on narrower viewports. */
       main { padding: 8px 12px 0; }
 
-      /* hero: overflow:hidden required — hero__content child has its own
-         dark background that would bleed into the section's rounded corners */
-      .hero           { border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 8px; }
+      /* ── Shared panel rule: every section panel is constrained to the same
+         max-width as .container so all panels + content align identically. ── */
+      .hero,
+      .hiw,
+      .prison-checker,
+      .why,
+      .reviews,
+      .faq,
+      .final-cta {
+        max-width: var(--container-max);
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 8px;
+        border-radius: var(--radius-lg);
+      }
 
-      /* white-bg sections — border-radius clips background; overflow not needed
-         since no child background reaches the section corners */
-      .hiw            { border-radius: var(--radius-lg); margin-bottom: 8px; }
+      /* hero: overflow:hidden clips hero__content child background to corners */
+      .hero           { overflow: hidden; }
 
-      /* prison-checker: NO overflow:hidden — protects the dropdown suggestion list */
-      .prison-checker { border-radius: var(--radius-lg); margin-bottom: 8px; }
+      /* why: overflow:hidden clips mint-green bg cleanly to corners */
+      .why            { overflow: hidden; }
 
-      /* why: overflow:hidden ensures mint-green bg clips cleanly to corners */
-      .why            { border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 8px; }
+      /* reviews: overflow:hidden keeps the auto-scroll carousel within the panel */
+      .reviews        { overflow: hidden; }
 
-      /* reviews: overflow:hidden keeps carousel track within rounded panel */
-      .reviews        { border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 8px; }
+      /* prison-checker + final-cta: NO overflow:hidden — protects autocomplete dropdown */
 
-      .faq            { border-radius: var(--radius-lg); margin-bottom: 8px; }
-
-      /* final-cta: NO overflow:hidden — protects the dropdown suggestion list */
-      .final-cta      { border-radius: var(--radius-lg); margin-bottom: 8px; }
-
-      /* Footer: inset margins match main padding; rounded top corners only */
-      .footer         { margin: 0 12px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden; }
+      /* Footer: same container width as all sections, rounded top corners.
+         margin: 0 auto centres it; no horizontal margin override needed. */
+      .footer {
+        max-width: var(--container-max);
+        margin: 0 auto;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        overflow: hidden;
+      }
     }
   </style>
 </head>
@@ -952,10 +966,7 @@
     <!-- ═══ HERO ═══ -->
     <section class="hero" aria-label="Hero">
       <div class="hero__visual">
-        <picture>
-          <source media="(max-width: 767px)" srcset="assets/images/hero1square.png">
-          <img src="assets/images/hero1.png" alt="A family staying connected with a loved one in prison through Prisoncall" loading="eager" fetchpriority="high">
-        </picture>
+        <img src="assets/images/hero1.png" alt="A family staying connected with a loved one in prison through Prisoncall" loading="eager" fetchpriority="high">
       </div>
       <div class="hero__constrain">
       <div class="hero__content">
