@@ -880,8 +880,11 @@
          content section below it, matching the Youi-style post-hero canvas gap */
       .hero           { overflow: hidden; margin-bottom: 40px; }
 
-      /* why: overflow:hidden clips mint-green bg cleanly to corners */
-      .why            { overflow: hidden; }
+      /* why: overflow:hidden clips mint-green bg cleanly to corners;
+         margin-top adds white canvas gap above the section.
+         hero has overflow:hidden (BFC) so hero margin-bottom + why margin-top
+         do not collapse — total white gap = hero 40px + why 32px = 72px */
+      .why            { overflow: hidden; margin-top: 32px; }
 
       /* reviews: overflow:hidden keeps the auto-scroll carousel within the panel */
       .reviews        { overflow: hidden; }
