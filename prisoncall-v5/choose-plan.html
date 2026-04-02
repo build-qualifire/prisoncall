@@ -657,20 +657,23 @@
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeMenu(); });
   mobileMenu.querySelectorAll('a').forEach(function(l){ l.addEventListener('click', closeMenu); });
 
-  (function() {
-    var choosePlanSamePage = mobileMenu.querySelector('.mobile-menu__links a[href="choose-plan.html"]');
-    if (!choosePlanSamePage) return;
-    function isChoosePlanPage() {
-      var p = window.location.pathname || '';
-      return /(^|\/)choose-plan\.html$/i.test(p) || /choose-plan\.html/i.test(window.location.href);
-    }
-    choosePlanSamePage.addEventListener('click', function(e) {
-      if (!isChoosePlanPage()) return;
-      e.preventDefault();
-      closeMenu();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, true);
-  })();
+  function isChoosePlanPage() {
+    var path = (window.location.pathname || '').replace(/\\/g, '/');
+    var segments = path.split('/').filter(function(s) { return s.length; });
+    var last = segments.length ? segments[segments.length - 1] : '';
+    if (/^choose-plan(\.html)?$/i.test(last)) return true;
+    if (/choose-plan(\.html)?(\?|#|$)/i.test(window.location.href || '')) return true;
+    return false;
+  }
+  document.addEventListener('click', function(e) {
+    var a = e.target && e.target.closest && e.target.closest('a[href="choose-plan.html"]');
+    if (!a || !mobileMenu.contains(a)) return;
+    if (!isChoosePlanPage()) return;
+    e.preventDefault();
+    e.stopPropagation();
+    closeMenu();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, true);
 
   /* ═══════════════════════════════════════════════════════
      DATA

@@ -1396,7 +1396,7 @@
             </button>
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
-                <p>Prison engine number although common between families, does not offer the lowest rate compared to Prisoncall. <a href="index.html">Prisoncall Australia</a> gives you a landline number that is the closest to the prison, ensuring each call by your loved one only gets charged the lowest rate possible.</p>
+                <p>Prisoncall is the preferred choice over prison engine numbers for families and friends of inmates across VIC and NSW. <a href="index.html">Prisoncall Australia</a> gives you a landline number that is the closest to the prison, ensuring each call by your loved one only gets charged the lowest rate possible.</p>
               </div>
             </div>
           </div>
@@ -1409,7 +1409,7 @@
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
                 <p>Save more with our bundles rate! Let's take an example where you want three plans - one for yourself, one for your son who lives interstate, and one for your loved one's parent. Two ways to do this.</p>
-                <p>1. Purchase all plans under one order — <a href="choose-plan.html">Choose the plan</a> type, select prison name, assign the correct mobile number and add to cart. Then, click on "Get another plan" to add as many plans as you like. The bundle discount of extra 10% off gets applied automatically at checkout and for each renewal.</p>
+                <p>1. Purchase all plans under one order — <a href="choose-plan.html" class="faq-answer-cta">Choose plan</a> type, select prison name, assign the correct mobile number and add to cart. Then, click on "Get another plan" to add as many plans as you like. The bundle discount of extra 10% off gets applied automatically at checkout and for each renewal.</p>
                 <p>2. Already have an existing plan and want to add another? — We understand that the decision to get more Prisoncall plans sometimes comes a bit later. Simply log in to <a href="portal.html" class="faq-answer-cta">My Prisoncall</a> and click &#39;Add another plan&#39;. Your 10% bundle discount will be applied automatically to your account.</p>
               </div>
             </div>
@@ -1422,7 +1422,7 @@
             </button>
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
-                <p>We currently cover all correctional facilities in Victoria and New South Wales. Don't see your prison? <a href="contact.html">Contact us</a>.</p>
+                <p>We currently cover all correctional facilities in Victoria and New South Wales. Check Prisoncall availability for your prison <a href="#" class="faq-answer-cta js-home-checker-focus">here</a>.</p>
               </div>
             </div>
           </div>
@@ -1434,7 +1434,7 @@
             </button>
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
-                <p>Upon successful order of your <a href="index.html">Prisoncall</a> plan, we will issue a Prisoncall number within 24 hours. Once you receive your Prisoncall number, the number is already registered with the local phone network (Telstra) and active. Give this number to your loved one, and they will get it registered with their prison phone system. This usually takes between 4 - 7 days for most prisons. Once registered, your loved one will be able to call the Prisoncall number and you will receive their call directly on your mobile.</p>
+                <p>Upon successful order of your <a href="index.html">Prisoncall</a> plan, we will issue a Prisoncall number within minutes. Once you receive your Prisoncall number, the number is already registered with the local phone network (Telstra) and active. Give this number to your loved one, and they will get it registered with their prison phone system. This usually takes between 4 - 7 days for most prisons. Once registered, your loved one will be able to call the Prisoncall number and you will receive their call directly on your mobile.</p>
               </div>
             </div>
           </div>
@@ -1446,7 +1446,7 @@
             </button>
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
-                <p>You can still use the same number if you wish, but to continue receiving the best savings, we would advise getting a new Prisoncall number. Don't worry, we will do this for you free of charge, unlike other service providers. All you need to do is contact us online or send us an email to <a href="mailto:support@prisoncall.com.au">support@prisoncall.com.au</a> and let us know which prison your loved one was transferred to. If you have an active <a href="choose-plan.html">Prisoncall plan</a>, we will provide you with a new Prisoncall number within 24 hours. Don't forget to let your loved one know so that they can register the new number with the prison phone system.</p>
+                <p>Most of our customers choose to keep their existing Prisoncall number after a transfer. It's convenient and ensures their loved one can still reach them from the new prison while they get settled. The cost may be slightly higher if the new prison is in a different exchange area, but many customers prefer continuity while their loved one finds their feet. If call costs increase significantly at the new prison, we'll provide you with a new number matched to the new prison's local exchange, completely free of charge. Your old number stays active for 15 days so no calls are missed during the transition. Just log in to <a href="portal.html" class="faq-answer-cta">My Prisoncall</a> to request a prison change.</p>
               </div>
             </div>
           </div>
@@ -1667,6 +1667,27 @@
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeMenu(); });
     mobileMenu.querySelectorAll('a').forEach(function(link) {
       link.addEventListener('click', closeMenu);
+    });
+
+    document.querySelectorAll('a.js-home-checker-focus').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var section = document.querySelector('section.prison-checker');
+        var input = document.getElementById('hiwCheckerInput');
+        if (section) {
+          section.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+        function focusChecker() {
+          if (!input) return;
+          input.focus({ preventScroll: true });
+          input.click();
+        }
+        window.setTimeout(function() {
+          requestAnimationFrame(function() {
+            requestAnimationFrame(focusChecker);
+          });
+        }, 520);
+      });
     });
 
     // ─── FAQ Accordion ───

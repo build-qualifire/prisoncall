@@ -669,7 +669,8 @@
             </button>
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
-                <p>We offer four flexible plans — Weekly, Fortnightly, Monthly, and Quarterly. All plans include unlimited minutes with no per-call charges. The longer the plan, the better the value. <a href="choose-plan.html" class="faq-answer-cta">Choose a plan here</a></p>
+                <p>We offer four flexible plans — Weekly, Fortnightly, Monthly, and Quarterly. All plans include unlimited minutes with no per-call charges. The longer the plan, the better the value.</p>
+                <p><a href="choose-plan.html" class="faq-answer-cta">Choose a plan here</a></p>
               </div>
             </div>
           </div>
@@ -839,7 +840,7 @@
             </button>
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
-                <p>If a payment fails, your service is paused immediately and you'll receive an SMS and email notification. You can pay via <a href="portal.html">My Prisoncall</a> at any time to instantly reactivate — your next renewal date will not change.</p>
+                <p>It's best to pay your overdue Prisoncall plan as soon as possible to avoid cancellation and permanent deletion of your number.</p>
                 <p>Grace periods before cancellation:</p>
                 <ul>
                   <li>Weekly — 1 day</li>
@@ -847,7 +848,8 @@
                   <li>Monthly — 3 days</li>
                   <li>Quarterly — 5 days</li>
                 </ul>
-                <p>After the grace period, 3 consecutive daily final warning notifications are sent. If payment is still not received after those 3 days, your plan is cancelled and your number enters a 5-day permanent deletion grace period — during which you can still recover your number by paying via <a href="portal.html">My Prisoncall</a>. After 5 days, the number is permanently released and cannot be recovered. <a href="portal.html">Reactivate my plan</a>.</p>
+                <p><a href="portal.html">Pay now</a></p>
+                <p>After the grace period, 3 consecutive daily final warning notifications are sent. If payment is still not received after those 3 days, your plan is cancelled and your number enters a 5-day permanent deletion grace period, during which you can still recover your number. <a href="portal.html">Reactivate my plan</a>.</p>
               </div>
             </div>
           </div>
@@ -871,7 +873,7 @@
             </button>
             <div class="faq__answer-wrap" role="region">
               <div class="faq__answer">
-                <p>If your number is still within the 5-day grace period, you can still get it back. Log in to <a href="portal.html">My Prisoncall</a> and reactivate the plan before your number is permanently released. <a href="portal.html">Reactivate my plan</a>.</p>
+                <p>If your number is still within the 5-day grace period, you can still get it back. Log in to My Prisoncall and reactivate the plan before your number is permanently released. <a href="portal.html">Reactivate my plan</a>.</p>
                 <p>If the 5-day grace period has already passed, your number has been permanently released back into the telephone network and cannot be recovered. The good news is we can get you a new Prisoncall number matched to your prison within minutes. To avoid this in the future, please ensure your payment method is up to date before each renewal date. <a href="choose-plan.html">Get a new Prisoncall plan</a>.</p>
               </div>
             </div>
@@ -1437,6 +1439,11 @@
       });
     } else {
       finishTier3Open();
+      if (!options.retention && options.scrollForm && tier3Div) {
+        window.setTimeout(function() {
+          tier3Div.scrollIntoView({ block: 'start', behavior: 'instant' });
+        }, 420);
+      }
     }
   }
 
@@ -1480,7 +1487,7 @@
 
   if (tier3Toggle) {
     tier3Toggle.addEventListener('click', function() {
-      openTier3({ retention: false });
+      openTier3({ retention: false, scrollForm: true });
     });
   }
 
