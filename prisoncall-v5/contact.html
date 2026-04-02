@@ -362,7 +362,14 @@
       transition: border-color var(--tr), background var(--tr), color var(--tr);
     }
     .portal-pill:hover { border-color: var(--color-black); background: var(--color-surface); }
-    button.portal-pill { font: inherit; text-align: center; }
+    /* Button must not use font: inherit — it would override .portal-pill font-size/weight */
+    button.portal-pill {
+      text-align: center;
+      line-height: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      vertical-align: middle;
+    }
     .portal-pill--cancel {
       border-color: #d0d0d0; color: var(--color-muted);
     }
