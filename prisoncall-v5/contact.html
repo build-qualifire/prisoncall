@@ -1598,11 +1598,9 @@
   /* ─── Auto-open form when navigated here via #tier3 anchor ─── */
   if (window.location.hash === '#tier3') {
     openTier3({ instant: true });
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        scrollTier3BelowHeader();
-      });
-    });
+    window.setTimeout(function() {
+      scrollTier3BelowHeader();
+    }, 420);
   }
   </script>
 
