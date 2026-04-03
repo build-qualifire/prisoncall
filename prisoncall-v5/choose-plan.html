@@ -1114,13 +1114,14 @@
     function doVerify(){
       var code = codeInput.value.replace(/\D/g,'');
       if(code === '111111'){
-        /* Code accepted — show success state, advance to Step 4 on Continue */
+        /* Code accepted — show verified number state, advance to Step 4 on Continue */
         newCont.removeEventListener('click', doVerify);
         verifyWrap.style.display = 'none';
         var successWrap = document.createElement('div');
         successWrap.innerHTML =
           '<p class="step-heading" style="margin-bottom:6px;">Perfect, your number is verified.</p>' +
-          '<p class="mobile-hint">Now let\'s choose the best plan for you.</p>';
+          '<p class="mobile-hint">Calls from your loved one will be forwarded to:</p>' +
+          '<input class="mobile-input" type="tel" value="' + formatMobile(digits) + '" readonly tabindex="-1" style="pointer-events:none;">';
         newCont.parentNode.insertBefore(successWrap, newCont);
         newCont.addEventListener('click', function advanceToStep4(){
           newCont.removeEventListener('click', advanceToStep4);
