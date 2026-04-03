@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refund Policy | Prisoncall Australia</title>
+  <meta name="description" content="Refund Policy for Prisoncall Australia. Explains when refunds are available and how to request one, in accordance with Australian Consumer Law.">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/svg+xml" href="assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-black: #000000; --color-white: #ffffff; --color-green: #00D258;
+      --color-muted: #666666; --color-border: #E5E5E5; --color-surface: #F9F9F9;
+      --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --radius-sm: 8px; --radius-md: 16px; --radius-lg: 24px; --radius-pill: 80px;
+      --tr: 150ms ease; --container-max: 1312px;
+      --header-height: 72px; --header-height-mobile: 48px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-family); font-size: 16px; line-height: 1.5; color: var(--color-black); background: var(--color-white); -webkit-font-smoothing: antialiased; }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    .container { max-width: var(--container-max); margin: 0 auto; padding: 0 16px; }
+    @media (min-width: 768px) { .container { padding: 0 24px; } }
+    @media (min-width: 1024px) { .container { padding: 0 32px; } }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: var(--radius-pill); font-family: var(--font-family); font-size: 16px; font-weight: 700; line-height: 1; padding: 15px 28px; transition: background var(--tr), color var(--tr), border-color var(--tr), opacity var(--tr), transform var(--tr); white-space: nowrap; cursor: pointer; text-decoration: none; }
+    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); opacity: 1; }
+    .btn--green { background: var(--color-green); color: var(--color-black); border: 2px solid var(--color-green); }
+    .btn--black { background: var(--color-black); color: var(--color-white); border: 2px solid var(--color-black); }
+
+    .header { position: sticky; top: 0; z-index: 200; background: var(--color-white); height: var(--header-height-mobile); border-bottom: 1px solid var(--color-border); }
+    .header__inner { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; height: 100%; }
+    .header__hamburger { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+    .header__hamburger img { width: 24px; height: 24px; }
+    .header__center { display: flex; align-items: center; justify-content: center; position: relative; height: 100%; overflow: hidden; }
+    .header__wordmark { display: flex; align-items: center; transition: opacity var(--tr); }
+    .header__wordmark img { height: 20px; width: auto; }
+    .header__mobile-cta { position: absolute; left: 50%; transform: translateX(-50%); opacity: 0; pointer-events: none; transition: opacity var(--tr); padding: 9px 20px; font-size: 13px; font-weight: 700; font-family: var(--font-family); white-space: nowrap; border-radius: var(--radius-pill); background: var(--color-green); color: var(--color-black); border: 2px solid var(--color-green); text-decoration: none; line-height: 1; }
+    .header__right { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+    .header__icon-link { display: flex; align-items: center; justify-content: center; opacity: 1; pointer-events: auto; transition: opacity var(--tr); }
+    .header__icon-img { width: 24px; height: 24px; }
+    .header__desktop-cta { display: none; }
+    @media (max-width: 767px) {
+      .header--scrolled .header__wordmark { opacity: 0; pointer-events: none; }
+      .header--scrolled .header__mobile-cta { opacity: 1; pointer-events: auto; }
+    }
+    @media (min-width: 768px) {
+      .header { height: var(--header-height); }
+      .header__inner { grid-template-columns: 1fr auto 1fr; }
+      .header__center { justify-self: center; position: static; overflow: visible; }
+      .header__wordmark img { height: 32px; }
+      .header--scrolled .header__wordmark { opacity: 1; pointer-events: auto; }
+      .header__mobile-cta { display: none; }
+      .header__right { width: auto; justify-self: end; }
+      .header__icon-link { display: none; }
+      .header__desktop-cta { display: block; }
+      .header__desktop-cta .btn { padding: 12px 24px; font-size: 15px; }
+      .header--scrolled .header__desktop-cta .btn { background: var(--color-green); color: var(--color-black); border-color: var(--color-green); }
+    }
+
+    .mobile-menu { display: none; position: fixed; inset: 0; z-index: 300; background: var(--color-white); flex-direction: column; }
+    .mobile-menu.is-open { display: flex; }
+    .mobile-menu__top { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; height: var(--header-height-mobile); border-bottom: 1px solid var(--color-border); padding: 0 16px; flex-shrink: 0; }
+    .mobile-menu__close { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--color-black); justify-self: start; }
+    .mobile-menu__logo { display: flex; align-items: center; justify-content: center; }
+    .mobile-menu__logo img { height: 26px; width: auto; }
+    .mobile-menu__body { flex: 1; overflow-y: auto; padding: 0 24px 40px; }
+    .mobile-menu__links { display: flex; flex-direction: column; }
+    .mobile-menu__links a { font-size: 17px; font-weight: 600; padding: 18px 0; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: 10px; }
+    .mobile-menu__links a:hover { color: var(--color-muted); }
+    .mobile-menu__social { display: flex; flex-direction: column; }
+    .mobile-menu__social a { font-size: 15px; font-weight: 500; color: var(--color-muted); padding: 16px 0; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: 10px; }
+    .mobile-menu__cta { margin-top: 28px; }
+    .mobile-menu__cta .btn { width: 100%; font-size: 16px; padding: 17px 24px; }
+
+    .footer { background: var(--color-black); color: var(--color-white); padding: 56px 0 48px; }
+    .footer__top { display: grid; grid-template-columns: 1fr; gap: 40px; padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    @media (min-width: 900px) { .footer__top { grid-template-columns: 210px 1fr; gap: 48px; } }
+    .footer__brand { display: flex; flex-direction: column; gap: 20px; }
+    .footer__logo img { height: 28px; width: auto; }
+    .footer__tagline { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; max-width: 200px; }
+    .footer__social { display: flex; gap: 10px; }
+    .footer__social-link { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; transition: background var(--tr); }
+    .footer__social-link:hover { background: rgba(255,255,255,0.18); }
+    .footer__social-link svg { width: 20px; height: 20px; }
+    .footer__links { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    @media (min-width: 640px) { .footer__links { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+    .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.38); margin-bottom: 16px; }
+    .footer__col ul { display: flex; flex-direction: column; gap: 10px; }
+    .footer__col li a { font-size: 13px; color: rgba(255,255,255,0.62); transition: color var(--tr); }
+    .footer__col li a:hover { color: var(--color-white); }
+    .footer__bottom { padding: 28px 0 0; display: flex; flex-direction: column; gap: 20px; align-items: center; }
+    @media (min-width: 768px) { .footer__bottom { flex-direction: row; justify-content: space-between; flex-wrap: wrap; gap: 16px; } }
+    .footer__payments { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .footer__payment-icon { display: flex; align-items: center; justify-content: center; height: 40px; background: none; padding: 0; }
+    .footer__payment-icon img { height: 40px; width: auto; display: block; }
+    .footer__policies { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+    .footer__policies a { font-size: 12px; color: rgba(255,255,255,0.42); transition: color var(--tr); }
+    .footer__policies a:hover { color: var(--color-white); }
+    .footer__copyright { font-size: 12px; color: rgba(255,255,255,0.32); text-align: center; }
+
+    .policy-wrap { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
+    @media (min-width: 768px) { .policy-wrap { padding: 56px 24px 96px; } }
+    .policy-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 10px; }
+    .policy-wrap h1 { font-size: 28px; font-weight: 800; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 10px; }
+    @media (min-width: 768px) { .policy-wrap h1 { font-size: 36px; } }
+    .policy-meta { font-size: 13px; color: var(--color-muted); margin-bottom: 40px; line-height: 1.6; }
+    .policy-wrap h2 { font-size: 17px; font-weight: 700; line-height: 1.2; margin-top: 40px; margin-bottom: 12px; color: var(--color-black); }
+    @media (min-width: 768px) { .policy-wrap h2 { font-size: 19px; margin-top: 48px; } }
+    .policy-wrap p { font-size: 15px; line-height: 1.7; color: #333; margin-bottom: 14px; }
+    .policy-wrap ul { list-style: disc; padding-left: 22px; margin-bottom: 14px; }
+    .policy-wrap ul li { font-size: 15px; line-height: 1.7; color: #333; margin-bottom: 8px; }
+    .policy-wrap a { color: var(--color-black); text-decoration: underline; text-underline-offset: 3px; }
+    .policy-wrap a:hover { opacity: 0.65; }
+
+    @media (min-width: 768px) {
+      main { padding: 8px 12px 0; }
+      .footer { margin: 0 12px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header header--scrolled" id="siteHeader">
+    <div class="container header__inner">
+      <button class="header__hamburger" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+        <img src="assets/icons/feature_icons/icon-hamburger.svg" alt="">
+      </button>
+      <div class="header__center">
+        <a href="index.html" class="header__wordmark" aria-label="Prisoncall Australia — home">
+          <img src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
+        </a>
+        <a href="choose-plan.html" class="header__mobile-cta">Get Prisoncall now</a>
+      </div>
+      <div class="header__right">
+        <a href="index.html" class="header__icon-link" aria-label="Prisoncall Australia — home">
+          <img src="assets/brand_logos/Prisoncall_Icon_BLACK.svg" alt="" class="header__icon-img">
+        </a>
+        <div class="header__desktop-cta">
+          <a href="choose-plan.html" class="btn btn--green">Get Prisoncall now</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ MOBILE MENU ═══ -->
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <div class="mobile-menu__top">
+      <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">&#x2715;</button>
+      <div class="mobile-menu__logo"><img src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia"></div>
+      <div></div>
+    </div>
+    <div class="mobile-menu__body">
+      <nav class="mobile-menu__links">
+        <a href="choose-plan.html">Choose Prisoncall plan</a>
+        <a href="portal.html">My Prisoncall</a>
+        <a href="contact.html">Contact us</a>
+      </nav>
+      <div class="mobile-menu__social">
+        <a href="https://www.facebook.com/prisoncallaustralia" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          Follow us on Facebook
+        </a>
+        <a href="https://www.instagram.com/prisoncallaustralia/" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          Follow us on Instagram
+        </a>
+      </div>
+      <div class="mobile-menu__cta"><a href="choose-plan.html" class="btn btn--green">Get started now</a></div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN ═══ -->
+  <main>
+    <div class="policy-wrap">
+
+      <p class="policy-eyebrow">Legal</p>
+      <h1>Refund Policy</h1>
+      <p class="policy-meta">Prisoncall Australia is operated by The Freebird &amp; Co Pty Ltd (ABN 22 682 380 347).<br>Last updated: April 2026</p>
+
+      <h2>1. General Policy</h2>
+      <p>Prisoncall Australia operates on a subscription basis and delivers a digital service through the immediate provisioning of a dedicated phone number. Due to the nature of this service, refunds are generally not available once your Prisoncall number has been successfully provisioned.</p>
+      <p>We assess all refund requests in good faith and in accordance with our obligations under the <em>Australian Consumer Law</em>.</p>
+
+      <h2>2. When a Refund Will Be Considered</h2>
+      <p>A refund may be issued in the following circumstance:</p>
+      <ul>
+        <li>Your Prisoncall number was never provisioned within the stated fulfilment timeframe and you did not receive your number. Under standard conditions, your number is active within minutes of completing checkout. During periods of high demand or for custom provisioning, activation may take up to 24 hours on weekdays. If your number has not been activated within this timeframe and you have not received confirmation, please contact us at <a href="mailto:support@prisoncall.com.au">support@prisoncall.com.au</a>.</li>
+      </ul>
+      <p>All other refund requests will be assessed on a case-by-case basis. Where a failure of the service arises from a cause within our control, we will work to resolve it promptly and, where appropriate, issue a partial or full refund.</p>
+
+      <h2>3. When Refunds Will Not Be Issued</h2>
+      <p>Refunds will not be issued in the following circumstances:</p>
+      <ul>
+        <li><strong>Change of mind</strong> after the number has been successfully provisioned, regardless of whether calls have commenced</li>
+        <li><strong>Failure to cancel before renewal.</strong> It is the sole responsibility of the subscriber to manage their subscription and cancel before the renewal date if they no longer require the service. No refund will be issued where a subscription has been renewed and the subscriber failed to cancel prior to the renewal date.</li>
+        <li><strong>Partial subscription periods.</strong> Refunds will not be issued for any unused portion of a current or past subscription period.</li>
+        <li><strong>Breach of a court order.</strong> No refund will be issued where a subscription is cancelled or suspended as a result of a breach of an intervention order, apprehended violence order, or any other court order.</li>
+        <li><strong>Service disruptions outside our control,</strong> including changes to call systems at correctional facilities or third-party network outages.</li>
+      </ul>
+
+      <h2>4. How to Request a Refund</h2>
+      <p>To request a refund, please contact us at <a href="mailto:support@prisoncall.com.au">support@prisoncall.com.au</a> with your order details, including the name used at checkout and the date of purchase. We will acknowledge your request and provide a response within a reasonable time.</p>
+
+      <h2>5. Australian Consumer Law</h2>
+      <p>Nothing in this Refund Policy excludes, restricts, or modifies any guarantee, right, or remedy that cannot be excluded under the <em>Australian Consumer Law</em> (Schedule 2 of the <em>Competition and Consumer Act 2010</em> (Cth)). If you are entitled to a remedy under the Australian Consumer Law, we will honour that remedy.</p>
+
+      <h2>6. Intervention Orders and Court Orders</h2>
+      <p>Prisoncall Australia must not be used to contact any person protected by a Family Violence Intervention Order (FVIO) or Personal Safety Intervention Order (PSIO) in Victoria, an Apprehended Violence Order (AVO) in New South Wales, or any equivalent court order in any other Australian jurisdiction.</p>
+      <p>It is the sole responsibility of the subscriber and/or the inmate to ensure that no calls are made in breach of any active court order.</p>
+      <p>Prisoncall Australia and The Freebird &amp; Co Pty Ltd accept no liability whatsoever for any calls made through the Prisoncall service that breach an active court order.</p>
+      <p>Any legal proceedings, fines, penalties, or consequences arising from a breach of a court order via use of the Prisoncall service are the sole responsibility of the subscriber and/or the inmate.</p>
+      <p>No refund will be issued where a subscription is cancelled or suspended as a result of a breach of a court order.</p>
+      <p>Prisoncall Australia reserves the right to immediately cancel any subscription without refund if it becomes aware the service is being used in breach of a court order.</p>
+
+    </div>
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a href="index.html" class="footer__logo" aria-label="Prisoncall Australia — home">
+            <img src="assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall Australia">
+          </a>
+          <p class="footer__tagline">Providing cheap prison phone calls for inmates and families in Victoria and New South Wales since 2023.</p>
+          <div class="footer__social">
+            <a href="https://www.facebook.com/prisoncallaustralia" target="_blank" rel="noopener" class="footer__social-link" aria-label="Follow Prisoncall on Facebook">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/prisoncallaustralia/" target="_blank" rel="noopener" class="footer__social-link" aria-label="Follow Prisoncall on Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer__links">
+          <div class="footer__col">
+            <p class="footer__col-title">Victoria</p>
+            <ul>
+              <li><a href="barwon-prison.html">Barwon Prison</a></li>
+              <li><a href="beechworth-correctional-centre.html">Beechworth CC</a></li>
+              <li><a href="dame-phyllis-frost-centre.html">Dame Phyllis Frost Centre</a></li>
+              <li><a href="fulham-correctional-centre.html">Fulham CC</a></li>
+              <li><a href="hopkins-correctional-centre.html">Hopkins CC</a></li>
+              <li><a href="langi-kal-kal-prison.html">Langi Kal Kal Prison</a></li>
+              <li><a href="loddon-middleton-prison.html">Loddon / Middleton Prison</a></li>
+              <li><a href="marngoneet-correctional-centre.html">Marngoneet CC</a></li>
+              <li><a href="melbourne-assessment-prison.html">Melbourne Assessment Prison</a></li>
+              <li><a href="metropolitan-remand-centre.html">Metropolitan Remand Centre</a></li>
+              <li><a href="port-phillip-prison.html">Port Phillip Prison</a></li>
+              <li><a href="ravenhall-correctional-centre.html">Ravenhall CC</a></li>
+              <li><a href="tarrengower-prison.html">Tarrengower Prison</a></li>
+              <li><a href="western-plains-correctional-centre.html">Western Plains CC</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <p class="footer__col-title">New South Wales</p>
+            <ul>
+              <li><a href="cessnock-correctional-centre.html">Cessnock CC</a></li>
+              <li><a href="clarence-correctional-centre.html">Clarence CC</a></li>
+              <li><a href="cooma-correctional-centre.html">Cooma CC</a></li>
+              <li><a href="dillwynia-correctional-centre.html">Dillwynia CC</a></li>
+              <li><a href="emu-plains-correctional-centre.html">Emu Plains CC</a></li>
+              <li><a href="goulburn-correctional-centre.html">Goulburn CC</a></li>
+              <li><a href="john-morony-correctional-centre.html">John Morony CC</a></li>
+              <li><a href="junee-correctional-centre.html">Junee CC</a></li>
+              <li><a href="kariong-intake-transit.html">Kariong Intake &amp; Transit</a></li>
+              <li><a href="kirkconnell-correctional-centre.html">Kirkconnell CC</a></li>
+              <li><a href="lithgow-correctional-centre.html">Lithgow CC</a></li>
+              <li><a href="long-bay-correctional-centre.html">Long Bay Complex</a></li>
+              <li><a href="mrrc-silverwater-prison.html">MRRC Silverwater</a></li>
+              <li><a href="oberon-correctional-centre.html">Oberon CC</a></li>
+              <li><a href="parklea-correctional-centre.html">Parklea CC</a></li>
+              <li><a href="silverwater-womens-correctional-centre.html">Silverwater Women's CC</a></li>
+              <li><a href="south-coast-correctional-centre.html">South Coast CC</a></li>
+              <li><a href="st-heliers-correctional-centre.html">St Heliers CC</a></li>
+              <li><a href="tamworth-correctional-centre.html">Tamworth CC</a></li>
+              <li><a href="wellington-correctional-centre.html">Wellington CC</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <p class="footer__col-title">Help</p>
+            <ul>
+              <li><a href="choose-plan.html">Buy a Prisoncall plan</a></li>
+              <li><a href="portal.html">My Prisoncall</a></li>
+              <li><a href="contact.html">Contact support</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <p class="footer__col-title">Resources</p>
+            <ul>
+              <li><a href="index.html">Cheap Prison Calls</a></li>
+              <li><a href="engine-number-for-prison.html">Prison Engine Number</a></li>
+              <li><a href="jail-engine-number.html">Jail Engine Number</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <div class="footer__payments" aria-label="Accepted payment methods">
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/Visa.svg" alt="Visa"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/Mastercard.svg" alt="Mastercard"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/Amex.svg" alt="American Express"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/ApplePay.svg" alt="Apple Pay"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/GooglePay.svg" alt="Google Pay"></div>
+        </div>
+        <div class="footer__policies">
+          <a href="privacy-policy.html">Privacy Policy</a>
+          <a href="terms-of-service.html">Terms of Service</a>
+          <a href="refund-policy.html">Refund Policy</a>
+          <a href="cancellation-policy.html">Cancellation Policy</a>
+        </div>
+        <p class="footer__copyright">&#169; <span id="copyrightYear"></span> Prisoncall Australia by The Freebird &amp; Co Pty Ltd. All prices GST-inclusive.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    'use strict';
+    document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+    var menuToggle = document.getElementById('menuToggle');
+    var menuClose  = document.getElementById('menuClose');
+    var mobileMenu = document.getElementById('mobileMenu');
+    function openMenu()  { mobileMenu.classList.add('is-open');    document.body.style.overflow = 'hidden'; menuToggle.setAttribute('aria-expanded','true'); }
+    function closeMenu() { mobileMenu.classList.remove('is-open'); document.body.style.overflow = '';       menuToggle.setAttribute('aria-expanded','false'); }
+    menuToggle.addEventListener('click', openMenu);
+    menuClose.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeMenu(); });
+    mobileMenu.querySelectorAll('a').forEach(function(l){ l.addEventListener('click', closeMenu); });
+  </script>
+
+</body>
+</html>
