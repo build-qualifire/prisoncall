@@ -1359,6 +1359,9 @@
       input.classList.remove('has-error'); error.classList.remove('is-visible');
     });
 
+    /* Fired flag — prevents Enter/Go key from injecting duplicate Send Code UI */
+    var otpSendShown = false;
+
     /* Continue */
     function doValidate(){
       var digits = input.value.replace(/\D/g,'');
@@ -1368,6 +1371,8 @@
       if(cur){ cur.mobile = digits; }
       /* DEV: OTP — show Send Code phase instead of advancing to Step 4 */
       if(DEV_FLAGS.OTP){
+        if(otpSendShown) return;
+        otpSendShown = true;
         showOtpSendPhase(el, digits);
         return;
       }
@@ -1410,12 +1415,15 @@
   }
 
   function wireStep4(el){
-    /* Back — release gate so user can scroll to step 3, then re-gate at step 3 */
+    /* Back — rebuild Step 3 cleanly so stale OTP UI never persists on back nav */
     el.querySelector('[data-back="4"]').addEventListener('click', function(){
       clearGate();
-      removeStepsFrom(4);
+      removeStepsFrom(3);
       if(cur){ cur.planKey = null; }
-      scrollToEl(getStepEl(3), true);
+      var s3 = buildStep3El(cur ? cur.mobile : null);
+      planFlow.appendChild(s3);
+      wireStep3(s3);
+      scrollToEl(s3, true);
     });
 
     /* Carousel scroll debounce for tap-vs-swipe detection */
