@@ -1117,9 +1117,11 @@
         /* Code accepted — show verified number state, advance to Step 4 on Continue */
         newCont.removeEventListener('click', doVerify);
         verifyWrap.style.display = 'none';
+        /* Update the existing Step 3 title in place */
+        var stepHeading = stepEl.querySelector('.step-heading');
+        if(stepHeading) stepHeading.textContent = 'Perfect, your number is verified.';
         var successWrap = document.createElement('div');
         successWrap.innerHTML =
-          '<p class="step-heading" style="margin-bottom:6px;">Perfect, your number is verified.</p>' +
           '<p class="mobile-hint">Calls from your loved one will be forwarded to:</p>' +
           '<input class="mobile-input" type="tel" value="' + formatMobile(digits) + '" readonly tabindex="-1" style="pointer-events:none;">';
         newCont.parentNode.insertBefore(successWrap, newCont);
