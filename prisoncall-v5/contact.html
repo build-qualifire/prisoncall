@@ -349,8 +349,8 @@
        TIER 2 — PORTAL PILLS
     ═══════════════════════════════════ */
     .portal-pills {
-      display: flex; flex-wrap: wrap; gap: 10px;
-      margin-top: 20px;
+      display: grid; grid-template-columns: max-content; gap: 10px;
+      margin-top: 20px; width: fit-content;
     }
     .portal-section__title {
       font-size: 20px; font-weight: 700; color: var(--color-black);
@@ -362,7 +362,7 @@
       margin-bottom: 4px; line-height: 1.5;
     }
     .portal-pill {
-      display: inline-flex; align-items: center; gap: 6px;
+      display: flex; align-items: center; justify-content: flex-start; gap: 6px;
       padding: 10px 18px; font-size: 14px; font-weight: 600;
       font-family: var(--font-family);
       border: 2px solid var(--color-border); border-radius: var(--radius-pill);
@@ -373,7 +373,7 @@
     .portal-pill:hover { border-color: var(--color-black); background: var(--color-surface); }
     /* Button must not use font: inherit — it would override .portal-pill font-size/weight */
     button.portal-pill {
-      text-align: center;
+      text-align: left;
       line-height: 1;
       -webkit-appearance: none;
       appearance: none;
