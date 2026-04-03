@@ -472,6 +472,89 @@
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
     .hidden { display: none !important; }
 
+    /* ─── Mobile continue: disabled state ─── */
+    .mobile-continue:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+    .mobile-continue:disabled:hover { opacity: 0.4; transform: none; }
+
+    /* ═══════════════════════════════
+       OTP FLOW — DEV, remove at integration
+    ═══════════════════════════════ */
+    .otp-send-sub {
+      font-size: 12px; color: var(--color-muted); margin-top: 10px; line-height: 1.5;
+    }
+    .otp-verify-inst {
+      font-size: 14px; color: var(--color-black); margin-bottom: 14px; line-height: 1.4;
+    }
+    .otp-resend-link {
+      display: inline-block; margin-top: 10px;
+      font-size: 12px; color: var(--color-muted);
+      background: none; border: none; padding: 0;
+      cursor: pointer; font-family: inherit; text-align: left;
+    }
+    .otp-resend-link span { text-decoration: underline; text-underline-offset: 2px; }
+    .otp-resend-link:hover { color: var(--color-black); }
+    .otp-send-btn {
+      display: block; width: 100%; margin-top: 14px; padding: 15px;
+      font-size: 15px; font-weight: 700; font-family: inherit;
+      background: var(--color-black); color: var(--color-white);
+      border: 2px solid var(--color-black); border-radius: var(--radius-pill);
+      cursor: pointer; transition: opacity var(--tr), transform var(--tr); text-align: center;
+    }
+    .otp-send-btn:hover { opacity: 0.86; transform: translateY(-1px); }
+    .otp-send-btn:active { transform: none; opacity: 1; }
+
+    /* ═══════════════════════════════
+       NO-NUMBERS NOTIFICATION — DEV, remove at integration
+    ═══════════════════════════════ */
+    .no-num-copy {
+      font-size: 14px; color: var(--color-black); line-height: 1.65;
+    }
+    .no-num-check-label {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 14px; color: var(--color-black); line-height: 1.5;
+      cursor: pointer; margin-top: 18px;
+    }
+    .no-num-check {
+      flex-shrink: 0; width: 18px; height: 18px; margin-top: 2px;
+      accent-color: var(--color-black); cursor: pointer;
+    }
+
+    /* ═══════════════════════════════
+       DEV TOGGLE PANEL — staging only, remove at integration
+    ═══════════════════════════════ */
+    .dev-panel {
+      position: fixed; bottom: 16px; right: 16px; z-index: 9999;
+      background: #1a1a1a; color: #fff;
+      padding: 12px 14px; border-radius: 10px;
+      font-family: var(--font-family);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      min-width: 148px;
+    }
+    .dev-panel__title {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(255,255,255,0.38);
+      margin-bottom: 10px;
+    }
+    .dev-panel__row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; margin-bottom: 8px;
+    }
+    .dev-panel__row:last-child { margin-bottom: 0; }
+    .dev-panel__label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.82); }
+    .dev-toggle { position: relative; display: inline-block; width: 34px; height: 19px; flex-shrink: 0; }
+    .dev-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .dev-toggle__track {
+      position: absolute; inset: 0; background: #444;
+      border-radius: 10px; cursor: pointer; transition: background 150ms ease;
+    }
+    .dev-toggle__track::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 13px; height: 13px; background: #fff; border-radius: 50%;
+      transition: transform 150ms ease;
+    }
+    .dev-toggle input:checked + .dev-toggle__track { background: #00D258; }
+    .dev-toggle input:checked + .dev-toggle__track::after { transform: translateX(15px); }
+
     /* ═════════════════════════════════════════════════════════════
        YOUI-STYLE ROUNDED SECTION PANELS — DESKTOP ONLY
        Mobile layout is completely unchanged.
@@ -672,6 +755,12 @@
   <!-- ═══ SCRIPTS ═══ -->
   <script>
   'use strict';
+
+  /* ═══════════════════════════════════════════════════════
+     DEV FLAGS — staging only. Toggled via the dev panel below.
+     Remove this object and all DEV_FLAGS references at integration.
+  ═══════════════════════════════════════════════════════ */
+  var DEV_FLAGS = { OTP: false, NO_NUM: false };
 
   /* ─── Copyright year ─── */
   document.getElementById('copyrightYear').textContent = new Date().getFullYear();
@@ -891,6 +980,162 @@
   var BACK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>';
 
   /* ═══════════════════════════════════════════════════════
+     DEV — NO-NUMBERS NOTIFICATION HELPERS
+     Remove removeNoNumNotify, buildNoNumNotify, wireNoNumNotify at integration.
+  ═══════════════════════════════════════════════════════ */
+
+  /* Removes any existing no-num notification element from planFlow */
+  function removeNoNumNotify(){
+    var existing = planFlow.querySelector('.no-num-notify');
+    if(existing) existing.remove();
+  }
+
+  /* Builds the no-numbers notification screen (not a numbered step) */
+  function buildNoNumNotify(){
+    var el = document.createElement('section');
+    el.className = 'step-section no-num-notify';
+    el.innerHTML = [
+      '<button class="step-back" type="button" data-back="notify">'+BACK_SVG+' Step 2</button>',
+      '<p class="no-num-copy">Due to high demand, we\'re ordering your number directly from Telstra. ',
+        'Your number will be active within 24 hours on business days. ',
+        'Please note that orders placed on weekends or public holidays may take longer.</p>',
+      '<label class="no-num-check-label">',
+        '<input type="checkbox" class="no-num-check">',
+        'I understand my number will be active within 24 hours on business days.',
+      '</label>',
+      '<button class="mobile-continue no-num-continue" type="button" disabled>Continue &rarr;</button>'
+    ].join('');
+    return el;
+  }
+
+  /* Wires the no-numbers notification screen */
+  function wireNoNumNotify(el){
+    /* Back — return to Step 2 */
+    el.querySelector('[data-back="notify"]').addEventListener('click', function(){
+      clearGate();
+      removeNoNumNotify();
+      removeStepsFrom(3);
+      if(cur){ cur.mobile = null; cur.planKey = null; }
+      scrollToEl(getStepEl(2), true);
+    });
+    /* Checkbox enables Continue */
+    var check = el.querySelector('.no-num-check');
+    var cont  = el.querySelector('.no-num-continue');
+    check.addEventListener('change', function(){
+      cont.disabled = !check.checked;
+    });
+    /* Continue — dismiss notification, inject Step 3 */
+    cont.addEventListener('click', function(){
+      if(!check.checked) return;
+      removeNoNumNotify();
+      removeStepsFrom(3);
+      var s3 = buildStep3El(null);
+      planFlow.appendChild(s3);
+      wireStep3(s3);
+      scrollToEl(s3, true);
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     DEV — OTP MOBILE VERIFICATION HELPERS
+     Remove showOtpSendPhase and showOtpVerifyPhase at integration.
+  ═══════════════════════════════════════════════════════ */
+
+  /* Phase 1: valid mobile entered — hide Continue, show Send Code + subtitle */
+  function showOtpSendPhase(stepEl, digits){
+    var cont = stepEl.querySelector('.mobile-continue');
+    cont.style.display = 'none';
+    var sendWrap = document.createElement('div');
+    sendWrap.className = 'otp-send-wrap';
+    sendWrap.innerHTML =
+      '<button class="otp-send-btn" type="button">Send Code</button>' +
+      '<p class="otp-send-sub">We\'ll send a code to verify this number. Your loved one will be calling it, so let\'s get it right.</p>';
+    stepEl.appendChild(sendWrap);
+    sendWrap.querySelector('.otp-send-btn').addEventListener('click', function(){
+      showOtpVerifyPhase(stepEl, digits, cont);
+    });
+  }
+
+  /* Phase 2: code entry — validates 111111 (pass) / anything else (fail) */
+  function showOtpVerifyPhase(stepEl, digits, originalCont){
+    /* Hide mobile input area + send phase */
+    var mobileInput = stepEl.querySelector('.mobile-input');
+    var mobileError = stepEl.querySelector('.mobile-error');
+    var mobileHint  = stepEl.querySelector('.mobile-hint');
+    var sendWrap    = stepEl.querySelector('.otp-send-wrap');
+    if(mobileInput) mobileInput.style.display = 'none';
+    if(mobileError) mobileError.style.display = 'none';
+    if(mobileHint)  mobileHint.style.display  = 'none';
+    if(sendWrap)    sendWrap.style.display     = 'none';
+
+    /* Build code-entry UI */
+    var verifyWrap = document.createElement('div');
+    verifyWrap.className = 'otp-verify-wrap';
+    verifyWrap.innerHTML = [
+      '<p class="otp-verify-inst">Enter the 6-digit code we sent to <strong>'+formatMobile(digits)+'</strong></p>',
+      '<input class="mobile-input otp-code-input" type="tel" inputmode="numeric" ',
+        'placeholder="000 000" maxlength="7" autocomplete="one-time-code">',
+      '<p class="mobile-error otp-code-error">That code doesn\'t match. Please try again or resend.</p>',
+      '<button class="otp-resend-link" type="button">Didn\'t get a code? <span>Resend</span></button>'
+    ].join('');
+
+    /* Swap originalCont for a fresh clone (removes old doValidate listener),
+       then restore it as the verify button */
+    var newCont = originalCont.cloneNode(true);
+    newCont.style.display = '';
+    originalCont.parentNode.replaceChild(newCont, originalCont);
+    /* Insert code UI before the verify button */
+    newCont.parentNode.insertBefore(verifyWrap, newCont);
+
+    var codeInput = verifyWrap.querySelector('.otp-code-input');
+    var codeError = verifyWrap.querySelector('.otp-code-error');
+    var resendBtn = verifyWrap.querySelector('.otp-resend-link');
+
+    /* Format code as "000 000" while typing */
+    codeInput.addEventListener('input', function(){
+      var d = codeInput.value.replace(/\D/g,'').slice(0,6);
+      codeInput.value = d.length > 3 ? d.slice(0,3)+' '+d.slice(3) : d;
+      codeError.classList.remove('is-visible');
+      codeInput.classList.remove('has-error');
+    });
+
+    /* Resend — reset field, show brief confirmation */
+    resendBtn.addEventListener('click', function(){
+      codeInput.value = '';
+      codeInput.classList.remove('has-error');
+      codeError.classList.remove('is-visible');
+      var origHTML = resendBtn.innerHTML;
+      resendBtn.textContent = 'Code resent.';
+      setTimeout(function(){ resendBtn.innerHTML = origHTML; }, 2500);
+      codeInput.focus();
+    });
+
+    /* Verify — 111111 passes, anything else fails */
+    function doVerify(){
+      var code = codeInput.value.replace(/\D/g,'');
+      if(code === '111111'){
+        /* Code accepted — proceed to Step 4 as normal */
+        var s4 = getStepEl(4);
+        if(s4){ scrollToEl(s4, true); return; }
+        removeStepsFrom(4);
+        s4 = buildStep4El(null);
+        planFlow.appendChild(s4);
+        wireStep4(s4);
+        scrollToEl(s4, true);
+        snapCarouselToKey(s4, 'monthly');
+      } else {
+        codeInput.classList.add('has-error');
+        codeError.classList.add('is-visible');
+      }
+    }
+    newCont.addEventListener('click', doVerify);
+    codeInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){ e.preventDefault(); doVerify(); }
+    });
+    codeInput.focus();
+  }
+
+  /* ═══════════════════════════════════════════════════════
      BUILD STEP ELEMENTS
   ═══════════════════════════════════════════════════════ */
   function buildStep1El(preState){
@@ -1001,6 +1246,7 @@
         if(cur){ cur.state = sv; cur.prison = null; cur.mobile = null; cur.planKey = null; }
         /* Inject step 2 */
         removeStepsFrom(2);
+        removeNoNumNotify(); /* DEV: clear notify if it was showing */
         var s2 = buildStep2El(sv, null);
         planFlow.appendChild(s2);
         wireStep2(s2);
@@ -1014,6 +1260,7 @@
     el.querySelector('[data-back="2"]').addEventListener('click', function(){
       clearGate();
       removeStepsFrom(2);
+      removeNoNumNotify(); /* DEV: clear notify if it was showing */
       if(cur){ cur.prison = null; cur.mobile = null; cur.planKey = null; }
       scrollToEl(getStepEl(1));
     });
@@ -1021,15 +1268,29 @@
     el.querySelectorAll('.prison-pill').forEach(function(pill){
       pill.addEventListener('click', function(){
         var prison = pill.textContent;
-        /* Same prison: just scroll to step 3 */
+        /* Same prison: just scroll to step 3 (or notify if NO_NUM is active) */
         if(cur && cur.prison === prison){
           var s3 = getStepEl(3);
           if(s3){ scrollToEl(s3, true); return; }
+          /* DEV: NO_NUM — notification screen may be showing instead of step 3 */
+          if(DEV_FLAGS.NO_NUM){
+            var existNotify = planFlow.querySelector('.no-num-notify');
+            if(existNotify){ scrollToEl(existNotify, true); return; }
+          }
         }
         el.querySelectorAll('.prison-pill').forEach(function(p){ p.classList.remove('is-active'); });
         pill.classList.add('is-active');
         if(cur){ cur.prison = prison; cur.mobile = null; cur.planKey = null; }
         removeStepsFrom(3);
+        removeNoNumNotify(); /* DEV: clear any previous notify */
+        /* DEV: NO_NUM — inject notification screen before Step 3 */
+        if(DEV_FLAGS.NO_NUM){
+          var notify = buildNoNumNotify();
+          planFlow.appendChild(notify);
+          wireNoNumNotify(notify);
+          scrollToEl(notify, true);
+          return;
+        }
         var s3 = buildStep3El(null);
         planFlow.appendChild(s3);
         wireStep3(s3);
@@ -1048,6 +1309,15 @@
       clearGate();
       removeStepsFrom(3);
       if(cur){ cur.mobile = null; cur.planKey = null; }
+      /* DEV: NO_NUM — back goes to notification screen, not directly to step 2 */
+      if(DEV_FLAGS.NO_NUM){
+        removeNoNumNotify();
+        var notify = buildNoNumNotify();
+        planFlow.appendChild(notify);
+        wireNoNumNotify(notify);
+        scrollToEl(notify, true);
+        return;
+      }
       scrollToEl(getStepEl(2), true);
     });
 
@@ -1083,6 +1353,11 @@
         input.classList.add('has-error'); error.classList.add('is-visible'); input.focus(); return;
       }
       if(cur){ cur.mobile = digits; }
+      /* DEV: OTP — show Send Code phase instead of advancing to Step 4 */
+      if(DEV_FLAGS.OTP){
+        showOtpSendPhase(el, digits);
+        return;
+      }
       /* Same mobile — scroll to step 4 if it exists */
       var s4 = getStepEl(4);
       if(s4){ scrollToEl(s4, true); return; }
@@ -1393,6 +1668,44 @@
 
   /* ─── Init ─── */
   startNewPlan(getUrlState(), getUrlPrison());
+
+  /* ═══════════════════════════════════════════════════════
+     DEV PANEL — inject only on staging domain (prisoncall-1mc.pages.dev).
+     Never appears on prisoncall.com.au or any other domain.
+     Remove this entire IIFE at integration.
+  ═══════════════════════════════════════════════════════ */
+  (function(){
+    if(window.location.hostname !== 'prisoncall-1mc.pages.dev') return;
+    var panel = document.createElement('div');
+    panel.className = 'dev-panel';
+    panel.setAttribute('role', 'region');
+    panel.setAttribute('aria-label', 'Developer tools');
+    panel.innerHTML = [
+      '<p class="dev-panel__title">Dev Tools</p>',
+      '<div class="dev-panel__row">',
+        '<span class="dev-panel__label">OTP Verify</span>',
+        '<label class="dev-toggle" aria-label="Toggle OTP Verify">',
+          '<input type="checkbox" id="devToggleOTP">',
+          '<span class="dev-toggle__track"></span>',
+        '</label>',
+      '</div>',
+      '<div class="dev-panel__row">',
+        '<span class="dev-panel__label">No Numbers</span>',
+        '<label class="dev-toggle" aria-label="Toggle No Numbers">',
+          '<input type="checkbox" id="devToggleNoNum">',
+          '<span class="dev-toggle__track"></span>',
+        '</label>',
+      '</div>'
+    ].join('');
+    document.body.appendChild(panel);
+    /* Wire toggles to DEV_FLAGS — updates take effect immediately */
+    document.getElementById('devToggleOTP').addEventListener('change', function(){
+      DEV_FLAGS.OTP = this.checked;
+    });
+    document.getElementById('devToggleNoNum').addEventListener('change', function(){
+      DEV_FLAGS.NO_NUM = this.checked;
+    });
+  })();
   </script>
 
 </body>
