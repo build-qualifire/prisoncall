@@ -996,12 +996,12 @@
     el.className = 'step-section no-num-notify';
     el.innerHTML = [
       '<button class="step-back" type="button" data-back="notify">'+BACK_SVG+' Step 2</button>',
-      '<p class="no-num-copy">Due to high demand, we\'re ordering your number directly from Telstra. ',
-        'Your number will be active within 24 hours on business days. ',
-        'Please note that orders placed on weekends or public holidays may take longer.</p>',
+      '<h2 class="step-heading">Your number is being reserved for you</h2>',
+      '<p class="step-hint">Demand is high right now, so we\'re sourcing your number directly from Telstra. ',
+        'Your number will be active within 24 hours (weekdays only, orders placed on weekends or public holidays may take longer).</p>',
       '<label class="no-num-check-label">',
         '<input type="checkbox" class="no-num-check">',
-        'I understand my number will be active within 24 hours on business days.',
+        'I understand my Prisoncall number will be ready within 24 hours (weekdays only, orders placed on weekends or public holidays may take longer).',
       '</label>',
       '<button class="mobile-continue no-num-continue" type="button" disabled>Continue &rarr;</button>'
     ].join('');
@@ -1114,15 +1114,25 @@
     function doVerify(){
       var code = codeInput.value.replace(/\D/g,'');
       if(code === '111111'){
-        /* Code accepted — proceed to Step 4 as normal */
-        var s4 = getStepEl(4);
-        if(s4){ scrollToEl(s4, true); return; }
-        removeStepsFrom(4);
-        s4 = buildStep4El(null);
-        planFlow.appendChild(s4);
-        wireStep4(s4);
-        scrollToEl(s4, true);
-        snapCarouselToKey(s4, 'monthly');
+        /* Code accepted — show success state, advance to Step 4 on Continue */
+        newCont.removeEventListener('click', doVerify);
+        verifyWrap.style.display = 'none';
+        var successWrap = document.createElement('div');
+        successWrap.innerHTML =
+          '<p class="step-heading" style="margin-bottom:6px;">Perfect, your number is verified.</p>' +
+          '<p class="mobile-hint">Now let\'s choose the best plan for you.</p>';
+        newCont.parentNode.insertBefore(successWrap, newCont);
+        newCont.addEventListener('click', function advanceToStep4(){
+          newCont.removeEventListener('click', advanceToStep4);
+          var s4 = getStepEl(4);
+          if(s4){ scrollToEl(s4, true); return; }
+          removeStepsFrom(4);
+          s4 = buildStep4El(null);
+          planFlow.appendChild(s4);
+          wireStep4(s4);
+          scrollToEl(s4, true);
+          snapCarouselToKey(s4, 'monthly');
+        });
       } else {
         codeInput.classList.add('has-error');
         codeError.classList.add('is-visible');
