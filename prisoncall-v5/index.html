@@ -2013,21 +2013,35 @@
           'Western Plains Correctional Centre'
         ],
         nsw: [
+          'Amber Laurel CC',
+          'Balund-a',
+          'Bathurst CC',
+          'Broken Hill CC',
           'Cessnock CC',
           'Clarence CC',
           'Cooma CC',
+          'Dawn de Loas CC',
           'Dillwynia CC',
           'Emu Plains CC',
+          'Geoffrey Pearce CC',
+          'Glen Innes CC',
           'Goulburn CC',
+          'Hunter CC',
           'John Morony CC',
           'Junee CC',
           'Kariong Intake & Transit',
           'Kirkconnell CC',
           'Lithgow CC',
           'Long Bay Complex',
+          'Macquarie CC',
+          'Mannus CC',
+          'Mary Wade CC',
+          'Mid North Coast CC (Kempsey)',
           'MRRC Silverwater',
           'Oberon CC',
           'Parklea CC',
+          'Shortland CC',
+          "Silverwater CC (Men's)",
           "Silverwater Women's CC",
           'South Coast CC',
           'St Heliers CC',
@@ -2040,6 +2054,85 @@
       Object.keys(PRISONS).forEach(function(state) {
         PRISONS[state].forEach(function(name) { LIST.push({ name: name, state: state }); });
       });
+
+      var CLOSED_PRISONS = {
+        'berrima':          'Berrima Correctional Centre closed in 2020.',
+        'brewarrina':       'Brewarrina (Yetta Dhinnakkal) Centre closed in 2020.',
+        'yetta dhinnakkal': 'Brewarrina (Yetta Dhinnakkal) Centre closed in 2020.',
+        'ivanhoe':          'Ivanhoe (Warakirri) Centre closed in 2020.',
+        'warakirri':        'Ivanhoe (Warakirri) Centre closed in 2020.',
+        'grafton intake':   'Grafton Intake & Transient Centre closed in 2020. The new Clarence Correctional Centre replaced it.'
+      };
+
+      var PRISON_ALIASES = {
+        'metropolitan':           ['Metropolitan Remand Centre', 'MRRC Silverwater'],
+        'metro':                  ['Metropolitan Remand Centre', 'MRRC Silverwater'],
+        'mrrc':                   ['MRRC Silverwater'],
+        'metropolitan remand':    ['Metropolitan Remand Centre', 'MRRC Silverwater'],
+        'metropolitan remand & reception centre': ['MRRC Silverwater'],
+        'metropolitan remand and reception':      ['MRRC Silverwater'],
+        'silverwater':            ['Silverwater CC (Men\'s)', 'Silverwater Women\'s CC', 'MRRC Silverwater'],
+        'silver':                 ['Silverwater CC (Men\'s)', 'Silverwater Women\'s CC', 'MRRC Silverwater'],
+        'kempsey':                ['Mid North Coast CC (Kempsey)'],
+        'mid north':              ['Mid North Coast CC (Kempsey)'],
+        'long bay':               ['Long Bay Complex'],
+        'cessnock':               ['Cessnock CC', 'Hunter CC', 'Shortland CC'],
+        'hunter':                 ['Hunter CC'],
+        'shortland':              ['Shortland CC'],
+        'francis greenway':       ['John Morony CC', 'Geoffrey Pearce CC', 'Dillwynia CC'],
+        'john morony':            ['John Morony CC'],
+        'geoffrey pearce':        ['Geoffrey Pearce CC'],
+        'womens':                 ['Silverwater Women\'s CC', 'Tarrengower Prison', 'Dame Phyllis Frost Centre'],
+        "women's":                ['Silverwater Women\'s CC', 'Tarrengower Prison', 'Dame Phyllis Frost Centre'],
+        'mannus':                 ['Mannus CC'],
+        'tumbarumba':             ['Mannus CC'],
+        'macquarie':              ['Macquarie CC'],
+        'wellington':             ['Wellington CC', 'Macquarie CC'],
+        'balund':                 ['Balund-a'],
+        'tabulam':                ['Balund-a'],
+        'amber laurel':           ['Amber Laurel CC'],
+        'emu plains':             ['Emu Plains CC', 'Amber Laurel CC'],
+        'kariong':                ['Kariong Intake & Transit'],
+        'gosford':                ['Kariong Intake & Transit'],
+        'broken hill':            ['Broken Hill CC'],
+        'far west':               ['Broken Hill CC'],
+        'oberon':                 ['Oberon CC'],
+        'bathurst':               ['Bathurst CC', 'Kirkconnell CC'],
+        'kirkconnell':            ['Kirkconnell CC'],
+        'lithgow':                ['Lithgow CC'],
+        'glen innes':             ['Glen Innes CC'],
+        'tamworth':               ['Tamworth CC'],
+        'goulburn':               ['Goulburn CC'],
+        'junee':                  ['Junee CC'],
+        'cooma':                  ['Cooma CC'],
+        'clarence':               ['Clarence CC'],
+        'parklea':                ['Parklea CC'],
+        'grafton intake':         ['Clarence CC'],
+        'south coast':            ['South Coast CC'],
+        'nowra':                  ['South Coast CC'],
+        'st heliers':             ['St Heliers CC'],
+        'muswellbrook':           ['St Heliers CC'],
+        'mary wade':              ['Mary Wade CC'],
+        'dawn de loas':           ['Dawn de Loas CC'],
+        'dillwynia':              ['Dillwynia CC'],
+        'barwon':                 ['Barwon Prison'],
+        'beechworth':             ['Beechworth Correctional Centre'],
+        'dame phyllis':           ['Dame Phyllis Frost Centre'],
+        'fulham':                 ['Fulham Correctional Centre'],
+        'hopkins':                ['Hopkins Correctional Centre'],
+        'langi kal kal':          ['Langi Kal Kal Prison'],
+        'langi':                  ['Langi Kal Kal Prison'],
+        'loddon':                 ['Loddon Prison / Middleton Prison'],
+        'middleton':              ['Loddon Prison / Middleton Prison'],
+        'marngoneet':             ['Marngoneet Correctional Centre'],
+        'melbourne assessment':   ['Melbourne Assessment Prison'],
+        'map':                    ['Melbourne Assessment Prison'],
+        'port phillip':           ['Port Phillip Prison'],
+        'ravenhall':              ['Ravenhall Correctional Centre'],
+        'tarrengower':            ['Tarrengower Prison'],
+        'western plains':         ['Western Plains Correctional Centre'],
+        'lara':                   ['Western Plains Correctional Centre', 'Barwon Prison', 'Marngoneet Correctional Centre']
+      };
 
       function escHtml(s) {
         return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -2097,15 +2190,59 @@
 
         function show(query) {
           active = -1;
-          if (!query || query.length < 2) { hide(); return; }
-          var scored = LIST
+          var q = query ? query.toLowerCase().trim() : '';
+          if (!q || q.length < 2) { hide(); return; }
+
+          /* STEP 2 — Closed prison check (runs first) */
+          var closedMsg = null;
+          Object.keys(CLOSED_PRISONS).forEach(function(key) {
+            if (!closedMsg && key.startsWith(q)) { closedMsg = CLOSED_PRISONS[key]; }
+          });
+          if (closedMsg) {
+            suggestions.innerHTML =
+              '<div class="checker__suggestion" style="pointer-events:none; cursor:default;">' +
+              '<span class="checker__suggestion-name" style="color:var(--color-muted); font-style:italic;">' +
+              escHtml(closedMsg) + ' Please contact us if you need help.' +
+              '</span></div>';
+            suggestions.style.display = 'block';
+            return;
+          }
+
+          /* STEP 3 — Alias lookup */
+          var aliasMatches = [];
+          Object.keys(PRISON_ALIASES).forEach(function(key) {
+            if (key.startsWith(q)) {
+              PRISON_ALIASES[key].forEach(function(name) {
+                if (aliasMatches.indexOf(name) === -1) aliasMatches.push(name);
+              });
+            }
+          });
+
+          /* STEP 4 — Existing fuzzy search (unchanged) */
+          var fuzzyScored = LIST
             .map(function(p) { return { p: p, score: fuzzyScore(query, p.name) }; })
-            .filter(function(x) { return x.score > 0; })
-            .sort(function(a, b) { return b.score - a.score; })
-            .slice(0, 8)
-            .map(function(x) { return x.p; });
-          if (!scored.length) { hide(); return; }
-          suggestions.innerHTML = scored.map(function(p, i) {
+            .filter(function(x) { return x.score > 0; });
+
+          /* STEP 5 — Merge and deduplicate */
+          var nameMap = {};
+          fuzzyScored.forEach(function(x) {
+            var n = x.p.name;
+            if (!nameMap[n] || x.score > nameMap[n].score) { nameMap[n] = { p: x.p, score: x.score }; }
+          });
+          aliasMatches.forEach(function(name) {
+            var entry = LIST.filter(function(p) { return p.name === name; })[0];
+            if (entry && (!nameMap[name] || 900 > nameMap[name].score)) {
+              nameMap[name] = { p: entry, score: 900 };
+            }
+          });
+          var merged = Object.keys(nameMap).map(function(n) { return nameMap[n]; });
+          merged.sort(function(a, b) { return b.score - a.score; });
+          merged = merged.slice(0, 8);
+
+          /* STEP 6 — Render */
+          if (!merged.length) { hide(); return; }
+          suggestions.innerHTML = merged.map(function(x, i) {
+            var p = x.p;
             return '<div class="checker__suggestion" role="option" tabindex="-1"' +
               ' data-index="' + i + '" data-name="' + escHtml(p.name) + '" data-state="' + p.state + '">' +
               '<span class="checker__suggestion-name">' + escHtml(p.name) + '</span>' +
