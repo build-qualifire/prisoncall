@@ -2179,9 +2179,20 @@
       heroImg.src = 'assets/images/hero' + n + '.png';
       heroImg.style.objectPosition = positions[n];
     }
-    if (heroSection) {
+    if (heroSection && window.innerWidth >= 768) {
       heroSection.style.backgroundImage = "url('assets/images/hero" + n + ".png')";
       heroSection.style.backgroundPosition = positions[n];
+    }
+    var featureImgs = document.querySelectorAll('.feature-card__img');
+    if (featureImgs.length) {
+      var pool = [1, 2, 3, 4, 5, 6, 7];
+      for (var i = pool.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp;
+      }
+      featureImgs.forEach(function(img, idx) {
+        img.src = 'assets/images/feature-' + pool[idx] + '.png';
+      });
     }
   })();
 </script>
