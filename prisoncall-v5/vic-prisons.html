@@ -997,12 +997,12 @@
       }
     }
     /* ── Prison directory ── */
-    .prison-dir { display: grid; gap: 24px; }
+    .prison-dir { display: grid; gap: 24px; width: 100%; max-width: 100%; box-sizing: border-box; }
     @media (min-width: 640px)  { .prison-dir { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 1024px) { .prison-dir { grid-template-columns: repeat(3, 1fr); } }
-    .prison-dir__item { background: #f9f9f9; border: 1px solid #e8e8e8; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 12px; }
-    .prison-dir__h3 { font-size: 17px; font-weight: 700; color: #101010; margin: 0; }
-    .prison-dir__body { font-size: 14px; color: #444; line-height: 1.6; margin: 0; flex: 1; }
+    .prison-dir__item { background: #f9f9f9; border: 1px solid #e8e8e8; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 12px; max-width: 100%; overflow: hidden; box-sizing: border-box; word-wrap: break-word; overflow-wrap: break-word; min-width: 0; }
+    .prison-dir__h3 { font-size: 17px; font-weight: 700; color: #101010; margin: 0; word-wrap: break-word; overflow-wrap: break-word; }
+    .prison-dir__body { font-size: 14px; color: #444; line-height: 1.6; margin: 0; flex: 1; word-wrap: break-word; overflow-wrap: break-word; }
   </style>
 </head>
 <body>
