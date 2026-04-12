@@ -2354,13 +2354,22 @@
     // Feature card image cycling
     var featureImgs = document.querySelectorAll('.feature-card__img');
     if (featureImgs.length) {
-      var pool = [1, 2, 3, 4, 5, 6, 7];
+      var featureFiles = [
+        'feature-1.png',
+        'feature-2.png',
+        'feature-3.png',
+        'feature-4.png',
+        'feature-5.jpg',
+        'feature-6.jpg',
+        'feature-7.jpg'
+      ];
+      var pool = [0, 1, 2, 3, 4, 5, 6];
       for (var i = pool.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp;
       }
       featureImgs.forEach(function(img, idx) {
-        img.src = 'assets/images/feature-' + pool[idx] + '.png';
+        img.src = 'assets/images/' + featureFiles[pool[idx]];
       });
     }
   })();
