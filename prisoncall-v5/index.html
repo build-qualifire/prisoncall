@@ -2326,53 +2326,30 @@
     var heroSection = document.querySelector('.hero');
 
     if (window.innerWidth >= 768) {
-      // Desktop: use square image as background for left side (covered by dark overlay)
       if (heroSection) {
-        heroSection.style.backgroundImage = "url('assets/images/hero" + n + "square.png')";
-        heroSection.style.backgroundPosition = 'left center';
-        heroSection.style.backgroundSize = 'cover';
+        heroSection.style.backgroundImage = 'none';
+        heroSection.style.backgroundColor = '#101010';
 
-        // Remove any previously injected right image
-        var existing = document.getElementById('hero-right-img');
-        if (existing) existing.remove();
+        var existingRight = document.getElementById('hero-right-img');
+        if (existingRight) existingRight.remove();
 
-        // Inject same square image on right side, visible and clean
         var rightImg = document.createElement('img');
         rightImg.id = 'hero-right-img';
         rightImg.src = 'assets/images/hero' + n + 'square.png';
         rightImg.alt = '';
-        rightImg.style.cssText = 'position:absolute;top:0;right:0;width:50%;height:100%;object-fit:cover;object-position:center top;z-index:0;display:block;pointer-events:none;';
+        rightImg.style.cssText = 'position:absolute;top:0;right:0;width:50%;height:100%;object-fit:cover;object-position:center top;z-index:1;display:block;pointer-events:none;';
         heroSection.appendChild(rightImg);
+
         var heroConstrain = heroSection.querySelector('.hero__constrain');
-        if (heroConstrain) heroConstrain.style.position = 'relative', heroConstrain.style.zIndex = '2';
+        if (heroConstrain) {
+          heroConstrain.style.position = 'relative';
+          heroConstrain.style.zIndex = '2';
+        }
       }
     } else {
-      // Mobile: just swap the img src -- layout completely unchanged
       if (heroImg) {
         heroImg.src = 'assets/images/hero' + n + '.png';
       }
-    }
-
-    // Feature card image cycling
-    var featureImgs = document.querySelectorAll('.feature-card__img');
-    if (featureImgs.length) {
-      var featureFiles = [
-        'feature-1.png',
-        'feature-2.png',
-        'feature-3.png',
-        'feature-4.png',
-        'feature-5.jpg',
-        'feature-6.jpg',
-        'feature-7.jpg'
-      ];
-      var pool = [0, 1, 2, 3, 4, 5, 6];
-      for (var i = pool.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp;
-      }
-      featureImgs.forEach(function(img, idx) {
-        img.src = 'assets/images/' + featureFiles[pool[idx]];
-      });
     }
   })();
 </script>
