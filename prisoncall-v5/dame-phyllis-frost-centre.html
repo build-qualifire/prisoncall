@@ -2186,8 +2186,10 @@
         rightImg.id = 'hero-right-img';
         rightImg.src = 'assets/images/hero' + n + 'square.png';
         rightImg.alt = '';
-        rightImg.style.cssText = 'position:absolute;top:0;right:0;width:50%;height:100%;object-fit:cover;object-position:center top;z-index:0;display:block;';
+        rightImg.style.cssText = 'position:absolute;top:0;right:0;width:50%;height:100%;object-fit:cover;object-position:center top;z-index:0;display:block;pointer-events:none;';
         heroSection.appendChild(rightImg);
+        var heroConstrain = heroSection.querySelector('.hero__constrain');
+        if (heroConstrain) heroConstrain.style.position = 'relative', heroConstrain.style.zIndex = '2';
       }
     } else {
       // Mobile: just swap the img src -- layout completely unchanged
