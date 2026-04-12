@@ -2320,16 +2320,23 @@
   </script>
 
 <script>
-  /* hero-v3 */
   (function() {
     var n = Math.floor(Math.random() * 4) + 1;
+    var positions = {
+      1: 'center right',
+      2: 'right center',
+      3: 'right center',
+      4: 'right center'
+    };
     var heroImg = document.querySelector('.hero__visual img');
     var heroSection = document.querySelector('.hero');
     if (heroImg) {
       heroImg.src = 'assets/images/hero' + n + '.png';
+      heroImg.style.objectPosition = positions[n];
     }
     if (heroSection) {
       heroSection.style.backgroundImage = "url('assets/images/hero" + n + ".png')";
+      heroSection.style.backgroundPosition = positions[n];
     }
   })();
 </script>
