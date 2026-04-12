@@ -2164,5 +2164,21 @@
     }
   </script>
 
+<script>
+  (function() {
+    var heroImg = document.querySelector('.hero__visual img');
+    if (!heroImg) return;
+    var n = Math.floor(Math.random() * 4) + 1;
+    function setHeroImage() {
+      if (window.innerWidth < 768) {
+        heroImg.src = 'assets/images/hero' + n + 'square.png';
+      } else {
+        heroImg.src = 'assets/images/hero' + n + '.png';
+      }
+    }
+    setHeroImage();
+    window.addEventListener('resize', setHeroImage);
+  })();
+</script>
 </body>
 </html>
