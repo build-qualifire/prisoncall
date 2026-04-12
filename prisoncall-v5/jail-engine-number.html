@@ -2167,22 +2167,36 @@
 <script>
   (function() {
     var n = Math.floor(Math.random() * 4) + 1;
-    var positions = {
-      1: 'center right',
-      2: 'right center',
-      3: 'right center',
-      4: 'right center'
-    };
     var heroImg = document.querySelector('.hero__visual img');
     var heroSection = document.querySelector('.hero');
-    if (heroImg) {
-      heroImg.src = 'assets/images/hero' + n + '.png';
-      heroImg.style.objectPosition = positions[n];
+
+    if (window.innerWidth >= 768) {
+      // Desktop: use square image as background for left side (covered by dark overlay)
+      if (heroSection) {
+        heroSection.style.backgroundImage = "url('assets/images/hero" + n + "square.png')";
+        heroSection.style.backgroundPosition = 'left center';
+        heroSection.style.backgroundSize = 'cover';
+
+        // Remove any previously injected right image
+        var existing = document.getElementById('hero-right-img');
+        if (existing) existing.remove();
+
+        // Inject same square image on right side, visible and clean
+        var rightImg = document.createElement('img');
+        rightImg.id = 'hero-right-img';
+        rightImg.src = 'assets/images/hero' + n + 'square.png';
+        rightImg.alt = '';
+        rightImg.style.cssText = 'position:absolute;top:0;right:0;width:50%;height:100%;object-fit:cover;object-position:center top;z-index:0;display:block;';
+        heroSection.appendChild(rightImg);
+      }
+    } else {
+      // Mobile: just swap the img src -- layout completely unchanged
+      if (heroImg) {
+        heroImg.src = 'assets/images/hero' + n + '.png';
+      }
     }
-    if (heroSection && window.innerWidth >= 768) {
-      heroSection.style.backgroundImage = "url('assets/images/hero" + n + ".png')";
-      heroSection.style.backgroundPosition = positions[n];
-    }
+
+    // Feature card image cycling
     var featureImgs = document.querySelectorAll('.feature-card__img');
     if (featureImgs.length) {
       var pool = [1, 2, 3, 4, 5, 6, 7];
