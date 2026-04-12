@@ -2172,8 +2172,17 @@
     function setHeroImage() {
       if (window.innerWidth < 768) {
         heroImg.src = 'assets/images/hero' + n + 'square.png';
+        heroImg.style.objectFit = 'cover';
+        heroImg.style.objectPosition = '50% 50%';
+        heroImg.parentElement.style.height = '';
+        heroImg.parentElement.style.aspectRatio = '1 / 1';
+        heroImg.parentElement.style.maxHeight = '420px';
       } else {
         heroImg.src = 'assets/images/hero' + n + '.png';
+        heroImg.style.objectFit = 'cover';
+        heroImg.style.objectPosition = '50% 20%';
+        heroImg.parentElement.style.aspectRatio = '';
+        heroImg.parentElement.style.maxHeight = '';
       }
     }
     setHeroImage();
