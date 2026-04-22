@@ -1382,6 +1382,15 @@
         input.classList.add('has-error'); error.classList.add('is-visible'); input.focus(); return;
       }
       if(cur){ cur.mobile = digits; }
+      fetch('/api/abandoned-checkout-ping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mobile: digits,
+          prison: cur && cur.prison ? cur.prison : null,
+          state:  cur && cur.state  ? cur.state  : null
+        })
+      }).catch(function(){}); // silent — never block the flow
       /* DEV: OTP — show Send Code phase instead of advancing to Step 4 */
       if(DEV_FLAGS.OTP){
         if(otpSendShown) return;
@@ -1657,6 +1666,48 @@
       addBtn.addEventListener('click', function(){
         startNewPlan(null);
         scrollToEl(planFlow);
+      });
+    }
+    var checkoutBtn = document.getElementById('checkoutBtn');
+    if(checkoutBtn){
+      checkoutBtn.addEventListener('click', function(evt){
+        evt.preventDefault();
+        var plansArray = entries.map(function(e){
+          return {
+            prison_name:   e.prison,
+            prison_state:  e.state,
+            mobile_number: e.mobile,
+            plan_interval: e.planKey,
+            bundle:        entries.length >= 2
+          };
+        });
+        checkoutBtn.textContent = 'Preparing checkout\u2026';
+        checkoutBtn.style.pointerEvents = 'none';
+        var errEl = document.getElementById('checkoutBtnError');
+        if(errEl){ errEl.parentNode.removeChild(errEl); }
+        fetch('/api/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plans: plansArray })
+        })
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+          if(data.url){
+            window.location.href = data.url;
+          } else {
+            throw new Error(data.error || 'Unexpected response');
+          }
+        })
+        .catch(function(){
+          checkoutBtn.textContent = 'Activate my number now';
+          checkoutBtn.style.pointerEvents = '';
+          var msg = document.createElement('p');
+          msg.id = 'checkoutBtnError';
+          msg.style.color = 'red';
+          msg.style.marginTop = '0.5em';
+          msg.textContent = 'Something went wrong. Please try again.';
+          checkoutBtn.parentNode.insertBefore(msg, checkoutBtn.nextSibling);
+        });
       });
     }
   }
