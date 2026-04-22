@@ -36,10 +36,15 @@ export async function onRequestPost(context) {
     const origin = new URL(request.url).origin;
     const isBundle = plans.some(function(p) { return p.bundle === true; });
 
-    const line_items = plans.map(function(plan) {
+    const priceQuantityMap = {};
+    plans.forEach(function(plan) {
       const priceId = intervalPriceMap[plan.plan_interval];
       if (!priceId) throw new Error('Unknown plan_interval: ' + plan.plan_interval);
-      return { price: priceId, quantity: 1 };
+      priceQuantityMap[priceId] = (priceQuantityMap[priceId] || 0) + 1;
+    });
+
+    const line_items = Object.entries(priceQuantityMap).map(function([priceId, qty]) {
+      return { price: priceId, quantity: qty };
     });
 
     const metadata = {
