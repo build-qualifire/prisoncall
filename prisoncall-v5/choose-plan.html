@@ -1709,6 +1709,8 @@
           mismatchMsg.id = 'checkoutBtnError';
           mismatchMsg.style.color = 'red';
           mismatchMsg.style.marginTop = '0.5em';
+          mismatchMsg.style.fontSize = '13px';
+          mismatchMsg.style.fontWeight = '600';
           mismatchMsg.textContent = 'Please make sure both plans are on the same billing interval to apply your 10% bundle discount and proceed.';
           checkoutBtn.parentNode.insertBefore(mismatchMsg, checkoutBtn.nextSibling);
           return;
@@ -1732,6 +1734,10 @@
         .then(function(res){ return res.json(); })
         .then(function(data){
           if(data.url){
+            sessionStorage.setItem('prisoncall_checkout_state', JSON.stringify({
+              entries: entries,
+              timestamp: Date.now()
+            }));
             window.location.href = data.url;
           } else {
             throw new Error(data.error || 'Unexpected response');
@@ -1744,6 +1750,8 @@
           msg.id = 'checkoutBtnError';
           msg.style.color = 'red';
           msg.style.marginTop = '0.5em';
+          msg.style.fontSize = '13px';
+          msg.style.fontWeight = '600';
           msg.textContent = 'Something went wrong. Please try again.';
           checkoutBtn.parentNode.insertBefore(msg, checkoutBtn.nextSibling);
         });
@@ -1791,7 +1799,25 @@
   }
 
   /* ─── Init ─── */
-  startNewPlan(getUrlState(), getUrlPrison());
+  (function(){
+    var saved = sessionStorage.getItem('prisoncall_checkout_state');
+    if(saved){
+      try {
+        var parsed = JSON.parse(saved);
+        if(parsed && Array.isArray(parsed.entries) && parsed.entries.length > 0 &&
+           Date.now() - parsed.timestamp < 1800000){
+          sessionStorage.removeItem('prisoncall_checkout_state');
+          parsed.entries.forEach(function(e){ entries.push(e); });
+          nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
+          startNewPlan(null);
+          renderCompletedArea();
+          return;
+        }
+      } catch(e){}
+      sessionStorage.removeItem('prisoncall_checkout_state');
+    }
+    startNewPlan(getUrlState(), getUrlPrison());
+  }());
 
   /* ═══════════════════════════════════════════════════════
      DEV PANEL — inject only on staging domain (prisoncall-1mc.pages.dev).
