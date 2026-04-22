@@ -437,14 +437,6 @@
     .summary-line__remove:hover { background: #d0d0d0; color: var(--color-black); }
     .summary-line--editing { opacity: 0.45; pointer-events: none; }
     .summary-line__editing-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-muted); margin-left: 8px; }
-    .edit-pulse {
-      animation: pulseEdit 1.2s ease-in-out infinite;
-      border-color: var(--color-black);
-    }
-    @keyframes pulseEdit {
-      0%, 100% { transform: scale(1); box-shadow: none; }
-      50% { transform: scale(1.08); box-shadow: 0 0 0 3px rgba(0,0,0,0.15); }
-    }
 
     /* ─── Add another plan ─── */
     .add-plan-btn {
@@ -1543,14 +1535,6 @@
     renderCompletedArea();
     /* Scroll to completed area and gate there */
     scrollToEl(completedArea, true);
-    if(entries.length > 0){
-      localStorage.setItem('prisoncall_checkout_state', JSON.stringify({
-        entries: entries,
-        timestamp: Date.now()
-      }));
-    } else {
-      localStorage.removeItem('prisoncall_checkout_state');
-    }
   }
 
   /* ═══════════════════════════════════════════════════════
@@ -1606,22 +1590,6 @@
     }, 0);
     var finalTotal = isBundle ? Math.round(rawTotal * 0.9) : rawTotal;
 
-    /* Interval mismatch detection */
-    var INTERVAL_ORDER = { weekly: 1, fortnightly: 2, monthly: 3, quarterly: 4 };
-    var hasIntervalMismatch = false;
-    var pulseEntryId = null;
-    if(isBundle){
-      var firstKey = entries[0].planKey;
-      hasIntervalMismatch = entries.some(function(e){ return e.planKey !== firstKey; });
-      if(hasIntervalMismatch){
-        var minOrder = Infinity;
-        entries.forEach(function(e){
-          var ord = INTERVAL_ORDER[e.planKey] || 99;
-          if(ord < minOrder){ minOrder = ord; pulseEntryId = e.id; }
-        });
-      }
-    }
-
     /* Summary lines — entry being edited shown dimmed with tag */
     entries.forEach(function(e){
       var plan = PLANS.find(function(p){ return p.key===e.planKey; });
@@ -1635,7 +1603,7 @@
           '</div>',
           '<div class="summary-line__right">',
             '<span class="summary-line__price">$'+plan.amount+'/'+plan.period+'</span>',
-            '<button class="summary-line__edit'+(hasIntervalMismatch && e.id === pulseEntryId ? ' edit-pulse' : '')+'" type="button" data-edit-id="'+e.id+'">Edit</button>',
+            '<button class="summary-line__edit" type="button" data-edit-id="'+e.id+'">Edit</button>',
             '<button class="summary-line__remove" type="button" data-remove-id="'+e.id+'" aria-label="Remove plan"><img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="14" height="14" alt="" aria-hidden="true" style="display:block;"></button>',
           '</div>',
         '</div>'
@@ -1644,20 +1612,14 @@
 
     /* Bundle notice */
     if(isBundle){
-      if(!hasIntervalMismatch){
-        html += '<div class="bundle-notice">'+
-          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a5c33" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'+
-          'Bundle discount: 10% off automatically applied</div>';
-      } else {
-        html += '<div class="bundle-notice" style="background:#FFF8E1;border-color:#FFB300;color:#7A4F00;">'+
-          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFB300" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'+
-          'To get your 10% bundle discount, both plans must be on the same billing interval. Edit one of the plans to match.</div>';
-      }
+      html += '<div class="bundle-notice">'+
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a5c33" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'+
+        'Bundle discount: 10% off automatically applied</div>';
     }
 
     /* Order total */
     if(hasEntries){
-      var totalHtml = (isBundle && !hasIntervalMismatch)
+      var totalHtml = isBundle
         ? '<span class="order-total__orig">$'+rawTotal+'</span><span class="order-total__disc">$'+finalTotal+'</span>'
         : '<span class="order-total__plain">$'+rawTotal+'</span>';
       html += '<div class="order-total"><span class="order-total__label">Total</span><span class="order-total__val">'+totalHtml+'</span></div>';
@@ -1689,14 +1651,6 @@
         /* If removing the entry currently being edited, cancel the edit */
         if(editId === removedId){ editId = null; cur = null; planFlow.innerHTML = ''; clearGate(); }
         entries = entries.filter(function(e){ return e.id !== removedId; });
-        if(entries.length > 0){
-          localStorage.setItem('prisoncall_checkout_state', JSON.stringify({
-            entries: entries,
-            timestamp: Date.now()
-          }));
-        } else {
-          localStorage.removeItem('prisoncall_checkout_state');
-        }
         /* If the summary is now empty and no plan is being built, reset to Step 1 */
         if(entries.length === 0 && cur === null){
           completedArea.innerHTML = '';
@@ -1718,19 +1672,6 @@
     if(checkoutBtn){
       checkoutBtn.addEventListener('click', function(evt){
         evt.preventDefault();
-        var errEl = document.getElementById('checkoutBtnError');
-        if(errEl){ errEl.parentNode.removeChild(errEl); }
-        if(hasIntervalMismatch){
-          var mismatchMsg = document.createElement('p');
-          mismatchMsg.id = 'checkoutBtnError';
-          mismatchMsg.style.color = 'red';
-          mismatchMsg.style.marginTop = '0.5em';
-          mismatchMsg.style.fontSize = '13px';
-          mismatchMsg.style.fontWeight = '600';
-          mismatchMsg.textContent = 'Please make sure both plans are on the same billing interval to apply your 10% bundle discount and proceed.';
-          checkoutBtn.parentNode.insertBefore(mismatchMsg, checkoutBtn.nextSibling);
-          return;
-        }
         var plansArray = entries.map(function(e){
           return {
             prison_name:   e.prison,
@@ -1742,6 +1683,8 @@
         });
         checkoutBtn.textContent = 'Preparing checkout\u2026';
         checkoutBtn.style.pointerEvents = 'none';
+        var errEl = document.getElementById('checkoutBtnError');
+        if(errEl){ errEl.parentNode.removeChild(errEl); }
         fetch('/api/create-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1750,7 +1693,6 @@
         .then(function(res){ return res.json(); })
         .then(function(data){
           if(data.url){
-            localStorage.removeItem('prisoncall_checkout_state');
             window.location.href = data.url;
           } else {
             throw new Error(data.error || 'Unexpected response');
@@ -1763,8 +1705,6 @@
           msg.id = 'checkoutBtnError';
           msg.style.color = 'red';
           msg.style.marginTop = '0.5em';
-          msg.style.fontSize = '13px';
-          msg.style.fontWeight = '600';
           msg.textContent = 'Something went wrong. Please try again.';
           checkoutBtn.parentNode.insertBefore(msg, checkoutBtn.nextSibling);
         });
@@ -1812,36 +1752,7 @@
   }
 
   /* ─── Init ─── */
-  (function(){
-    var saved = localStorage.getItem('prisoncall_checkout_state');
-    if(saved){
-      try {
-        var parsed = JSON.parse(saved);
-        if(parsed && Array.isArray(parsed.entries) && parsed.entries.length > 0 &&
-           Date.now() - parsed.timestamp < 86400000){
-          parsed.entries.forEach(function(e){ entries.push(e); });
-          nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
-          cur = null;
-          editId = null;
-          planFlow.innerHTML = '';
-          clearGate();
-          renderCompletedArea();
-          var restoredNotice = document.createElement('p');
-          restoredNotice.id = 'restoredCartNotice';
-          restoredNotice.style.cssText = 'font-size:12px;color:#666;margin-bottom:10px;text-align:center;';
-          restoredNotice.textContent = 'We saved your previous selections. Edit or remove any plan below.';
-          var firstSummaryLine = completedArea.querySelector('.summary-line');
-          if(firstSummaryLine){
-            completedArea.insertBefore(restoredNotice, firstSummaryLine);
-          }
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          return;
-        }
-      } catch(e){}
-      localStorage.removeItem('prisoncall_checkout_state');
-    }
-    startNewPlan(getUrlState(), getUrlPrison());
-  }());
+  startNewPlan(getUrlState(), getUrlPrison());
 
   /* ═══════════════════════════════════════════════════════
      DEV PANEL — inject only on staging domain (prisoncall-1mc.pages.dev).
