@@ -1543,14 +1543,7 @@
     renderCompletedArea();
     /* Scroll to completed area and gate there */
     scrollToEl(completedArea, true);
-    if(entries.length > 0){
-      localStorage.setItem('prisoncall_checkout_state', JSON.stringify({
-        entries: entries,
-        timestamp: Date.now()
-      }));
-    } else {
-      localStorage.removeItem('prisoncall_checkout_state');
-    }
+    saveCart();
   }
 
   /* ═══════════════════════════════════════════════════════
@@ -1689,14 +1682,7 @@
         /* If removing the entry currently being edited, cancel the edit */
         if(editId === removedId){ editId = null; cur = null; planFlow.innerHTML = ''; clearGate(); }
         entries = entries.filter(function(e){ return e.id !== removedId; });
-        if(entries.length > 0){
-          localStorage.setItem('prisoncall_checkout_state', JSON.stringify({
-            entries: entries,
-            timestamp: Date.now()
-          }));
-        } else {
-          localStorage.removeItem('prisoncall_checkout_state');
-        }
+        saveCart();
         /* If the summary is now empty and no plan is being built, reset to Step 1 */
         if(entries.length === 0 && cur === null){
           completedArea.innerHTML = '';
@@ -1811,30 +1797,28 @@
     renderCompletedArea();
   }
 
+  /* ─── Cart persistence ─── */
+  function saveCart(){
+    if(entries.length > 0){
+      localStorage.setItem('prisoncall_checkout_state', JSON.stringify({ entries: entries, timestamp: Date.now() }));
+    } else {
+      localStorage.removeItem('prisoncall_checkout_state');
+    }
+  }
+
   /* ─── Init ─── */
   (function(){
-    var saved = localStorage.getItem('prisoncall_checkout_state');
-    if(saved){
+    var raw = localStorage.getItem('prisoncall_checkout_state');
+    if(raw){
       try {
-        var parsed = JSON.parse(saved);
-        if(parsed && Array.isArray(parsed.entries) && parsed.entries.length > 0 &&
-           Date.now() - parsed.timestamp < 86400000){
-          parsed.entries.forEach(function(e){ entries.push(e); });
+        var saved = JSON.parse(raw);
+        if(saved && Array.isArray(saved.entries) && saved.entries.length > 0 &&
+           Date.now() - saved.timestamp < 86400000){
+          saved.entries.forEach(function(e){ entries.push(e); });
           nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
-          cur = null;
-          editId = null;
           planFlow.innerHTML = '';
           clearGate();
           renderCompletedArea();
-          var restoredNotice = document.createElement('p');
-          restoredNotice.id = 'restoredCartNotice';
-          restoredNotice.style.cssText = 'font-size:12px;color:#666;margin-bottom:10px;text-align:center;';
-          restoredNotice.textContent = 'We saved your previous selections. Edit or remove any plan below.';
-          var firstSummaryLine = completedArea.querySelector('.summary-line');
-          if(firstSummaryLine){
-            completedArea.insertBefore(restoredNotice, firstSummaryLine);
-          }
-          window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
       } catch(e){}
