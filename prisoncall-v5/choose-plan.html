@@ -1819,7 +1819,6 @@
         var parsed = JSON.parse(saved);
         if(parsed && Array.isArray(parsed.entries) && parsed.entries.length > 0 &&
            Date.now() - parsed.timestamp < 86400000){
-          localStorage.removeItem('prisoncall_checkout_state');
           parsed.entries.forEach(function(e){ entries.push(e); });
           nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
           startNewPlan(null);
