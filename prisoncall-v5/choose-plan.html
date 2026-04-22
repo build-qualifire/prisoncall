@@ -1736,7 +1736,7 @@
         .then(function(res){ return res.json(); })
         .then(function(data){
           if(data.url){
-            sessionStorage.setItem('prisoncall_from_stripe', '1');
+            localStorage.removeItem('prisoncall_checkout_state');
             window.location.href = data.url;
           } else {
             throw new Error(data.error || 'Unexpected response');
@@ -1808,27 +1808,29 @@
 
   /* ─── Init ─── */
   (function(){
-    /* Only restore the saved cart when the customer pressed Back from Stripe.
-       Any other arrival (prison CTA, direct nav, new tab) gets a clean start. */
-    var fromStripe = sessionStorage.getItem('prisoncall_from_stripe') === '1';
-    if(fromStripe){
-      sessionStorage.removeItem('prisoncall_from_stripe');
-      var raw = localStorage.getItem('prisoncall_checkout_state');
-      if(raw){
-        try {
-          var saved = JSON.parse(raw);
-          if(saved && Array.isArray(saved.entries) && saved.entries.length > 0 &&
-             Date.now() - saved.timestamp < 86400000){
-            saved.entries.forEach(function(e){ entries.push(e); });
-            nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
-            planFlow.innerHTML = '';
-            clearGate();
-            renderCompletedArea();
-            return;
-          }
-        } catch(e){}
-        localStorage.removeItem('prisoncall_checkout_state');
-      }
+    /* If URL params are present the customer arrived from a prison-specific CTA —
+       always honour those and skip any saved cart. */
+    if(getUrlState() || getUrlPrison()){
+      startNewPlan(getUrlState(), getUrlPrison());
+      return;
+    }
+    /* Otherwise restore any saved cart (navigate away, home button, back button, etc.)
+       Cart is only cleared on: successful payment, or customer removes all plans. */
+    var raw = localStorage.getItem('prisoncall_checkout_state');
+    if(raw){
+      try {
+        var saved = JSON.parse(raw);
+        if(saved && Array.isArray(saved.entries) && saved.entries.length > 0 &&
+           Date.now() - saved.timestamp < 86400000){
+          saved.entries.forEach(function(e){ entries.push(e); });
+          nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
+          planFlow.innerHTML = '';
+          clearGate();
+          renderCompletedArea();
+          return;
+        }
+      } catch(e){}
+      localStorage.removeItem('prisoncall_checkout_state');
     }
     startNewPlan(getUrlState(), getUrlPrison());
   }());
