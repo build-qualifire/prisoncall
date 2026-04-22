@@ -1821,7 +1821,10 @@
            Date.now() - parsed.timestamp < 86400000){
           parsed.entries.forEach(function(e){ entries.push(e); });
           nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
-          startNewPlan(null);
+          cur = null;
+          editId = null;
+          planFlow.innerHTML = '';
+          clearGate();
           renderCompletedArea();
           var restoredNotice = document.createElement('p');
           restoredNotice.id = 'restoredCartNotice';
@@ -1831,6 +1834,7 @@
           if(firstSummaryLine){
             completedArea.insertBefore(restoredNotice, firstSummaryLine);
           }
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
       } catch(e){}
