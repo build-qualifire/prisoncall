@@ -73,6 +73,7 @@ export async function onRequestPost(context) {
       sessionParams.append('discounts[0][coupon]', env.STRIPE_BUNDLE_COUPON_ID);
     }
 
+    console.log('Stripe session params:', sessionParams.toString());
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
       headers: {
@@ -93,7 +94,7 @@ export async function onRequestPost(context) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    console.error('Stripe error:', err.message, JSON.stringify(err));
+    console.error('Stripe API error:', err.message, JSON.stringify(err));
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
