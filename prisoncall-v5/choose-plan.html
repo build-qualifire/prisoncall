@@ -1808,6 +1808,12 @@
 
   /* ─── Init ─── */
   (function(){
+    /* URL params (state/prison) mean the customer arrived from a prison-specific CTA.
+       Always honour the URL and ignore any saved cart in that case. */
+    if(getUrlState() || getUrlPrison()){
+      startNewPlan(getUrlState(), getUrlPrison());
+      return;
+    }
     var raw = localStorage.getItem('prisoncall_checkout_state');
     if(raw){
       try {
