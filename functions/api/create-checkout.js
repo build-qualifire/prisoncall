@@ -69,9 +69,8 @@ export async function onRequestPost(context) {
       sessionParams.append('metadata[' + key + ']', value);
     });
 
-    if (isBundle) {
-      sessionParams.append('discounts[0][coupon][percent_off]', '10');
-      sessionParams.append('discounts[0][coupon][duration]', 'once');
+    if (isBundle && env.STRIPE_BUNDLE_COUPON_ID) {
+      sessionParams.append('discounts[0][coupon]', env.STRIPE_BUNDLE_COUPON_ID);
     }
 
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
@@ -94,6 +93,7 @@ export async function onRequestPost(context) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
+    console.error('Stripe error:', err.message, JSON.stringify(err));
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
