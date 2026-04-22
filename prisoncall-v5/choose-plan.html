@@ -437,6 +437,14 @@
     .summary-line__remove:hover { background: #d0d0d0; color: var(--color-black); }
     .summary-line--editing { opacity: 0.45; pointer-events: none; }
     .summary-line__editing-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-muted); margin-left: 8px; }
+    .edit-pulse {
+      animation: pulseEdit 1.2s ease-in-out infinite;
+      border-color: var(--color-black);
+    }
+    @keyframes pulseEdit {
+      0%, 100% { transform: scale(1); box-shadow: none; }
+      50% { transform: scale(1.08); box-shadow: 0 0 0 3px rgba(0,0,0,0.15); }
+    }
 
     /* ─── Add another plan ─── */
     .add-plan-btn {
@@ -1590,6 +1598,22 @@
     }, 0);
     var finalTotal = isBundle ? Math.round(rawTotal * 0.9) : rawTotal;
 
+    /* Interval mismatch detection */
+    var INTERVAL_ORDER = { weekly: 1, fortnightly: 2, monthly: 3, quarterly: 4 };
+    var hasIntervalMismatch = false;
+    var pulseEntryId = null;
+    if(isBundle){
+      var firstKey = entries[0].planKey;
+      hasIntervalMismatch = entries.some(function(e){ return e.planKey !== firstKey; });
+      if(hasIntervalMismatch){
+        var minOrder = Infinity;
+        entries.forEach(function(e){
+          var ord = INTERVAL_ORDER[e.planKey] || 99;
+          if(ord < minOrder){ minOrder = ord; pulseEntryId = e.id; }
+        });
+      }
+    }
+
     /* Summary lines — entry being edited shown dimmed with tag */
     entries.forEach(function(e){
       var plan = PLANS.find(function(p){ return p.key===e.planKey; });
@@ -1603,7 +1627,7 @@
           '</div>',
           '<div class="summary-line__right">',
             '<span class="summary-line__price">$'+plan.amount+'/'+plan.period+'</span>',
-            '<button class="summary-line__edit" type="button" data-edit-id="'+e.id+'">Edit</button>',
+            '<button class="summary-line__edit'+(hasIntervalMismatch && e.id === pulseEntryId ? ' edit-pulse' : '')+'" type="button" data-edit-id="'+e.id+'">Edit</button>',
             '<button class="summary-line__remove" type="button" data-remove-id="'+e.id+'" aria-label="Remove plan"><img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="14" height="14" alt="" aria-hidden="true" style="display:block;"></button>',
           '</div>',
         '</div>'
@@ -1612,9 +1636,15 @@
 
     /* Bundle notice */
     if(isBundle){
-      html += '<div class="bundle-notice">'+
-        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a5c33" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'+
-        'Bundle discount: 10% off automatically applied</div>';
+      if(!hasIntervalMismatch){
+        html += '<div class="bundle-notice">'+
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a5c33" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'+
+          'Bundle discount: 10% off automatically applied</div>';
+      } else {
+        html += '<div class="bundle-notice" style="background:#FFF8E1;border-color:#FFB300;color:#7A4F00;">'+
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFB300" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'+
+          'To get your 10% bundle discount, both plans must be on the same billing interval. Edit one plan to match.</div>';
+      }
     }
 
     /* Order total */
@@ -1672,6 +1702,17 @@
     if(checkoutBtn){
       checkoutBtn.addEventListener('click', function(evt){
         evt.preventDefault();
+        var errEl = document.getElementById('checkoutBtnError');
+        if(errEl){ errEl.parentNode.removeChild(errEl); }
+        if(hasIntervalMismatch){
+          var mismatchMsg = document.createElement('p');
+          mismatchMsg.id = 'checkoutBtnError';
+          mismatchMsg.style.color = 'red';
+          mismatchMsg.style.marginTop = '0.5em';
+          mismatchMsg.textContent = 'Please make sure both plans are on the same billing interval to apply your 10% bundle discount and proceed.';
+          checkoutBtn.parentNode.insertBefore(mismatchMsg, checkoutBtn.nextSibling);
+          return;
+        }
         var plansArray = entries.map(function(e){
           return {
             prison_name:   e.prison,
@@ -1683,8 +1724,6 @@
         });
         checkoutBtn.textContent = 'Preparing checkout\u2026';
         checkoutBtn.style.pointerEvents = 'none';
-        var errEl = document.getElementById('checkoutBtnError');
-        if(errEl){ errEl.parentNode.removeChild(errEl); }
         fetch('/api/create-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
