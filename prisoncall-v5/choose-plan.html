@@ -416,8 +416,13 @@
       border-radius: var(--radius-md); margin-bottom: 10px;
     }
     .summary-line__info { flex: 1; min-width: 0; }
-    .summary-line__prison { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .summary-line__prison { font-size: 15px; font-weight: 700; }
     .summary-line__meta { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
+    .summary-line__meta--mob { display: none; }
+    .summary-line__mobile-extra { display: none; }
+    .summary-line__mobile-billing { display: flex; justify-content: space-between; align-items: center; }
+    .summary-line__mobile-actions { display: flex; justify-content: space-between; align-items: center; }
+    .summary-line__billing-plan { font-size: 12px; color: var(--color-muted); }
     .summary-line__right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .summary-line__price { font-size: 14px; font-weight: 700; white-space: nowrap; }
     .summary-line__edit {
@@ -435,9 +440,21 @@
       transition: background var(--tr), color var(--tr);
     }
     .summary-line__remove:hover { background: #d0d0d0; color: var(--color-black); }
-    .summary-line__remove-confirm { display: flex; align-items: center; flex-wrap: wrap; column-gap: 16px; row-gap: 4px; flex-shrink: 0; }
+    .summary-line__remove-confirm { display: flex; align-items: center; flex-wrap: wrap; column-gap: 16px; row-gap: 4px; }
+    .summary-line--confirming .summary-line__remove-confirm { flex: 1; min-width: 0; }
     .summary-line__confirm-label { font-size: 12px; color: var(--color-muted); flex-basis: 100%; }
-    @media (min-width: 768px) { .summary-line__confirm-label { flex-basis: auto; } }
+    @media (min-width: 768px) {
+      .summary-line__confirm-label { flex-basis: auto; }
+      .summary-line__prison { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    }
+    @media (max-width: 767px) {
+      .summary-line { flex-direction: column; align-items: stretch; }
+      .summary-line__info { flex: none; }
+      .summary-line__meta--dsk { display: none; }
+      .summary-line__meta--mob { display: block; }
+      .summary-line__right { display: none; }
+      .summary-line__mobile-extra { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    }
     .summary-line__confirm-do-remove {
       display: flex; align-items: center; gap: 5px;
       background: none; border: none; font-family: inherit; padding: 0; cursor: pointer;
@@ -1637,30 +1654,47 @@
       var plan = PLANS.find(function(p){ return p.key===e.planKey; });
       if(!plan) return;
       var isBeingEdited = (editId === e.id);
-      html += [
-        '<div class="summary-line'+(isBeingEdited?' summary-line--editing':'')+'">',
-          '<div class="summary-line__info">',
-            '<p class="summary-line__prison">'+escHtml(e.prison)+(isBeingEdited?'<span class="summary-line__editing-tag">Editing&hellip;</span>':'')+'</p>',
-            '<p class="summary-line__meta">'+e.state.toUpperCase()+' &middot; '+escHtml(maskMobile(e.mobile))+' &middot; '+plan.name+'</p>',
-          '</div>',
-          '<div class="summary-line__right">',
-            '<span class="summary-line__price">$'+plan.amount+'/'+plan.period+'</span>',
-            '<button class="summary-line__edit'+(hasIntervalMismatch && e.id === pulseEntryId ? ' edit-pulse' : '')+'" type="button" data-edit-id="'+e.id+'">Edit</button>',
-            (e.id === pendingRemoveId
-              ? '<div class="summary-line__remove-confirm">'+
-                  '<span class="summary-line__confirm-label">Are you sure?</span>'+
-                  '<button class="summary-line__confirm-do-remove" type="button" data-confirm-remove-id="'+e.id+'" aria-label="Confirm remove plan">'+
-                    '<span class="summary-line__remove" style="pointer-events:none;">'+
-                      '<img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="14" height="14" alt="" aria-hidden="true" style="display:block;">'+
-                    '</span>'+
-                    '<span class="summary-line__confirm-do-remove__text">Remove</span>'+
-                  '</button>'+
-                  '<button class="summary-line__confirm-keep" type="button" data-keep-id="'+e.id+'" aria-label="Keep plan">Keep</button>'+
-                '</div>'
-              : '<button class="summary-line__remove" type="button" data-remove-id="'+e.id+'" aria-label="Remove plan"><img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="14" height="14" alt="" aria-hidden="true" style="display:block;"></button>'),
-          '</div>',
-        '</div>'
-      ].join('');
+      if(e.id === pendingRemoveId){
+        /* Confirmation state: entire row replaced with "Are you sure?" UI */
+        html += '<div class="summary-line summary-line--confirming">'+
+          '<div class="summary-line__remove-confirm">'+
+            '<span class="summary-line__confirm-label">Are you sure?</span>'+
+            '<button class="summary-line__confirm-do-remove" type="button" data-confirm-remove-id="'+e.id+'" aria-label="Confirm remove plan">'+
+              '<span class="summary-line__remove" style="pointer-events:none;">'+
+                '<img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="14" height="14" alt="" aria-hidden="true" style="display:block;">'+
+              '</span>'+
+              '<span class="summary-line__confirm-do-remove__text">Remove</span>'+
+            '</button>'+
+            '<button class="summary-line__confirm-keep" type="button" data-keep-id="'+e.id+'" aria-label="Keep plan">Keep</button>'+
+          '</div>'+
+        '</div>';
+      } else {
+        /* Normal state: full plan row with mobile-responsive layout */
+        var editCls = (hasIntervalMismatch && e.id === pulseEntryId) ? ' edit-pulse' : '';
+        var removeBtn = '<button class="summary-line__remove" type="button" data-remove-id="'+e.id+'" aria-label="Remove plan"><img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="14" height="14" alt="" aria-hidden="true" style="display:block;"></button>';
+        html += '<div class="summary-line'+(isBeingEdited?' summary-line--editing':'')+'">'+
+          '<div class="summary-line__info">'+
+            '<p class="summary-line__prison">'+escHtml(e.prison)+(isBeingEdited?'<span class="summary-line__editing-tag">Editing&hellip;</span>':'')+'</p>'+
+            '<p class="summary-line__meta summary-line__meta--dsk">'+e.state.toUpperCase()+' &middot; '+escHtml(maskMobile(e.mobile))+' &middot; '+plan.name+'</p>'+
+            '<p class="summary-line__meta summary-line__meta--mob">'+e.state.toUpperCase()+' &middot; '+escHtml(maskMobile(e.mobile))+'</p>'+
+          '</div>'+
+          '<div class="summary-line__right">'+
+            '<span class="summary-line__price">$'+plan.amount+'/'+plan.period+'</span>'+
+            '<button class="summary-line__edit'+editCls+'" type="button" data-edit-id="'+e.id+'">Edit</button>'+
+            removeBtn+
+          '</div>'+
+          '<div class="summary-line__mobile-extra">'+
+            '<div class="summary-line__mobile-billing">'+
+              '<span class="summary-line__billing-plan">'+plan.name+'</span>'+
+              '<span class="summary-line__price">$'+plan.amount+'/'+plan.period+'</span>'+
+            '</div>'+
+            '<div class="summary-line__mobile-actions">'+
+              '<button class="summary-line__edit'+editCls+'" type="button" data-edit-id="'+e.id+'">Edit</button>'+
+              removeBtn+
+            '</div>'+
+          '</div>'+
+        '</div>';
+      }
     });
 
     /* Bundle notice */
@@ -1703,6 +1737,10 @@
     /* Wire events */
     completedArea.querySelectorAll('[data-edit-id]').forEach(function(btn){
       btn.addEventListener('click', function(){ editEntry(parseInt(btn.dataset.editId, 10)); });
+    });
+    /* Confirming row — prevent background clicks inside row from dismissing */
+    completedArea.querySelectorAll('.summary-line--confirming').forEach(function(el){
+      el.addEventListener('click', function(evt){ evt.stopPropagation(); });
     });
     /* X button — show inline "Are you sure?" confirmation */
     completedArea.querySelectorAll('[data-remove-id]').forEach(function(btn){
