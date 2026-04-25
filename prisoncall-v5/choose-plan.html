@@ -435,6 +435,25 @@
       transition: background var(--tr), color var(--tr);
     }
     .summary-line__remove:hover { background: #d0d0d0; color: var(--color-black); }
+    .summary-line__remove-confirm { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+    .summary-line__confirm-keep {
+      height: 26px; padding: 0 10px; border-radius: var(--radius-pill);
+      background: var(--color-green); color: var(--color-black);
+      display: flex; align-items: center; justify-content: center;
+      border: none; font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; flex-shrink: 0; line-height: 1;
+      transition: background var(--tr);
+    }
+    .summary-line__confirm-keep:hover { background: #00b849; }
+    .summary-line__confirm-delete {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--color-border); color: var(--color-muted);
+      display: flex; align-items: center; justify-content: center;
+      border: none; font-family: inherit; font-size: 14px;
+      cursor: pointer; flex-shrink: 0; line-height: 1;
+      transition: background var(--tr), color var(--tr);
+    }
+    .summary-line__confirm-delete:hover { background: #e53935; color: #fff; }
     .summary-line--editing { opacity: 0.45; pointer-events: none; }
     .summary-line__editing-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-muted); margin-left: 8px; }
     .edit-pulse {
@@ -933,6 +952,7 @@
   var editId   = null; // id of entry being edited (null = new)
   var nextId   = 0;
   var MAX_PLANS = 3;
+  var pendingRemoveId = null; // id of entry awaiting inline remove confirmation (null = none)
 
   var planFlow      = document.getElementById('planFlow');
   var completedArea = document.getElementById('completedArea');
@@ -1629,7 +1649,12 @@
           '<div class="summary-line__right">',
             '<span class="summary-line__price">$'+plan.amount+'/'+plan.period+'</span>',
             '<button class="summary-line__edit'+(hasIntervalMismatch && e.id === pulseEntryId ? ' edit-pulse' : '')+'" type="button" data-edit-id="'+e.id+'">Edit</button>',
-            '<button class="summary-line__remove" type="button" data-remove-id="'+e.id+'" aria-label="Remove plan"><img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="14" height="14" alt="" aria-hidden="true" style="display:block;"></button>',
+            (e.id === pendingRemoveId
+              ? '<div class="summary-line__remove-confirm">'+
+                  '<button class="summary-line__confirm-keep" type="button" data-keep-id="'+e.id+'" aria-label="Keep plan">\u2713</button>'+
+                  '<button class="summary-line__confirm-delete" type="button" data-confirm-remove-id="'+e.id+'" aria-label="Remove plan">\u2715</button>'+
+                '</div>'
+              : '<button class="summary-line__remove" type="button" data-remove-id="'+e.id+'" aria-label="Remove plan"><img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="14" height="14" alt="" aria-hidden="true" style="display:block;"></button>'),
           '</div>',
         '</div>'
       ].join('');
@@ -1676,21 +1701,31 @@
     completedArea.querySelectorAll('[data-edit-id]').forEach(function(btn){
       btn.addEventListener('click', function(){ editEntry(parseInt(btn.dataset.editId, 10)); });
     });
+    /* X button — show inline confirmation instead of removing immediately */
     completedArea.querySelectorAll('[data-remove-id]').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        var removedId = parseInt(btn.dataset.removeId, 10);
-        /* If removing the entry currently being edited, cancel the edit */
-        if(editId === removedId){ editId = null; cur = null; planFlow.innerHTML = ''; clearGate(); }
-        entries = entries.filter(function(e){ return e.id !== removedId; });
-        saveCart();
-        /* If the summary is now empty and no plan is being built, reset to Step 1 */
-        if(entries.length === 0 && cur === null){
-          completedArea.innerHTML = '';
-          startNewPlan(null);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-          renderCompletedArea();
-        }
+      btn.addEventListener('click', function(evt){
+        evt.stopPropagation();
+        pendingRemoveId = parseInt(btn.dataset.removeId, 10);
+        renderCompletedArea();
+        document.addEventListener('click', handleConfirmOutsideClick);
+      });
+    });
+    /* ✓ Keep button — dismiss confirmation, restore normal state */
+    completedArea.querySelectorAll('[data-keep-id]').forEach(function(btn){
+      btn.addEventListener('click', function(evt){
+        evt.stopPropagation();
+        pendingRemoveId = null;
+        document.removeEventListener('click', handleConfirmOutsideClick);
+        renderCompletedArea();
+      });
+    });
+    /* ✕ Confirm-remove button — proceed with removal */
+    completedArea.querySelectorAll('[data-confirm-remove-id]').forEach(function(btn){
+      btn.addEventListener('click', function(evt){
+        evt.stopPropagation();
+        pendingRemoveId = null;
+        document.removeEventListener('click', handleConfirmOutsideClick);
+        doRemoveEntry(parseInt(btn.dataset.confirmRemoveId, 10));
       });
     });
     var addBtn = document.getElementById('addPlanBtn');
@@ -1802,6 +1837,26 @@
       localStorage.setItem('prisoncall_checkout_state', JSON.stringify({ entries: entries, timestamp: Date.now() }));
     } else {
       localStorage.removeItem('prisoncall_checkout_state');
+    }
+  }
+
+  /* ─── Inline remove-confirmation helpers ─── */
+  function handleConfirmOutsideClick(){
+    pendingRemoveId = null;
+    document.removeEventListener('click', handleConfirmOutsideClick);
+    renderCompletedArea();
+  }
+
+  function doRemoveEntry(removedId){
+    if(editId === removedId){ editId = null; cur = null; planFlow.innerHTML = ''; clearGate(); }
+    entries = entries.filter(function(e){ return e.id !== removedId; });
+    saveCart();
+    if(entries.length === 0 && cur === null){
+      completedArea.innerHTML = '';
+      startNewPlan(null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      renderCompletedArea();
     }
   }
 
