@@ -2355,5 +2355,15 @@
     }
   })();
 </script>
-</body>
+<script>
+  (function() {
+    var featureImgs = [
+      'feature-1.png','feature-2.png','feature-3.png','feature-4.png',
+      'feature-5.jpg','feature-6.jpg','feature-7.jpg'
+    ];
+    document.querySelectorAll('.feature-card__img').forEach(function(el) {
+      el.src = 'assets/images/' + featureImgs[Math.floor(Math.random() * featureImgs.length)];
+    });
+  })();
+</script></body>
 </html>
