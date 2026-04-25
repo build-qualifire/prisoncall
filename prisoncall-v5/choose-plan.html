@@ -435,27 +435,21 @@
       transition: background var(--tr), color var(--tr);
     }
     .summary-line__remove:hover { background: #d0d0d0; color: var(--color-black); }
-    .undo-snackbar {
-      position: fixed; bottom: 24px; left: 50%;
-      transform: translateX(-50%) translateY(12px);
-      z-index: 9999; display: flex; align-items: center; gap: 20px;
-      background: #1a1a1a; color: #fff;
-      padding: 14px 20px; border-radius: 12px;
-      font-family: var(--font-family); font-size: 14px; font-weight: 500;
-      white-space: nowrap; box-shadow: 0 4px 24px rgba(0,0,0,0.32);
-      opacity: 0; pointer-events: none;
-      transition: opacity 280ms ease, transform 280ms ease;
+    .summary-line__remove-confirm { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .summary-line__confirm-label { font-size: 12px; color: var(--color-muted); white-space: nowrap; }
+    .summary-line__confirm-do-remove {
+      display: flex; align-items: center; gap: 5px;
+      background: none; border: none; font-family: inherit; padding: 0; cursor: pointer;
     }
-    .undo-snackbar.is-visible {
-      opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0);
+    .summary-line__confirm-do-remove__text { font-size: 12px; font-weight: 600; color: var(--color-muted); transition: color var(--tr); }
+    .summary-line__confirm-do-remove:hover .summary-line__remove { background: #d0d0d0; }
+    .summary-line__confirm-do-remove:hover .summary-line__confirm-do-remove__text { color: var(--color-black); }
+    .summary-line__confirm-keep {
+      background: none; border: none; font-family: inherit; padding: 0;
+      font-size: 12px; font-weight: 600; color: var(--color-muted); cursor: pointer;
+      transition: color var(--tr);
     }
-    .undo-snackbar__undo {
-      background: none; border: none; color: #00D258;
-      font-family: var(--font-family); font-size: 14px; font-weight: 700;
-      cursor: pointer; padding: 0; line-height: 1;
-      transition: opacity 150ms ease;
-    }
-    .undo-snackbar__undo:hover { opacity: 0.75; }
+    .summary-line__confirm-keep:hover { color: var(--color-black); }
     .summary-line--editing { opacity: 0.45; pointer-events: none; }
     .summary-line__editing-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-muted); margin-left: 8px; }
     .edit-pulse {
@@ -954,6 +948,7 @@
   var editId   = null; // id of entry being edited (null = new)
   var nextId   = 0;
   var MAX_PLANS = 3;
+  var pendingRemoveId = null; // id of entry awaiting inline remove confirmation (null = none)
 
   var planFlow      = document.getElementById('planFlow');
   var completedArea = document.getElementById('completedArea');
@@ -1650,7 +1645,18 @@
           '<div class="summary-line__right">',
             '<span class="summary-line__price">$'+plan.amount+'/'+plan.period+'</span>',
             '<button class="summary-line__edit'+(hasIntervalMismatch && e.id === pulseEntryId ? ' edit-pulse' : '')+'" type="button" data-edit-id="'+e.id+'">Edit</button>',
-            '<button class="summary-line__remove" type="button" data-remove-id="'+e.id+'" aria-label="Remove plan"><img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="14" height="14" alt="" aria-hidden="true" style="display:block;"></button>',
+            (e.id === pendingRemoveId
+              ? '<div class="summary-line__remove-confirm">'+
+                  '<span class="summary-line__confirm-label">Are you sure?</span>'+
+                  '<button class="summary-line__confirm-do-remove" type="button" data-confirm-remove-id="'+e.id+'" aria-label="Confirm remove plan">'+
+                    '<span class="summary-line__remove" style="pointer-events:none;">'+
+                      '<img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="14" height="14" alt="" aria-hidden="true" style="display:block;">'+
+                    '</span>'+
+                    '<span class="summary-line__confirm-do-remove__text">Remove</span>'+
+                  '</button>'+
+                  '<button class="summary-line__confirm-keep" type="button" data-keep-id="'+e.id+'" aria-label="Keep plan">Keep</button>'+
+                '</div>'
+              : '<button class="summary-line__remove" type="button" data-remove-id="'+e.id+'" aria-label="Remove plan"><img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="14" height="14" alt="" aria-hidden="true" style="display:block;"></button>'),
           '</div>',
         '</div>'
       ].join('');
@@ -1697,12 +1703,31 @@
     completedArea.querySelectorAll('[data-edit-id]').forEach(function(btn){
       btn.addEventListener('click', function(){ editEntry(parseInt(btn.dataset.editId, 10)); });
     });
-    /* X button — remove immediately and offer undo via snackbar */
+    /* X button — show inline "Are you sure?" confirmation */
     completedArea.querySelectorAll('[data-remove-id]').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        var removedId    = parseInt(btn.dataset.removeId, 10);
-        var removedEntry = entries.filter(function(e){ return e.id === removedId; })[0];
-        var insertIdx    = entries.indexOf(removedEntry);
+      btn.addEventListener('click', function(evt){
+        evt.stopPropagation();
+        pendingRemoveId = parseInt(btn.dataset.removeId, 10);
+        renderCompletedArea();
+        document.addEventListener('click', handleConfirmOutsideClick);
+      });
+    });
+    /* Keep — dismiss confirmation, restore original X */
+    completedArea.querySelectorAll('[data-keep-id]').forEach(function(btn){
+      btn.addEventListener('click', function(evt){
+        evt.stopPropagation();
+        pendingRemoveId = null;
+        document.removeEventListener('click', handleConfirmOutsideClick);
+        renderCompletedArea();
+      });
+    });
+    /* Confirm remove — proceed with deletion */
+    completedArea.querySelectorAll('[data-confirm-remove-id]').forEach(function(btn){
+      btn.addEventListener('click', function(evt){
+        evt.stopPropagation();
+        var removedId = parseInt(btn.dataset.confirmRemoveId, 10);
+        pendingRemoveId = null;
+        document.removeEventListener('click', handleConfirmOutsideClick);
         if(editId === removedId){ editId = null; cur = null; planFlow.innerHTML = ''; clearGate(); }
         entries = entries.filter(function(e){ return e.id !== removedId; });
         saveCart();
@@ -1713,7 +1738,6 @@
         } else {
           renderCompletedArea();
         }
-        showUndoSnackbar(removedEntry, insertIdx);
       });
     });
     var addBtn = document.getElementById('addPlanBtn');
@@ -1828,54 +1852,12 @@
     }
   }
 
-  /* ─── Undo snackbar ─── */
-  var _snackbarTimer = null;
-  var _undoEntry     = null;
-  var _undoInsertIdx = -1;
-
-  var undoSnackbar = (function(){
-    var el = document.createElement('div');
-    el.className = 'undo-snackbar';
-    el.setAttribute('role', 'status');
-    el.setAttribute('aria-live', 'polite');
-    el.innerHTML =
-      '<span class="undo-snackbar__msg">Plan removed</span>' +
-      '<button class="undo-snackbar__undo" type="button">Undo</button>';
-    document.body.appendChild(el);
-    return el;
-  })();
-
-  var undoRemoveBtn = undoSnackbar.querySelector('.undo-snackbar__undo');
-
-  function showUndoSnackbar(entry, insertIdx){
-    if(_snackbarTimer){ clearTimeout(_snackbarTimer); _snackbarTimer = null; }
-    _undoEntry     = entry;
-    _undoInsertIdx = insertIdx;
-    undoSnackbar.classList.add('is-visible');
-    _snackbarTimer = setTimeout(dismissUndoSnackbar, 8000);
-  }
-
-  function dismissUndoSnackbar(){
-    if(_snackbarTimer){ clearTimeout(_snackbarTimer); _snackbarTimer = null; }
-    undoSnackbar.classList.remove('is-visible');
-    _undoEntry     = null;
-    _undoInsertIdx = -1;
-  }
-
-  undoRemoveBtn.addEventListener('click', function(){
-    if(!_undoEntry) return;
-    var entry = _undoEntry;
-    var idx   = _undoInsertIdx;
-    dismissUndoSnackbar();
-    entries.splice(idx, 0, entry);
-    saveCart();
-    /* If a blank startNewPlan stub was created because all entries were removed,
-       clear it so the restored entry shows correctly in completed state. */
-    if(cur && cur.state === null && cur.prison === null && cur.mobile === null && cur.planKey === null){
-      cur = null; editId = null; planFlow.innerHTML = ''; clearGate();
-    }
+  /* ─── Inline remove-confirmation helpers ─── */
+  function handleConfirmOutsideClick(){
+    pendingRemoveId = null;
+    document.removeEventListener('click', handleConfirmOutsideClick);
     renderCompletedArea();
-  });
+  }
 
   /* ─── Init ─── */
   (function(){
