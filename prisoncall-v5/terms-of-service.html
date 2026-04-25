@@ -115,6 +115,11 @@
     @media (min-width: 640px) { .footer__links { grid-template-columns: 1fr 1fr 1fr 1fr; } }
     .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.38); margin-bottom: 16px; }
     .footer__col ul { display: flex; flex-direction: column; gap: 10px; }
+    @media (max-width: 767px) {
+      .footer__col { display: flex; flex-direction: column; }
+      .footer__col ul { flex: 1; }
+      .footer__col ul li:last-child { margin-top: auto !important; }
+    }
     .footer__col li a { font-size: 13px; color: rgba(255,255,255,0.62); transition: color var(--tr); }
     .footer__col li a:hover { color: var(--color-white); }
     .footer__bottom { padding: 28px 0 0; display: flex; flex-direction: column; gap: 20px; align-items: center; }

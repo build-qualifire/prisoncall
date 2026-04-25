@@ -881,6 +881,11 @@
       color: rgba(255,255,255,0.38); margin-bottom: 16px;
     }
     .footer__col ul { display: flex; flex-direction: column; gap: 10px; }
+    @media (max-width: 767px) {
+      .footer__col { display: flex; flex-direction: column; }
+      .footer__col ul { flex: 1; }
+      .footer__col ul li:last-child { margin-top: auto !important; }
+    }
     .footer__col li a { font-size: 13px; color: rgba(255,255,255,0.62); transition: color var(--transition-fast); }
     .footer__col li a:hover { color: var(--color-white); }
     .footer__bottom {
