@@ -1821,7 +1821,7 @@
       try {
         var saved = JSON.parse(raw);
         if(saved && Array.isArray(saved.entries) && saved.entries.length > 0 &&
-           Date.now() - saved.timestamp < 86400000){
+           Date.now() - saved.timestamp < 345600000){
           saved.entries.forEach(function(e){ entries.push(e); });
           nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
           planFlow.innerHTML = '';
