@@ -435,8 +435,9 @@
       transition: background var(--tr), color var(--tr);
     }
     .summary-line__remove:hover { background: #d0d0d0; color: var(--color-black); }
-    .summary-line__remove-confirm { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-    .summary-line__confirm-label { font-size: 12px; color: var(--color-muted); white-space: nowrap; }
+    .summary-line__remove-confirm { display: flex; align-items: center; flex-wrap: wrap; column-gap: 16px; row-gap: 4px; flex-shrink: 0; }
+    .summary-line__confirm-label { font-size: 12px; color: var(--color-muted); flex-basis: 100%; }
+    @media (min-width: 768px) { .summary-line__confirm-label { flex-basis: auto; } }
     .summary-line__confirm-do-remove {
       display: flex; align-items: center; gap: 5px;
       background: none; border: none; font-family: inherit; padding: 0; cursor: pointer;
