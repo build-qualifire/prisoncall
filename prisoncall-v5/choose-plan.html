@@ -478,6 +478,10 @@
       0%, 100% { transform: scale(1); box-shadow: none; }
       50% { transform: scale(1.08); box-shadow: 0 0 0 3px rgba(0,0,0,0.15); }
     }
+    @keyframes pulseCta {
+      0%, 100% { transform: scale(1); box-shadow: none; }
+      50% { transform: scale(1.02); box-shadow: 0 0 0 4px rgba(0,0,0,0.07); }
+    }
 
     /* ─── Add another plan ─── */
     .add-plan-btn {
@@ -520,7 +524,7 @@
       border: 2px solid var(--color-green); text-decoration: none;
       transition: opacity var(--tr), transform var(--tr), background var(--tr), border-color var(--tr), color var(--tr);
       margin-top: 8px;
-      animation: pulseEdit 1.2s ease-in-out infinite;
+      animation: pulseCta 3s ease-in-out infinite;
     }
     .checkout-cta:hover:not(.is-disabled) { opacity: 0.88; transform: translateY(-1px); animation-play-state: paused; }
     .checkout-cta:active { transform: none; animation-play-state: paused; }
