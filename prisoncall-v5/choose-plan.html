@@ -1736,7 +1736,6 @@
         .then(function(res){ return res.json(); })
         .then(function(data){
           if(data.url){
-            localStorage.removeItem('prisoncall_checkout_state');
             window.location.href = data.url;
           } else {
             throw new Error(data.error || 'Unexpected response');

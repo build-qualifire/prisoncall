@@ -698,6 +698,9 @@
   <script>
   'use strict';
 
+  /* ─── Clear saved cart — payment confirmed, no need to restore ─── */
+  localStorage.removeItem('prisoncall_checkout_state');
+
   /* ─── Copyright year ─── */
   document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 
