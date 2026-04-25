@@ -2361,9 +2361,14 @@
       'feature-1.png','feature-2.png','feature-3.png','feature-4.png',
       'feature-5.jpg','feature-6.jpg','feature-7.jpg'
     ];
-    document.querySelectorAll('.feature-card__img').forEach(function(el) {
-      el.src = 'assets/images/' + featureImgs[Math.floor(Math.random() * featureImgs.length)];
-    });
+    for (var i = featureImgs.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = featureImgs[i]; featureImgs[i] = featureImgs[j]; featureImgs[j] = tmp;
+    }
+    var cards = document.querySelectorAll('.feature-card__img');
+    for (var k = 0; k < cards.length; k++) {
+      cards[k].src = 'assets/images/' + featureImgs[k % featureImgs.length];
+    }
   })();
 </script></body>
 </html>
