@@ -520,9 +520,10 @@
       border: 2px solid var(--color-green); text-decoration: none;
       transition: opacity var(--tr), transform var(--tr), background var(--tr), border-color var(--tr), color var(--tr);
       margin-top: 8px;
+      animation: pulseEdit 1.2s ease-in-out infinite;
     }
-    .checkout-cta:hover:not(.is-disabled) { opacity: 0.88; transform: translateY(-1px); }
-    .checkout-cta:active { transform: none; }
+    .checkout-cta:hover:not(.is-disabled) { opacity: 0.88; transform: translateY(-1px); animation-play-state: paused; }
+    .checkout-cta:active { transform: none; animation-play-state: paused; }
     .checkout-cta.is-disabled {
       background: var(--color-border); color: var(--color-muted);
       border-color: var(--color-border); pointer-events: none; cursor: default;
