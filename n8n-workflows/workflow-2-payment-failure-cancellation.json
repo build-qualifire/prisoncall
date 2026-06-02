@@ -1,0 +1,352 @@
+{
+  "name": "PRISONCALL - WF2 Payment Failure / Cancellation",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Australia/Sydney"
+  },
+  "pinData": {},
+  "tags": [],
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "stripe-billing",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "wf2-webhook",
+      "name": "Stripe Webhook (billing events)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-360, 480],
+      "webhookId": "prisoncall-stripe-billing"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Stripe billing event. Handles invoice.payment_failed, invoice.payment_succeeded,\n// customer.subscription.deleted.\nconst raw = $input.first().json;\nconst body = raw.body || raw;\nconst event = body && body.type ? body : (body.event || body);\nconst type = event.type || '';\nconst obj = (event.data && event.data.object) ? event.data.object : (event.object || {});\n\nfunction intervalFromPrice(price) {\n  if (!price || !price.recurring) return '';\n  const i = price.recurring.interval, c = price.recurring.interval_count || 1;\n  if (i === 'week' && c === 1) return 'weekly';\n  if (i === 'week' && c === 2) return 'fortnightly';\n  if (i === 'month' && c === 1) return 'monthly';\n  if (i === 'month' && c === 3) return 'quarterly';\n  return i + (c > 1 ? ('x' + c) : '');\n}\n\nlet price = null;\nif (obj.lines && obj.lines.data && obj.lines.data[0]) price = obj.lines.data[0].price || obj.lines.data[0].plan;\nif (!price && obj.items && obj.items.data && obj.items.data[0]) price = obj.items.data[0].price || obj.items.data[0].plan;\nconst plan_interval = intervalFromPrice(price);\nconst gracePeriods = { weekly: 1, fortnightly: 2, monthly: 3, quarterly: 5 };\nconst grace_days = gracePeriods[plan_interval] || 3;\n\n// mobile_number, orderId, numberId resolve from the subscriber store at live integration; metadata used if present.\nconst md = obj.metadata || {};\nconst out = {\n  event_type: type,\n  stripe_subscription_id: obj.subscription || obj.id || '',\n  stripe_customer_id: obj.customer || '',\n  plan_interval: plan_interval,\n  grace_days: grace_days,\n  attempt_count: obj.attempt_count || 0,\n  was_retry: (obj.attempt_count || 0) > 1,\n  mobile_number: String(md.mobile || md.plan_1_mobile || '').replace(/[^0-9]/g, '').slice(-10),\n  prison_name: md.prison_name || md.plan_1_prison || '',\n  orderId: md.voipline_order_id || '',\n  numberId: md.voipline_number_id || '',\n  day: 0\n};\nreturn [{ json: out }];"
+      },
+      "id": "wf2-parse",
+      "name": "Parse Billing Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-140, 480]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose", "version": 2 },
+          "combinator": "and",
+          "conditions": [
+            { "id": "c-pf", "leftValue": "={{ $json.event_type }}", "rightValue": "invoice.payment_failed", "operator": { "type": "string", "operation": "equals" } }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf2-if-failed",
+      "name": "payment_failed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [120, 480]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose", "version": 2 },
+          "combinator": "and",
+          "conditions": [
+            { "id": "c-del", "leftValue": "={{ $json.event_type }}", "rightValue": "customer.subscription.deleted", "operator": { "type": "string", "operation": "equals" } }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf2-if-deleted",
+      "name": "subscription.deleted?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [120, 760]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose", "version": 2 },
+          "combinator": "and",
+          "conditions": [
+            { "id": "c-ps", "leftValue": "={{ $json.event_type }}", "rightValue": "invoice.payment_succeeded", "operator": { "type": "string", "operation": "equals" } }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf2-if-succeeded",
+      "name": "payment_succeeded?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [120, 1040]
+    },
+    {
+      "parameters": {},
+      "id": "wf2-noop-ignore",
+      "name": "Ignore (unhandled event)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [360, 1180]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Day 0 (MOCK): pause 3CX forwarding so the number stops ringing while payment is outstanding.\nconst d = $json;\nreturn [{ json: { ...d, threeCX_paused: { mocked: true, success: true, action: 'disable_forwarding' } } }];"
+      },
+      "id": "wf2-pause",
+      "name": "Pause 3CX Forwarding (mock)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [360, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Day 0 payment-failed SMS (ClickSend dedicated number - two-way capable for support).\nconst helpers = this.helpers;\nconst d = $json;\nconst to = d.mobile_number ? ('+61' + d.mobile_number.replace(/^0/, '')) : $env.OWNER_MOBILE;\nconst text = 'Your Prisoncall payment failed. Please update your payment method to keep your number active.';\nconst auth = 'Basic ' + Buffer.from($env.CLICKSEND_USERNAME + ':' + $env.CLICKSEND_API_KEY).toString('base64');\nconst resp = await helpers.httpRequest({ method: 'POST', url: 'https://rest.clicksend.com/v3/sms/send', headers: { Authorization: auth, 'Content-Type': 'application/json' }, body: { messages: [{ source: 'n8n', from: $env.CLICKSEND_DEDICATED_NUMBER, to: to, body: text }] }, json: true });\nreturn [{ json: { ...d, sms_failed: resp } }];"
+      },
+      "id": "wf2-sms-failed",
+      "name": "SMS: Payment Failed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [580, 220]
+    },
+    {
+      "parameters": { "amount": 1, "unit": "days" },
+      "id": "wf2-wait-day",
+      "name": "Wait 1 Day",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [800, 220],
+      "webhookId": "wf2-wait-day"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Advance one day inside the grace period and decide whether more daily reminders are due.\nconst d = $json;\nd.day = (d.day || 0) + 1;\nd.more = d.day < d.grace_days;\nreturn [{ json: d }];"
+      },
+      "id": "wf2-decide",
+      "name": "Advance Grace Day",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1020, 220]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose", "version": 2 },
+          "combinator": "and",
+          "conditions": [
+            { "id": "c-more", "leftValue": "={{ $json.more }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true", "singleValue": true } }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf2-if-more",
+      "name": "More reminders due?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1240, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Daily reminder during the grace period, then loop back to wait another day.\nconst helpers = this.helpers;\nconst d = $json;\nconst to = d.mobile_number ? ('+61' + d.mobile_number.replace(/^0/, '')) : $env.OWNER_MOBILE;\nconst text = 'Reminder: your Prisoncall payment is still outstanding (day ' + d.day + ' of ' + d.grace_days + '). Please update your payment method to keep your number active.';\nconst auth = 'Basic ' + Buffer.from($env.CLICKSEND_USERNAME + ':' + $env.CLICKSEND_API_KEY).toString('base64');\nconst resp = await helpers.httpRequest({ method: 'POST', url: 'https://rest.clicksend.com/v3/sms/send', headers: { Authorization: auth, 'Content-Type': 'application/json' }, body: { messages: [{ source: 'n8n', from: $env.CLICKSEND_DEDICATED_NUMBER, to: to, body: text }] }, json: true });\nreturn [{ json: { ...d, last_reminder: resp } }];"
+      },
+      "id": "wf2-sms-reminder",
+      "name": "SMS: Daily Reminder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1460, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Grace period expired (MOCK): delete the 3CX extension.\nconst d = $json;\nreturn [{ json: { ...d, threeCX_deleted: { mocked: true, success: true, action: 'delete_extension', extension: d.threeCX_extension || null } } }];"
+      },
+      "id": "wf2-del3cx",
+      "name": "Delete 3CX Extension (mock)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1460, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Release DID - 2-STEP (VoipLine enforces order, returns 422 if step 1 skipped).\n// Step 1 (MOCK): remove DID from the PBX inbound number object.\n// Step 2: VoipLine release endpoint via the Cloudflare Worker proxy.\nconst helpers = this.helpers;\nconst d = $json;\nconst PROXY = 'https://workers.prisoncall.com.au/voipline-proxy';\nconst orderId = d.orderId || d.order_id || '';\nconst numberId = d.numberId || d.number_id || '';\nlet release = { skipped: true, reason: 'orderId/numberId not resolved - resolve from /api/customer/numbers/active or subscriber store at live integration' };\nif (orderId && numberId) {\n  release = await helpers.httpRequest({ method: 'POST', url: PROXY, headers: { 'X-Proxy-Secret': $env.VOIPLINE_PROXY_SECRET, 'X-VoipLine-Path': '/api/customer/order/' + orderId + '/number/' + numberId + '/release', 'X-VoipLine-Method': 'PUT', 'Content-Type': 'application/json' }, body: {}, json: true });\n}\nreturn [{ json: { ...d, pbx_inbound_removed_mock: true, did_release: release } }];"
+      },
+      "id": "wf2-release",
+      "name": "Release DID (2-step)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1680, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Cancel the Stripe subscription after the grace period fully expires.\nconst helpers = this.helpers;\nconst d = $json;\nlet result = { skipped: true };\nif (d.stripe_subscription_id) {\n  result = await helpers.httpRequest({ method: 'DELETE', url: 'https://api.stripe.com/v1/subscriptions/' + d.stripe_subscription_id, headers: { Authorization: 'Bearer ' + $env.STRIPE_SECRET_KEY } });\n}\nreturn [{ json: { ...d, stripe_cancelled: result } }];"
+      },
+      "id": "wf2-cancel-sub",
+      "name": "Cancel Stripe Subscription",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1900, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Cancellation received (MOCK): pause 3CX forwarding, hold DID + extension intact for reactivation.\nconst d = $json;\nreturn [{ json: { ...d, threeCX_paused: { mocked: true, success: true, action: 'disable_forwarding' } } }];"
+      },
+      "id": "wf2-c-pause",
+      "name": "Pause 3CX (cancellation, mock)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [360, 760]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Cancellation SMS - 5-day reactivation window.\nconst helpers = this.helpers;\nconst d = $json;\nconst to = d.mobile_number ? ('+61' + d.mobile_number.replace(/^0/, '')) : $env.OWNER_MOBILE;\nconst text = 'Your Prisoncall subscription has been cancelled. You have 5 days to reactivate.';\nconst auth = 'Basic ' + Buffer.from($env.CLICKSEND_USERNAME + ':' + $env.CLICKSEND_API_KEY).toString('base64');\nconst resp = await helpers.httpRequest({ method: 'POST', url: 'https://rest.clicksend.com/v3/sms/send', headers: { Authorization: auth, 'Content-Type': 'application/json' }, body: { messages: [{ source: 'n8n', from: $env.CLICKSEND_DEDICATED_NUMBER, to: to, body: text }] }, json: true });\nreturn [{ json: { ...d, sms_cancelled: resp } }];"
+      },
+      "id": "wf2-c-sms",
+      "name": "SMS: Cancelled (5-day window)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [580, 760]
+    },
+    {
+      "parameters": { "amount": 5, "unit": "days" },
+      "id": "wf2-c-wait5",
+      "name": "Wait 5 Days (reactivation window)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [800, 760],
+      "webhookId": "wf2-c-wait5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Day 5 (MOCK): delete the 3CX extension after the reactivation window closes.\nconst d = $json;\nreturn [{ json: { ...d, threeCX_deleted: { mocked: true, success: true, action: 'delete_extension' } } }];"
+      },
+      "id": "wf2-c-del3cx",
+      "name": "Delete 3CX Extension (cancellation, mock)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1020, 760]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Release DID - 2-step (mock PBX removal, then VoipLine release via proxy).\nconst helpers = this.helpers;\nconst d = $json;\nconst PROXY = 'https://workers.prisoncall.com.au/voipline-proxy';\nconst orderId = d.orderId || '';\nconst numberId = d.numberId || '';\nlet release = { skipped: true, reason: 'orderId/numberId not resolved at build time' };\nif (orderId && numberId) {\n  release = await helpers.httpRequest({ method: 'POST', url: PROXY, headers: { 'X-Proxy-Secret': $env.VOIPLINE_PROXY_SECRET, 'X-VoipLine-Path': '/api/customer/order/' + orderId + '/number/' + numberId + '/release', 'X-VoipLine-Method': 'PUT', 'Content-Type': 'application/json' }, body: {}, json: true });\n}\nreturn [{ json: { ...d, pbx_inbound_removed_mock: true, did_release: release } }];"
+      },
+      "id": "wf2-c-release",
+      "name": "Release DID (cancellation, 2-step)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1240, 760]
+    },
+    {
+      "parameters": {},
+      "id": "wf2-c-cleanup",
+      "name": "Cleanup complete",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1460, 760]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose", "version": 2 },
+          "combinator": "and",
+          "conditions": [
+            { "id": "c-retry", "leftValue": "={{ $json.was_retry }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true", "singleValue": true } }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf2-if-retry",
+      "name": "Was a retry after failure?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [360, 1040]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Payment recovered (MOCK): re-enable 3CX forwarding on the same extension.\nconst d = $json;\nreturn [{ json: { ...d, threeCX_reenabled: { mocked: true, success: true, action: 'enable_forwarding' } } }];"
+      },
+      "id": "wf2-r-enable",
+      "name": "Re-enable 3CX Forwarding (mock)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [580, 1040]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Payment success SMS after a previous failure.\nconst helpers = this.helpers;\nconst d = $json;\nconst to = d.mobile_number ? ('+61' + d.mobile_number.replace(/^0/, '')) : $env.OWNER_MOBILE;\nconst text = 'Your Prisoncall payment was successful. Your number is active again.';\nconst auth = 'Basic ' + Buffer.from($env.CLICKSEND_USERNAME + ':' + $env.CLICKSEND_API_KEY).toString('base64');\nconst resp = await helpers.httpRequest({ method: 'POST', url: 'https://rest.clicksend.com/v3/sms/send', headers: { Authorization: auth, 'Content-Type': 'application/json' }, body: { messages: [{ source: 'n8n', from: $env.CLICKSEND_DEDICATED_NUMBER, to: to, body: text }] }, json: true });\nreturn [{ json: { ...d, sms_recovered: resp } }];"
+      },
+      "id": "wf2-r-sms",
+      "name": "SMS: Payment Successful",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 1040]
+    },
+    {
+      "parameters": {},
+      "id": "wf2-r-noop",
+      "name": "First payment (not a recovery)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [580, 1200]
+    },
+    {
+      "parameters": {
+        "content": "## Workflow 2 - Payment Failure / Cancellation\nGrace periods by plan: Weekly 1d, Fortnightly 2d, Monthly 3d, Quarterly 5d.\n\n- **invoice.payment_failed**: mock pause 3CX -> SMS -> daily reminder loop until grace ends -> mock delete 3CX -> release DID (2-step) -> cancel Stripe sub.\n- **customer.subscription.deleted**: mock pause -> SMS (5-day reactivation) -> wait 5 days -> mock delete 3CX -> release DID (2-step).\n- **invoice.payment_succeeded** (only if it was a retry after failure): mock re-enable 3CX -> SMS active again.\n\nCustomer SMS uses the ClickSend dedicated number (two-way). orderId/numberId/mobile resolve from the subscriber store at live integration.",
+        "height": 300,
+        "width": 460
+      },
+      "id": "wf2-note",
+      "name": "About this workflow",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-380, 120]
+    }
+  ],
+  "connections": {
+    "Stripe Webhook (billing events)": { "main": [[{ "node": "Parse Billing Event", "type": "main", "index": 0 }]] },
+    "Parse Billing Event": { "main": [[{ "node": "payment_failed?", "type": "main", "index": 0 }]] },
+    "payment_failed?": {
+      "main": [
+        [{ "node": "Pause 3CX Forwarding (mock)", "type": "main", "index": 0 }],
+        [{ "node": "subscription.deleted?", "type": "main", "index": 0 }]
+      ]
+    },
+    "subscription.deleted?": {
+      "main": [
+        [{ "node": "Pause 3CX (cancellation, mock)", "type": "main", "index": 0 }],
+        [{ "node": "payment_succeeded?", "type": "main", "index": 0 }]
+      ]
+    },
+    "payment_succeeded?": {
+      "main": [
+        [{ "node": "Was a retry after failure?", "type": "main", "index": 0 }],
+        [{ "node": "Ignore (unhandled event)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Pause 3CX Forwarding (mock)": { "main": [[{ "node": "SMS: Payment Failed", "type": "main", "index": 0 }]] },
+    "SMS: Payment Failed": { "main": [[{ "node": "Wait 1 Day", "type": "main", "index": 0 }]] },
+    "Wait 1 Day": { "main": [[{ "node": "Advance Grace Day", "type": "main", "index": 0 }]] },
+    "Advance Grace Day": { "main": [[{ "node": "More reminders due?", "type": "main", "index": 0 }]] },
+    "More reminders due?": {
+      "main": [
+        [{ "node": "SMS: Daily Reminder", "type": "main", "index": 0 }],
+        [{ "node": "Delete 3CX Extension (mock)", "type": "main", "index": 0 }]
+      ]
+    },
+    "SMS: Daily Reminder": { "main": [[{ "node": "Wait 1 Day", "type": "main", "index": 0 }]] },
+    "Delete 3CX Extension (mock)": { "main": [[{ "node": "Release DID (2-step)", "type": "main", "index": 0 }]] },
+    "Release DID (2-step)": { "main": [[{ "node": "Cancel Stripe Subscription", "type": "main", "index": 0 }]] },
+    "Pause 3CX (cancellation, mock)": { "main": [[{ "node": "SMS: Cancelled (5-day window)", "type": "main", "index": 0 }]] },
+    "SMS: Cancelled (5-day window)": { "main": [[{ "node": "Wait 5 Days (reactivation window)", "type": "main", "index": 0 }]] },
+    "Wait 5 Days (reactivation window)": { "main": [[{ "node": "Delete 3CX Extension (cancellation, mock)", "type": "main", "index": 0 }]] },
+    "Delete 3CX Extension (cancellation, mock)": { "main": [[{ "node": "Release DID (cancellation, 2-step)", "type": "main", "index": 0 }]] },
+    "Release DID (cancellation, 2-step)": { "main": [[{ "node": "Cleanup complete", "type": "main", "index": 0 }]] },
+    "Was a retry after failure?": {
+      "main": [
+        [{ "node": "Re-enable 3CX Forwarding (mock)", "type": "main", "index": 0 }],
+        [{ "node": "First payment (not a recovery)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Re-enable 3CX Forwarding (mock)": { "main": [[{ "node": "SMS: Payment Successful", "type": "main", "index": 0 }]] }
+  }
+}

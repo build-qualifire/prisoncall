@@ -1,0 +1,89 @@
+{
+  "name": "PRISONCALL - WF7 SIP Channel Capacity Monitor",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Australia/Sydney"
+  },
+  "pinData": {},
+  "tags": [],
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "hours", "hoursInterval": 1 }] }
+      },
+      "id": "wf7-schedule",
+      "name": "Hourly Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-120, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check VoipLine balance + channel usage via the proxy. Balance endpoint also reflects channel usage.\n// NOTE: the concurrent-usage field name is mapped defensively and must be confirmed at live integration.\nconst helpers = this.helpers;\nconst PROXY = 'https://workers.prisoncall.com.au/voipline-proxy';\nlet resp = {};\ntry {\n  resp = await helpers.httpRequest({ method: 'POST', url: PROXY, headers: { 'X-Proxy-Secret': $env.VOIPLINE_PROXY_SECRET, 'X-VoipLine-Path': '/api/customer/core/balance', 'X-VoipLine-Method': 'GET', 'Content-Type': 'application/json' }, json: true });\n} catch (e) { resp = { error: String(e.message || e) }; }\n\nconst channels = 4; // 8SC PRO = 4 simultaneous calls\nlet concurrent = (resp && (resp.concurrent_calls != null ? resp.concurrent_calls : resp.channels_in_use != null ? resp.channels_in_use : resp.active_channels != null ? resp.active_channels : (resp.usage && resp.usage.concurrent))) || 0;\nconcurrent = Number(concurrent) || 0;\nconst pct = Math.round((concurrent / channels) * 100);\n\n// >75% of 4 = 3+ concurrent -> scale-up advisory. <50% = <2 -> scale-down possible.\n// NOTE: at live integration, store the last advisory in a data table and only send on CHANGE to avoid hourly repeats.\nlet advisory = 'none';\nlet notify = false;\nlet text = '';\nif (concurrent >= 3) {\n  advisory = 'scale_up';\n  notify = true;\n  text = 'Prisoncall SIP advisory: ' + concurrent + '/' + channels + ' channels in use (' + pct + '%). Approaching capacity - consider upgrading the 3CX SC tier / SIP channels. No auto-purchase - owner decision only.';\n} else if (concurrent < 2) {\n  advisory = 'scale_down_possible';\n  notify = true;\n  text = 'Prisoncall SIP advisory: usage at ' + concurrent + '/' + channels + ' channels (' + pct + '%), below 50%. Scale-down is possible if sustained. Owner decision only.';\n}\n\nreturn [{ json: { balance: resp, concurrent: concurrent, channels: channels, pct: pct, advisory: advisory, notify: notify, advisory_text: text } }];"
+      },
+      "id": "wf7-check",
+      "name": "Check Balance & Channel Usage",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [120, 320]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose", "version": 2 },
+          "combinator": "and",
+          "conditions": [
+            { "id": "c-notify", "leftValue": "={{ $json.notify }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true", "singleValue": true } }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf7-if-notify",
+      "name": "Advisory needed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [340, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Send the capacity advisory SMS to the owner. NEVER auto-purchases channels.\nconst helpers = this.helpers;\nconst d = $json;\nconst auth = 'Basic ' + Buffer.from($env.CLICKSEND_USERNAME + ':' + $env.CLICKSEND_API_KEY).toString('base64');\nconst resp = await helpers.httpRequest({ method: 'POST', url: 'https://rest.clicksend.com/v3/sms/send', headers: { Authorization: auth, 'Content-Type': 'application/json' }, body: { messages: [{ source: 'n8n', from: $env.CLICKSEND_DEDICATED_NUMBER, to: $env.OWNER_MOBILE, body: d.advisory_text }] }, json: true });\nreturn [{ json: { ...d, owner_sms: resp } }];"
+      },
+      "id": "wf7-sms",
+      "name": "ClickSend Owner: Capacity Advisory",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [560, 220]
+    },
+    {
+      "parameters": {},
+      "id": "wf7-noop",
+      "name": "Within normal range",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [560, 420]
+    },
+    {
+      "parameters": {
+        "content": "## Workflow 7 - SIP Channel Capacity Monitor\nRuns hourly. Gets VoipLine balance/channel usage via the proxy (GET /api/customer/core/balance).\n\n- **>= 3 concurrent** (>75% of 4 channels): SMS owner scale-UP advisory.\n- **< 2 concurrent** (<50%): SMS owner scale-DOWN-possible advisory.\n- NEVER auto-purchases channels - owner decision only.\n\nAt live integration: persist the last advisory and only send on change to avoid hourly repeats.",
+        "height": 220,
+        "width": 440
+      },
+      "id": "wf7-note",
+      "name": "About this workflow",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-140, 40]
+    }
+  ],
+  "connections": {
+    "Hourly Check": { "main": [[{ "node": "Check Balance & Channel Usage", "type": "main", "index": 0 }]] },
+    "Check Balance & Channel Usage": { "main": [[{ "node": "Advisory needed?", "type": "main", "index": 0 }]] },
+    "Advisory needed?": {
+      "main": [
+        [{ "node": "ClickSend Owner: Capacity Advisory", "type": "main", "index": 0 }],
+        [{ "node": "Within normal range", "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "name": "PRISONCALL - WF5 Monthly Admin",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Australia/Sydney"
+  },
+  "pinData": {},
+  "tags": [],
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 1 * *" }] }
+      },
+      "id": "wf5-schedule",
+      "name": "1st of Month 08:00 AEST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-100, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// List all ACTIVE Stripe subscriptions, count by plan, calculate MRR.\nconst helpers = this.helpers;\nconst auth = 'Bearer ' + $env.STRIPE_SECRET_KEY;\nlet subs = [];\nlet startingAfter = null;\nlet more = true;\nwhile (more) {\n  const url = 'https://api.stripe.com/v1/subscriptions?status=active&limit=100&expand[]=data.items.data.price' + (startingAfter ? ('&starting_after=' + startingAfter) : '');\n  const page = await helpers.httpRequest({ method: 'GET', url: url, headers: { Authorization: auth }, json: true });\n  const data = page.data || [];\n  subs = subs.concat(data);\n  if (page.has_more && data.length) { startingAfter = data[data.length - 1].id; } else { more = false; }\n}\n\nfunction intervalLabel(price) {\n  if (!price || !price.recurring) return 'other';\n  const i = price.recurring.interval, c = price.recurring.interval_count || 1;\n  if (i === 'week' && c === 1) return 'weekly';\n  if (i === 'week' && c === 2) return 'fortnightly';\n  if (i === 'month' && c === 1) return 'monthly';\n  if (i === 'month' && c === 3) return 'quarterly';\n  return 'other';\n}\nfunction monthlyEquiv(price) {\n  if (!price || !price.recurring) return 0;\n  const amt = (price.unit_amount || 0) / 100;\n  const i = price.recurring.interval, c = price.recurring.interval_count || 1;\n  const periodsPerYear = (i === 'week' ? 52 : i === 'month' ? 12 : i === 'year' ? 1 : 12) / c;\n  return (amt * periodsPerYear) / 12;\n}\n\nconst counts = { weekly: 0, fortnightly: 0, monthly: 0, quarterly: 0, other: 0 };\nlet mrr = 0;\nfor (const s of subs) {\n  const items = (s.items && s.items.data) || [];\n  for (const it of items) {\n    const price = it.price || it.plan;\n    counts[intervalLabel(price)] += 1;\n    mrr += monthlyEquiv(price) * (it.quantity || 1);\n  }\n}\n\nreturn [{ json: {\n  subscriber_count: subs.length,\n  counts: counts,\n  mrr: Math.round(mrr * 100) / 100,\n  flags: [],\n  generated_at: new Date().toISOString()\n} }];"
+      },
+      "id": "wf5-summary",
+      "name": "Summarise Stripe Subscriptions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [140, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Owner SMS summary (ClickSend dedicated number).\nconst helpers = this.helpers;\nconst d = $json;\nconst c = d.counts;\nconst text = 'Prisoncall monthly: ' + d.subscriber_count + ' active subs (W' + c.weekly + '/F' + c.fortnightly + '/M' + c.monthly + '/Q' + c.quarterly + '). MRR $' + d.mrr + '. Flags: ' + ((d.flags && d.flags.length) ? d.flags.join('; ') : 'none') + '.';\nconst auth = 'Basic ' + Buffer.from($env.CLICKSEND_USERNAME + ':' + $env.CLICKSEND_API_KEY).toString('base64');\nconst resp = await helpers.httpRequest({ method: 'POST', url: 'https://rest.clicksend.com/v3/sms/send', headers: { Authorization: auth, 'Content-Type': 'application/json' }, body: { messages: [{ source: 'n8n', from: $env.CLICKSEND_DEDICATED_NUMBER, to: $env.OWNER_MOBILE, body: text }] }, json: true });\nreturn [{ json: { ...d, owner_sms: resp } }];"
+      },
+      "id": "wf5-sms",
+      "name": "ClickSend Owner Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [360, 320]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "subject": "=Prisoncall monthly summary",
+        "bodyContent": "=Prisoncall monthly admin summary ({{ $json.generated_at }})\n\nActive subscribers: {{ $json.subscriber_count }}\n  Weekly: {{ $json.counts.weekly }}\n  Fortnightly: {{ $json.counts.fortnightly }}\n  Monthly: {{ $json.counts.monthly }}\n  Quarterly: {{ $json.counts.quarterly }}\n  Other: {{ $json.counts.other }}\n\nMRR: ${{ $json.mrr }}\nFlags: {{ ($json.flags && $json.flags.length) ? $json.flags.join('; ') : 'none' }}\n\nReminder: verify fixed costs this month (VoipLine SIP trunk, 3CX licence/hosting, ClickSend, n8n).",
+        "toRecipients": "={{ $env.OWNER_EMAIL }}",
+        "additionalFields": { "bodyContentType": "Text" }
+      },
+      "id": "wf5-email",
+      "name": "Outlook Owner Summary",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [580, 320],
+      "credentials": {
+        "microsoftOutlookOAuth2Api": { "id": "REPLACE_OUTLOOK_CRED", "name": "Microsoft Outlook (voipline@prisoncall.com.au)" }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Workflow 5 - Monthly Admin\nRuns 1st of every month at 08:00 (Australia/Sydney).\n\n- Lists all active Stripe subscriptions, counts by plan, calculates MRR (monthly-equivalent).\n- SMS to owner (OWNER_MOBILE) and email to owner (OWNER_EMAIL) with the summary + a reminder to verify fixed costs.",
+        "height": 200,
+        "width": 420
+      },
+      "id": "wf5-note",
+      "name": "About this workflow",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-120, 60]
+    }
+  ],
+  "connections": {
+    "1st of Month 08:00 AEST": { "main": [[{ "node": "Summarise Stripe Subscriptions", "type": "main", "index": 0 }]] },
+    "Summarise Stripe Subscriptions": { "main": [[{ "node": "ClickSend Owner Summary", "type": "main", "index": 0 }]] },
+    "ClickSend Owner Summary": { "main": [[{ "node": "Outlook Owner Summary", "type": "main", "index": 0 }]] }
+  }
+}
