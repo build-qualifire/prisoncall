@@ -1349,7 +1349,12 @@
           ackCont.disabled = true;
         }
         ackBlock.classList.add('is-visible');
-        setTimeout(function(){ ackBlock.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+        if(window.innerWidth < 768){
+          setTimeout(function(){
+            var top = ackBlock.getBoundingClientRect().top + window.pageYOffset - 24;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+          }, 60);
+        }
       });
     });
   }
