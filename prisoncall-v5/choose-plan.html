@@ -1351,7 +1351,8 @@
         ackBlock.classList.add('is-visible');
         if(window.innerWidth < 768){
           setTimeout(function(){
-            var top = ackBlock.getBoundingClientRect().top + window.pageYOffset - 24;
+            var headerH = document.getElementById('siteHeader').offsetHeight;
+            var top = ackBlock.getBoundingClientRect().top + window.pageYOffset - headerH - 8;
             window.scrollTo({ top: top, behavior: 'smooth' });
           }, 60);
         }
