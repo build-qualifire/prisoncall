@@ -574,7 +574,7 @@
     .otp-send-btn:active { transform: none; opacity: 1; }
 
     /* ═══════════════════════════════
-       NO-NUMBERS NOTIFICATION — DEV, remove at integration
+       ACKNOWLEDGEMENT BLOCK (Step 2) + CHECKBOX STYLES
     ═══════════════════════════════ */
     .no-num-copy {
       font-size: 14px; color: var(--color-black); line-height: 1.65;
@@ -587,6 +587,24 @@
     .no-num-check {
       flex-shrink: 0; width: 18px; height: 18px; margin-top: 2px;
       accent-color: var(--color-black); cursor: pointer;
+    }
+
+    /* Acknowledgement block — hidden by default, revealed on prison pill click */
+    .ack-block {
+      display: none;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--color-border);
+    }
+    .ack-block.is-visible {
+      display: block;
+      animation: stepIn 260ms ease forwards;
+    }
+
+    /* ─── Step back repositioned to bottom of step content ─── */
+    .step-back--bottom {
+      margin-top: 24px;
+      margin-bottom: 0;
     }
 
     /* ═══════════════════════════════
@@ -820,7 +838,7 @@
      DEV FLAGS — staging only. Toggled via the dev panel below.
      Remove this object and all DEV_FLAGS references at integration.
   ═══════════════════════════════════════════════════════ */
-  var DEV_FLAGS = { OTP: false, NO_NUM: false };
+  var DEV_FLAGS = { OTP: false };
 
   /* ─── Copyright year ─── */
   document.getElementById('copyrightYear').textContent = new Date().getFullYear();
@@ -1045,63 +1063,6 @@
   var BACK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>';
 
   /* ═══════════════════════════════════════════════════════
-     DEV — NO-NUMBERS NOTIFICATION HELPERS
-     Remove removeNoNumNotify, buildNoNumNotify, wireNoNumNotify at integration.
-  ═══════════════════════════════════════════════════════ */
-
-  /* Removes any existing no-num notification element from planFlow */
-  function removeNoNumNotify(){
-    var existing = planFlow.querySelector('.no-num-notify');
-    if(existing) existing.remove();
-  }
-
-  /* Builds the no-numbers notification screen (not a numbered step) */
-  function buildNoNumNotify(){
-    var el = document.createElement('section');
-    el.className = 'step-section no-num-notify';
-    el.innerHTML = [
-      '<button class="step-back" type="button" data-back="notify">'+BACK_SVG+' Step 2</button>',
-      '<h2 class="step-heading">Your number is being reserved for you</h2>',
-      '<p class="step-hint">Demand is high right now, so we\'re sourcing your number directly from Telstra. ',
-        'Your number will be active within 24 hours (weekdays only, orders placed on weekends or public holidays may take longer).</p>',
-      '<label class="no-num-check-label">',
-        '<input type="checkbox" class="no-num-check">',
-        'I understand my Prisoncall number will be ready within 24 hours (weekdays only, orders placed on weekends or public holidays may take longer).',
-      '</label>',
-      '<button class="mobile-continue no-num-continue" type="button" disabled>Continue &rarr;</button>'
-    ].join('');
-    return el;
-  }
-
-  /* Wires the no-numbers notification screen */
-  function wireNoNumNotify(el){
-    /* Back — return to Step 2 */
-    el.querySelector('[data-back="notify"]').addEventListener('click', function(){
-      clearGate();
-      removeNoNumNotify();
-      removeStepsFrom(3);
-      if(cur){ cur.mobile = null; cur.planKey = null; }
-      scrollToEl(getStepEl(2), true);
-    });
-    /* Checkbox enables Continue */
-    var check = el.querySelector('.no-num-check');
-    var cont  = el.querySelector('.no-num-continue');
-    check.addEventListener('change', function(){
-      cont.disabled = !check.checked;
-    });
-    /* Continue — dismiss notification, inject Step 3 */
-    cont.addEventListener('click', function(){
-      if(!check.checked) return;
-      removeNoNumNotify();
-      removeStepsFrom(3);
-      var s3 = buildStep3El(null);
-      planFlow.appendChild(s3);
-      wireStep3(s3);
-      scrollToEl(s3, true);
-    });
-  }
-
-  /* ═══════════════════════════════════════════════════════
      DEV — OTP MOBILE VERIFICATION HELPERS
      Remove showOtpSendPhase and showOtpVerifyPhase at integration.
   ═══════════════════════════════════════════════════════ */
@@ -1242,10 +1203,19 @@
       return '<button class="prison-pill'+(p===prePrison?' is-active':'')+'" type="button">'+p+'</button>';
     }).join('');
     el.innerHTML = [
-      '<button class="step-back" type="button" data-back="2">'+BACK_SVG+' Step 1</button>',
       '<p class="step-eyebrow">Step 2 of 4</p>',
       '<h2 class="step-heading">Select prison</h2>',
-      '<div class="prison-grid">'+pillsHtml+'</div>'
+      '<div class="prison-grid">'+pillsHtml+'</div>',
+      '<div class="ack-block">',
+        '<h3 class="step-heading" style="margin-bottom:6px;">Your number is being registered</h3>',
+        '<p class="step-hint">We source your number directly from Telstra. Your number will be active within 24 hours (weekdays only, orders placed on weekends or public holidays may take longer).</p>',
+        '<label class="no-num-check-label">',
+          '<input type="checkbox" class="no-num-check ack-check">',
+          'I understand my Prisoncall number will be ready within 24 hours (weekdays only, orders placed on weekends or public holidays may take longer).',
+        '</label>',
+        '<button class="mobile-continue ack-continue" type="button" disabled>Continue &rarr;</button>',
+      '</div>',
+      '<button class="step-back step-back--bottom" type="button" data-back="2">'+BACK_SVG+' Step 1</button>'
     ].join('');
     return el;
   }
@@ -1255,13 +1225,13 @@
     var el = document.createElement('section');
     el.className = 'step-section'; el.dataset.step = '3';
     el.innerHTML = [
-      '<button class="step-back" type="button" data-back="3">'+BACK_SVG+' Step 2</button>',
       '<p class="step-eyebrow">Step 3 of 4</p>',
       '<h2 class="step-heading">Enter your mobile number</h2>',
       '<p class="mobile-hint">Your loved one\'s prison is covered. Calls will be forwarded to this number.</p>',
       '<input class="mobile-input" type="tel" inputmode="numeric" placeholder="04xx xxx xxx" maxlength="14" autocomplete="tel" value="'+fmtMobile+'">',
       '<p class="mobile-error">Please enter a valid Australian mobile number (e.g. 0412 345 678)</p>',
-      '<button class="mobile-continue" type="button">Continue &rarr;</button>'
+      '<button class="mobile-continue" type="button">Continue &rarr;</button>',
+      '<button class="step-back step-back--bottom" type="button" data-back="3">'+BACK_SVG+' Step 2</button>'
     ].join('');
     return el;
   }
@@ -1297,11 +1267,11 @@
     var el = document.createElement('section');
     el.className = 'step-section'; el.dataset.step = '4';
     el.innerHTML = [
-      '<button class="step-back" type="button" data-back="4">'+BACK_SVG+' Step 3</button>',
       '<p class="step-eyebrow">Step 4 of 4</p>',
       '<h2 class="step-heading">Choose your plan</h2>',
       '<div class="carousel-outer"><div class="carousel-track" role="list">'+cardsHtml+'</div></div>',
-      '<button class="mobile-continue plan-continue" type="button">Continue &rarr;</button>'
+      '<button class="mobile-continue plan-continue" type="button">Continue &rarr;</button>',
+      '<button class="step-back step-back--bottom" type="button" data-back="4">'+BACK_SVG+' Step 3</button>'
     ].join('');
     return el;
   }
@@ -1324,7 +1294,6 @@
         if(cur){ cur.state = sv; cur.prison = null; cur.mobile = null; cur.planKey = null; }
         /* Inject step 2 */
         removeStepsFrom(2);
-        removeNoNumNotify(); /* DEV: clear notify if it was showing */
         var s2 = buildStep2El(sv, null);
         planFlow.appendChild(s2);
         wireStep2(s2);
@@ -1338,41 +1307,45 @@
     el.querySelector('[data-back="2"]').addEventListener('click', function(){
       clearGate();
       removeStepsFrom(2);
-      removeNoNumNotify(); /* DEV: clear notify if it was showing */
       if(cur){ cur.prison = null; cur.mobile = null; cur.planKey = null; }
       scrollToEl(getStepEl(1));
     });
+
+    var ackBlock = el.querySelector('.ack-block');
+    var ackCheck = el.querySelector('.ack-check');
+    var ackCont  = el.querySelector('.ack-continue');
+
+    /* Checkbox enables/disables Continue */
+    ackCheck.addEventListener('change', function(){
+      ackCont.disabled = !ackCheck.checked;
+    });
+
+    /* Continue — ack accepted, advance to Step 3 */
+    ackCont.addEventListener('click', function(){
+      if(!ackCheck.checked) return;
+      removeStepsFrom(3);
+      var s3 = buildStep3El(null);
+      planFlow.appendChild(s3);
+      wireStep3(s3);
+      scrollToEl(s3, true);
+    });
+
     /* Prison pills */
     el.querySelectorAll('.prison-pill').forEach(function(pill){
       pill.addEventListener('click', function(){
         var prison = pill.textContent;
-        /* Same prison: just scroll to step 3 (or notify if NO_NUM is active) */
-        if(cur && cur.prison === prison){
-          var s3 = getStepEl(3);
-          if(s3){ scrollToEl(s3, true); return; }
-          /* DEV: NO_NUM — notification screen may be showing instead of step 3 */
-          if(DEV_FLAGS.NO_NUM){
-            var existNotify = planFlow.querySelector('.no-num-notify');
-            if(existNotify){ scrollToEl(existNotify, true); return; }
-          }
-        }
+        var alreadyActive = cur && cur.prison === prison;
         el.querySelectorAll('.prison-pill').forEach(function(p){ p.classList.remove('is-active'); });
         pill.classList.add('is-active');
         if(cur){ cur.prison = prison; cur.mobile = null; cur.planKey = null; }
         removeStepsFrom(3);
-        removeNoNumNotify(); /* DEV: clear any previous notify */
-        /* DEV: NO_NUM — inject notification screen before Step 3 */
-        if(DEV_FLAGS.NO_NUM){
-          var notify = buildNoNumNotify();
-          planFlow.appendChild(notify);
-          wireNoNumNotify(notify);
-          scrollToEl(notify, true);
-          return;
+        /* Show ack block; if a different pill was clicked while it was already visible,
+           keep it shown but reset checkbox + button so user must re-acknowledge */
+        if(!alreadyActive || !ackBlock.classList.contains('is-visible')){
+          ackCheck.checked = false;
+          ackCont.disabled = true;
         }
-        var s3 = buildStep3El(null);
-        planFlow.appendChild(s3);
-        wireStep3(s3);
-        scrollToEl(s3, true);
+        ackBlock.classList.add('is-visible');
       });
     });
   }
@@ -1387,15 +1360,6 @@
       clearGate();
       removeStepsFrom(3);
       if(cur){ cur.mobile = null; cur.planKey = null; }
-      /* DEV: NO_NUM — back goes to notification screen, not directly to step 2 */
-      if(DEV_FLAGS.NO_NUM){
-        removeNoNumNotify();
-        var notify = buildNoNumNotify();
-        planFlow.appendChild(notify);
-        wireNoNumNotify(notify);
-        scrollToEl(notify, true);
-        return;
-      }
       scrollToEl(getStepEl(2), true);
     });
 
@@ -1956,22 +1920,12 @@
           '<input type="checkbox" id="devToggleOTP">',
           '<span class="dev-toggle__track"></span>',
         '</label>',
-      '</div>',
-      '<div class="dev-panel__row">',
-        '<span class="dev-panel__label">No Numbers</span>',
-        '<label class="dev-toggle" aria-label="Toggle No Numbers">',
-          '<input type="checkbox" id="devToggleNoNum">',
-          '<span class="dev-toggle__track"></span>',
-        '</label>',
       '</div>'
     ].join('');
     document.body.appendChild(panel);
-    /* Wire toggles to DEV_FLAGS — updates take effect immediately */
+    /* Wire toggle to DEV_FLAGS — updates take effect immediately */
     document.getElementById('devToggleOTP').addEventListener('change', function(){
       DEV_FLAGS.OTP = this.checked;
-    });
-    document.getElementById('devToggleNoNum').addEventListener('change', function(){
-      DEV_FLAGS.NO_NUM = this.checked;
     });
   })();
   </script>

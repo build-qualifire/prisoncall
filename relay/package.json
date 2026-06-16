@@ -1,0 +1,13 @@
+{
+  "name": "voipline-auth-relay",
+  "version": "1.0.0",
+  "description": "External authentication relay for VoipLine — runs on a non-Cloudflare IP to bypass CAPTCHA",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
