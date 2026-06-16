@@ -1155,6 +1155,7 @@
           '<p class="mobile-hint">Calls from your loved one will be forwarded to:</p>' +
           '<input class="mobile-input" type="tel" value="' + formatMobile(digits) + '" readonly tabindex="-1" style="pointer-events:none;">';
         newCont.parentNode.insertBefore(successWrap, newCont);
+        newCont.textContent = 'Choose Plan \u2192';
         newCont.addEventListener('click', function advanceToStep4(){
           newCont.removeEventListener('click', advanceToStep4);
           var s4 = getStepEl(4);
