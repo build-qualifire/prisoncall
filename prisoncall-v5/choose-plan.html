@@ -1077,6 +1077,9 @@
       '<button class="otp-send-btn" type="button">Send Code</button>' +
       '<p class="otp-send-sub">We\'ll send a code to verify this number. Your loved one will be calling it, so let\'s get it right.</p>';
     stepEl.appendChild(sendWrap);
+    /* Re-append back button so it remains the very last element, below Send Code */
+    var backBtn = stepEl.querySelector('[data-back="3"]');
+    if(backBtn) stepEl.appendChild(backBtn);
     sendWrap.querySelector('.otp-send-btn').addEventListener('click', function(){
       showOtpVerifyPhase(stepEl, digits, cont);
     });
@@ -1346,6 +1349,7 @@
           ackCont.disabled = true;
         }
         ackBlock.classList.add('is-visible');
+        setTimeout(function(){ ackBlock.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
       });
     });
   }
