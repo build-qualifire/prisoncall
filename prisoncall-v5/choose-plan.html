@@ -1658,7 +1658,7 @@
       scrollTimer = setTimeout(function(){ isScrolling = false; }, 200);
     }, { passive:true });
 
-    /* Plan card selection â€” visual highlight only, no completePlan yet */
+    /* Plan card selection â€” visual highlight only */
     el.querySelectorAll('.plan-card').forEach(function(card){
       function doSelect(){
         if(isScrolling) return;
@@ -1687,7 +1687,7 @@
       });
     });
 
-    /* Continue — reveal inline add-on section; checkout fires from within it */
+    /* Continue — calls completePlan to confirm the selected plan */
     el.querySelector('.plan-continue').addEventListener('click', function(){
       var selected = el.querySelector('.plan-card.is-selected');
       if(!selected) return;
