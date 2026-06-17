@@ -416,14 +416,14 @@
 
     /* â”€â”€â”€ Summary line â”€â”€â”€ */
     .summary-line {
-      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      display: flex; align-items: center; column-gap: 12px; row-gap: 0; flex-wrap: wrap;
       padding: 16px; border: 1.5px solid var(--color-border);
       border-radius: var(--radius-md); margin-bottom: 10px;
     }
     .summary-line__info { flex: 1; min-width: 0; }
     .summary-line__prison { font-size: 15px; font-weight: 700; }
     .summary-line__meta { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
-    .summary-line__addons { flex-basis: 100%; border-top: 1px solid var(--color-border); padding: 8px 0 2px; margin-top: 4px; }
+    .summary-line__addons { flex-basis: 100%; border-top: 1px solid var(--color-border); padding: 10px 0 4px; margin-top: 0; }
     .summary-line__addon { font-size: 12px; color: var(--color-muted); line-height: 1.5; margin: 0; }
     .summary-line__meta--mob { display: none; }
     .summary-line__mobile-extra { display: none; }
