@@ -1691,15 +1691,7 @@
     el.querySelector('.plan-continue').addEventListener('click', function(){
       var selected = el.querySelector('.plan-card.is-selected');
       if(!selected) return;
-      var contBtn = el.querySelector('.plan-continue');
-      contBtn.style.display = 'none';
-      var existing = el.querySelector('.addon-section');
-      if(existing) existing.remove();
-      var addonEl = buildAddonSection(selectedPlan);
-      var backBtn = el.querySelector('[data-back="4"]');
-      el.insertBefore(addonEl, backBtn);
-      wireAddonSection(addonEl);
-      scrollToEl(addonEl, false);
+      completePlan(selected.dataset.planKey);
     });
   }
 
