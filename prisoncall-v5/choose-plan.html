@@ -424,7 +424,9 @@
     .summary-line__prison { font-size: 15px; font-weight: 700; }
     .summary-line__meta { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
     .summary-line__addons { flex-basis: 100%; border-top: 1px solid var(--color-border); padding: 10px 0 4px; margin-top: 0; }
-    .summary-line__addon { font-size: 12px; color: var(--color-muted); line-height: 1.5; margin: 0; }
+    .summary-line__addon { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12px; color: var(--color-muted); line-height: 1.5; margin: 2px 0; }
+    .summary-line__addon-name { flex: 1; min-width: 0; }
+    .summary-line__addon-price { flex-shrink: 0; white-space: nowrap; }
     .summary-line__meta--mob { display: none; }
     .summary-line__mobile-extra { display: none; }
     .summary-line__mobile-billing { display: flex; justify-content: space-between; align-items: center; }
@@ -2119,15 +2121,18 @@
     var intv = PRICING.plans[pk] ? PRICING.plans[pk].interval : 'plan';
     var s    = '';
     var ad;
+    function addonLine(label, price, suffix) {
+      return '<div class="summary-line__addon"><span class="summary-line__addon-name">+ ' + label + '</span><span class="summary-line__addon-price">$' + price + suffix + '</span></div>';
+    }
     if(e.addons.lifetimeAll) {
       ad = PRICING.addons.lifetimeAll;
-      s += '<p class="summary-line__addon">+ ' + ad.label + ' &mdash; $' + ad[pk].toFixed(2) + ' once</p>';
+      s += addonLine(ad.label, ad[pk].toFixed(2), ' once');
     } else {
-      if(e.addons.addon1) { ad = PRICING.addons.addon1; s += '<p class="summary-line__addon">+ ' + ad.label + ' &mdash; $' + ad[pk].toFixed(2) + ' once</p>'; }
-      if(e.addons.combo23) { ad = PRICING.addons.combo23; s += '<p class="summary-line__addon">+ ' + ad.label + ' &mdash; $' + ad[pk].toFixed(2) + ' per ' + intv + '</p>'; }
+      if(e.addons.addon1) { ad = PRICING.addons.addon1; s += addonLine(ad.label, ad[pk].toFixed(2), ' once'); }
+      if(e.addons.combo23) { ad = PRICING.addons.combo23; s += addonLine(ad.label, ad[pk].toFixed(2), ' per ' + intv); }
       else {
-        if(e.addons.addon2) { ad = PRICING.addons.addon2; s += '<p class="summary-line__addon">+ ' + ad.label + ' &mdash; $' + ad[pk].toFixed(2) + ' per ' + intv + '</p>'; }
-        if(e.addons.addon3) { ad = PRICING.addons.addon3; s += '<p class="summary-line__addon">+ ' + ad.label + ' &mdash; $' + ad[pk].toFixed(2) + ' per ' + intv + '</p>'; }
+        if(e.addons.addon2) { ad = PRICING.addons.addon2; s += addonLine(ad.label, ad[pk].toFixed(2), ' per ' + intv); }
+        if(e.addons.addon3) { ad = PRICING.addons.addon3; s += addonLine(ad.label, ad[pk].toFixed(2), ' per ' + intv); }
       }
     }
     return s ? '<div class="summary-line__addons">' + s + '</div>' : '';
@@ -2203,7 +2208,7 @@ function renderCompletedArea(){
               removeBtn+
             '</div>'+
           '</div>'+
-          (function(){ var a=buildSummaryAddonLines(e); return a?'<div class="summary-line__addons">'+a+'</div>':''; })()+
+          buildSummaryAddonLines(e)+
         '</div>';
       }
     });
