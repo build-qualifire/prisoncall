@@ -337,15 +337,15 @@
 
     /* â”€â”€â”€ Plan card â”€â”€â”€ */
     .plan-card {
-      flex: 0 0 76%; scroll-snap-align: center; /* non-monthly cards slightly narrower */
+      flex: 0 0 76%; scroll-snap-align: center; scroll-snap-stop: always;
       border: 2px solid var(--color-border); border-radius: var(--radius-md);
       overflow: hidden; cursor: pointer; background: var(--color-white);
-      transition: border-color var(--tr); display: flex; flex-direction: column;
+      transition: border-color var(--tr), transform var(--tr); display: flex; flex-direction: column;
       user-select: none;
     }
     @media (min-width: 768px) { .plan-card { flex: 1; scroll-snap-align: none; } }
     /* Selected card is the enlarged one â€” size follows selection on both mobile and desktop */
-    .plan-card.is-selected { flex: 0 0 84%; border-color: var(--color-black); }
+    .plan-card.is-selected { flex: 0 0 84%; border-color: var(--color-black); transform: translateY(-4px); }
     @media (min-width: 768px) { .plan-card.is-selected { flex: 1.5; } }
 
     .plan-card:hover { border-color: #bbb; }
@@ -667,9 +667,9 @@
     .plan-card__header { position: relative; }
 
     /* Black badge variant (Most Popular) */
-    .plan-card__badge--black { background: var(--color-black); color: var(--color-white); }
+    .plan-card__badge--black { background: var(--color-green); color: var(--color-black); }
     /* On selected card (black header bg) flip the black badge to white so it's visible */
-    .plan-card.is-selected .plan-card__badge--black { background: var(--color-white); color: var(--color-black); }
+    .plan-card.is-selected .plan-card__badge--black { background: var(--color-green); color: var(--color-black); }
 
     /* Equiv rate line below price (Annual card) */
     .plan-card__equiv { font-size: 11px; color: var(--color-muted); margin-top: 4px; transition: color var(--tr); }
@@ -678,11 +678,11 @@
     /* Top-right selected indicator: white circle, black checkmark */
     .plan-card__selected-indicator {
       position: absolute; top: 12px; right: 12px;
-      width: 22px; height: 22px; border-radius: 50%;
-      background: var(--color-white);
+      width: 22px; height: 22px;
+      background: transparent;
       display: flex; align-items: center; justify-content: center;
       opacity: 0; transition: opacity var(--tr);
-      color: var(--color-black); pointer-events: none;
+      color: #00D258; pointer-events: none;
     }
     .plan-card.is-selected .plan-card__selected-indicator { opacity: 1; }
 
@@ -699,25 +699,25 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     .addon-section {
-      margin-top: 24px; padding-top: 24px;
-      border-top: 1px solid var(--color-border);
+      margin-top: 32px; padding-top: 28px;
+      border-top: 2px solid var(--color-border);
       animation: addonReveal 300ms ease forwards;
     }
-    .addon-section__heading { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
-    .addon-section__sub { font-size: 13px; color: var(--color-muted); margin-bottom: 20px; line-height: 1.5; }
+    .addon-section__heading { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+    .addon-section__sub { font-size: 12px; color: var(--color-muted); margin-bottom: 20px; line-height: 1.5; }
 
     .addon-table { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 
     .addon-row {
       border: 2px solid var(--color-border); border-radius: var(--radius-md);
-      padding: 16px; cursor: pointer; user-select: none;
+      padding: 14px 16px; cursor: pointer; user-select: none;
       transition: border-color var(--tr), background var(--tr);
       display: flex; align-items: flex-start; gap: 14px;
       background: var(--color-white);
     }
     .addon-row:hover { border-color: #bbb; }
     .addon-row.is-selected { border-color: var(--color-black); }
-    .addon-row.is-combo { background: var(--color-surface); border-style: dashed; }
+    .addon-row.is-combo { background: #f8f7f5; border-style: dashed; border-color: #aaa; }
     .addon-row.is-combo.is-selected { border-style: solid; }
 
     .addon-checkbox {
@@ -731,37 +731,38 @@
     .addon-row.is-selected .addon-checkbox__tick { display: block; }
 
     .addon-row__content { flex: 1; min-width: 0; }
-    .addon-row__name { font-size: 14px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+    .addon-row__name { font-size: 15px; font-weight: 700; margin-bottom: 0; line-height: 1.3; }
     .addon-combo-label {
-      display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
-      text-transform: uppercase; color: var(--color-muted); margin-bottom: 5px;
+      display: inline-flex; align-items: center; font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; background: var(--color-green); color: var(--color-black);
+      padding: 2px 8px; border-radius: var(--radius-pill); margin-bottom: 6px;
     }
-    .addon-row__why { font-size: 12px; color: var(--color-muted); line-height: 1.5; margin-bottom: 6px; }
+    .addon-row__why { font-size: 12px; color: var(--color-muted); line-height: 1.5; margin-top: 4px; margin-bottom: 6px; }
     .addon-row__risk {
-      font-size: 12px; color: #c0392b; line-height: 1.4; margin-bottom: 8px;
-      padding: 5px 10px; background: #fdf5f5; border-radius: 6px;
+      font-size: 12px; color: #333; line-height: 1.4; margin-bottom: 8px;
+      padding: 5px 10px; background: #f0f0f0; border-radius: 6px;
     }
     .addon-row__price-line {
       display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px;
     }
-    .addon-row__price { font-size: 16px; font-weight: 800; }
+    .addon-row__price { font-size: 14px; font-weight: 800; }
     .addon-row__payment-type { font-size: 11px; color: var(--color-muted); }
-    .addon-combo-savings { font-size: 11px; color: #1a5c33; font-weight: 600; margin-top: 6px; }
+    .addon-combo-savings { font-size: 11px; color: var(--color-green); font-weight: 700; margin-top: 6px; }
 
     .addon-lifetime {
-      border: 2px solid var(--color-border); border-radius: var(--radius-md);
+      border: 2px solid #333; border-radius: var(--radius-md);
       padding: 20px; margin-bottom: 20px; cursor: pointer; user-select: none;
-      background: var(--color-surface); transition: border-color var(--tr);
+      background: #fafaf9; transition: border-color var(--tr);
     }
-    .addon-lifetime:hover { border-color: #bbb; }
+    .addon-lifetime:hover { border-color: var(--color-black); }
     .addon-lifetime.is-selected { border-color: var(--color-black); }
     .addon-lifetime__badge {
       display: inline-block; margin-bottom: 10px;
       font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-      background: var(--color-black); color: var(--color-white);
+      background: var(--color-green); color: var(--color-black);
       padding: 3px 9px; border-radius: var(--radius-pill);
     }
-    .addon-lifetime__heading { font-size: 18px; font-weight: 800; margin-bottom: 6px; line-height: 1.2; }
+    .addon-lifetime__heading { font-size: 22px; font-weight: 900; margin-bottom: 6px; line-height: 1.2; }
     .addon-lifetime__sub { font-size: 13px; color: var(--color-muted); margin-bottom: 16px; line-height: 1.5; }
     .addon-lifetime__btn {
       display: block; width: 100%; padding: 15px; min-height: 48px;
@@ -797,6 +798,40 @@
     }
     .addon-skip:hover { color: var(--color-black); }
     .addon-skip:disabled { opacity: 0.5; pointer-events: none; }
+
+    /* ====================================================
+       FIX 6: Collapsed add-on rows + info button
+    ==================================================== */
+    .addon-row__header {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .addon-row__details {
+      overflow: hidden; max-height: 0; opacity: 0;
+      transition: max-height 200ms ease, opacity 200ms ease;
+    }
+    .addon-row.is-open .addon-row__details {
+      max-height: 300px; opacity: 1; margin-top: 8px;
+    }
+    @keyframes infoPulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.18); }
+    }
+    .addon-row__info-btn {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      border: 1.5px solid #ccc; background: transparent;
+      color: #888; font-size: 11px; font-weight: 700; font-style: italic;
+      font-family: inherit; cursor: pointer; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 150ms ease, transform 200ms ease, color 150ms ease;
+      animation: infoPulse 2.5s ease-in-out infinite;
+      pointer-events: all;
+    }
+    .addon-row.is-open .addon-row__info-btn {
+      font-style: normal; animation: none;
+      border-color: var(--color-black); color: var(--color-black);
+    }
+    /* FIX 10: Ensure spacing between lifetime block and continue button */
+    .plan-continue { margin-top: 28px; }
 
     @media (min-width: 768px) {
       main    { padding: 8px 12px 0; }
@@ -1742,9 +1777,11 @@
         '<div class="addon-row" data-addon="addon1" role="checkbox" aria-checked="false" tabindex="0">',
           '<div class="addon-checkbox">'+TICK_SVG+'</div>',
           '<div class="addon-row__content">',
-            '<p class="addon-row__name">48-Hour Cancellation Guarantee</p>',
+            '<div class="addon-row__header"><p class="addon-row__name">48-Hour Cancellation Guarantee</p><button class="addon-row__info-btn" type="button" tabindex="-1">i</button></div>',
+            '<div class="addon-row__details">',
             '<p class="addon-row__why">Your number is activated within 24 hours. Once activated, refunds are not available. This guarantee gives you a full refund if you change your mind within 48 hours of purchase, no questions asked.</p>',
             '<div class="addon-row__risk">Without this you risk: losing your full plan payment with no recourse.</div>',
+            '</div>',
             '<div class="addon-row__price-line">',
               '<span class="addon-row__price">'+'\$'+a1p.toFixed(2)+'</span>',
               '<span class="addon-row__payment-type">One-time at checkout</span>',
@@ -1756,9 +1793,11 @@
         '<div class="addon-row" data-addon="addon2" role="checkbox" aria-checked="false" tabindex="0">',
           '<div class="addon-checkbox">'+TICK_SVG+'</div>',
           '<div class="addon-row__content">',
-            '<p class="addon-row__name">Unlimited Prison Transfers</p>',
+            '<div class="addon-row__header"><p class="addon-row__name">Unlimited Prison Transfers</p><button class="addon-row__info-btn" type="button" tabindex="-1">i</button></div>',
+            '<div class="addon-row__details">',
             '<p class="addon-row__why">If your loved one is transferred to a different prison, their current number may no longer be the closest local number. This add-on covers unlimited transfers so calls always stay at the lowest rate.</p>',
             '<div class="addon-row__risk">Without this you risk: paying $24.99 per transfer every time your loved one is moved.</div>',
+            '</div>',
             '<div class="addon-row__price-line">',
               '<span class="addon-row__price" data-dynamic="addon2-price">'+'\$'+a2p.toFixed(2)+'/'+intv+'</span>',
               '<span class="addon-row__payment-type">Recurring with your plan</span>',
@@ -1770,9 +1809,11 @@
         '<div class="addon-row" data-addon="addon3" role="checkbox" aria-checked="false" tabindex="0">',
           '<div class="addon-checkbox">'+TICK_SVG+'</div>',
           '<div class="addon-row__content">',
-            '<p class="addon-row__name">96-Hour Post-Renewal Cancellation</p>',
+            '<div class="addon-row__header"><p class="addon-row__name">96-Hour Post-Renewal Cancellation</p><button class="addon-row__info-btn" type="button" tabindex="-1">i</button></div>',
+            '<div class="addon-row__details">',
             '<p class="addon-row__why">If your loved one is released shortly after a renewal, you have already been charged. This add-on gives you 96 hours after every renewal to cancel and receive a full refund.</p>',
             '<div class="addon-row__risk">Without this you risk: losing a full renewal payment you will not use.</div>',
+            '</div>',
             '<div class="addon-row__price-line">',
               '<span class="addon-row__price" data-dynamic="addon3-price">'+'\$'+a3p.toFixed(2)+'/'+intv+'</span>',
               '<span class="addon-row__payment-type">Recurring with your plan</span>',
@@ -1785,8 +1826,10 @@
           '<div class="addon-checkbox">'+TICK_SVG+'</div>',
           '<div class="addon-row__content">',
             '<span class="addon-combo-label">Bundle deal</span>',
-            '<p class="addon-row__name">Unlimited Transfers + 96-Hr Renewal Cancellation</p>',
+            '<div class="addon-row__header"><p class="addon-row__name">Unlimited Transfers + 96-Hr Renewal Cancellation</p><button class="addon-row__info-btn" type="button" tabindex="-1">i</button></div>',
+            '<div class="addon-row__details">',
             '<p class="addon-row__why">Both recurring add-ons together at a reduced combined price.</p>',
+            '</div>',
             '<div class="addon-row__price-line">',
               '<span class="addon-row__price" data-dynamic="combo23-price">'+'\$'+cop.toFixed(2)+'/'+intv+'</span>',
               '<span class="addon-row__payment-type">Recurring with your plan</span>',
@@ -1853,30 +1896,51 @@
 
     sectionEl.querySelectorAll('.addon-row').forEach(function(row){
       var key = row.dataset.addon;
-      row.addEventListener('click', function(){
-        var next = !selectedAddons[key];
-        setRow(row, key, next);
-        if(next){
-          /* Selecting any individual add-on deselects lifetime */
-          setLifetime(false);
-          /* Selecting addon2 or addon3 deselects combo */
-          if(key === 'addon2' || key === 'addon3'){
-            var comboRow = sectionEl.querySelector('[data-addon="combo23"]');
-            if(comboRow) setRow(comboRow, 'combo23', false);
-          }
-        }
-        if(key === 'combo23' && next){
-          /* Selecting combo auto-deselects individual rows 2 & 3 */
-          var r2 = sectionEl.querySelector('[data-addon="addon2"]');
-          var r3 = sectionEl.querySelector('[data-addon="addon3"]');
-          if(r2) setRow(r2, 'addon2', false);
-          if(r3) setRow(r3, 'addon3', false);
+
+      /* Expand / collapse details on row click (anywhere on row or info button) */
+      row.addEventListener('click', function(e){
+        if(e.target.closest('.addon-checkbox')) return;
+        var opening = !row.classList.contains('is-open');
+        sectionEl.querySelectorAll('.addon-row.is-open').forEach(function(r){
+          r.classList.remove('is-open');
+          var b = r.querySelector('.addon-row__info-btn'); if(b) b.textContent = 'i';
+        });
+        if(opening){
+          row.classList.add('is-open');
+          var ib = row.querySelector('.addon-row__info-btn'); if(ib) ib.textContent = '\u00D7';
         }
       });
       row.addEventListener('keydown', function(e){
         if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); row.click(); }
       });
+
+      /* Select / deselect via checkbox click (stops propagation to row) */
+      var cb = row.querySelector('.addon-checkbox');
+      if(cb){
+        cb.addEventListener('click', function(e){
+          e.stopPropagation();
+          var next = !selectedAddons[key];
+          setRow(row, key, next);
+          if(next){
+            setLifetime(false);
+            if(key === 'addon2' || key === 'addon3'){
+              var comboRow = sectionEl.querySelector('[data-addon="combo23"]');
+              if(comboRow) setRow(comboRow, 'combo23', false);
+            }
+          }
+          if(key === 'combo23' && next){
+            var r2 = sectionEl.querySelector('[data-addon="addon2"]');
+            var r3 = sectionEl.querySelector('[data-addon="addon3"]');
+            if(r2) setRow(r2, 'addon2', false);
+            if(r3) setRow(r3, 'addon3', false);
+          }
+        });
+        cb.addEventListener('keydown', function(e){
+          if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); cb.click(); }
+        });
+      }
     });
+
 
     /* Lifetime hero */
     var lifetimeEl = sectionEl.querySelector('.addon-lifetime');
