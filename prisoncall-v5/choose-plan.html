@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Choose Your Prisoncall Plan | Prisoncall Australia</title>
-  <meta name="description" content="Choose your Prisoncall plan — select your state, prison and plan to start receiving cheaper prison calls today.">
+  <meta name="description" content="Choose your Prisoncall plan â€” select your state, prison and plan to start receiving cheaper prison calls today.">
   <meta name="robots" content="noindex, nofollow">
   <link rel="canonical" href="https://prisoncall.com.au/choose-plan" />
   <meta property="og:title" content="Choose Your Prisoncall Plan | Prisoncall Australia" />
-  <meta property="og:description" content="Choose your Prisoncall plan — select your state, prison and plan to start receiving cheaper prison calls today." />
+  <meta property="og:description" content="Choose your Prisoncall plan â€” select your state, prison and plan to start receiving cheaper prison calls today." />
   <meta property="og:url" content="https://prisoncall.com.au/choose-plan" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Prisoncall Australia" />
@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ─── Variables (identical to index.html) ─── */
+    /* â”€â”€â”€ Variables (identical to index.html) â”€â”€â”€ */
     :root {
       --color-black: #000000;
       --color-white: #ffffff;
@@ -52,7 +52,7 @@
       --header-height-mobile: 48px;
     }
 
-    /* ─── Reset ─── */
+    /* â”€â”€â”€ Reset â”€â”€â”€ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
@@ -66,12 +66,12 @@
     ul { list-style: none; }
     button { cursor: pointer; border: none; background: none; font-family: inherit; }
 
-    /* ─── Container ─── */
+    /* â”€â”€â”€ Container â”€â”€â”€ */
     .container { max-width: var(--container-max); margin: 0 auto; padding: 0 16px; }
     @media (min-width: 768px) { .container { padding: 0 24px; } }
     @media (min-width: 1024px) { .container { padding: 0 32px; } }
 
-    /* ─── Buttons ─── */
+    /* â”€â”€â”€ Buttons â”€â”€â”€ */
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       border-radius: var(--radius-pill); font-family: var(--font-family);
@@ -84,9 +84,9 @@
     .btn--green { background: var(--color-green); color: var(--color-black); border: 2px solid var(--color-green); }
     .btn--black { background: var(--color-black); color: var(--color-white); border: 2px solid var(--color-black); }
 
-    /* ═══════════════════════════════
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        HEADER (identical to index.html)
-    ═══════════════════════════════ */
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     .header {
       position: sticky; top: 0; z-index: 200;
       background: var(--color-white); height: var(--header-height-mobile);
@@ -129,16 +129,16 @@
       .header__icon-link { display: none; }
       .header__desktop-cta { display: block; }
       .header__desktop-cta .btn { padding: 12px 24px; font-size: 15px; }
-      /* CTA always green here — user is in purchase flow */
+      /* CTA always green here â€” user is in purchase flow */
       .header__desktop-cta .btn,
       .header--scrolled .header__desktop-cta .btn {
         background: var(--color-green); color: var(--color-black); border-color: var(--color-green);
       }
     }
 
-    /* ═══════════════════════════════
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        MOBILE MENU
-    ═══════════════════════════════ */
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     .mobile-menu { display: none; position: fixed; inset: 0; z-index: 300; background: var(--color-white); flex-direction: column; }
     .mobile-menu.is-open { display: flex; }
     .mobile-menu__top {
@@ -158,9 +158,9 @@
     .mobile-menu__cta { margin-top: 28px; }
     .mobile-menu__cta .btn { width: 100%; font-size: 16px; padding: 17px 24px; }
 
-    /* ═══════════════════════════════
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        FOOTER
-    ═══════════════════════════════ */
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     .footer { background: var(--color-black); color: var(--color-white); padding: 56px 0 48px; }
     .footer__top { display: grid; grid-template-columns: 1fr; gap: 40px; padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,0.1); }
     @media (min-width: 900px) { .footer__top { grid-template-columns: 210px 1fr; gap: 48px; } }
@@ -192,9 +192,9 @@
     .footer__policies a:hover { color: rgba(255,255,255,0.75); }
     .footer__copyright { font-size: 12px; color: rgba(255,255,255,0.32); text-align: center; }
 
-    /* ═══════════════════════════════
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        PAGE LAYOUT
-    ═══════════════════════════════ */
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     .cp-wrap {
       max-width: 680px;
       margin: 0 auto;
@@ -216,9 +216,9 @@
     @media (min-width: 768px) { .cp-heading { font-size: 34px; } }
     .cp-subheading { font-size: 14px; color: var(--color-muted); margin-bottom: 28px; }
 
-    /* ═══════════════════════════════
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        TRUST BANNER
-    ═══════════════════════════════ */
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     .trust-banner {
       display: flex; align-items: center; gap: 14px;
       background: var(--color-green-mid); border-radius: var(--radius-md);
@@ -233,9 +233,9 @@
     .trust-av + .trust-av { margin-left: -9px; }
     .trust-text { font-size: 13px; font-weight: 600; color: #1a5c33; line-height: 1.4; transition: opacity 220ms ease; }
 
-    /* ═══════════════════════════════
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        STEP SECTIONS
-    ═══════════════════════════════ */
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     @keyframes stepIn {
       from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -265,7 +265,7 @@
     @media (min-width: 768px) { .step-heading { font-size: 22px; } }
     .step-hint { font-size: 13px; color: var(--color-muted); margin-bottom: 20px; }
 
-    /* ─── State toggle ─── */
+    /* â”€â”€â”€ State toggle â”€â”€â”€ */
     .state-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .state-btn {
       padding: 18px 12px; border: 2px solid var(--color-border); border-radius: var(--radius-md);
@@ -278,7 +278,7 @@
     .state-btn__name { display: block; font-size: 12px; font-weight: 400; opacity: 0.65; }
     .state-btn.is-active .state-btn__name { opacity: 0.7; }
 
-    /* ─── Prison pills ─── */
+    /* â”€â”€â”€ Prison pills â”€â”€â”€ */
     .prison-grid { display: flex; flex-wrap: wrap; gap: 8px; }
     .prison-pill {
       padding: 9px 16px; font-size: 13px; font-weight: 500;
@@ -289,7 +289,7 @@
     .prison-pill:hover { border-color: #999; }
     .prison-pill.is-active { background: var(--color-black); color: var(--color-white); border-color: var(--color-black); }
 
-    /* ─── Mobile number input ─── */
+    /* â”€â”€â”€ Mobile number input â”€â”€â”€ */
     .mobile-hint { font-size: 13px; color: var(--color-muted); margin-bottom: 14px; }
     .mobile-input {
       display: block; width: 100%; padding: 16px 18px;
@@ -313,9 +313,9 @@
     .mobile-continue:hover { opacity: 0.86; transform: translateY(-1px); }
     .mobile-continue:active { transform: none; opacity: 1; }
 
-    /* ═══════════════════════════════
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        PLAN CAROUSEL
-    ═══════════════════════════════ */
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     .carousel-outer { overflow: hidden; margin: 0 -20px; }
     @media (min-width: 768px) { .carousel-outer { overflow: visible; margin: 0; } }
 
@@ -335,7 +335,7 @@
       }
     }
 
-    /* ─── Plan card ─── */
+    /* â”€â”€â”€ Plan card â”€â”€â”€ */
     .plan-card {
       flex: 0 0 76%; scroll-snap-align: center; /* non-monthly cards slightly narrower */
       border: 2px solid var(--color-border); border-radius: var(--radius-md);
@@ -344,7 +344,7 @@
       user-select: none;
     }
     @media (min-width: 768px) { .plan-card { flex: 1; scroll-snap-align: none; } }
-    /* Selected card is the enlarged one — size follows selection on both mobile and desktop */
+    /* Selected card is the enlarged one â€” size follows selection on both mobile and desktop */
     .plan-card.is-selected { flex: 0 0 84%; border-color: var(--color-black); }
     @media (min-width: 768px) { .plan-card.is-selected { flex: 1.5; } }
 
@@ -355,7 +355,7 @@
       border-bottom: 1px solid var(--color-border);
       transition: background var(--tr), border-color var(--tr), padding var(--tr);
     }
-    /* Selected card taller — creates floating centred effect */
+    /* Selected card taller â€” creates floating centred effect */
     .plan-card.is-selected .plan-card__header { background: var(--color-black); border-bottom-color: transparent; padding-top: 26px; padding-bottom: 18px; }
     .plan-card.is-selected .plan-card__body { padding-top: 18px; padding-bottom: 18px; }
     .plan-card.is-selected .plan-card__footer { padding-bottom: 22px; }
@@ -409,12 +409,12 @@
       background: var(--color-green); color: var(--color-black); border-color: var(--color-green);
     }
 
-    /* ═══════════════════════════════
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        COMPLETED AREA
-    ═══════════════════════════════ */
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     #completedArea { margin-top: 32px; }
 
-    /* ─── Summary line ─── */
+    /* â”€â”€â”€ Summary line â”€â”€â”€ */
     .summary-line {
       display: flex; align-items: center; gap: 12px;
       padding: 16px; border: 1.5px solid var(--color-border);
@@ -488,7 +488,7 @@
       50% { transform: scale(1.01); box-shadow: 0 0 0 4px rgba(0,0,0,0.07); }
     }
 
-    /* ─── Add another plan ─── */
+    /* â”€â”€â”€ Add another plan â”€â”€â”€ */
     .add-plan-btn {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; padding: 16px; margin: 12px 0;
@@ -499,7 +499,7 @@
     }
     .add-plan-btn:hover { border-color: var(--color-black); background: var(--color-surface); }
 
-    /* ─── Bundle notice ─── */
+    /* â”€â”€â”€ Bundle notice â”€â”€â”€ */
     .bundle-notice {
       display: flex; align-items: center; gap: 8px;
       padding: 12px 16px; margin-bottom: 10px;
@@ -507,7 +507,7 @@
       border-radius: var(--radius-md); font-size: 13px; font-weight: 600; color: #1a5c33;
     }
 
-    /* ─── Order total ─── */
+    /* â”€â”€â”€ Order total â”€â”€â”€ */
     .order-total {
       display: flex; justify-content: space-between; align-items: center;
       padding: 16px 18px; margin-bottom: 16px;
@@ -520,7 +520,7 @@
     .order-total__disc { color: var(--color-green); font-size: 22px; font-weight: 800; }
     .order-total__plain { font-size: 22px; font-weight: 800; }
 
-    /* ─── Checkout CTA ─── */
+    /* â”€â”€â”€ Checkout CTA â”€â”€â”€ */
     .checkout-cta {
       display: block; width: 100%; padding: 18px;
       font-size: 17px; font-weight: 700; font-family: inherit; text-align: center;
@@ -538,17 +538,17 @@
       border-color: var(--color-border); pointer-events: none; cursor: default;
     }
 
-    /* ─── Utility ─── */
+    /* â”€â”€â”€ Utility â”€â”€â”€ */
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
     .hidden { display: none !important; }
 
-    /* ─── Mobile continue: disabled state ─── */
+    /* â”€â”€â”€ Mobile continue: disabled state â”€â”€â”€ */
     .mobile-continue:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
     .mobile-continue:disabled:hover { opacity: 0.4; transform: none; }
 
-    /* ═══════════════════════════════
-       OTP FLOW — DEV, remove at integration
-    ═══════════════════════════════ */
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       OTP FLOW â€” DEV, remove at integration
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     .otp-send-sub {
       font-size: 12px; color: var(--color-muted); margin-top: 10px; line-height: 1.5;
     }
@@ -573,9 +573,9 @@
     .otp-send-btn:hover { opacity: 0.86; transform: translateY(-1px); }
     .otp-send-btn:active { transform: none; opacity: 1; }
 
-    /* ═══════════════════════════════
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        ACKNOWLEDGEMENT BLOCK (Step 2) + CHECKBOX STYLES
-    ═══════════════════════════════ */
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     .no-num-copy {
       font-size: 14px; color: var(--color-black); line-height: 1.65;
     }
@@ -589,7 +589,7 @@
       accent-color: var(--color-black); cursor: pointer;
     }
 
-    /* Acknowledgement block — hidden by default, revealed on prison pill click */
+    /* Acknowledgement block â€” hidden by default, revealed on prison pill click */
     .ack-block {
       display: none;
       margin-top: 24px;
@@ -601,15 +601,15 @@
       animation: stepIn 260ms ease forwards;
     }
 
-    /* ─── Step back repositioned to bottom of step content ─── */
+    /* â”€â”€â”€ Step back repositioned to bottom of step content â”€â”€â”€ */
     .step-back--bottom {
       margin-top: 24px;
       margin-bottom: 0;
     }
 
-    /* ═══════════════════════════════
-       DEV TOGGLE PANEL — staging only, remove at integration
-    ═══════════════════════════════ */
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       DEV TOGGLE PANEL â€” staging only, remove at integration
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     .dev-panel {
       position: fixed; bottom: 16px; right: 16px; z-index: 9999;
       background: #1a1a1a; color: #fff;
@@ -643,22 +643,161 @@
     .dev-toggle input:checked + .dev-toggle__track { background: #00D258; }
     .dev-toggle input:checked + .dev-toggle__track::after { transform: translateX(15px); }
 
-    /* ═════════════════════════════════════════════════════════════
-       YOUI-STYLE ROUNDED SECTION PANELS — DESKTOP ONLY
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       YOUI-STYLE ROUNDED SECTION PANELS â€” DESKTOP ONLY
        Mobile layout is completely unchanged.
 
        Pattern: white page canvas. Each <section> inside <main>
        becomes a rounded-corner panel clipped to its background colour.
        Footer sits as a distinct rounded black panel at the bottom.
 
-       ── FOR ALL FUTURE PAGES ─────────────────────────────────────
+       â”€â”€ FOR ALL FUTURE PAGES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
        1. main: padding 8px 12px 0
        2. Each <section>: border-radius var(--radius-lg) + margin-bottom 8px
           + overflow:hidden only when a child bg bleeds into corners.
           Do NOT add overflow:hidden to sections with dropdowns.
        3. .footer: margin 0 12px + rounded top corners + overflow:hidden
-       ─────────────────────────────────────────────────────────────
-    ═════════════════════════════════════════════════════════════ */
+       â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+    /* ═══════════════════════════════════════════════════
+       STEP 4 — PLAN CARD ADDITIONS
+    ═══════════════════════════════════════════════════ */
+
+    /* Header needs relative positioning for the selected indicator */
+    .plan-card__header { position: relative; }
+
+    /* Black badge variant (Most Popular) */
+    .plan-card__badge--black { background: var(--color-black); color: var(--color-white); }
+    /* On selected card (black header bg) flip the black badge to white so it's visible */
+    .plan-card.is-selected .plan-card__badge--black { background: var(--color-white); color: var(--color-black); }
+
+    /* Equiv rate line below price (Annual card) */
+    .plan-card__equiv { font-size: 11px; color: var(--color-muted); margin-top: 4px; transition: color var(--tr); }
+    .plan-card.is-selected .plan-card__equiv { color: rgba(255,255,255,0.55); }
+
+    /* Top-right selected indicator: white circle, black checkmark */
+    .plan-card__selected-indicator {
+      position: absolute; top: 12px; right: 12px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--color-white);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity var(--tr);
+      color: var(--color-black); pointer-events: none;
+    }
+    .plan-card.is-selected .plan-card__selected-indicator { opacity: 1; }
+
+    /* Override: selected card button is white/black — never green */
+    .plan-card.is-selected .plan-card__select {
+      background: var(--color-white); color: var(--color-black); border-color: var(--color-black);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       ADD-ON SECTION (Step 4 inline)
+    ═══════════════════════════════════════════════════ */
+    @keyframes addonReveal {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .addon-section {
+      margin-top: 24px; padding-top: 24px;
+      border-top: 1px solid var(--color-border);
+      animation: addonReveal 300ms ease forwards;
+    }
+    .addon-section__heading { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+    .addon-section__sub { font-size: 13px; color: var(--color-muted); margin-bottom: 20px; line-height: 1.5; }
+
+    .addon-table { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
+    .addon-row {
+      border: 2px solid var(--color-border); border-radius: var(--radius-md);
+      padding: 16px; cursor: pointer; user-select: none;
+      transition: border-color var(--tr), background var(--tr);
+      display: flex; align-items: flex-start; gap: 14px;
+      background: var(--color-white);
+    }
+    .addon-row:hover { border-color: #bbb; }
+    .addon-row.is-selected { border-color: var(--color-black); }
+    .addon-row.is-combo { background: var(--color-surface); border-style: dashed; }
+    .addon-row.is-combo.is-selected { border-style: solid; }
+
+    .addon-checkbox {
+      flex-shrink: 0; margin-top: 1px; width: 20px; height: 20px; border-radius: 4px;
+      border: 2px solid var(--color-border);
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--tr), border-color var(--tr);
+    }
+    .addon-row.is-selected .addon-checkbox { background: var(--color-black); border-color: var(--color-black); }
+    .addon-checkbox__tick { display: none; }
+    .addon-row.is-selected .addon-checkbox__tick { display: block; }
+
+    .addon-row__content { flex: 1; min-width: 0; }
+    .addon-row__name { font-size: 14px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+    .addon-combo-label {
+      display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--color-muted); margin-bottom: 5px;
+    }
+    .addon-row__why { font-size: 12px; color: var(--color-muted); line-height: 1.5; margin-bottom: 6px; }
+    .addon-row__risk {
+      font-size: 12px; color: #c0392b; line-height: 1.4; margin-bottom: 8px;
+      padding: 5px 10px; background: #fdf5f5; border-radius: 6px;
+    }
+    .addon-row__price-line {
+      display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px;
+    }
+    .addon-row__price { font-size: 16px; font-weight: 800; }
+    .addon-row__payment-type { font-size: 11px; color: var(--color-muted); }
+    .addon-combo-savings { font-size: 11px; color: #1a5c33; font-weight: 600; margin-top: 6px; }
+
+    .addon-lifetime {
+      border: 2px solid var(--color-border); border-radius: var(--radius-md);
+      padding: 20px; margin-bottom: 20px; cursor: pointer; user-select: none;
+      background: var(--color-surface); transition: border-color var(--tr);
+    }
+    .addon-lifetime:hover { border-color: #bbb; }
+    .addon-lifetime.is-selected { border-color: var(--color-black); }
+    .addon-lifetime__badge {
+      display: inline-block; margin-bottom: 10px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      background: var(--color-black); color: var(--color-white);
+      padding: 3px 9px; border-radius: var(--radius-pill);
+    }
+    .addon-lifetime__heading { font-size: 18px; font-weight: 800; margin-bottom: 6px; line-height: 1.2; }
+    .addon-lifetime__sub { font-size: 13px; color: var(--color-muted); margin-bottom: 16px; line-height: 1.5; }
+    .addon-lifetime__btn {
+      display: block; width: 100%; padding: 15px; min-height: 48px;
+      font-size: 15px; font-weight: 700; font-family: inherit; text-align: center;
+      border-radius: var(--radius-pill); cursor: pointer;
+      background: var(--color-black); color: var(--color-white);
+      border: 2px solid var(--color-black);
+      transition: background var(--tr), color var(--tr), border-color var(--tr);
+    }
+    .addon-lifetime.is-selected .addon-lifetime__btn {
+      background: var(--color-green); color: var(--color-black); border-color: var(--color-green);
+    }
+
+    .addon-actions { margin-top: 8px; }
+    .addon-checkout-btn {
+      display: block; width: 100%; padding: 18px; min-height: 48px;
+      font-size: 17px; font-weight: 700; font-family: inherit; text-align: center;
+      border-radius: var(--radius-pill); cursor: pointer;
+      background: var(--color-green); color: var(--color-black);
+      border: 2px solid var(--color-green);
+      transition: opacity var(--tr), transform var(--tr);
+    }
+    .addon-checkout-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+    .addon-checkout-btn:active { transform: none; }
+    .addon-checkout-btn:disabled { opacity: 0.5; pointer-events: none; cursor: default; }
+    .addon-skip {
+      display: block; width: 100%; padding: 12px; min-height: 44px;
+      text-align: center; margin-top: 10px;
+      font-size: 12px; color: var(--color-muted); cursor: pointer;
+      background: none; border: none; font-family: inherit;
+      text-decoration: underline; text-underline-offset: 2px;
+      transition: color var(--tr);
+    }
+    .addon-skip:hover { color: var(--color-black); }
+    .addon-skip:disabled { opacity: 0.5; pointer-events: none; }
+
     @media (min-width: 768px) {
       main    { padding: 8px 12px 0; }
       .footer { margin: 0 12px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden; }
@@ -667,21 +806,21 @@
 </head>
 <body>
 
-  <!-- ═══ HEADER ═══ -->
+  <!-- â•â•â• HEADER â•â•â• -->
   <header class="header header--scrolled" id="siteHeader">
     <div class="container header__inner">
       <button class="header__hamburger" id="menuToggle" aria-label="Open menu" aria-expanded="false">
         <img src="assets/icons/feature_icons/icon-hamburger.svg" alt="">
       </button>
       <div class="header__center">
-        <a href="index.html" class="header__wordmark" aria-label="Prisoncall Australia — home">
+        <a href="index.html" class="header__wordmark" aria-label="Prisoncall Australia â€” home">
           <img src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
         </a>
         <a href="choose-plan.html" class="header__mobile-cta">Get Prisoncall now</a>
       </div>
       <div class="header__right">
-        <!-- STANDING RULE: brand icon always links to index.html on every page — never blocked by JS -->
-        <a href="index.html" class="header__icon-link" aria-label="Prisoncall Australia — home">
+        <!-- STANDING RULE: brand icon always links to index.html on every page â€” never blocked by JS -->
+        <a href="index.html" class="header__icon-link" aria-label="Prisoncall Australia â€” home">
           <img src="assets/brand_logos/Prisoncall_Icon_BLACK.svg" alt="" class="header__icon-img">
         </a>
         <div class="header__desktop-cta">
@@ -691,7 +830,7 @@
     </div>
   </header>
 
-  <!-- ═══ MOBILE MENU ═══ -->
+  <!-- â•â•â• MOBILE MENU â•â•â• -->
   <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation menu">
     <div class="mobile-menu__top">
       <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">&#x2715;</button>
@@ -718,7 +857,7 @@
     </div>
   </div>
 
-  <!-- ═══ MAIN ═══ -->
+  <!-- â•â•â• MAIN â•â•â• -->
   <main>
     <div class="cp-wrap">
 
@@ -731,7 +870,7 @@
         <p class="trust-text" id="trustText"></p>
       </div>
 
-      <!-- Gated step flow — steps injected by JS -->
+      <!-- Gated step flow â€” steps injected by JS -->
       <div id="planFlow"></div>
 
       <!-- Completed area: summary lines + bottom controls -->
@@ -740,12 +879,12 @@
     </div>
   </main>
 
-  <!-- ═══ FOOTER ═══ -->
+  <!-- â•â•â• FOOTER â•â•â• -->
   <footer class="footer">
     <div class="container">
       <div class="footer__top">
         <div class="footer__brand">
-          <a href="index.html" class="footer__logo" aria-label="Prisoncall Australia — home">
+          <a href="index.html" class="footer__logo" aria-label="Prisoncall Australia â€” home">
             <img src="assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall Australia">
           </a>
           <p class="footer__tagline">Providing cheap prison phone calls for inmates and families in Victoria and New South Wales since 2023.</p>
@@ -772,7 +911,7 @@
               <li><a href="western-plains-cc.html">Western Plains CC</a></li>
               <li><a href="fulham-cc.html">Fulham CC</a></li>
               <li><a href="hopkins-cc.html">Hopkins CC</a></li>
-              <li style="margin-top:8px; border-top:1px solid rgba(255,255,255,0.15); padding-top:8px;"><a href="choose-plan.html?state=vic">View all VIC prisons →</a></li>
+              <li style="margin-top:8px; border-top:1px solid rgba(255,255,255,0.15); padding-top:8px;"><a href="choose-plan.html?state=vic">View all VIC prisons â†’</a></li>
             </ul>
           </div>
           <div class="footer__col">
@@ -788,7 +927,7 @@
               <li><a href="john-morony-cc.html">John Morony CC</a></li>
               <li><a href="mid-north-coast-cc.html">Mid North Coast CC (Kempsey)</a></li>
               <li><a href="south-coast-cc.html">South Coast CC</a></li>
-              <li style="margin-top:8px; border-top:1px solid rgba(255,255,255,0.15); padding-top:8px;"><a href="choose-plan.html?state=nsw">View all NSW prisons →</a></li>
+              <li style="margin-top:8px; border-top:1px solid rgba(255,255,255,0.15); padding-top:8px;"><a href="choose-plan.html?state=nsw">View all NSW prisons â†’</a></li>
             </ul>
           </div>
           <div class="footer__col">
@@ -825,25 +964,25 @@
           <a href="refund-policy.html">Refund Policy</a>
           <a href="cancellation-policy.html">Cancellation Policy</a>
         </div>
-        <p class="footer__copyright">© <span id="copyrightYear"></span> Prisoncall Australia by The Freebird &amp; Co Pty Ltd. All prices GST-inclusive.</p>
+        <p class="footer__copyright">Â© <span id="copyrightYear"></span> Prisoncall Australia by The Freebird &amp; Co Pty Ltd. All prices GST-inclusive.</p>
       </div>
     </div>
   </footer>
 
-  <!-- ═══ SCRIPTS ═══ -->
+  <!-- â•â•â• SCRIPTS â•â•â• -->
   <script>
   'use strict';
 
-  /* ═══════════════════════════════════════════════════════
-     DEV FLAGS — staging only. Toggled via the dev panel below.
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     DEV FLAGS â€” staging only. Toggled via the dev panel below.
      Remove this object and all DEV_FLAGS references at integration.
-  ═══════════════════════════════════════════════════════ */
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   var DEV_FLAGS = { OTP: false };
 
-  /* ─── Copyright year ─── */
+  /* â”€â”€â”€ Copyright year â”€â”€â”€ */
   document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 
-  /* ─── Mobile menu ─── */
+  /* â”€â”€â”€ Mobile menu â”€â”€â”€ */
   var menuToggle = document.getElementById('menuToggle');
   var menuClose  = document.getElementById('menuClose');
   var mobileMenu = document.getElementById('mobileMenu');
@@ -872,9 +1011,9 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, true);
 
-  /* ═══════════════════════════════════════════════════════
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      DATA
-  ═══════════════════════════════════════════════════════ */
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   var PRISONS = {
     vic: ['Barwon Prison','Beechworth Correctional Centre','Dame Phyllis Frost Centre',
           'Fulham Correctional Centre','Hopkins Correctional Centre','Langi Kal Kal Prison',
@@ -892,13 +1031,32 @@
           'St Heliers CC','Tamworth CC','Wellington CC']
   };
 
-  /* Card order: Quarterly → Monthly → Fortnightly → Weekly */
+  /* Card order: Annual → Monthly → Fortnightly → Weekly */
   var PLANS = [
-    { key:'quarterly',   name:'Quarterly',   amount:125, period:'quarter',   badge:'Best Value',   cls:'plan-card--quarterly'   },
-    { key:'monthly',     name:'Monthly',     amount:45,  period:'month',     badge:'Most Popular', cls:'plan-card--monthly'     },
-    { key:'fortnightly', name:'Fortnightly', amount:25,  period:'fortnight', badge:null,           cls:'plan-card--fortnightly' },
-    { key:'weekly',      name:'Weekly',      amount:15,  period:'week',      badge:null,           cls:'plan-card--weekly'      }
+    { key:'annual',      name:'Annual',      amount:349.99, period:'year',      badge:'Best Value',   badgeCls:'',            equiv:'$29.17/month', cls:'plan-card--annual'      },
+    { key:'monthly',     name:'Monthly',     amount:34.99,  period:'month',     badge:'Most Popular', badgeCls:'badge--black', equiv:null,           cls:'plan-card--monthly'     },
+    { key:'fortnightly', name:'Fortnightly', amount:19.99,  period:'fortnight', badge:null,           badgeCls:'',            equiv:null,           cls:'plan-card--fortnightly' },
+    { key:'weekly',      name:'Weekly',      amount:14.99,  period:'week',      badge:null,           badgeCls:'',            equiv:null,           cls:'plan-card--weekly'      }
   ];
+
+  /* Selected plan state — updated when customer picks a card */
+  var selectedPlan      = 'monthly';
+  var selectedPlanPrice = 34.99;
+  var selectedAddons    = { addon1: false, addon2: false, addon3: false, combo23: false, lifetimeAll: false };
+
+  /* Add-on pricing tables */
+  var ADDON2_PRICES = {
+    weekly:      { display: '$2.99/week',      amount: 2.99  },
+    fortnightly: { display: '$3.99/fortnight', amount: 3.99  },
+    monthly:     { display: '$4.99/month',     amount: 4.99  },
+    annual:      { display: '$19.99/year',     amount: 19.99 }
+  };
+  var COMBO23_PRICES = {
+    weekly:      { display: '$4.99/week',      amount: 4.99  },
+    fortnightly: { display: '$6.99/fortnight', amount: 6.99  },
+    monthly:     { display: '$7.99/month',     amount: 7.99  },
+    annual:      { display: '$31.99/year',     amount: 31.99 }
+  };
 
   var FEATURES = ['Unlimited minutes','One flat fee','Prison-approved number','Cancel anytime'];
 
@@ -911,16 +1069,16 @@
                  'avatar-14.png','avatar-15.png'];
   var ALL_AV  = F_AV.concat(M_AV);
 
-  /* ═══════════════════════════════════════════════════════
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      PRELOAD ALL AVATARS
-  ═══════════════════════════════════════════════════════ */
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   ALL_AV.forEach(function(av){
     var img = new Image(); img.src = 'assets/images/' + av;
   });
 
-  /* ═══════════════════════════════════════════════════════
-     TRUST BANNER — randomise + cycle all 3 + text together
-  ═══════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     TRUST BANNER â€” randomise + cycle all 3 + text together
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   function pickRand(arr, exclude){
     var pool = exclude ? arr.filter(function(x){ return exclude.indexOf(x)<0; }) : arr.slice();
     if(!pool.length) pool = arr.slice();
@@ -986,9 +1144,9 @@
     }, 240); /* matches CSS transition duration */
   }, 2000);
 
-  /* ═══════════════════════════════════════════════════════
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      APP STATE
-  ═══════════════════════════════════════════════════════ */
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   var entries  = []; // completed: [{id,state,prison,mobile,planKey}]
   var cur      = null; // plan being built
   var editId   = null; // id of entry being edited (null = new)
@@ -999,7 +1157,7 @@
   var planFlow      = document.getElementById('planFlow');
   var completedArea = document.getElementById('completedArea');
 
-  /* ─── Scroll gating — prevents scrolling back above the active step ─── */
+  /* â”€â”€â”€ Scroll gating â€” prevents scrolling back above the active step â”€â”€â”€ */
   var gateY      = 0;
   var gateActive = false;
 
@@ -1013,7 +1171,7 @@
   document.addEventListener('click', function(e){
     var link = e.target.closest('a[href]');
     if(link){ clearGate(); }
-  }, true /* capture phase — fires before scroll handler */);
+  }, true /* capture phase â€” fires before scroll handler */);
 
   window.addEventListener('scroll', function(){
     if(gateActive && window.pageYOffset < gateY){
@@ -1021,7 +1179,7 @@
     }
   });
 
-  /* ─── URL params ─── */
+  /* â”€â”€â”€ URL params â”€â”€â”€ */
   function getUrlState(){
     try {
       var p = new URLSearchParams(window.location.search);
@@ -1037,7 +1195,7 @@
     } catch(e){ return null; }
   }
 
-  /* ─── Smooth scroll to element (below sticky header) ─── */
+  /* â”€â”€â”€ Smooth scroll to element (below sticky header) â”€â”€â”€ */
   function scrollToEl(el, enableGate){
     if(!el) return;
     setTimeout(function(){
@@ -1051,7 +1209,7 @@
     }, 60);
   }
 
-  /* ─── Remove steps >= stepNum from planFlow ─── */
+  /* â”€â”€â”€ Remove steps >= stepNum from planFlow â”€â”€â”€ */
   function removeStepsFrom(n){
     planFlow.querySelectorAll('[data-step]').forEach(function(s){
       if(parseInt(s.dataset.step, 10) >= n) s.remove();
@@ -1059,15 +1217,15 @@
   }
   function getStepEl(n){ return planFlow.querySelector('[data-step="'+n+'"]'); }
 
-  /* ─── Back arrow SVG ─── */
+  /* â”€â”€â”€ Back arrow SVG â”€â”€â”€ */
   var BACK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>';
 
-  /* ═══════════════════════════════════════════════════════
-     DEV — OTP MOBILE VERIFICATION HELPERS
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     DEV â€” OTP MOBILE VERIFICATION HELPERS
      Remove showOtpSendPhase and showOtpVerifyPhase at integration.
-  ═══════════════════════════════════════════════════════ */
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-  /* Phase 1: valid mobile entered — hide Continue, show Send Code + subtitle */
+  /* Phase 1: valid mobile entered â€” hide Continue, show Send Code + subtitle */
   function showOtpSendPhase(stepEl, digits){
     var cont = stepEl.querySelector('.mobile-continue');
     cont.style.display = 'none';
@@ -1085,7 +1243,7 @@
     });
   }
 
-  /* Phase 2: code entry — validates 111111 (pass) / anything else (fail) */
+  /* Phase 2: code entry â€” validates 111111 (pass) / anything else (fail) */
   function showOtpVerifyPhase(stepEl, digits, originalCont){
     /* Hide mobile input area + send phase */
     var mobileInput = stepEl.querySelector('.mobile-input');
@@ -1129,7 +1287,7 @@
       codeInput.classList.remove('has-error');
     });
 
-    /* Resend — reset field, show brief confirmation */
+    /* Resend â€” reset field, show brief confirmation */
     resendBtn.addEventListener('click', function(){
       codeInput.value = '';
       codeInput.classList.remove('has-error');
@@ -1140,11 +1298,11 @@
       codeInput.focus();
     });
 
-    /* Verify — 111111 passes, anything else fails */
+    /* Verify â€” 111111 passes, anything else fails */
     function doVerify(){
       var code = codeInput.value.replace(/\D/g,'');
       if(code === '111111'){
-        /* Code accepted — show verified number state, advance to Step 4 on Continue */
+        /* Code accepted â€” show verified number state, advance to Step 4 on Continue */
         newCont.removeEventListener('click', doVerify);
         verifyWrap.style.display = 'none';
         /* Update the existing Step 3 title in place */
@@ -1179,9 +1337,9 @@
     codeInput.focus();
   }
 
-  /* ═══════════════════════════════════════════════════════
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      BUILD STEP ELEMENTS
-  ═══════════════════════════════════════════════════════ */
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   function buildStep1El(preState){
     var el = document.createElement('section');
     el.className = 'step-section'; el.dataset.step = '1';
@@ -1241,25 +1399,35 @@
     return el;
   }
 
+  var CHECK_INDICATOR_SVG = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="2 6 5 9 10 3"/></svg>';
+  var TICK_SVG = '<svg class="addon-checkbox__tick" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="2 6 5 9 10 3"/></svg>';
+
   function buildStep4El(prePlanKey){
     var defaultKey = prePlanKey || 'monthly';
     var cardsHtml = PLANS.map(function(p){
       var isSelected = p.key === defaultKey;
-      var badgeHtml  = p.badge
-        ? '<span class="plan-card__badge">'+p.badge+'</span>'
-        : '<span class="plan-card__badge-spacer"></span>';
+      var badgeHtml;
+      if(p.badge){
+        var bCls = 'plan-card__badge' + (p.badgeCls ? ' plan-card__'+p.badgeCls : '');
+        badgeHtml = '<span class="'+bCls+'">'+p.badge+'</span>';
+      } else {
+        badgeHtml = '<span class="plan-card__badge-spacer"></span>';
+      }
+      var equivHtml = p.equiv ? '<p class="plan-card__equiv">'+p.equiv+'</p>' : '';
       var featHtml = FEATURES.map(function(f){
         return '<li class="plan-card__feature"><span class="plan-card__check" aria-hidden="true">&#10003;</span>'+f+'</li>';
       }).join('');
       return [
         '<div class="plan-card '+p.cls+(isSelected?' is-selected':'')+'" data-plan-key="'+p.key+'" role="button" tabindex="0" aria-pressed="'+(isSelected?'true':'false')+'">',
           '<div class="plan-card__header">',
+            '<div class="plan-card__selected-indicator">'+CHECK_INDICATOR_SVG+'</div>',
             badgeHtml,
             '<p class="plan-card__plan-name">'+p.name+'</p>',
             '<div class="plan-card__price">',
-              '<span class="plan-card__amount">$'+p.amount+'</span>',
+              '<span class="plan-card__amount">$'+p.amount.toFixed(2)+'</span>',
               '<span class="plan-card__period"> / '+p.period+'</span>',
             '</div>',
+            equivHtml,
           '</div>',
           '<div class="plan-card__body"><ul class="plan-card__features">'+featHtml+'</ul></div>',
           '<div class="plan-card__footer">',
@@ -1268,6 +1436,10 @@
         '</div>'
       ].join('');
     }).join('');
+
+    /* Sync module-level selectedPlan to the default shown */
+    var defPlan = PLANS.find(function(p){ return p.key === defaultKey; });
+    if(defPlan){ selectedPlan = defPlan.key; selectedPlanPrice = defPlan.amount; }
 
     var el = document.createElement('section');
     el.className = 'step-section'; el.dataset.step = '4';
@@ -1281,9 +1453,9 @@
     return el;
   }
 
-  /* ═══════════════════════════════════════════════════════
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      WIRE STEPS
-  ═══════════════════════════════════════════════════════ */
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   function wireStep1(el){
     el.querySelectorAll('.state-btn').forEach(function(btn){
       btn.addEventListener('click', function(){
@@ -1308,7 +1480,7 @@
   }
 
   function wireStep2(el){
-    /* Back — release gate so user can scroll back to step 1 */
+    /* Back â€” release gate so user can scroll back to step 1 */
     el.querySelector('[data-back="2"]').addEventListener('click', function(){
       clearGate();
       removeStepsFrom(2);
@@ -1325,7 +1497,7 @@
       ackCont.disabled = !ackCheck.checked;
     });
 
-    /* Continue — ack accepted, advance to Step 3 */
+    /* Continue â€” ack accepted, advance to Step 3 */
     ackCont.addEventListener('click', function(){
       if(!ackCheck.checked) return;
       removeStepsFrom(3);
@@ -1367,7 +1539,7 @@
     var error = el.querySelector('.mobile-error');
     var cont  = el.querySelector('.mobile-continue');
 
-    /* Back — release gate so user can scroll to step 2, then re-gate at step 2 */
+    /* Back â€” release gate so user can scroll to step 2, then re-gate at step 2 */
     el.querySelector('[data-back="3"]').addEventListener('click', function(){
       clearGate();
       removeStepsFrom(3);
@@ -1375,7 +1547,7 @@
       scrollToEl(getStepEl(2), true);
     });
 
-    /* Format as user types — preserving cursor position */
+    /* Format as user types â€” preserving cursor position */
     input.addEventListener('input', function(){
       var val     = input.value;
       var pos     = input.selectionStart;
@@ -1400,7 +1572,7 @@
       input.classList.remove('has-error'); error.classList.remove('is-visible');
     });
 
-    /* Fired flag — prevents Enter/Go key from injecting duplicate Send Code UI */
+    /* Fired flag â€” prevents Enter/Go key from injecting duplicate Send Code UI */
     var otpSendShown = false;
 
     /* Continue */
@@ -1418,15 +1590,15 @@
           prison: cur && cur.prison ? cur.prison : null,
           state:  cur && cur.state  ? cur.state  : null
         })
-      }).catch(function(){}); // silent — never block the flow
-      /* DEV: OTP — show Send Code phase instead of advancing to Step 4 */
+      }).catch(function(){}); // silent â€” never block the flow
+      /* DEV: OTP â€” show Send Code phase instead of advancing to Step 4 */
       if(DEV_FLAGS.OTP){
         if(otpSendShown) return;
         otpSendShown = true;
         showOtpSendPhase(el, digits);
         return;
       }
-      /* Same mobile — scroll to step 4 if it exists */
+      /* Same mobile â€” scroll to step 4 if it exists */
       var s4 = getStepEl(4);
       if(s4){ scrollToEl(s4, true); return; }
       removeStepsFrom(4);
@@ -1465,7 +1637,7 @@
   }
 
   function wireStep4(el){
-    /* Back — rebuild Step 3 cleanly so stale OTP UI never persists on back nav */
+    /* Back â€” rebuild Step 3 cleanly so stale OTP UI never persists on back nav */
     el.querySelector('[data-back="4"]').addEventListener('click', function(){
       clearGate();
       removeStepsFrom(3);
@@ -1486,7 +1658,7 @@
       scrollTimer = setTimeout(function(){ isScrolling = false; }, 200);
     }, { passive:true });
 
-    /* Plan card selection — visual highlight only, no completePlan yet */
+    /* Plan card selection â€” visual highlight only, no completePlan yet */
     el.querySelectorAll('.plan-card').forEach(function(card){
       function doSelect(){
         if(isScrolling) return;
@@ -1496,6 +1668,14 @@
         });
         card.classList.add('is-selected'); card.setAttribute('aria-pressed','true');
         card.querySelector('.plan-card__select').textContent = '\u2713 Selected';
+        /* Track selectedPlan / selectedPlanPrice */
+        var planKey = card.dataset.planKey;
+        var planObj = PLANS.find(function(p){ return p.key === planKey; });
+        selectedPlan = planKey;
+        selectedPlanPrice = planObj ? planObj.amount : 0;
+        /* If add-on section is already visible, refresh its dynamic prices */
+        var existingAddon = el.querySelector('.addon-section');
+        if(existingAddon){ updateAddonPrices(existingAddon, planKey); }
       }
       card.addEventListener('click', function(e){
         if(e.target.classList.contains('plan-card__select')){ doSelect(); return; }
@@ -1507,15 +1687,23 @@
       });
     });
 
-    /* Continue — reads the currently selected card and confirms the plan */
+    /* Continue — reveal inline add-on section; checkout fires from within it */
     el.querySelector('.plan-continue').addEventListener('click', function(){
       var selected = el.querySelector('.plan-card.is-selected');
       if(!selected) return;
-      completePlan(selected.dataset.planKey);
+      var contBtn = el.querySelector('.plan-continue');
+      contBtn.style.display = 'none';
+      var existing = el.querySelector('.addon-section');
+      if(existing) existing.remove();
+      var addonEl = buildAddonSection(selectedPlan);
+      var backBtn = el.querySelector('[data-back="4"]');
+      el.insertBefore(addonEl, backBtn);
+      wireAddonSection(addonEl);
+      scrollToEl(addonEl, false);
     });
   }
 
-  /* ─── Snap carousel to a plan key ─── */
+  /* â”€â”€â”€ Snap carousel to a plan key â”€â”€â”€ */
   function snapCarouselToKey(stepEl, planKey){
     setTimeout(function(){
       var track = stepEl.querySelector('.carousel-track');
@@ -1528,7 +1716,217 @@
     }, 150);
   }
 
-  /* ─── Format mobile number ─── */
+  /* ═══════════════════════════════════════════════════════════════════════
+     BUILD & WIRE ADD-ON SECTION (Step 4 inline)
+  ═══════════════════════════════════════════════════════════════════════ */
+
+  function buildAddonSection(planKey) {
+    var a2  = ADDON2_PRICES[planKey]  || ADDON2_PRICES.monthly;
+    var co  = COMBO23_PRICES[planKey] || COMBO23_PRICES.monthly;
+    var sav = ((a2.amount * 2) - co.amount).toFixed(2);
+
+    var div = document.createElement('div');
+    div.className = 'addon-section';
+    div.id = 'addonSection';
+    div.innerHTML = [
+      '<h3 class="addon-section__heading">Protect your plan</h3>',
+      '<p class="addon-section__sub">Optional add-ons. Select any that apply, then tap Continue — or skip and go straight to checkout.</p>',
+      '<div class="addon-table">',
+
+        /* — Add-on 1: 48-Hour Cancellation Guarantee — */
+        '<div class="addon-row" data-addon="addon1" role="checkbox" aria-checked="false" tabindex="0">',
+          '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+          '<div class="addon-row__content">',
+            '<p class="addon-row__name">48-Hour Cancellation Guarantee</p>',
+            '<p class="addon-row__why">Your number is activated within 24 hours. Once activated, refunds are not available. This guarantee gives you a full refund if you change your mind within 48 hours of purchase, no questions asked.</p>',
+            '<div class="addon-row__risk">Without this you risk: losing your full plan payment with no recourse.</div>',
+            '<div class="addon-row__price-line">',
+              '<span class="addon-row__price">$5.99</span>',
+              '<span class="addon-row__payment-type">One-time at checkout</span>',
+            '</div>',
+          '</div>',
+        '</div>',
+
+        /* — Add-on 2: Unlimited Prison Transfers — */
+        '<div class="addon-row" data-addon="addon2" role="checkbox" aria-checked="false" tabindex="0">',
+          '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+          '<div class="addon-row__content">',
+            '<p class="addon-row__name">Unlimited Prison Transfers</p>',
+            '<p class="addon-row__why">If your loved one is transferred to a different prison, their current number may no longer be the closest local number. This add-on covers unlimited transfers so calls always stay at the lowest rate.</p>',
+            '<div class="addon-row__risk">Without this you risk: paying $24.99 per transfer every time your loved one is moved.</div>',
+            '<div class="addon-row__price-line">',
+              '<span class="addon-row__price" data-dynamic="addon2-price">'+a2.display+'</span>',
+              '<span class="addon-row__payment-type">Recurring with your plan</span>',
+            '</div>',
+          '</div>',
+        '</div>',
+
+        /* — Add-on 3: 96-Hour Post-Renewal Cancellation — */
+        '<div class="addon-row" data-addon="addon3" role="checkbox" aria-checked="false" tabindex="0">',
+          '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+          '<div class="addon-row__content">',
+            '<p class="addon-row__name">96-Hour Post-Renewal Cancellation</p>',
+            '<p class="addon-row__why">If your loved one is released shortly after a renewal, you have already been charged. This add-on gives you 96 hours after every renewal to cancel and receive a full refund.</p>',
+            '<div class="addon-row__risk">Without this you risk: losing a full renewal payment you will not use.</div>',
+            '<div class="addon-row__price-line">',
+              '<span class="addon-row__price" data-dynamic="addon3-price">'+a2.display+'</span>',
+              '<span class="addon-row__payment-type">Recurring with your plan</span>',
+            '</div>',
+          '</div>',
+        '</div>',
+
+        /* — Combo row: Add-ons 2 + 3 — */
+        '<div class="addon-row is-combo" data-addon="combo23" role="checkbox" aria-checked="false" tabindex="0">',
+          '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+          '<div class="addon-row__content">',
+            '<span class="addon-combo-label">Bundle deal</span>',
+            '<p class="addon-row__name">Unlimited Transfers + 96-Hr Renewal Cancellation</p>',
+            '<p class="addon-row__why">Both recurring add-ons together at a reduced combined price.</p>',
+            '<div class="addon-row__price-line">',
+              '<span class="addon-row__price" data-dynamic="combo23-price">'+co.display+'</span>',
+              '<span class="addon-row__payment-type">Recurring with your plan</span>',
+            '</div>',
+            '<p class="addon-combo-savings" data-dynamic="combo23-savings">Save $'+sav+' vs buying separately</p>',
+          '</div>',
+        '</div>',
+
+      '</div>',
+
+      /* — Lifetime hero block — */
+      '<div class="addon-lifetime" id="addonLifetime" role="checkbox" aria-checked="false" tabindex="0">',
+        '<span class="addon-lifetime__badge">Most Popular</span>',
+        '<h4 class="addon-lifetime__heading">Get all three add-ons for life.</h4>',
+        '<p class="addon-lifetime__sub">$29.99 once. Never pay for transfers, cancellations, or renewal refunds again. Ever.</p>',
+        '<button class="addon-lifetime__btn" type="button">Select — $29.99 once</button>',
+      '</div>',
+
+      /* — Bottom actions — */
+      '<div class="addon-actions">',
+        '<button class="addon-checkout-btn" id="addonCheckoutBtn" type="button">Continue to checkout</button>',
+        '<button class="addon-skip" id="addonSkipBtn" type="button">No thanks, continue without add-ons</button>',
+      '</div>'
+    ].join('');
+    return div;
+  }
+
+  function updateAddonPrices(sectionEl, planKey) {
+    var a2  = ADDON2_PRICES[planKey]  || ADDON2_PRICES.monthly;
+    var co  = COMBO23_PRICES[planKey] || COMBO23_PRICES.monthly;
+    var sav = ((a2.amount * 2) - co.amount).toFixed(2);
+    sectionEl.querySelectorAll('[data-dynamic="addon2-price"]').forEach(function(el){ el.textContent = a2.display; });
+    sectionEl.querySelectorAll('[data-dynamic="addon3-price"]').forEach(function(el){ el.textContent = a2.display; });
+    sectionEl.querySelectorAll('[data-dynamic="combo23-price"]').forEach(function(el){ el.textContent = co.display; });
+    var savEl = sectionEl.querySelector('[data-dynamic="combo23-savings"]');
+    if(savEl){ savEl.textContent = 'Save $'+sav+' vs buying separately'; }
+  }
+
+  function wireAddonSection(sectionEl) {
+    /* Reset selectedAddons for this session */
+    selectedAddons = { addon1: false, addon2: false, addon3: false, combo23: false, lifetimeAll: false };
+
+    function setRow(row, key, checked) {
+      selectedAddons[key] = checked;
+      if(checked){ row.classList.add('is-selected'); row.setAttribute('aria-checked','true'); }
+      else { row.classList.remove('is-selected'); row.setAttribute('aria-checked','false'); }
+    }
+    function setLifetime(checked) {
+      selectedAddons.lifetimeAll = checked;
+      var el = sectionEl.querySelector('.addon-lifetime');
+      if(checked){ el.classList.add('is-selected'); el.setAttribute('aria-checked','true'); }
+      else { el.classList.remove('is-selected'); el.setAttribute('aria-checked','false'); }
+    }
+
+    sectionEl.querySelectorAll('.addon-row').forEach(function(row){
+      var key = row.dataset.addon;
+      row.addEventListener('click', function(){
+        var next = !selectedAddons[key];
+        setRow(row, key, next);
+        if(next){
+          /* Selecting any individual add-on deselects lifetime */
+          setLifetime(false);
+          /* Selecting addon2 or addon3 deselects combo */
+          if(key === 'addon2' || key === 'addon3'){
+            var comboRow = sectionEl.querySelector('[data-addon="combo23"]');
+            if(comboRow) setRow(comboRow, 'combo23', false);
+          }
+        }
+        if(key === 'combo23' && next){
+          /* Selecting combo auto-deselects individual rows 2 & 3 */
+          var r2 = sectionEl.querySelector('[data-addon="addon2"]');
+          var r3 = sectionEl.querySelector('[data-addon="addon3"]');
+          if(r2) setRow(r2, 'addon2', false);
+          if(r3) setRow(r3, 'addon3', false);
+        }
+      });
+      row.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); row.click(); }
+      });
+    });
+
+    /* Lifetime hero */
+    var lifetimeEl = sectionEl.querySelector('.addon-lifetime');
+    lifetimeEl.addEventListener('click', function(){
+      var next = !selectedAddons.lifetimeAll;
+      setLifetime(next);
+      if(next){
+        /* Deselect all individual rows and combo */
+        ['addon1','addon2','addon3','combo23'].forEach(function(k){
+          var r = sectionEl.querySelector('[data-addon="'+k+'"]');
+          if(r) setRow(r, k, false);
+        });
+      }
+    });
+    lifetimeEl.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); lifetimeEl.click(); }
+    });
+
+    var checkoutBtn = sectionEl.querySelector('#addonCheckoutBtn');
+    var skipBtn     = sectionEl.querySelector('#addonSkipBtn');
+
+    function doAddonCheckout(clearAddons) {
+      if(clearAddons){
+        selectedAddons = { addon1:false, addon2:false, addon3:false, combo23:false, lifetimeAll:false };
+      }
+      if(!cur) return;
+      var allPlans = entries.slice();
+      allPlans.push({ prison: cur.prison, state: cur.state, mobile: cur.mobile, planKey: selectedPlan });
+      var isBundle = allPlans.length >= 2;
+      var plansArray = allPlans.map(function(e){
+        return { prison_name: e.prison, prison_state: e.state, mobile_number: e.mobile, plan_interval: e.planKey, bundle: isBundle };
+      });
+      checkoutBtn.textContent = 'Preparing checkout\u2026';
+      checkoutBtn.disabled = true;
+      skipBtn.disabled = true;
+      fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plans: plansArray, addons: selectedAddons })
+      })
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        if(data.url){ window.location.href = data.url; }
+        else { throw new Error(data.error || 'Unexpected response'); }
+      })
+      .catch(function(){
+        checkoutBtn.textContent = 'Continue to checkout';
+        checkoutBtn.disabled = false;
+        skipBtn.disabled = false;
+        var errEl = sectionEl.querySelector('.addon-error');
+        if(!errEl){
+          errEl = document.createElement('p');
+          errEl.className = 'addon-error';
+          errEl.style.cssText = 'color:red;font-size:13px;font-weight:600;margin-top:8px;text-align:center;';
+          sectionEl.querySelector('.addon-actions').appendChild(errEl);
+        }
+        errEl.textContent = 'Something went wrong. Please try again.';
+      });
+    }
+
+    checkoutBtn.addEventListener('click', function(){ doAddonCheckout(false); });
+    skipBtn.addEventListener('click', function(){ doAddonCheckout(true); });
+  }
+
+  /* â”€â”€â”€ Format mobile number â”€â”€â”€ */
   function formatMobile(digits){
     digits = (digits || '').replace(/\D/g,'').slice(0,10);
     if(digits.length > 7) return digits.slice(0,4)+' '+digits.slice(4,7)+' '+digits.slice(7);
@@ -1536,20 +1934,20 @@
     return digits;
   }
 
-  /* ─── Mask mobile for display ─── */
+  /* â”€â”€â”€ Mask mobile for display â”€â”€â”€ */
   function maskMobile(digits){
     if(!digits || digits.length < 3) return digits || '';
     return '04\u2022\u2022 \u2022\u2022\u2022 ' + digits.slice(-3);
   }
 
-  /* ═══════════════════════════════════════════════════════
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      COMPLETE PLAN
-  ═══════════════════════════════════════════════════════ */
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   function completePlan(planKey){
     if(!cur) return;
     cur.planKey = planKey;
     if(editId !== null){
-      /* Entry stays in entries — update it in-place */
+      /* Entry stays in entries â€” update it in-place */
       var idx = entries.findIndex(function(e){ return e.id === editId; });
       if(idx >= 0) entries[idx] = Object.assign({}, cur, {id:editId});
       else entries.push(Object.assign({}, cur, {id:editId}));
@@ -1566,9 +1964,9 @@
     saveCart();
   }
 
-  /* ═══════════════════════════════════════════════════════
-     EDIT ENTRY — re-inject all steps pre-filled
-  ═══════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     EDIT ENTRY â€” re-inject all steps pre-filled
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   function editEntry(id){
     var entry = entries.find(function(e){ return e.id===id; });
     if(!entry) return;
@@ -1605,9 +2003,9 @@
     snapCarouselToKey(s4, entry.planKey);
   }
 
-  /* ═══════════════════════════════════════════════════════
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      RENDER COMPLETED AREA
-  ═══════════════════════════════════════════════════════ */
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   function renderCompletedArea(){
     var html = '';
     var hasEntries      = entries.length > 0;
@@ -1617,10 +2015,10 @@
       var p = PLANS.find(function(p){ return p.key===e.planKey; });
       return s + (p ? p.amount : 0);
     }, 0);
-    var finalTotal = isBundle ? Math.round(rawTotal * 0.9) : rawTotal;
+    var finalTotal = isBundle ? Math.round(rawTotal * 0.9 * 100) / 100 : rawTotal;
 
     /* Interval mismatch detection */
-    var INTERVAL_ORDER = { weekly: 1, fortnightly: 2, monthly: 3, quarterly: 4 };
+    var INTERVAL_ORDER = { weekly: 1, fortnightly: 2, monthly: 3, annual: 4 };
     var hasIntervalMismatch = false;
     var pulseEntryId = null;
     if(isBundle){
@@ -1635,7 +2033,7 @@
       }
     }
 
-    /* Summary lines — entry being edited shown dimmed with tag */
+    /* Summary lines â€” entry being edited shown dimmed with tag */
     entries.forEach(function(e){
       var plan = PLANS.find(function(p){ return p.key===e.planKey; });
       if(!plan) return;
@@ -1665,14 +2063,14 @@
             '<p class="summary-line__meta summary-line__meta--mob">'+e.state.toUpperCase()+' &middot; '+escHtml(maskMobile(e.mobile))+'</p>'+
           '</div>'+
           '<div class="summary-line__right">'+
-            '<span class="summary-line__price">$'+plan.amount+'/'+plan.period+'</span>'+
+            '<span class="summary-line__price">$'+plan.amount.toFixed(2)+'/'+plan.period+'</span>'+
             '<button class="summary-line__edit'+editCls+'" type="button" data-edit-id="'+e.id+'">Edit</button>'+
             removeBtn+
           '</div>'+
           '<div class="summary-line__mobile-extra">'+
             '<div class="summary-line__mobile-billing">'+
               '<span class="summary-line__billing-plan">'+plan.name+'</span>'+
-              '<span class="summary-line__price">$'+plan.amount+'/'+plan.period+'</span>'+
+              '<span class="summary-line__price">$'+plan.amount.toFixed(2)+'/'+plan.period+'</span>'+
             '</div>'+
             '<div class="summary-line__mobile-actions">'+
               '<button class="summary-line__edit'+editCls+'" type="button" data-edit-id="'+e.id+'">Edit</button>'+
@@ -1699,8 +2097,8 @@
     /* Order total */
     if(hasEntries){
       var totalHtml = (isBundle && !hasIntervalMismatch)
-        ? '<span class="order-total__orig">$'+rawTotal+'</span><span class="order-total__disc">$'+finalTotal+'</span>'
-        : '<span class="order-total__plain">$'+rawTotal+'</span>';
+        ? '<span class="order-total__orig">$'+rawTotal.toFixed(2)+'</span><span class="order-total__disc">$'+finalTotal.toFixed(2)+'</span>'
+        : '<span class="order-total__plain">$'+rawTotal.toFixed(2)+'</span>';
       html += '<div class="order-total"><span class="order-total__label">Total</span><span class="order-total__val">'+totalHtml+'</span></div>';
     }
 
@@ -1724,11 +2122,11 @@
     completedArea.querySelectorAll('[data-edit-id]').forEach(function(btn){
       btn.addEventListener('click', function(){ editEntry(parseInt(btn.dataset.editId, 10)); });
     });
-    /* Confirming row — prevent background clicks inside row from dismissing */
+    /* Confirming row â€” prevent background clicks inside row from dismissing */
     completedArea.querySelectorAll('.summary-line--confirming').forEach(function(el){
       el.addEventListener('click', function(evt){ evt.stopPropagation(); });
     });
-    /* X button — show inline "Are you sure?" confirmation */
+    /* X button â€” show inline "Are you sure?" confirmation */
     completedArea.querySelectorAll('[data-remove-id]').forEach(function(btn){
       btn.addEventListener('click', function(evt){
         evt.stopPropagation();
@@ -1737,7 +2135,7 @@
         document.addEventListener('click', handleConfirmOutsideClick);
       });
     });
-    /* Keep — dismiss confirmation, restore original X */
+    /* Keep â€” dismiss confirmation, restore original X */
     completedArea.querySelectorAll('[data-keep-id]').forEach(function(btn){
       btn.addEventListener('click', function(evt){
         evt.stopPropagation();
@@ -1746,7 +2144,7 @@
         renderCompletedArea();
       });
     });
-    /* Confirm remove — proceed with deletion */
+    /* Confirm remove â€” proceed with deletion */
     completedArea.querySelectorAll('[data-confirm-remove-id]').forEach(function(btn){
       btn.addEventListener('click', function(evt){
         evt.stopPropagation();
@@ -1829,14 +2227,14 @@
     }
   }
 
-  /* ─── Escape HTML ─── */
+  /* â”€â”€â”€ Escape HTML â”€â”€â”€ */
   function escHtml(str){
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  /* ═══════════════════════════════════════════════════════
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      START NEW PLAN
-  ═══════════════════════════════════════════════════════ */
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   function startNewPlan(preState, prePrison){
     cur    = { id: nextId++, state: null, prison: null, mobile: null, planKey: null };
     editId = null;
@@ -1850,7 +2248,7 @@
       var btn = s1.querySelector('[data-sv="'+preState+'"]');
       if(btn) setTimeout(function(){
         btn.click();
-        /* Step 2 is now in the DOM — auto-click the matching prison pill if provided */
+        /* Step 2 is now in the DOM â€” auto-click the matching prison pill if provided */
         if(prePrison){
           var s2 = getStepEl(2);
           if(s2){
@@ -1868,7 +2266,7 @@
     renderCompletedArea();
   }
 
-  /* ─── Cart persistence ─── */
+  /* â”€â”€â”€ Cart persistence â”€â”€â”€ */
   function saveCart(){
     if(entries.length > 0){
       localStorage.setItem('prisoncall_checkout_state', JSON.stringify({ entries: entries, timestamp: Date.now() }));
@@ -1877,16 +2275,16 @@
     }
   }
 
-  /* ─── Inline remove-confirmation helpers ─── */
+  /* â”€â”€â”€ Inline remove-confirmation helpers â”€â”€â”€ */
   function handleConfirmOutsideClick(){
     pendingRemoveId = null;
     document.removeEventListener('click', handleConfirmOutsideClick);
     renderCompletedArea();
   }
 
-  /* ─── Init ─── */
+  /* â”€â”€â”€ Init â”€â”€â”€ */
   (function(){
-    /* If URL params are present the customer arrived from a prison-specific CTA —
+    /* If URL params are present the customer arrived from a prison-specific CTA â€”
        always honour those and skip any saved cart. */
     if(getUrlState() || getUrlPrison()){
       startNewPlan(getUrlState(), getUrlPrison());
@@ -1913,11 +2311,11 @@
     startNewPlan(getUrlState(), getUrlPrison());
   }());
 
-  /* ═══════════════════════════════════════════════════════
-     DEV PANEL — inject only on staging domain (prisoncall-1mc.pages.dev).
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     DEV PANEL â€” inject only on staging domain (prisoncall-1mc.pages.dev).
      Never appears on prisoncall.com.au or any other domain.
      Remove this entire IIFE at integration.
-  ═══════════════════════════════════════════════════════ */
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   (function(){
     if(window.location.hostname !== 'prisoncall-1mc.pages.dev') return;
     var panel = document.createElement('div');
@@ -1935,7 +2333,7 @@
       '</div>'
     ].join('');
     document.body.appendChild(panel);
-    /* Wire toggle to DEV_FLAGS — updates take effect immediately */
+    /* Wire toggle to DEV_FLAGS â€” updates take effect immediately */
     document.getElementById('devToggleOTP').addEventListener('change', function(){
       DEV_FLAGS.OTP = this.checked;
     });
@@ -1944,3 +2342,4 @@
 
 </body>
 </html>
+
