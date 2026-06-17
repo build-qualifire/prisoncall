@@ -977,6 +977,22 @@
      DEV FLAGS â€” staging only. Toggled via the dev panel below.
      Remove this object and all DEV_FLAGS references at integration.
   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  const PRICING = {
+    plans: {
+      annual:      { price: 349.99, interval: 'year',       label: 'Annual'       },
+      monthly:     { price: 34.99,  interval: 'month',      label: 'Monthly'      },
+      fortnightly: { price: 19.99,  interval: 'fortnight',  label: 'Fortnightly'  },
+      weekly:      { price: 14.99,  interval: 'week',       label: 'Weekly'       },
+    },
+    addons: {
+      addon1:      { annual: 5.99,  monthly: 5.99,  fortnightly: 5.99,  weekly: 5.99,  label: '48hr Cancellation Guarantee',    type: 'one-time'  },
+      addon2:      { annual: 19.99, monthly: 4.99,  fortnightly: 3.99,  weekly: 2.99,  label: 'Unlimited Prison Transfers',      type: 'recurring' },
+      addon3:      { annual: 19.99, monthly: 4.99,  fortnightly: 3.99,  weekly: 2.99,  label: '96hr Post-Renewal Cancellation', type: 'recurring' },
+      combo23:     { annual: 33.99, monthly: 7.99,  fortnightly: 6.99,  weekly: 4.99,  label: 'Combo: Add-ons 2 & 3',           type: 'recurring' },
+      lifetimeAll: { annual: 29.99, monthly: 29.99, fortnightly: 29.99, weekly: 29.99, label: 'Lifetime All 3 Add-ons',         type: 'one-time'  },
+    }
+  };
+
   var DEV_FLAGS = { OTP: false };
 
   /* â”€â”€â”€ Copyright year â”€â”€â”€ */
@@ -1033,30 +1049,18 @@
 
   /* Card order: Annual → Monthly → Fortnightly → Weekly */
   var PLANS = [
-    { key:'annual',      name:'Annual',      amount:349.99, period:'year',      badge:'Best Value',   badgeCls:'',            equiv:'$29.17/month', cls:'plan-card--annual'      },
-    { key:'monthly',     name:'Monthly',     amount:34.99,  period:'month',     badge:'Most Popular', badgeCls:'badge--black', equiv:null,           cls:'plan-card--monthly'     },
-    { key:'fortnightly', name:'Fortnightly', amount:19.99,  period:'fortnight', badge:null,           badgeCls:'',            equiv:null,           cls:'plan-card--fortnightly' },
-    { key:'weekly',      name:'Weekly',      amount:14.99,  period:'week',      badge:null,           badgeCls:'',            equiv:null,           cls:'plan-card--weekly'      }
+    { key:'annual',      name:PRICING.plans.annual.label,      amount:PRICING.plans.annual.price,      period:PRICING.plans.annual.interval,      badge:'Best Value',   badgeCls:'',            equiv:'$'+(PRICING.plans.annual.price/12).toFixed(2)+'/month', cls:'plan-card--annual'      },
+    { key:'monthly',     name:PRICING.plans.monthly.label,     amount:PRICING.plans.monthly.price,     period:PRICING.plans.monthly.interval,     badge:'Most Popular', badgeCls:'badge--black', equiv:null,           cls:'plan-card--monthly'     },
+    { key:'fortnightly', name:PRICING.plans.fortnightly.label, amount:PRICING.plans.fortnightly.price, period:PRICING.plans.fortnightly.interval, badge:null,           badgeCls:'',            equiv:null,           cls:'plan-card--fortnightly' },
+    { key:'weekly',      name:PRICING.plans.weekly.label,      amount:PRICING.plans.weekly.price,      period:PRICING.plans.weekly.interval,      badge:null,           badgeCls:'',            equiv:null,           cls:'plan-card--weekly'      }
   ];
 
   /* Selected plan state — updated when customer picks a card */
   var selectedPlan      = 'monthly';
-  var selectedPlanPrice = 34.99;
+  var selectedPlanPrice = PRICING.plans.monthly.price;
   var selectedAddons    = { addon1: false, addon2: false, addon3: false, combo23: false, lifetimeAll: false };
 
-  /* Add-on pricing tables */
-  var ADDON2_PRICES = {
-    weekly:      { display: '$2.99/week',      amount: 2.99  },
-    fortnightly: { display: '$3.99/fortnight', amount: 3.99  },
-    monthly:     { display: '$4.99/month',     amount: 4.99  },
-    annual:      { display: '$19.99/year',     amount: 19.99 }
-  };
-  var COMBO23_PRICES = {
-    weekly:      { display: '$4.99/week',      amount: 4.99  },
-    fortnightly: { display: '$6.99/fortnight', amount: 6.99  },
-    monthly:     { display: '$7.99/month',     amount: 7.99  },
-    annual:      { display: '$31.99/year',     amount: 31.99 }
-  };
+  
 
   var FEATURES = ['Unlimited minutes','One flat fee','Prison-approved number','Cancel anytime'];
 
@@ -1717,19 +1721,24 @@
   ═══════════════════════════════════════════════════════════════════════ */
 
   function buildAddonSection(planKey) {
-    var a2  = ADDON2_PRICES[planKey]  || ADDON2_PRICES.monthly;
-    var co  = COMBO23_PRICES[planKey] || COMBO23_PRICES.monthly;
-    var sav = ((a2.amount * 2) - co.amount).toFixed(2);
+    var pk   = planKey && PRICING.plans[planKey] ? planKey : 'monthly';
+    var intv = PRICING.plans[pk].interval;
+    var a1p  = PRICING.addons.addon1[pk];
+    var a2p  = PRICING.addons.addon2[pk];
+    var a3p  = PRICING.addons.addon3[pk];
+    var cop  = PRICING.addons.combo23[pk];
+    var ltp  = PRICING.addons.lifetimeAll[pk];
+    var sav  = (a2p + a3p - cop).toFixed(2);
 
     var div = document.createElement('div');
     div.className = 'addon-section';
     div.id = 'addonSection';
     div.innerHTML = [
       '<h3 class="addon-section__heading">Protect your plan</h3>',
-      '<p class="addon-section__sub">Optional add-ons. Select any that apply, then tap Continue — or skip and go straight to checkout.</p>',
+      '<p class="addon-section__sub">Optional add-ons. Select any that apply, then continue to checkout.</p>',
       '<div class="addon-table">',
 
-        /* — Add-on 1: 48-Hour Cancellation Guarantee — */
+        /* - Add-on 1 - */
         '<div class="addon-row" data-addon="addon1" role="checkbox" aria-checked="false" tabindex="0">',
           '<div class="addon-checkbox">'+TICK_SVG+'</div>',
           '<div class="addon-row__content">',
@@ -1737,13 +1746,13 @@
             '<p class="addon-row__why">Your number is activated within 24 hours. Once activated, refunds are not available. This guarantee gives you a full refund if you change your mind within 48 hours of purchase, no questions asked.</p>',
             '<div class="addon-row__risk">Without this you risk: losing your full plan payment with no recourse.</div>',
             '<div class="addon-row__price-line">',
-              '<span class="addon-row__price">$5.99</span>',
+              '<span class="addon-row__price">'+'\$'+a1p.toFixed(2)+'</span>',
               '<span class="addon-row__payment-type">One-time at checkout</span>',
             '</div>',
           '</div>',
         '</div>',
 
-        /* — Add-on 2: Unlimited Prison Transfers — */
+        /* - Add-on 2 - */
         '<div class="addon-row" data-addon="addon2" role="checkbox" aria-checked="false" tabindex="0">',
           '<div class="addon-checkbox">'+TICK_SVG+'</div>',
           '<div class="addon-row__content">',
@@ -1751,13 +1760,13 @@
             '<p class="addon-row__why">If your loved one is transferred to a different prison, their current number may no longer be the closest local number. This add-on covers unlimited transfers so calls always stay at the lowest rate.</p>',
             '<div class="addon-row__risk">Without this you risk: paying $24.99 per transfer every time your loved one is moved.</div>',
             '<div class="addon-row__price-line">',
-              '<span class="addon-row__price" data-dynamic="addon2-price">'+a2.display+'</span>',
+              '<span class="addon-row__price" data-dynamic="addon2-price">'+'\$'+a2p.toFixed(2)+'/'+intv+'</span>',
               '<span class="addon-row__payment-type">Recurring with your plan</span>',
             '</div>',
           '</div>',
         '</div>',
 
-        /* — Add-on 3: 96-Hour Post-Renewal Cancellation — */
+        /* - Add-on 3 - */
         '<div class="addon-row" data-addon="addon3" role="checkbox" aria-checked="false" tabindex="0">',
           '<div class="addon-checkbox">'+TICK_SVG+'</div>',
           '<div class="addon-row__content">',
@@ -1765,13 +1774,13 @@
             '<p class="addon-row__why">If your loved one is released shortly after a renewal, you have already been charged. This add-on gives you 96 hours after every renewal to cancel and receive a full refund.</p>',
             '<div class="addon-row__risk">Without this you risk: losing a full renewal payment you will not use.</div>',
             '<div class="addon-row__price-line">',
-              '<span class="addon-row__price" data-dynamic="addon3-price">'+a2.display+'</span>',
+              '<span class="addon-row__price" data-dynamic="addon3-price">'+'\$'+a3p.toFixed(2)+'/'+intv+'</span>',
               '<span class="addon-row__payment-type">Recurring with your plan</span>',
             '</div>',
           '</div>',
         '</div>',
 
-        /* — Combo row: Add-ons 2 + 3 — */
+        /* - Combo row - */
         '<div class="addon-row is-combo" data-addon="combo23" role="checkbox" aria-checked="false" tabindex="0">',
           '<div class="addon-checkbox">'+TICK_SVG+'</div>',
           '<div class="addon-row__content">',
@@ -1779,40 +1788,56 @@
             '<p class="addon-row__name">Unlimited Transfers + 96-Hr Renewal Cancellation</p>',
             '<p class="addon-row__why">Both recurring add-ons together at a reduced combined price.</p>',
             '<div class="addon-row__price-line">',
-              '<span class="addon-row__price" data-dynamic="combo23-price">'+co.display+'</span>',
+              '<span class="addon-row__price" data-dynamic="combo23-price">'+'\$'+cop.toFixed(2)+'/'+intv+'</span>',
               '<span class="addon-row__payment-type">Recurring with your plan</span>',
             '</div>',
-            '<p class="addon-combo-savings" data-dynamic="combo23-savings">Save $'+sav+' vs buying separately</p>',
+            '<p class="addon-combo-savings" data-dynamic="combo23-savings">Save '+'\$'+sav+' vs buying separately</p>',
           '</div>',
         '</div>',
 
       '</div>',
 
-      /* — Lifetime hero block — */
+      /* - Lifetime hero block - */
       '<div class="addon-lifetime" id="addonLifetime" role="checkbox" aria-checked="false" tabindex="0">',
         '<span class="addon-lifetime__badge">Most Popular</span>',
         '<h4 class="addon-lifetime__heading">Get all three add-ons for life.</h4>',
-        '<p class="addon-lifetime__sub">$29.99 once. Never pay for transfers, cancellations, or renewal refunds again. Ever.</p>',
-        '<button class="addon-lifetime__btn" type="button">Select — $29.99 once</button>',
+        '<p class="addon-lifetime__sub">'+'\$'+ltp.toFixed(2)+' once. Never pay for transfers, cancellations, or renewal refunds again. Ever.</p>',
+        '<button class="addon-lifetime__btn" type="button">Select - '+'\$'+ltp.toFixed(2)+' once</button>',
       '</div>'
     ].join('');
     return div;
   }
 
   function updateAddonPrices(sectionEl, planKey) {
-    var a2  = ADDON2_PRICES[planKey]  || ADDON2_PRICES.monthly;
-    var co  = COMBO23_PRICES[planKey] || COMBO23_PRICES.monthly;
-    var sav = ((a2.amount * 2) - co.amount).toFixed(2);
-    sectionEl.querySelectorAll('[data-dynamic="addon2-price"]').forEach(function(el){ el.textContent = a2.display; });
-    sectionEl.querySelectorAll('[data-dynamic="addon3-price"]').forEach(function(el){ el.textContent = a2.display; });
-    sectionEl.querySelectorAll('[data-dynamic="combo23-price"]').forEach(function(el){ el.textContent = co.display; });
+    var pk   = planKey && PRICING.plans[planKey] ? planKey : 'monthly';
+    var intv = PRICING.plans[pk].interval;
+    var a2p  = PRICING.addons.addon2[pk];
+    var a3p  = PRICING.addons.addon3[pk];
+    var cop  = PRICING.addons.combo23[pk];
+    var sav  = (a2p + a3p - cop).toFixed(2);
+    sectionEl.querySelectorAll('[data-dynamic="addon2-price"]').forEach(function(el){ el.textContent = '\$'+a2p.toFixed(2)+'/'+intv; });
+    sectionEl.querySelectorAll('[data-dynamic="addon3-price"]').forEach(function(el){ el.textContent = '\$'+a3p.toFixed(2)+'/'+intv; });
+    sectionEl.querySelectorAll('[data-dynamic="combo23-price"]').forEach(function(el){ el.textContent = '\$'+cop.toFixed(2)+'/'+intv; });
     var savEl = sectionEl.querySelector('[data-dynamic="combo23-savings"]');
-    if(savEl){ savEl.textContent = 'Save $'+sav+' vs buying separately'; }
+    if(savEl){ savEl.textContent = 'Save \$'+sav+' vs buying separately'; }
   }
 
+
   function wireAddonSection(sectionEl) {
-    /* Reset selectedAddons for this session */
-    selectedAddons = { addon1: false, addon2: false, addon3: false, combo23: false, lifetimeAll: false };
+    /* Apply current selectedAddons to visual elements (handles fresh + restored state) */
+    function applyAddonState() {
+      sectionEl.querySelectorAll('.addon-row').forEach(function(row) {
+        var k = row.dataset.addon;
+        if(selectedAddons[k]){ row.classList.add('is-selected'); row.setAttribute('aria-checked','true'); }
+        else { row.classList.remove('is-selected'); row.setAttribute('aria-checked','false'); }
+      });
+      var lt = sectionEl.querySelector('.addon-lifetime');
+      if(lt){
+        if(selectedAddons.lifetimeAll){ lt.classList.add('is-selected'); lt.setAttribute('aria-checked','true'); }
+        else { lt.classList.remove('is-selected'); lt.setAttribute('aria-checked','false'); }
+      }
+    }
+    applyAddonState();
 
     function setRow(row, key, checked) {
       selectedAddons[key] = checked;
@@ -1936,6 +1961,7 @@
   function completePlan(planKey){
     if(!cur) return;
     cur.planKey = planKey;
+    cur.addons  = Object.assign({}, selectedAddons);
     if(editId !== null){
       /* Entry stays in entries â€” update it in-place */
       var idx = entries.findIndex(function(e){ return e.id === editId; });
@@ -1946,6 +1972,7 @@
       entries.push(Object.assign({}, cur));
     }
     cur = null;
+    selectedAddons = { addon1:false, addon2:false, addon3:false, combo23:false, lifetimeAll:false };
     planFlow.innerHTML = '';
     clearGate();
     renderCompletedArea();
@@ -1982,6 +2009,7 @@
 
     var s4 = buildStep4El(entry.planKey);
     planFlow.appendChild(s4);
+    selectedAddons = Object.assign({}, entry.addons || { addon1:false, addon2:false, addon3:false, combo23:false, lifetimeAll:false });
     wireStep4(s4);
 
     /* Release gate so page can scroll back up to the edit steps */
@@ -1996,16 +2024,48 @@
   /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      RENDER COMPLETED AREA
   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-  function renderCompletedArea(){
+  function getAddonTotal(planKey, addons) {
+    if(!addons) return 0;
+    var t = 0;
+    if(addons.lifetimeAll){ t += PRICING.addons.lifetimeAll[planKey] || 0; return t; }
+    if(addons.addon1)  t += PRICING.addons.addon1[planKey]  || 0;
+    if(addons.combo23) t += PRICING.addons.combo23[planKey] || 0;
+    else {
+      if(addons.addon2) t += PRICING.addons.addon2[planKey] || 0;
+      if(addons.addon3) t += PRICING.addons.addon3[planKey] || 0;
+    }
+    return t;
+  }
+
+  function buildSummaryAddonLines(e) {
+    if(!e.addons) return '';
+    var pk   = e.planKey;
+    var intv = PRICING.plans[pk] ? PRICING.plans[pk].interval : 'plan';
+    var s    = '';
+    var ad;
+    if(e.addons.lifetimeAll) {
+      ad = PRICING.addons.lifetimeAll;
+      s += '<p class="summary-line__addon">+ ' + ad.label + ' &mdash; $' + ad[pk].toFixed(2) + ' once</p>';
+    } else {
+      if(e.addons.addon1) { ad = PRICING.addons.addon1; s += '<p class="summary-line__addon">+ ' + ad.label + ' &mdash; $' + ad[pk].toFixed(2) + ' once</p>'; }
+      if(e.addons.combo23) { ad = PRICING.addons.combo23; s += '<p class="summary-line__addon">+ ' + ad.label + ' &mdash; $' + ad[pk].toFixed(2) + ' per ' + intv + '</p>'; }
+      else {
+        if(e.addons.addon2) { ad = PRICING.addons.addon2; s += '<p class="summary-line__addon">+ ' + ad.label + ' &mdash; $' + ad[pk].toFixed(2) + ' per ' + intv + '</p>'; }
+        if(e.addons.addon3) { ad = PRICING.addons.addon3; s += '<p class="summary-line__addon">+ ' + ad.label + ' &mdash; $' + ad[pk].toFixed(2) + ' per ' + intv + '</p>'; }
+      }
+    }
+    return s ? '<div class="summary-line__addons">' + s + '</div>' : '';
+  }
+
+function renderCompletedArea(){
     var html = '';
     var hasEntries      = entries.length > 0;
     var isActivelyAdding = cur !== null && editId === null; /* filling a brand new plan */
     var isBundle        = entries.length >= 2;
-    var rawTotal        = entries.reduce(function(s,e){
-      var p = PLANS.find(function(p){ return p.key===e.planKey; });
-      return s + (p ? p.amount : 0);
-    }, 0);
-    var finalTotal = isBundle ? Math.round(rawTotal * 0.9 * 100) / 100 : rawTotal;
+    var planTotal  = entries.reduce(function(s,e){ return s + (PRICING.plans[e.planKey] ? PRICING.plans[e.planKey].price : 0); }, 0);
+    var addonTotal = entries.reduce(function(s,e){ return s + getAddonTotal(e.planKey, e.addons); }, 0);
+    var rawTotal   = planTotal + addonTotal;
+    var finalTotal = isBundle ? Math.round(planTotal * 0.9 * 100) / 100 + addonTotal : rawTotal;
 
     /* Interval mismatch detection */
     var INTERVAL_ORDER = { weekly: 1, fortnightly: 2, monthly: 3, annual: 4 };
@@ -2068,6 +2128,8 @@
             '</div>'+
           '</div>'+
         '</div>';
+        var addonSummary = buildSummaryAddonLines(e);
+        if(addonSummary) html += addonSummary;
       }
     });
 
