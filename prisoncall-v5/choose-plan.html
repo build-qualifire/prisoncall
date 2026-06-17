@@ -1450,6 +1450,7 @@
       '<button class="mobile-continue plan-continue" type="button">Continue &rarr;</button>',
       '<button class="step-back step-back--bottom" type="button" data-back="4">'+BACK_SVG+' Step 3</button>'
     ].join('');
+    el.querySelector('.plan-continue').insertAdjacentElement('beforebegin', buildAddonSection(defaultKey));
     return el;
   }
 
@@ -1687,6 +1688,9 @@
       });
     });
 
+    /* Wire the always-visible add-on section */
+    wireAddonSection(el.querySelector('.addon-section'));
+
     /* Continue — calls completePlan to confirm the selected plan */
     el.querySelector('.plan-continue').addEventListener('click', function(){
       var selected = el.querySelector('.plan-card.is-selected');
@@ -1790,12 +1794,6 @@
         '<h4 class="addon-lifetime__heading">Get all three add-ons for life.</h4>',
         '<p class="addon-lifetime__sub">$29.99 once. Never pay for transfers, cancellations, or renewal refunds again. Ever.</p>',
         '<button class="addon-lifetime__btn" type="button">Select — $29.99 once</button>',
-      '</div>',
-
-      /* — Bottom actions — */
-      '<div class="addon-actions">',
-        '<button class="addon-checkout-btn" id="addonCheckoutBtn" type="button">Continue to checkout</button>',
-        '<button class="addon-skip" id="addonSkipBtn" type="button">No thanks, continue without add-ons</button>',
       '</div>'
     ].join('');
     return div;
@@ -1914,8 +1912,8 @@
       });
     }
 
-    checkoutBtn.addEventListener('click', function(){ doAddonCheckout(false); });
-    skipBtn.addEventListener('click', function(){ doAddonCheckout(true); });
+    if(checkoutBtn){ checkoutBtn.addEventListener('click', function(){ doAddonCheckout(false); }); }
+    if(skipBtn){ skipBtn.addEventListener('click', function(){ doAddonCheckout(true); }); }
   }
 
   /* â”€â”€â”€ Format mobile number â”€â”€â”€ */
