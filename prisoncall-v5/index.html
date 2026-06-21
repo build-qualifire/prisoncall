@@ -1025,6 +1025,156 @@
         overflow: hidden;
       }
     }
+
+    /* ── You Asked We Delivered ─────────────────────────────────── */
+    .yaw {
+      background: #fff;
+    }
+
+    .yaw__header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .yaw__sub {
+      margin-top: 12px;
+      font-size: 1.125rem;
+      color: #555;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .yaw__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .yaw__card {
+      background: #f7f9f8;
+      border-radius: 24px;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .yaw__icon-wrap {
+      width: 48px;
+      height: 48px;
+      background: #e6faf0;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .yaw__icon {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+    }
+
+    .yaw__card-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #101010;
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    .yaw__card-desc {
+      font-size: 0.9375rem;
+      color: #555;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Lifetime hero block */
+    .yaw__lifetime {
+      background: #101010;
+      border-radius: 24px;
+      padding: 40px 40px;
+    }
+
+    .yaw__lifetime-inner {
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .yaw__lifetime-badge {
+      display: inline-block;
+      background: #00d258;
+      color: #101010;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 100px;
+    }
+
+    .yaw__lifetime-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .yaw__lifetime-desc {
+      font-size: 0.9375rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .yaw__lifetime-cta {
+      margin-top: 8px;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .yaw__grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .yaw__card {
+        padding: 24px 20px;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .yaw__card-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .yaw__lifetime {
+        padding: 32px 24px;
+        border-radius: 20px;
+      }
+
+      .yaw__lifetime-title {
+        font-size: 1.25rem;
+      }
+
+      .yaw__header {
+        margin-bottom: 32px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1539,6 +1689,54 @@
         <div class="reviews__cta">
           <a href="choose-plan.html" class="btn btn--black btn--lg">Get started now</a>
         </div>
+      </div>
+    </section>
+
+    <!-- ═══ YOU ASKED WE DELIVERED ═══ -->
+    <section class="yaw section-pad" aria-labelledby="yaw-title">
+      <div class="container">
+        <div class="yaw__header">
+          <h2 class="section-title" id="yaw-title">You asked. We delivered.</h2>
+          <p class="yaw__sub">Every feature below came from real feedback from families just like yours.</p>
+        </div>
+
+        <div class="yaw__grid">
+
+          <div class="yaw__card">
+            <div class="yaw__icon-wrap">
+              <img src="assets/icons/feature_icons/icon-shield-check.svg" alt="" class="yaw__icon" aria-hidden="true">
+            </div>
+            <h3 class="yaw__card-title">Change your mind? No stress.</h3>
+            <p class="yaw__card-desc">Cancel within 48 hours of any renewal and get a full refund, no questions asked. Add-on 1 gives you that peace of mind.</p>
+          </div>
+
+          <div class="yaw__card">
+            <div class="yaw__icon-wrap">
+              <img src="assets/icons/feature_icons/icon-phone-shield.svg" alt="" class="yaw__icon" aria-hidden="true">
+            </div>
+            <h3 class="yaw__card-title">Loved one moved prisons?</h3>
+            <p class="yaw__card-desc">Transfer your number to the new prison, free of charge, any time. Add-on 2 means you never pay to follow them.</p>
+          </div>
+
+          <div class="yaw__card">
+            <div class="yaw__icon-wrap">
+              <img src="assets/icons/feature_icons/icon-warranty-badge-black.svg" alt="" class="yaw__icon" aria-hidden="true">
+            </div>
+            <h3 class="yaw__card-title">Renewed and they were released?</h3>
+            <p class="yaw__card-desc">If your loved one is released after a renewal, get a refund on the unused days. Add-on 3 means you never lose money on timing.</p>
+          </div>
+
+        </div>
+
+        <div class="yaw__lifetime">
+          <div class="yaw__lifetime-inner">
+            <div class="yaw__lifetime-badge">Most popular</div>
+            <h3 class="yaw__lifetime-title">Get all three. Pay once. Never worry again.</h3>
+            <p class="yaw__lifetime-desc">The Lifetime Protection Bundle gives you all three add-ons for a single one-time payment. Cancellations, transfers, refunds -- covered for life.</p>
+            <a href="choose-plan.html" class="btn yaw__lifetime-cta">Get your Prisoncall plan</a>
+          </div>
+        </div>
+
       </div>
     </section>
 
