@@ -738,7 +738,7 @@
     .addon-row__name { font-size: 15px; font-weight: 700; margin-bottom: 0; line-height: 1.3; }
     .addon-combo-label {
       display: inline-flex; align-items: center; font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
-      text-transform: uppercase; background: var(--color-green); color: var(--color-black);
+      text-transform: uppercase; background: #101010; color: #00d258;
       padding: 2px 8px; border-radius: var(--radius-pill); margin-bottom: 6px;
     }
     .addon-row__why { font-size: 12px; color: var(--color-muted); line-height: 1.5; margin-top: 4px; margin-bottom: 6px; }
@@ -1198,6 +1198,7 @@
 
   var planFlow      = document.getElementById('planFlow');
   var completedArea = document.getElementById('completedArea');
+  var addonPreselect = (function(){ try { return new URLSearchParams(window.location.search).get('addon'); } catch(e){ return null; } }());
 
   /* â”€â”€â”€ Scroll gating â€” prevents scrolling back above the active step â”€â”€â”€ */
   var gateY      = 0;
@@ -1732,6 +1733,18 @@
 
     /* Wire the always-visible add-on section */
     wireAddonSection(el.querySelector('.addon-section'));
+
+    /* If the customer arrived via ?addon=lifetime, pre-select it now that
+       the add-on section is wired and visible in the DOM. */
+    if (addonPreselect === 'lifetime') {
+      var lifetimeEl = el.querySelector('#addonLifetime');
+      if (lifetimeEl) {
+        lifetimeEl.click();
+        setTimeout(function() {
+          lifetimeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    }
 
     /* Continue — calls completePlan to confirm the selected plan */
     el.querySelector('.plan-continue').addEventListener('click', function(){
@@ -2441,27 +2454,6 @@ function renderCompletedArea(){
       localStorage.removeItem('prisoncall_checkout_state');
     }
     startNewPlan(getUrlState(), getUrlPrison());
-  }());
-
-  /* -- Pre-select lifetime add-on if ?addon=lifetime is in URL -- */
-  (function() {
-    try {
-      var urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('addon') !== 'lifetime') return;
-      /* #addonLifetime is built dynamically when step 4 renders, so we
-         watch planFlow with a MutationObserver and click it once it appears. */
-      var observer = new MutationObserver(function(mutations, obs) {
-        var lifetimeEl = document.getElementById('addonLifetime');
-        if (lifetimeEl) {
-          obs.disconnect();
-          lifetimeEl.click();
-          setTimeout(function() {
-            lifetimeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 300);
-        }
-      });
-      observer.observe(planFlow, { childList: true, subtree: true });
-    } catch(e) {}
   }());
 
   /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
