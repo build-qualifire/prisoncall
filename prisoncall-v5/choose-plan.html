@@ -1199,6 +1199,7 @@
   var planFlow      = document.getElementById('planFlow');
   var completedArea = document.getElementById('completedArea');
   var addonPreselect = (function(){ try { return new URLSearchParams(window.location.search).get('addon'); } catch(e){ return null; } }());
+  var addonAutoSelectFn = null; /* set by wireAddonSection to expose autoSelectLifetime */
 
   /* â”€â”€â”€ Scroll gating â€” prevents scrolling back above the active step â”€â”€â”€ */
   var gateY      = 0;
@@ -1721,14 +1722,15 @@
         var existingAddon = el.querySelector('.addon-section');
         if(existingAddon){ updateAddonPrices(existingAddon, planKey); }
         /* Pre-select lifetime add-on on first plan card click when ?addon=lifetime.
+           Uses autoSelectLifetime (not .click()) so the toast fires correctly.
            Fires once then clears so repeat clicks don't re-scroll. */
         if (addonPreselect === 'lifetime') {
           addonPreselect = null;
-          var lifetimeEl = el.querySelector('#addonLifetime');
-          if (lifetimeEl) {
-            lifetimeEl.click();
+          if (addonAutoSelectFn) addonAutoSelectFn();
+          var lifetimePreselEl = el.querySelector('#addonLifetime');
+          if (lifetimePreselEl) {
             setTimeout(function() {
-              lifetimeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              lifetimePreselEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 300);
           }
         }
@@ -1921,6 +1923,77 @@
       }
     }
 
+    /* ── Toast: fires on auto-upgrade and URL-param pre-select only ── */
+    function showUpgradeToast() {
+      var existing = document.getElementById('lifetimeUpgradeToast');
+      if(existing) existing.remove();
+      var isMobile = window.innerWidth <= 768;
+      var toast = document.createElement('div');
+      toast.id = 'lifetimeUpgradeToast';
+      toast.textContent = 'You\u2019re getting the best deal. Lifetime Protection covers all three add-ons \u2014 once, forever.';
+      toast.style.cssText = [
+        'position:fixed',
+        'bottom:calc(' + (isMobile ? '80px' : '72px') + ' + env(safe-area-inset-bottom, 0px))',
+        'left:50%',
+        'transform:translateX(-50%) translateY(20px)',
+        'width:calc(100% - 32px)',
+        'max-width:480px',
+        'background:#00d258',
+        'color:#101010',
+        'font-family:inherit',
+        'font-size:' + (isMobile ? '14px' : '15px'),
+        'line-height:1.5',
+        'font-weight:600',
+        'padding:' + (isMobile ? '14px 16px' : '16px 20px'),
+        'border-radius:12px',
+        'z-index:9999',
+        'pointer-events:none',
+        'opacity:0',
+        'transition:opacity 300ms ease, transform 300ms ease',
+        'box-sizing:border-box',
+        'text-align:center'
+      ].join(';');
+      document.body.appendChild(toast);
+      toast.getBoundingClientRect(); /* force reflow before animating */
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+      setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(20px)';
+        setTimeout(function(){ if(toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+      }, 4000);
+    }
+
+    /* ── Grey / ungrey all addon rows ── */
+    function setRowsGreyed(greyed) {
+      sectionEl.querySelectorAll('.addon-row').forEach(function(r) {
+        r.style.opacity = greyed ? '0.4' : '1';
+        r.style.pointerEvents = greyed ? 'none' : 'auto';
+      });
+    }
+
+    /* ── Auto-select lifetime (called by auto-upgrade + URL param, not direct click) ── */
+    function autoSelectLifetime() {
+      ['addon1','addon2','addon3','combo23'].forEach(function(k){
+        var r = sectionEl.querySelector('[data-addon="'+k+'"]');
+        if(r) setRow(r, k, false);
+      });
+      setLifetime(true);
+      setRowsGreyed(true);
+      showUpgradeToast();
+    }
+
+    /* ── Check if auto-upgrade threshold is met after any checkbox change ── */
+    function checkAutoUpgrade() {
+      if(selectedAddons.lifetimeAll) return;
+      var allThree    = selectedAddons.addon1 && selectedAddons.addon2 && selectedAddons.addon3;
+      var comboAndOne = selectedAddons.combo23 && selectedAddons.addon1;
+      if(allThree || comboAndOne) autoSelectLifetime();
+    }
+
+    /* Expose autoSelectLifetime at module level for URL-param pre-selection */
+    addonAutoSelectFn = autoSelectLifetime;
+
     sectionEl.querySelectorAll('.addon-row').forEach(function(row){
       var key = row.dataset.addon;
 
@@ -1946,10 +2019,14 @@
       if(cb){
         cb.addEventListener('click', function(e){
           e.stopPropagation();
+          /* CHANGE 2: If lifetime is active, deselect it and restore all rows */
+          if(selectedAddons.lifetimeAll) {
+            setLifetime(false);
+            setRowsGreyed(false);
+          }
           var next = !selectedAddons[key];
           setRow(row, key, next);
           if(next){
-            setLifetime(false);
             if(key === 'addon2' || key === 'addon3'){
               var comboRow = sectionEl.querySelector('[data-addon="combo23"]');
               if(comboRow) setRow(comboRow, 'combo23', false);
@@ -1961,6 +2038,8 @@
             if(r2) setRow(r2, 'addon2', false);
             if(r3) setRow(r3, 'addon3', false);
           }
+          /* CHANGE 1: Check if auto-upgrade threshold is now met */
+          checkAutoUpgrade();
         });
         cb.addEventListener('keydown', function(e){
           if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); cb.click(); }
@@ -1969,7 +2048,7 @@
     });
 
 
-    /* Lifetime hero */
+    /* Lifetime hero — manual click only (no toast, no grey on select) */
     var lifetimeEl = sectionEl.querySelector('.addon-lifetime');
     lifetimeEl.addEventListener('click', function(){
       var next = !selectedAddons.lifetimeAll;
@@ -1980,6 +2059,9 @@
           var r = sectionEl.querySelector('[data-addon="'+k+'"]');
           if(r) setRow(r, k, false);
         });
+      } else {
+        /* CHANGE 2: Ungrey rows when manually deselecting lifetime */
+        setRowsGreyed(false);
       }
     });
     lifetimeEl.addEventListener('keydown', function(e){
