@@ -1001,6 +1001,150 @@
         overflow: hidden;
       }
     }
+    /* ── You Asked We Delivered ─────────────────────────────────── */
+    .yaw {
+      background: #e6faf0;
+    }
+
+    .yaw__header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .yaw__sub {
+      margin-top: 12px;
+      font-size: 1.125rem;
+      color: #555;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .yaw__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .yaw__card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .yaw__icon-wrap {
+      width: 48px;
+      height: 48px;
+      background: #e6faf0;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .yaw__icon {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+    }
+
+    .yaw__card-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #101010;
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    .yaw__card-desc {
+      font-size: 0.9375rem;
+      color: #555;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Lifetime hero block */
+    .yaw__lifetime {
+      background: #101010;
+      border-radius: 24px;
+      padding: 40px 40px;
+    }
+
+    .yaw__lifetime-inner {
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .yaw__lifetime-badge {
+      display: inline-block;
+      background: #00d258;
+      color: #101010;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 100px;
+    }
+
+    .yaw__lifetime-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .yaw__lifetime-desc {
+      font-size: 0.9375rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .yaw__lifetime-cta {
+      margin-top: 8px;
+      background: #00d258 !important;
+      color: #101010 !important;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .yaw__grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .yaw__card {
+        padding: 24px 20px;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .yaw__lifetime {
+        padding: 32px 24px;
+        border-radius: 20px;
+      }
+
+      .yaw__lifetime-title {
+        font-size: 1.25rem;
+      }
+
+      .yaw__header {
+        margin-bottom: 32px;
+      }
+    }
   </style>
 </head>
 <body>
