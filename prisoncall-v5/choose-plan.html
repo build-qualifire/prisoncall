@@ -1720,6 +1720,18 @@
         /* If add-on section is already visible, refresh its dynamic prices */
         var existingAddon = el.querySelector('.addon-section');
         if(existingAddon){ updateAddonPrices(existingAddon, planKey); }
+        /* Pre-select lifetime add-on on first plan card click when ?addon=lifetime.
+           Fires once then clears so repeat clicks don't re-scroll. */
+        if (addonPreselect === 'lifetime') {
+          addonPreselect = null;
+          var lifetimeEl = el.querySelector('#addonLifetime');
+          if (lifetimeEl) {
+            lifetimeEl.click();
+            setTimeout(function() {
+              lifetimeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+          }
+        }
       }
       card.addEventListener('click', function(e){
         if(e.target.classList.contains('plan-card__select')){ doSelect(); return; }
@@ -1733,18 +1745,6 @@
 
     /* Wire the always-visible add-on section */
     wireAddonSection(el.querySelector('.addon-section'));
-
-    /* If the customer arrived via ?addon=lifetime, pre-select it now that
-       the add-on section is wired and visible in the DOM. */
-    if (addonPreselect === 'lifetime') {
-      var lifetimeEl = el.querySelector('#addonLifetime');
-      if (lifetimeEl) {
-        lifetimeEl.click();
-        setTimeout(function() {
-          lifetimeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
-      }
-    }
 
     /* Continue — calls completePlan to confirm the selected plan */
     el.querySelector('.plan-continue').addEventListener('click', function(){
