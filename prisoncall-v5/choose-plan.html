@@ -1895,7 +1895,7 @@
         var ltBtn = lt.querySelector('.addon-lifetime__btn');
         if(selectedAddons.lifetimeAll){
           lt.classList.add('is-selected'); lt.setAttribute('aria-checked','true');
-          if(ltBtn) ltBtn.textContent = '\u2713 Lifetime selected';
+          if(ltBtn) ltBtn.textContent = '\u2713 Lifetime selected \u2014 $29.99 once';
         } else {
           lt.classList.remove('is-selected'); lt.setAttribute('aria-checked','false');
         }
@@ -1914,7 +1914,7 @@
       var ltBtn = el ? el.querySelector('.addon-lifetime__btn') : null;
       if(checked){
         el.classList.add('is-selected'); el.setAttribute('aria-checked','true');
-        if(ltBtn) ltBtn.textContent = '\u2713 Lifetime selected';
+        if(ltBtn) ltBtn.textContent = '\u2713 Lifetime selected \u2014 $29.99 once';
       } else {
         el.classList.remove('is-selected'); el.setAttribute('aria-checked','false');
         if(ltBtn) ltBtn.textContent = 'Get lifetime protection \u2014 $' + PRICING.addons.lifetimeAll[selectedPlan].toFixed(2);
