@@ -2443,6 +2443,27 @@ function renderCompletedArea(){
     startNewPlan(getUrlState(), getUrlPrison());
   }());
 
+  /* -- Pre-select lifetime add-on if ?addon=lifetime is in URL -- */
+  (function() {
+    try {
+      var urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('addon') !== 'lifetime') return;
+      /* #addonLifetime is built dynamically when step 4 renders, so we
+         watch planFlow with a MutationObserver and click it once it appears. */
+      var observer = new MutationObserver(function(mutations, obs) {
+        var lifetimeEl = document.getElementById('addonLifetime');
+        if (lifetimeEl) {
+          obs.disconnect();
+          lifetimeEl.click();
+          setTimeout(function() {
+            lifetimeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 300);
+        }
+      });
+      observer.observe(planFlow, { childList: true, subtree: true });
+    } catch(e) {}
+  }());
+
   /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      DEV PANEL â€” inject only on staging domain (prisoncall-1mc.pages.dev).
      Never appears on prisoncall.com.au or any other domain.
