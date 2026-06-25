@@ -179,9 +179,6 @@ export async function initAdminPage(requiredRole = null) {
 
   console.log('[AdminAuth] Access granted — role "' + role + '" meets requiredRole "' + requiredRole + '"');
 
-  // Reveal the page (body was hidden to prevent a flash while the async auth check ran)
-  document.body.style.visibility = 'visible';
-
   // Populate sidebar user email
   document.querySelectorAll('[data-user-email]').forEach(el => {
     el.textContent = session.user?.email || '';
