@@ -576,6 +576,8 @@
     }
     .otp-send-btn:hover { opacity: 0.86; transform: translateY(-1px); }
     .otp-send-btn:active { transform: none; opacity: 1; }
+    .otp-send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+    .otp-sent-msg { font-size: 13px; color: #1a7f4b; margin-bottom: 10px; font-weight: 600; }
 
     /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        ACKNOWLEDGEMENT BLOCK (Step 2) + CHECKBOX STYLES
@@ -1277,18 +1279,53 @@
     sendWrap.className = 'otp-send-wrap';
     sendWrap.innerHTML =
       '<button class="otp-send-btn" type="button">Send Code</button>' +
-      '<p class="otp-send-sub">We\'ll send a code to verify this number. Your loved one will be calling it, so let\'s get it right.</p>';
+      '<p class="otp-send-sub">We\'ll send a code to verify this number. Your loved one will be calling it, so let\'s get it right.</p>' +
+      '<p class="mobile-error otp-send-error"></p>';
     stepEl.appendChild(sendWrap);
     /* Re-append back button so it remains the very last element, below Send Code */
     var backBtn = stepEl.querySelector('[data-back="3"]');
     if(backBtn) stepEl.appendChild(backBtn);
-    sendWrap.querySelector('.otp-send-btn').addEventListener('click', function(){
-      showOtpVerifyPhase(stepEl, digits, cont);
+
+    var sendBtn   = sendWrap.querySelector('.otp-send-btn');
+    var sendError = sendWrap.querySelector('.otp-send-error');
+
+    sendBtn.addEventListener('click', function(){
+      if(DEV_FLAGS.OTP){
+        /* Bypass mode: skip API, go straight to verify phase */
+        showOtpVerifyPhase(stepEl, digits, cont, false);
+        return;
+      }
+      /* Real mode: call Twilio send-otp */
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending\u2026';
+      sendError.classList.remove('is-visible');
+      fetch('/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile: digits })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send Code';
+        if(data.success){
+          showOtpVerifyPhase(stepEl, digits, cont, true);
+        } else {
+          sendError.textContent = 'Failed to send code. Please try again.';
+          sendError.classList.add('is-visible');
+        }
+      })
+      .catch(function(){
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send Code';
+        sendError.textContent = 'Failed to send code. Please try again.';
+        sendError.classList.add('is-visible');
+      });
     });
   }
 
   /* Phase 2: code entry â€” validates 111111 (pass) / anything else (fail) */
-  function showOtpVerifyPhase(stepEl, digits, originalCont){
+  function showOtpVerifyPhase(stepEl, digits, originalCont, codeSent){
     /* Hide mobile input area + send phase */
     var mobileInput = stepEl.querySelector('.mobile-input');
     var mobileError = stepEl.querySelector('.mobile-error');
@@ -1303,10 +1340,11 @@
     var verifyWrap = document.createElement('div');
     verifyWrap.className = 'otp-verify-wrap';
     verifyWrap.innerHTML = [
+      codeSent ? '<p class="otp-sent-msg">\u2713 Code sent to <strong>'+maskMobile(digits)+'</strong></p>' : '',
       '<p class="otp-verify-inst">Enter the 6-digit code we sent to <strong>'+formatMobile(digits)+'</strong></p>',
       '<input class="mobile-input otp-code-input" type="tel" inputmode="numeric" ',
         'placeholder="000 000" maxlength="7" autocomplete="one-time-code">',
-      '<p class="mobile-error otp-code-error">That code doesn\'t match. Please try again or resend.</p>',
+      '<p class="mobile-error otp-code-error"></p>',
       '<button class="otp-resend-link" type="button">Didn\'t get a code? <span>Resend</span></button>'
     ].join('');
 
@@ -1333,46 +1371,113 @@
 
     /* Resend â€” reset field, show brief confirmation */
     resendBtn.addEventListener('click', function(){
+      var origHTML = resendBtn.innerHTML;
       codeInput.value = '';
       codeInput.classList.remove('has-error');
       codeError.classList.remove('is-visible');
-      var origHTML = resendBtn.innerHTML;
-      resendBtn.textContent = 'Code resent.';
-      setTimeout(function(){ resendBtn.innerHTML = origHTML; }, 2500);
-      codeInput.focus();
+      if(DEV_FLAGS.OTP){
+        resendBtn.textContent = 'Code resent.';
+        setTimeout(function(){ resendBtn.innerHTML = origHTML; }, 2500);
+        codeInput.focus();
+        return;
+      }
+      resendBtn.disabled = true;
+      resendBtn.textContent = 'Sending\u2026';
+      fetch('/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile: digits })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        resendBtn.disabled = false;
+        if(data.success){
+          resendBtn.textContent = 'Code resent.';
+          setTimeout(function(){ resendBtn.innerHTML = origHTML; }, 2500);
+        } else {
+          resendBtn.innerHTML = origHTML;
+        }
+        codeInput.focus();
+      })
+      .catch(function(){
+        resendBtn.disabled = false;
+        resendBtn.innerHTML = origHTML;
+        codeInput.focus();
+      });
     });
 
-    /* Verify â€” 111111 passes, anything else fails */
+    /* Shared success handler */
+    function handleVerifySuccess(){
+      newCont.removeEventListener('click', doVerify);
+      newCont.disabled = false;
+      verifyWrap.style.display = 'none';
+      var stepHeading = stepEl.querySelector('.step-heading');
+      if(stepHeading) stepHeading.textContent = 'Perfect, your number is verified.';
+      var successWrap = document.createElement('div');
+      successWrap.innerHTML =
+        '<p class="mobile-hint">Calls from your loved one will be forwarded to:</p>' +
+        '<input class="mobile-input" type="tel" value="' + formatMobile(digits) + '" readonly tabindex="-1" style="pointer-events:none;">';
+      newCont.parentNode.insertBefore(successWrap, newCont);
+      newCont.textContent = 'Choose Plan \u2192';
+      newCont.addEventListener('click', function advanceToStep4(){
+        newCont.removeEventListener('click', advanceToStep4);
+        var s4 = getStepEl(4);
+        if(s4){ scrollToEl(s4, true); return; }
+        removeStepsFrom(4);
+        s4 = buildStep4El(null);
+        planFlow.appendChild(s4);
+        wireStep4(s4);
+        scrollToEl(s4, true);
+        snapCarouselToKey(s4, 'monthly');
+      });
+    }
+
     function doVerify(){
       var code = codeInput.value.replace(/\D/g,'');
-      if(code === '111111'){
-        /* Code accepted â€” show verified number state, advance to Step 4 on Continue */
-        newCont.removeEventListener('click', doVerify);
-        verifyWrap.style.display = 'none';
-        /* Update the existing Step 3 title in place */
-        var stepHeading = stepEl.querySelector('.step-heading');
-        if(stepHeading) stepHeading.textContent = 'Perfect, your number is verified.';
-        var successWrap = document.createElement('div');
-        successWrap.innerHTML =
-          '<p class="mobile-hint">Calls from your loved one will be forwarded to:</p>' +
-          '<input class="mobile-input" type="tel" value="' + formatMobile(digits) + '" readonly tabindex="-1" style="pointer-events:none;">';
-        newCont.parentNode.insertBefore(successWrap, newCont);
-        newCont.textContent = 'Choose Plan \u2192';
-        newCont.addEventListener('click', function advanceToStep4(){
-          newCont.removeEventListener('click', advanceToStep4);
-          var s4 = getStepEl(4);
-          if(s4){ scrollToEl(s4, true); return; }
-          removeStepsFrom(4);
-          s4 = buildStep4El(null);
-          planFlow.appendChild(s4);
-          wireStep4(s4);
-          scrollToEl(s4, true);
-          snapCarouselToKey(s4, 'monthly');
-        });
-      } else {
-        codeInput.classList.add('has-error');
-        codeError.classList.add('is-visible');
+      if(DEV_FLAGS.OTP){
+        /* Bypass mode: 111111 passes, anything else fails */
+        if(code === '111111'){
+          handleVerifySuccess();
+        } else {
+          codeInput.classList.add('has-error');
+          codeError.textContent = 'Incorrect code. Please try again.';
+          codeError.classList.add('is-visible');
+        }
+        return;
       }
+      /* Real mode: call /verify-otp */
+      if(code.length < 6){
+        codeInput.classList.add('has-error');
+        codeError.textContent = 'Please enter the full 6-digit code.';
+        codeError.classList.add('is-visible');
+        return;
+      }
+      newCont.disabled = true;
+      newCont.textContent = 'Verifying\u2026';
+      fetch('/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile: digits, code: code })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if(data.success){
+          handleVerifySuccess();
+        } else {
+          newCont.disabled = false;
+          newCont.textContent = 'Confirm \u2192';
+          codeInput.classList.add('has-error');
+          codeError.textContent = 'Incorrect code. Please try again.';
+          codeError.classList.add('is-visible');
+        }
+      })
+      .catch(function(){
+        newCont.disabled = false;
+        newCont.textContent = 'Confirm \u2192';
+        codeInput.classList.add('has-error');
+        codeError.textContent = 'Incorrect code. Please try again.';
+        codeError.classList.add('is-visible');
+      });
     }
     newCont.addEventListener('click', doVerify);
     codeInput.addEventListener('keydown', function(e){
@@ -1636,23 +1741,10 @@
           state:  cur && cur.state  ? cur.state  : null
         })
       }).catch(function(){}); // silent â€” never block the flow
-      /* DEV: OTP â€” show Send Code phase instead of advancing to Step 4 */
-      if(DEV_FLAGS.OTP){
-        if(otpSendShown) return;
-        otpSendShown = true;
-        showOtpSendPhase(el, digits);
-        return;
-      }
-      /* Same mobile â€” scroll to step 4 if it exists */
-      var s4 = getStepEl(4);
-      if(s4){ scrollToEl(s4, true); return; }
-      removeStepsFrom(4);
-      s4 = buildStep4El(null);
-      planFlow.appendChild(s4);
-      wireStep4(s4);
-      scrollToEl(s4, true);
-      /* Pre-scroll carousel to Monthly after render */
-      snapCarouselToKey(s4, 'monthly');
+      /* OTP verification â€” always required */
+      if(otpSendShown) return;
+      otpSendShown = true;
+      showOtpSendPhase(el, digits);
     }
     cont.addEventListener('click', doValidate);
 
