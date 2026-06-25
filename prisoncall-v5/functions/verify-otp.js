@@ -21,6 +21,8 @@ export async function onRequestPost(context) {
   const authToken  = env.TWILIO_AUTH_TOKEN;
   const serviceSid = env.TWILIO_VERIFY_SERVICE_SID;
 
+  console.log('[verify-otp] accountSid[:8]:', (accountSid || '').slice(0, 8), '| serviceSid[:8]:', (serviceSid || '').slice(0, 8));
+
   if (!accountSid || !authToken || !serviceSid) {
     return jsonResponse({ success: false, error: 'Server misconfiguration' }, 500);
   }
