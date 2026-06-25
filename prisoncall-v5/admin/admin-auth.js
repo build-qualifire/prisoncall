@@ -1,10 +1,18 @@
 /**
  * Prisoncall Admin - Shared Auth + API Client
  * All Supabase data calls routed through /api/admin-supabase (CF Pages Function)
+ *
+ * Roles (read from Supabase user_metadata.role):
+ *   super_admin - full access: Dashboard, Orders, Customers, Products, Settings
+ *   admin       - Dashboard, Orders, Customers
+ *   staff       - Dashboard, Orders only
  */
 
 const ADMIN_API = '/api/admin-supabase';
 const SESSION_KEY = 'pc_admin_session';
+
+// Role hierarchy: higher index = more access
+const ROLE_LEVELS = { staff: 0, admin: 1, super_admin: 2 };
 
 // ── Session helpers ────────────────────────────────────────────
 
@@ -27,7 +35,6 @@ export function clearSession() {
 
 function isSessionValid(session) {
   if (!session || !session.access_token) return false;
-  // expires_at is in Unix seconds; subtract 60s buffer
   if (session.expires_at && Date.now() / 1000 > session.expires_at - 60) return false;
   return true;
 }
@@ -47,19 +54,43 @@ async function tryRefresh(session) {
       return refreshed;
     }
   } catch {
-    // ignore
+    // ignore network errors during refresh
   }
   return null;
+}
+
+// ── Role helpers ───────────────────────────────────────────────
+
+export function getUserRole() {
+  return getSession()?.user?.role || null;
+}
+
+function roleLevel(role) {
+  return ROLE_LEVELS[role] ?? -1;
+}
+
+/**
+ * Returns true if the user's role meets or exceeds the required role.
+ * @param {string} userRole
+ * @param {string|null} requiredRole - null means any valid role is accepted
+ */
+function hasRole(userRole, requiredRole) {
+  if (!requiredRole) return roleLevel(userRole) >= 0;
+  return roleLevel(userRole) >= roleLevel(requiredRole);
 }
 
 // ── Page initialisation ────────────────────────────────────────
 
 /**
- * Call on every protected page load.
- * Returns session or redirects to login.
- * @param {boolean} requireGuness - if true, redirect Dinisha to dashboard
+ * Call at the top of every protected page.
+ * Returns the session or null (and redirects) if auth fails.
+ *
+ * @param {string|null} requiredRole
+ *   null        - any valid role (staff, admin, super_admin)
+ *   'admin'     - admin or super_admin only; staff redirected to dashboard
+ *   'super_admin' - super_admin only; others redirected to dashboard
  */
-export async function initAdminPage(requireGuness = false) {
+export async function initAdminPage(requiredRole = null) {
   let session = getSession();
 
   if (!session) {
@@ -76,31 +107,33 @@ export async function initAdminPage(requireGuness = false) {
     }
   }
 
-  const email = session.user?.email || '';
+  const role = session.user?.role || null;
 
-  if (requireGuness && email !== 'guness@prisoncall.com.au') {
+  // No valid role = not an admin account
+  if (!role || roleLevel(role) < 0) {
+    clearSession();
+    redirectToLogin();
+    return null;
+  }
+
+  // Insufficient role for this page
+  if (!hasRole(role, requiredRole)) {
     window.location.href = '/admin/dashboard.html';
     return null;
   }
 
-  // Populate sidebar UI
-  const emailEls = document.querySelectorAll('[data-user-email]');
-  emailEls.forEach(el => { el.textContent = email; });
+  // Populate sidebar user info
+  document.querySelectorAll('[data-user-email]').forEach(el => {
+    el.textContent = session.user?.email || '';
+  });
 
-  // Hide Products + Settings nav items for Dinisha
-  if (email !== 'guness@prisoncall.com.au') {
-    document.querySelectorAll('[data-guness-only]').forEach(el => el.remove());
-  }
+  // Remove nav items the current role cannot access
+  // Attribute: data-role-min="admin" or data-role-min="super_admin"
+  document.querySelectorAll('[data-role-min]').forEach(el => {
+    if (!hasRole(role, el.dataset.roleMin)) el.remove();
+  });
 
   return session;
-}
-
-export function getUserEmail() {
-  return getSession()?.user?.email || '';
-}
-
-export function isGuness() {
-  return getUserEmail() === 'guness@prisoncall.com.au';
 }
 
 export function redirectToLogin() {
@@ -116,7 +149,7 @@ export function logout() {
 
 /**
  * Call the admin-supabase CF Pages Function.
- * Handles auth errors by redirecting to login.
+ * Handles UNAUTHORIZED by redirecting to login.
  */
 export async function api(action, params = {}) {
   const session = getSession();
@@ -164,15 +197,13 @@ export async function login(email, password, remember) {
     throw new Error(body.error || 'Login failed');
   }
 
-  const session = body.data;
-  saveSession(session);
+  saveSession(body.data);
 
   if (!remember) {
-    // Clear on tab/browser close by using sessionStorage flag
     sessionStorage.setItem('pc_session_only', '1');
   }
 
-  return session;
+  return body.data;
 }
 
 // ── Formatting helpers ──────────────────────────────────────────
@@ -213,18 +244,18 @@ export function fmtCurrency(val) {
 
 export function statusBadge(status) {
   const map = {
-    PENDING:          ['badge--pending',  'Pending'],
-    DID_ORDERED:      ['badge--blue',     'DID Ordered'],
-    SOURCING:         ['badge--blue',     'Sourcing'],
-    ACTIVATING:       ['badge--blue',     'Activating'],
-    FULFILLED:        ['badge--fulfilled','Fulfilled'],
-    ACTIVATION_FAILED:['badge--red',      'Activation Failed'],
-    OVERDUE:          ['badge--red',      'Overdue'],
-    CANCELLED:        ['badge--grey',     'Cancelled'],
-    PENDING_REFUND:   ['badge--orange',   'Pending Refund'],
-    REFUNDED:         ['badge--grey',     'Refunded'],
-    ACTIVE:           ['badge--active',   'Active'],
-    SUSPENDED:        ['badge--orange',   'Suspended'],
+    PENDING:           ['badge--pending',   'Pending'],
+    DID_ORDERED:       ['badge--blue',      'DID Ordered'],
+    SOURCING:          ['badge--blue',      'Sourcing'],
+    ACTIVATING:        ['badge--blue',      'Activating'],
+    FULFILLED:         ['badge--fulfilled', 'Fulfilled'],
+    ACTIVATION_FAILED: ['badge--red',       'Activation Failed'],
+    OVERDUE:           ['badge--red',       'Overdue'],
+    CANCELLED:         ['badge--grey',      'Cancelled'],
+    PENDING_REFUND:    ['badge--orange',    'Pending Refund'],
+    REFUNDED:          ['badge--grey',      'Refunded'],
+    ACTIVE:            ['badge--active',    'Active'],
+    SUSPENDED:         ['badge--orange',    'Suspended'],
   };
   const [cls, label] = map[status] || ['badge--grey', status || 'Unknown'];
   return `<span class="badge ${cls}">${label}</span>`;
@@ -238,10 +269,10 @@ export function orderTypeBadge(type) {
 export function addonsLabel(order) {
   const parts = [];
   if (order.addon_48hr_cancel) parts.push('48hr Cancel');
-  if (order.addon_transfers) parts.push('Transfers');
-  if (order.addon_post_renewal) parts.push('Post Renewal');
-  if (order.addon_combo23) parts.push('Bundle 2+3');
-  if (order.addon_lifetime) parts.push('Lifetime');
+  if (order.addon_transfers)   parts.push('Transfers');
+  if (order.addon_post_renewal)parts.push('Post Renewal');
+  if (order.addon_combo23)     parts.push('Bundle 2+3');
+  if (order.addon_lifetime)    parts.push('Lifetime');
   return parts.length ? parts.join(', ') : '-';
 }
 
@@ -277,9 +308,9 @@ export function showToast(message, type = 'success') {
   }
 
   const styles = {
-    success: 'background: #00D258; color: #000;',
-    error:   'background: #EF4444; color: #fff;',
-    info:    'background: #3B82F6; color: #fff;',
+    success: 'background:#00D258;color:#000;',
+    error:   'background:#EF4444;color:#fff;',
+    info:    'background:#3B82F6;color:#fff;',
   };
 
   toast.style.cssText += styles[type] || styles.success;
@@ -289,13 +320,3 @@ export function showToast(message, type = 'success') {
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(() => { toast.style.opacity = '0'; }, 3000);
 }
-
-// Session-only: clear on load if flag is set and page was refreshed
-(function () {
-  if (sessionStorage.getItem('pc_session_only') === '1') {
-    // Keep alive while tab is open
-    window.addEventListener('beforeunload', () => {
-      // Don't clear here - let normal flow handle it
-    });
-  }
-})();

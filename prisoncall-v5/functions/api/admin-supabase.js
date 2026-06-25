@@ -49,11 +49,6 @@ export async function onRequest(context) {
     const { email, password } = params;
     if (!email || !password) return json({ success: false, error: 'Email and password required' });
 
-    const ADMIN_EMAILS = ['guness@prisoncall.com.au', 'dinisha@prisoncall.com.au'];
-    if (!ADMIN_EMAILS.includes(email.toLowerCase())) {
-      return json({ success: false, error: 'Access denied. Admin accounts only.' });
-    }
-
     const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY },
@@ -66,13 +61,19 @@ export async function onRequest(context) {
       return json({ success: false, error: msg });
     }
 
+    const role = data.user?.user_metadata?.role || null;
+    const VALID_ROLES = ['super_admin', 'admin', 'staff'];
+    if (!role || !VALID_ROLES.includes(role)) {
+      return json({ success: false, error: 'Access denied: no admin role assigned to this account.' });
+    }
+
     return json({
       success: true,
       data: {
         access_token: data.access_token,
         refresh_token: data.refresh_token,
         expires_at: data.expires_at,
-        user: { email: data.user.email, id: data.user.id },
+        user: { email: data.user.email, id: data.user.id, role },
       },
     });
   }
@@ -98,7 +99,11 @@ export async function onRequest(context) {
         access_token: data.access_token,
         refresh_token: data.refresh_token,
         expires_at: data.expires_at,
-        user: { email: data.user.email, id: data.user.id },
+        user: {
+          email: data.user.email,
+          id: data.user.id,
+          role: data.user?.user_metadata?.role || null,
+        },
       },
     });
   }
@@ -118,17 +123,22 @@ export async function onRequest(context) {
   }
 
   const userInfo = await userRes.json();
-  const userEmail = (userInfo.email || '').toLowerCase();
+  const userRole = userInfo.user_metadata?.role || null;
 
-  const ADMIN_EMAILS = ['guness@prisoncall.com.au', 'dinisha@prisoncall.com.au'];
-  const GUNESS_ONLY = ['getProducts', 'updateProduct', 'replacePrisonLookup', 'getPrisonLookupAll', 'replaceScalingTables'];
+  const VALID_ROLES = ['super_admin', 'admin', 'staff'];
+  const SUPER_ADMIN_ONLY = ['getProducts', 'updateProduct', 'replacePrisonLookup', 'getPrisonLookupAll', 'replaceScalingTables'];
+  const ADMIN_PLUS = ['getSubscriptions', 'getSubscription', 'getOrdersBySubscription'];
 
-  if (!ADMIN_EMAILS.includes(userEmail)) {
-    return json({ success: false, error: 'Access denied', code: 'FORBIDDEN' }, 403);
+  if (!VALID_ROLES.includes(userRole)) {
+    return json({ success: false, error: 'Access denied: no valid admin role assigned', code: 'FORBIDDEN' }, 403);
   }
 
-  if (GUNESS_ONLY.includes(action) && userEmail !== 'guness@prisoncall.com.au') {
-    return json({ success: false, error: 'Access denied', code: 'FORBIDDEN' }, 403);
+  if (SUPER_ADMIN_ONLY.includes(action) && userRole !== 'super_admin') {
+    return json({ success: false, error: 'Access denied: super_admin role required', code: 'FORBIDDEN' }, 403);
+  }
+
+  if (ADMIN_PLUS.includes(action) && userRole === 'staff') {
+    return json({ success: false, error: 'Access denied: admin role required', code: 'FORBIDDEN' }, 403);
   }
 
   // ── Supabase REST helper ───────────────────────────────────────────────────
