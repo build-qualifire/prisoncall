@@ -1,4 +1,3 @@
-// v2
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -19,7 +18,7 @@ export async function onRequestPost(context) {
   const serviceSid = env.TWILIO_VERIFY_SERVICE_SID;
 
   if (!accountSid || !authToken || !serviceSid) {
-    return new Response(JSON.stringify({ success: false, error: 'Server misconfiguration' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return jsonResponse({ success: false, error: 'Server misconfiguration' }, 500);
   }
 
   const e164 = '+61' + mobile.slice(1); // strip leading 0, prepend +61
@@ -37,7 +36,7 @@ export async function onRequestPost(context) {
       },
       body: `To=${encodeURIComponent(e164)}&Channel=sms`,
     });
-  } catch (err) {
+  } catch {
     return jsonResponse({ success: false, error: 'Failed to reach Twilio' }, 502);
   }
 

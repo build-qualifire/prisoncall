@@ -5,7 +5,7 @@ export async function onRequestPost(context) {
   try {
     const body = await request.json();
     mobile    = (body.mobile || '').replace(/\D/g, '');
-    cleanCode = (body.code   || '').replace(/\D/g, '').replace(/\s+/g, '');
+    cleanCode = (body.code   || '').replace(/\D/g, '');
   } catch {
     return jsonResponse({ success: false, error: 'Invalid request body' }, 400);
   }
@@ -40,7 +40,7 @@ export async function onRequestPost(context) {
       },
       body: `To=${encodeURIComponent(e164)}&Code=${encodeURIComponent(cleanCode)}`,
     });
-  } catch (err) {
+  } catch {
     return jsonResponse({ success: false, error: 'Failed to reach Twilio' }, 502);
   }
 
@@ -48,23 +48,14 @@ export async function onRequestPost(context) {
   try {
     twilioData = await twilioRes.json();
   } catch {
-    return jsonResponse({ success: false, error: 'Invalid code', debug: { e164, cleanCode, twilioStatus: twilioRes.status, twilioBody: 'failed to parse' } }, 400);
+    return jsonResponse({ success: false, error: 'Invalid code' }, 400);
   }
 
   if (twilioData && twilioData.status === 'approved') {
     return jsonResponse({ success: true });
   }
 
-  return jsonResponse({
-    success: false,
-    error: 'Invalid code',
-    debug: {
-      e164,
-      cleanCode,
-      twilioStatus: twilioRes.status,
-      twilioBody: twilioData
-    }
-  }, 400);
+  return jsonResponse({ success: false, error: 'Invalid code' }, 400);
 }
 
 export async function onRequest(context) {
