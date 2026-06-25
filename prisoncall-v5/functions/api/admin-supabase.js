@@ -426,13 +426,55 @@ export async function onRequest(context) {
         if (!Array.isArray(scaling_model_old_fallback)) return json({ success: false, error: 'Missing scaling_model_old_fallback data' });
         if (!Array.isArray(scaling_assumptions)) return json({ success: false, error: 'Missing scaling_assumptions data' });
 
-        // Delete all rows — use or=(col.not.is.null,col.is.null) which always evaluates
-        // to true regardless of column type or value, guaranteeing a full clear.
-        // Column names are taken from the actual Excel schema (no auto-generated id exists).
+        // ── Column mapping: Excel (13 cols) → Supabase (8 data cols) ───────────
+        // Supabase schema (from DDL):
+        //   scaling_model_new / scaling_model_old_fallback:
+        //     subscribers, sip_channels, sc_licence, monthly_revenue,
+        //     monthly_cost, monthly_margin, margin_percent, notes
+        //   (id uuid pk and created_at are auto-generated — not inserted)
+        // Dropped Excel cols: subscribers_max, sip_cost_per_month, 3cx_tier,
+        //   3cx_cost_per_month, did_cost_per_month, stripe_per_month
+        const SCALING_EXCEL_TO_DB = {
+          subscribers_min:       'subscribers',
+          sip_channels:          'sip_channels',
+          sc_needed:             'sc_licence',
+          total_cost_per_month:  'monthly_cost',
+          revenue_per_month:     'monthly_revenue',
+          profit_per_month:      'monthly_margin',
+          margin_pct:            'margin_percent',
+        };
+        const SCALING_SUPABASE_COLS = ['subscribers', 'sip_channels', 'sc_licence', 'monthly_revenue', 'monthly_cost', 'monthly_margin', 'margin_percent', 'notes'];
+
+        function mapScalingRow(row) {
+          const r = {};
+          SCALING_SUPABASE_COLS.forEach(col => { r[col] = null; });
+          for (const [k, v] of Object.entries(row)) {
+            const dbCol = SCALING_EXCEL_TO_DB[k];
+            if (dbCol !== undefined) r[dbCol] = (v !== '' && v !== undefined) ? v : null;
+          }
+          return r;
+        }
+
+        const mappedNew = scaling_model_new.map(mapScalingRow);
+        const mappedOld = scaling_model_old_fallback.map(mapScalingRow);
+
+        // Supabase scaling_assumptions schema:
+        //   assumption_key text unique not null, assumption_value text not null, description text
+        //   (id uuid pk and updated_at are auto-generated — not inserted)
+        // Excel assumptions sheet cols: item, value
+        const mappedAssumptions = scaling_assumptions.map(row => ({
+          assumption_key:   String(row.item ?? ''),
+          assumption_value: String(row.value ?? ''),
+          description:      null,
+        })).filter(r => r.assumption_key !== '');
+
+        // ── Delete all rows using verified Supabase column names ────────────────
+        // scaling_model tables: filter on 'subscribers' (integer, always present)
+        // scaling_assumptions: 'assumption_key' is NOT NULL so all rows match
         const tableDeleteFilters = {
-          scaling_model_new: 'or=(subscribers_min.not.is.null,subscribers_min.is.null)',
-          scaling_model_old_fallback: 'or=(subscribers_min.not.is.null,subscribers_min.is.null)',
-          scaling_assumptions: 'or=(item.not.is.null,item.is.null)',
+          scaling_model_new:          'or=(subscribers.not.is.null,subscribers.is.null)',
+          scaling_model_old_fallback:  'or=(subscribers.not.is.null,subscribers.is.null)',
+          scaling_assumptions:         'assumption_key=not.is.null',
         };
         for (const table of ['scaling_model_new', 'scaling_model_old_fallback', 'scaling_assumptions']) {
           const delRes = await sb(`${table}?${tableDeleteFilters[table]}`, {
@@ -445,11 +487,11 @@ export async function onRequest(context) {
           }
         }
 
-        // Insert new data
+        // ── Insert mapped rows in batches ────────────────────────────────────────
         const inserts = [
-          { table: 'scaling_model_new', rows: scaling_model_new },
-          { table: 'scaling_model_old_fallback', rows: scaling_model_old_fallback },
-          { table: 'scaling_assumptions', rows: scaling_assumptions },
+          { table: 'scaling_model_new',          rows: mappedNew },
+          { table: 'scaling_model_old_fallback',  rows: mappedOld },
+          { table: 'scaling_assumptions',         rows: mappedAssumptions },
         ];
 
         for (const { table, rows } of inserts) {
@@ -473,9 +515,9 @@ export async function onRequest(context) {
         return json({
           success: true,
           data: {
-            scaling_model_new: scaling_model_new.length,
-            scaling_model_old_fallback: scaling_model_old_fallback.length,
-            scaling_assumptions: scaling_assumptions.length,
+            scaling_model_new: mappedNew.length,
+            scaling_model_old_fallback: mappedOld.length,
+            scaling_assumptions: mappedAssumptions.length,
           },
         });
       }
