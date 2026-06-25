@@ -6,6 +6,7 @@ export async function onRequestPost(context) {
     const body = await request.json();
     mobile = (body.mobile || '').replace(/\D/g, '');
     code   = (body.code   || '').replace(/\D/g, '');
+    const cleanCode = code.replace(/\s+/g, '');
   } catch {
     return jsonResponse({ success: false, error: 'Invalid request body' }, 400);
   }
@@ -38,7 +39,7 @@ export async function onRequestPost(context) {
         'Authorization': `Basic ${credentials}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `To=${encodeURIComponent(e164)}&Code=${encodeURIComponent(code)}`,
+      body: `To=${encodeURIComponent(e164)}&Code=${encodeURIComponent(cleanCode)}`,
     });
   } catch (err) {
     return jsonResponse({ success: false, error: 'Failed to reach Twilio' }, 502);

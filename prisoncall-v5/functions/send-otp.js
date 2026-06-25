@@ -19,16 +19,7 @@ export async function onRequestPost(context) {
   const serviceSid = env.TWILIO_VERIFY_SERVICE_SID;
 
   if (!accountSid || !authToken || !serviceSid) {
-    return new Response(JSON.stringify({
-      success: false,
-      error: 'Server misconfiguration',
-      debug: {
-        hasAccountSid: !!accountSid,
-        hasAuthToken: !!authToken,
-        hasServiceSid: !!serviceSid,
-        envKeys: Object.keys(env || {})
-      }
-    }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ success: false, error: 'Server misconfiguration' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 
   const e164 = '+61' + mobile.slice(1); // strip leading 0, prepend +61
