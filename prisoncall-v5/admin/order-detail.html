@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Order Detail | Prisoncall Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="../assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="manifest" href="/admin/manifest.json">
+  <meta name="theme-color" content="#00D258">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/admin.css">
+  <style>
+    .action-section { margin-top: 20px; }
+    .fulfil-form { display: none; margin-top: 12px; }
+    .fulfil-form.visible { display: block; }
+    .manual-form { display: none; margin-top: 12px; }
+    .manual-form.visible { display: block; }
+    .activating-state {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 28px; gap: 12px; text-align: center;
+    }
+    .spinner--lg {
+      width: 36px; height: 36px;
+      border: 3px solid var(--color-border);
+      border-top-color: var(--color-green);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .activating-text { font-size: 15px; font-weight: 600; color: var(--color-hero); }
+    .activating-sub { font-size: 13px; color: var(--color-muted); }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand"><div class="sidebar-wordmark">PRISON<span>CALL</span></div></div>
+    <nav class="sidebar-nav">
+      <a href="/admin/dashboard.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="/admin/orders.html" class="sidebar-nav-item active">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Orders
+      </a>
+      <a href="/admin/customers.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <a href="/admin/products.html" class="sidebar-nav-item" data-guness-only>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        Products
+      </a>
+      <a href="/admin/settings.html" class="sidebar-nav-item" data-guness-only>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user-email" data-user-email></div>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="admin-main">
+    <header class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <a href="/admin/orders.html" style="display:flex;align-items:center;color:var(--color-muted)" title="Back to orders">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </a>
+        <div class="admin-topbar-title" id="pageTitle">Order Detail</div>
+      </div>
+      <div id="topbarBadge"></div>
+    </header>
+
+    <div class="admin-content" id="mainContent">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        Loading order...
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom tab bar -->
+  <nav class="admin-bottom-bar">
+    <div class="bottom-bar-inner">
+      <a href="/admin/dashboard.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/orders.html" class="bottom-bar-item active">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Orders</span>
+      </a>
+      <a href="/admin/customers.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span>Customers</span>
+      </a>
+      <a href="/admin/products.html" class="bottom-bar-item" data-guness-only>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span>Products</span>
+      </a>
+      <a href="/admin/settings.html" class="bottom-bar-item" data-guness-only>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span>Settings</span>
+      </a>
+    </div>
+  </nav>
+
+</div>
+
+<script type="module">
+  import { initAdminPage, api, logout, fmtDate, fmtDatetime, fmtMobile, fmtCurrency, statusBadge, orderTypeBadge, addonsLabel, copyToClipboard, showToast } from '/admin/admin-auth.js';
+
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('id');
+  let order = null;
+  let prisonData = null;
+
+  async function init() {
+    const session = await initAdminPage();
+    if (!session) return;
+
+    if (!orderId) {
+      showError('No order ID specified');
+      return;
+    }
+
+    loadOrder();
+  }
+
+  function showError(msg) {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="alert alert--error">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg>
+        ${msg}
+      </div>
+    `;
+  }
+
+  async function loadOrder() {
+    try {
+      order = await api('getOrder', { id: orderId });
+      if (!order) { showError('Order not found'); return; }
+
+      document.getElementById('pageTitle').textContent = `Order #${order.id.slice(-8).toUpperCase()}`;
+      document.getElementById('topbarBadge').innerHTML = statusBadge(order.status);
+
+      // Load prison lookup data
+      if (order.prison_name && order.prison_state) {
+        try {
+          prisonData = await api('getPrisonLookup', { prison_name: order.prison_name, prison_state: order.prison_state });
+        } catch {
+          prisonData = null;
+        }
+      }
+
+      renderOrder();
+    } catch (err) {
+      showError(err.message);
+    }
+  }
+
+  function renderOrder() {
+    const o = order;
+    const addonsList = [];
+    if (o.addon_48hr_cancel) addonsList.push({ name: '48 Hours Cancellation Guarantee', price: null });
+    if (o.addon_transfers)   addonsList.push({ name: 'Unlimited Prison Transfers', price: null });
+    if (o.addon_post_renewal)addonsList.push({ name: '96 Hours Post Renewal Cancellation', price: null });
+    if (o.addon_combo23)     addonsList.push({ name: 'Unlimited Transfers + 96hr Bundle', price: null });
+    if (o.addon_lifetime)    addonsList.push({ name: 'Lifetime Protection Bundle', price: null });
+
+    const addonsHtml = addonsList.length
+      ? addonsList.map(a => `<div style="font-size:13px;padding:2px 0">+ ${a.name}</div>`).join('')
+      : '<div style="font-size:13px;color:var(--color-muted)">None</div>';
+
+    const mainContent = document.getElementById('mainContent');
+
+    mainContent.innerHTML = `
+      ${o.status === 'FULFILLED' ? `
+        <div class="alert alert--success mb-16">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          This order has been fulfilled. Customer's DID number is active.
+        </div>
+      ` : ''}
+      ${o.status === 'OVERDUE' ? `
+        <div class="alert alert--error mb-16">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          This order is overdue. Action required immediately.
+        </div>
+      ` : ''}
+
+      <div class="detail-grid">
+
+        <!-- Left: Order information -->
+        <div>
+          <div class="card mb-16">
+            <div class="card-header">
+              <div class="card-title">Order Information</div>
+              ${orderTypeBadge(o.order_type)}
+            </div>
+            <div class="card-body">
+
+              ${o.order_type === 'TRANSFER' ? `
+                <div class="alert alert--info mb-16">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <div>
+                    <div style="font-weight:700;margin-bottom:2px">Prison Transfer</div>
+                    <div>Previous prison: <strong>${o.old_prison_name || 'N/A'}</strong></div>
+                    ${o.old_did_number ? `<div>Previous DID: <strong class="font-mono">${o.old_did_number}</strong></div>` : ''}
+                  </div>
+                </div>
+              ` : ''}
+
+              <div class="detail-row">
+                <div class="detail-key">Customer name</div>
+                <div class="detail-val">${o.customer_name || '-'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-key">Mobile</div>
+                <div class="detail-val">${fmtMobile(o.customer_mobile)}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-key">Email</div>
+                <div class="detail-val" style="word-break:break-all">${o.customer_email || '-'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-key">Prison</div>
+                <div class="detail-val">${o.prison_name || '-'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-key">State</div>
+                <div class="detail-val">${o.prison_state || '-'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-key">Plan</div>
+                <div class="detail-val" style="text-transform:capitalize">${o.plan_interval || '-'} - ${fmtCurrency(o.plan_price)}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-key">Add-ons</div>
+                <div class="detail-val" style="text-align:right">${addonsHtml}</div>
+              </div>
+              ${o.addon_total ? `
+                <div class="detail-row">
+                  <div class="detail-key">Add-on total</div>
+                  <div class="detail-val">${fmtCurrency(o.addon_total)}</div>
+                </div>
+              ` : ''}
+              <div class="detail-row">
+                <div class="detail-key">Order date</div>
+                <div class="detail-val">${fmtDatetime(o.order_date)}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-key">Last updated</div>
+                <div class="detail-val">${fmtDatetime(o.updated_at)}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-key">Stripe Sub ID</div>
+                <div class="detail-val mono font-mono copyable" onclick="doCopy(this,'${o.stripe_subscription_id || ''}')" title="Click to copy">${o.stripe_subscription_id || '-'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-key">Stripe Cust ID</div>
+                <div class="detail-val mono font-mono copyable" onclick="doCopy(this,'${o.stripe_customer_id || ''}')" title="Click to copy">${o.stripe_customer_id || '-'}</div>
+              </div>
+
+              ${(o.status === 'FULFILLED' || o.did_number) ? `
+                <div class="detail-row">
+                  <div class="detail-key">DID number</div>
+                  <div class="detail-val font-mono copyable" onclick="doCopy(this,'${o.did_number || ''}')" title="Click to copy" style="color:var(--color-green);font-weight:700;font-size:16px">${o.did_number || '-'}</div>
+                </div>
+              ` : ''}
+              ${o.extension_number ? `
+                <div class="detail-row">
+                  <div class="detail-key">3CX Extension</div>
+                  <div class="detail-val font-mono">${o.extension_number}</div>
+                </div>
+              ` : ''}
+              ${o.extension_created_at ? `
+                <div class="detail-row">
+                  <div class="detail-key">Ext. created</div>
+                  <div class="detail-val">${fmtDatetime(o.extension_created_at)}</div>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- Action section -->
+          <div class="card action-section" id="actionCard">
+            <div class="card-header"><div class="card-title">Actions</div></div>
+            <div class="card-body" id="actionBody">
+              ${renderActions(o)}
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="card mt-16">
+            <div class="card-header"><div class="card-title">Order Timeline</div></div>
+            <div class="card-body">
+              ${renderTimeline(o)}
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Exchange guidance -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Exchange Guidance</div>
+              <a href="https://portal.voipline.net.au" target="_blank" rel="noopener" class="btn btn--outline btn--sm">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+                VoipLine
+              </a>
+            </div>
+            <div class="card-body">
+              ${renderExchanges()}
+            </div>
+          </div>
+
+          <!-- SMS preview area (shown after DID Ordered action) -->
+          <div id="smsPreviewCard" class="card mt-16 hidden">
+            <div class="card-header"><div class="card-title">SMS Notification (Stub)</div></div>
+            <div class="card-body">
+              <div class="sms-preview">
+                <div class="sms-preview-label">MESSAGE TO CUSTOMER</div>
+                <div class="sms-bubble" id="smsContent"></div>
+                <div class="sms-stub-note">SMS sending via n8n - wired in next session</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    `;
+
+    // Attach action button handlers
+    attachActionHandlers();
+  }
+
+  function renderExchanges() {
+    if (!prisonData) {
+      return `
+        <div style="padding:12px 0;text-align:center;color:var(--color-muted);font-size:14px">
+          <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin:0 auto 8px;opacity:0.4"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <div>No exchange data found for this prison</div>
+        </div>
+      `;
+    }
+
+    const p = prisonData;
+    return `
+      <div class="exchange-card exchange-card--primary">
+        <div class="exchange-label">Primary Exchange</div>
+        <div class="exchange-name">${p.primary_area || 'N/A'}</div>
+        <div class="exchange-code">Code: ${p.primary_exchange_code || '-'}</div>
+      </div>
+      ${p.fallback_1 ? `
+        <div class="exchange-card exchange-card--fallback1">
+          <div class="exchange-label">Fallback 1</div>
+          <div class="exchange-name">${p.fallback_1_area || 'N/A'}</div>
+          <div class="exchange-code">Code: ${p.fallback_1 || '-'}</div>
+        </div>
+      ` : ''}
+      ${p.fallback_2 ? `
+        <div class="exchange-card exchange-card--fallback">
+          <div class="exchange-label">Fallback 2</div>
+          <div class="exchange-name">${p.fallback_2_area || 'N/A'}</div>
+          <div class="exchange-code">Code: ${p.fallback_2 || '-'}</div>
+        </div>
+      ` : ''}
+      ${p.fallback_3 ? `
+        <div class="exchange-card exchange-card--fallback">
+          <div class="exchange-label">Fallback 3</div>
+          <div class="exchange-name">${p.fallback_3_area || 'N/A'}</div>
+          <div class="exchange-code">Code: ${p.fallback_3 || '-'}</div>
+        </div>
+      ` : ''}
+      ${p.location ? `<div style="font-size:12px;color:var(--color-muted);margin-top:8px">Location: ${p.location}</div>` : ''}
+      ${p.notes ? `<div style="font-size:12px;color:var(--color-muted);margin-top:4px">Notes: ${p.notes}</div>` : ''}
+    `;
+  }
+
+  function renderActions(o) {
+    const s = o.status;
+
+    if (s === 'ACTIVATING') {
+      return `
+        <div class="activating-state">
+          <div class="spinner--lg"></div>
+          <div class="activating-text">Setting up your customer's number.</div>
+          <div class="activating-sub">This usually takes under 2 minutes. 3CX setup stub - will be wired to n8n in a later session.</div>
+        </div>
+      `;
+    }
+
+    if (s === 'FULFILLED') {
+      return `
+        <div class="alert alert--success">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Order fulfilled. No further actions required.
+        </div>
+      `;
+    }
+
+    if (s === 'ACTIVATION_FAILED') {
+      return `
+        <div class="alert alert--error mb-16">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div>
+            <div style="font-weight:700;margin-bottom:4px">Activation Failed</div>
+            <div style="font-size:13px">${o.error_details || 'No error details recorded'}</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <button class="btn btn--danger" onclick="doRetry()">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            Retry
+          </button>
+          <button class="btn btn--outline" onclick="toggleManualForm()">Mark Manually Fulfilled</button>
+        </div>
+        <div class="manual-form" id="manualForm">
+          <div style="margin-top:16px;padding:16px;background:var(--color-surface);border-radius:var(--radius-sm);border:1px solid var(--color-border)">
+            <div class="form-group">
+              <label class="form-label" for="manualDid">DID Number</label>
+              <input class="form-input font-mono" type="text" id="manualDid" placeholder="02XXXXXXXX" value="${o.did_number || ''}">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="manualExt">3CX Extension Number</label>
+              <input class="form-input font-mono" type="text" id="manualExt" placeholder="1001" value="${o.extension_number || ''}">
+            </div>
+            <button class="btn btn--green" onclick="doManualFulfil()">Confirm Manual Fulfil</button>
+          </div>
+        </div>
+      `;
+    }
+
+    if (s === 'CANCELLED' || s === 'REFUNDED') {
+      return `<div style="font-size:14px;color:var(--color-muted);padding:8px 0">This order is ${s.toLowerCase()}. No actions available.</div>`;
+    }
+
+    // PENDING, DID_ORDERED, SOURCING, OVERDUE
+    const showDidOrdered = (s === 'PENDING' || s === 'OVERDUE');
+    const showFulfil = true;
+
+    return `
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+        ${showDidOrdered ? `
+          <button class="btn btn--ghost" id="btnDidOrdered" onclick="doMarkDidOrdered()">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Mark DID Ordered
+          </button>
+        ` : ''}
+        <button class="btn btn--green" id="btnFulfil" onclick="toggleFulfilForm()">
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Fulfil Order
+        </button>
+      </div>
+
+      <div class="fulfil-form" id="fulfilForm">
+        <div style="padding:16px;background:var(--color-surface);border-radius:var(--radius-sm);border:1px solid var(--color-border)">
+          <div class="form-group">
+            <label class="form-label" for="didInput">Enter DID number provisioned in VoipLine</label>
+            <input class="form-input font-mono" type="text" id="didInput" placeholder="02XXXXXXXX" autocomplete="off">
+            <div class="form-hint">Enter the exact DID number from VoipLine portal</div>
+          </div>
+          <div id="fulfilError" class="form-error hidden">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+            <span id="fulfilErrorText"></span>
+          </div>
+          <button class="btn btn--green" onclick="doFulfil()" id="confirmFulfilBtn">Confirm - Set DID and Activate</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderTimeline(o) {
+    const events = [];
+
+    if (o.order_date) events.push({ label: 'Order Created', status: 'PENDING', date: o.order_date, dot: '' });
+
+    const intermediateStatuses = ['DID_ORDERED', 'SOURCING', 'ACTIVATING', 'ACTIVATION_FAILED'];
+    const currentStatus = o.status;
+
+    if (['DID_ORDERED','SOURCING','ACTIVATING','ACTIVATION_FAILED','FULFILLED','OVERDUE','CANCELLED','PENDING_REFUND','REFUNDED'].includes(currentStatus)) {
+      if (currentStatus !== 'PENDING') {
+        events.push({ label: 'Status: ' + currentStatus.replace(/_/g,' '), status: currentStatus, date: o.updated_at, dot: currentStatus === 'ACTIVATION_FAILED' ? 'error' : currentStatus === 'FULFILLED' ? 'active' : '' });
+      }
+    }
+
+    if (events.length === 0) {
+      return '<div style="font-size:14px;color:var(--color-muted)">No timeline events recorded.</div>';
+    }
+
+    return `
+      <div class="timeline">
+        ${events.map((ev, i) => `
+          <div class="timeline-item">
+            <div class="timeline-dot ${i === events.length - 1 ? (ev.dot || 'active') : ''}"></div>
+            <div class="timeline-title">${ev.label}</div>
+            <div class="timeline-date">${fmtDatetime(ev.date)}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function attachActionHandlers() {
+    // Handled via global functions below
+  }
+
+  window.doCopy = function(el, text) {
+    if (!text) return;
+    copyToClipboard(text, el);
+  };
+
+  window.toggleFulfilForm = function() {
+    const form = document.getElementById('fulfilForm');
+    if (form) form.classList.toggle('visible');
+  };
+
+  window.toggleManualForm = function() {
+    const form = document.getElementById('manualForm');
+    if (form) form.classList.toggle('visible');
+  };
+
+  window.doMarkDidOrdered = async function() {
+    const btn = document.getElementById('btnDidOrdered');
+    if (btn) { btn.disabled = true; btn.textContent = 'Updating...'; }
+
+    try {
+      await api('updateOrder', {
+        id: orderId,
+        fields: { status: 'DID_ORDERED' },
+      });
+
+      // Show SMS stub
+      const prison = order.prison_name || 'your loved one\'s prison';
+      const smsText = `Your Prisoncall number for ${prison} is being sourced directly from Telstra. Due to high demand in your area this may take a little longer than usual. We will notify you the moment it is ready.`;
+
+      console.log('[SMS STUB - NOT SENT]', smsText);
+
+      const smsCard = document.getElementById('smsPreviewCard');
+      if (smsCard) {
+        document.getElementById('smsContent').textContent = smsText;
+        smsCard.classList.remove('hidden');
+      }
+
+      showToast('Status updated to DID Ordered');
+      order.status = 'DID_ORDERED';
+      document.getElementById('topbarBadge').innerHTML = statusBadge('DID_ORDERED');
+      document.getElementById('actionBody').innerHTML = renderActions(order);
+      attachActionHandlers();
+    } catch (err) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Mark DID Ordered'; }
+      showToast(err.message, 'error');
+    }
+  };
+
+  window.doFulfil = async function() {
+    const didInput = document.getElementById('didInput');
+    const errorEl = document.getElementById('fulfilError');
+    const errorTextEl = document.getElementById('fulfilErrorText');
+    const confirmBtn = document.getElementById('confirmFulfilBtn');
+
+    const did = (didInput?.value || '').trim();
+
+    if (!did) {
+      errorTextEl.textContent = 'Please enter the DID number';
+      errorEl.classList.remove('hidden');
+      return;
+    }
+
+    errorEl.classList.add('hidden');
+    if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'Processing...'; }
+
+    try {
+      // Write DID and set status to ACTIVATING (n8n WF1 stub)
+      await api('updateOrder', {
+        id: orderId,
+        fields: { did_number: did, status: 'ACTIVATING' },
+      });
+
+      console.log('[n8n WF1 STUB - NOT TRIGGERED] Order activating. DID:', did, 'Order ID:', orderId);
+
+      showToast('Order activating. 3CX setup will begin shortly.');
+      order.status = 'ACTIVATING';
+      order.did_number = did;
+      document.getElementById('topbarBadge').innerHTML = statusBadge('ACTIVATING');
+      document.getElementById('actionBody').innerHTML = renderActions(order);
+    } catch (err) {
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Confirm - Set DID and Activate'; }
+      errorTextEl.textContent = err.message;
+      errorEl.classList.remove('hidden');
+    }
+  };
+
+  window.doRetry = async function() {
+    try {
+      await api('updateOrder', { id: orderId, fields: { status: 'PENDING', error_details: null } });
+      showToast('Order reset to Pending');
+      order.status = 'PENDING';
+      order.error_details = null;
+      document.getElementById('topbarBadge').innerHTML = statusBadge('PENDING');
+      document.getElementById('actionBody').innerHTML = renderActions(order);
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  window.doManualFulfil = async function() {
+    const did = (document.getElementById('manualDid')?.value || '').trim();
+    const ext = (document.getElementById('manualExt')?.value || '').trim();
+
+    if (!did) { showToast('DID number is required', 'error'); return; }
+
+    try {
+      await api('updateOrder', {
+        id: orderId,
+        fields: {
+          status: 'FULFILLED',
+          did_number: did,
+          extension_number: ext || null,
+          extension_created_at: ext ? new Date().toISOString() : null,
+          error_details: null,
+        },
+      });
+      showToast('Order marked as fulfilled');
+      order.status = 'FULFILLED';
+      order.did_number = did;
+      order.extension_number = ext;
+      order.extension_created_at = ext ? new Date().toISOString() : null;
+      document.getElementById('topbarBadge').innerHTML = statusBadge('FULFILLED');
+      renderOrder();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  window.doLogout = function() {
+    import('/admin/admin-auth.js').then(m => m.logout());
+  };
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/admin/sw.js').catch(() => {});
+  }
+
+  init();
+</script>
+
+</body>
+</html>

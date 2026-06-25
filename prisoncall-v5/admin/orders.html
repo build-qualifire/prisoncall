@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Orders | Prisoncall Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="../assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="manifest" href="/admin/manifest.json">
+  <meta name="theme-color" content="#00D258">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand"><div class="sidebar-wordmark">PRISON<span>CALL</span></div></div>
+    <nav class="sidebar-nav">
+      <a href="/admin/dashboard.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="/admin/orders.html" class="sidebar-nav-item active">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Orders
+      </a>
+      <a href="/admin/customers.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <a href="/admin/products.html" class="sidebar-nav-item" data-guness-only>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        Products
+      </a>
+      <a href="/admin/settings.html" class="sidebar-nav-item" data-guness-only>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user-email" data-user-email></div>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="admin-main">
+    <header class="admin-topbar">
+      <div class="admin-topbar-title">Orders</div>
+    </header>
+
+    <div class="admin-content">
+
+      <!-- Search + filters -->
+      <div class="card mb-16">
+        <div class="card-body" style="padding-bottom:12px">
+          <div class="search-wrap mb-12">
+            <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input class="form-input search-input" type="text" id="searchInput" placeholder="Search by customer name or mobile..." autocomplete="off">
+          </div>
+          <div class="filter-tabs" id="filterTabs">
+            <button class="filter-tab active" data-status="">All</button>
+            <button class="filter-tab" data-status="PENDING">Pending</button>
+            <button class="filter-tab" data-status="DID_ORDERED">DID Ordered</button>
+            <button class="filter-tab" data-status="SOURCING">Sourcing</button>
+            <button class="filter-tab" data-status="ACTIVATING">Activating</button>
+            <button class="filter-tab" data-status="FULFILLED">Fulfilled</button>
+            <button class="filter-tab" data-status="ACTIVATION_FAILED">Activation Failed</button>
+            <button class="filter-tab" data-status="OVERDUE">Overdue</button>
+            <button class="filter-tab" data-status="CANCELLED">Cancelled</button>
+            <button class="filter-tab" data-status="PENDING_REFUND">Pending Refund</button>
+            <button class="filter-tab" data-status="REFUNDED">Refunded</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders table -->
+      <div class="card">
+        <div id="ordersContent">
+          <div class="loading-state">
+            <div class="spinner"></div>
+            Loading orders...
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Bottom tab bar -->
+  <nav class="admin-bottom-bar">
+    <div class="bottom-bar-inner">
+      <a href="/admin/dashboard.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/orders.html" class="bottom-bar-item active">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Orders</span>
+      </a>
+      <a href="/admin/customers.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span>Customers</span>
+      </a>
+      <a href="/admin/products.html" class="bottom-bar-item" data-guness-only>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span>Products</span>
+      </a>
+      <a href="/admin/settings.html" class="bottom-bar-item" data-guness-only>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span>Settings</span>
+      </a>
+    </div>
+  </nav>
+
+</div>
+
+<script type="module">
+  import { initAdminPage, api, logout, fmtDate, fmtCurrency, maskMobile, statusBadge, orderTypeBadge, addonsLabel } from '/admin/admin-auth.js';
+
+  let currentStatus = '';
+  let searchTerm = '';
+  let searchTimeout;
+
+  async function init() {
+    const session = await initAdminPage();
+    if (!session) return;
+    loadOrders();
+  }
+
+  async function loadOrders() {
+    const container = document.getElementById('ordersContent');
+    container.innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading orders...</div>';
+
+    try {
+      const params = {};
+      if (currentStatus) params.status = currentStatus;
+      if (searchTerm) params.search = searchTerm;
+
+      const orders = await api('getOrders', params);
+
+      if (!orders || orders.length === 0) {
+        container.innerHTML = '<div class="empty-state"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/></svg><h3>No orders found</h3><p>Try adjusting your filters or search term</p></div>';
+        return;
+      }
+
+      const rows = orders.map(o => `
+        <tr onclick="window.location='/admin/order-detail.html?id=${o.id}'">
+          <td>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px">${orderTypeBadge(o.order_type)}</div>
+            <div class="col-name">${o.customer_name || '-'}</div>
+            <div class="col-sub">${maskMobile(o.customer_mobile)}</div>
+          </td>
+          <td>
+            <div style="font-weight:600;font-size:14px">${o.prison_name || '-'}</div>
+            <div class="col-sub">${o.prison_state || ''}</div>
+          </td>
+          <td>
+            <div style="font-weight:600;font-size:14px;text-transform:capitalize">${o.plan_interval || '-'}</div>
+            <div class="col-sub">${fmtCurrency(o.plan_price)}/period</div>
+          </td>
+          <td style="font-size:13px;color:var(--color-muted)">${addonsLabel(o)}</td>
+          <td>${fmtDate(o.order_date)}</td>
+          <td>${statusBadge(o.status)}</td>
+        </tr>
+      `).join('');
+
+      container.innerHTML = `
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Prison</th>
+                <th>Plan</th>
+                <th>Add-ons</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div style="padding:12px 16px;font-size:13px;color:var(--color-muted);border-top:1px solid var(--color-border)">
+          ${orders.length} order${orders.length !== 1 ? 's' : ''}
+        </div>
+      `;
+    } catch (err) {
+      container.innerHTML = `<div class="alert alert--error" style="margin:16px"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg>${err.message}</div>`;
+    }
+  }
+
+  // Filter tabs
+  document.getElementById('filterTabs').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-tab');
+    if (!btn) return;
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentStatus = btn.dataset.status;
+    loadOrders();
+  });
+
+  // Search
+  document.getElementById('searchInput').addEventListener('input', e => {
+    clearTimeout(searchTimeout);
+    searchTerm = e.target.value.trim();
+    searchTimeout = setTimeout(loadOrders, 350);
+  });
+
+  window.doLogout = function() {
+    import('/admin/admin-auth.js').then(m => m.logout());
+  };
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/admin/sw.js').catch(() => {});
+  }
+
+  init();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Settings | Prisoncall Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="../assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="manifest" href="/admin/manifest.json">
+  <meta name="theme-color" content="#00D258">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/admin.css">
+  <!-- SheetJS for client-side xlsx parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand"><div class="sidebar-wordmark">PRISON<span>CALL</span></div></div>
+    <nav class="sidebar-nav">
+      <a href="/admin/dashboard.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="/admin/orders.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Orders
+      </a>
+      <a href="/admin/customers.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <a href="/admin/products.html" class="sidebar-nav-item" data-guness-only>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        Products
+      </a>
+      <a href="/admin/settings.html" class="sidebar-nav-item active" data-guness-only>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user-email" data-user-email></div>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="admin-main">
+    <header class="admin-topbar">
+      <div class="admin-topbar-title">Settings and Uploads</div>
+    </header>
+
+    <div class="admin-content">
+
+      <div class="panels-grid">
+
+        <!-- Panel 1: Prison DID Lookup Table -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Prison DID Lookup Table</div>
+            </div>
+            <div class="card-body">
+              <p style="font-size:13px;color:var(--color-muted);margin-bottom:16px;line-height:1.6">
+                Upload <strong>Prisoncall_PDP_Table_v3_0.xlsx</strong> to update prison exchange lookup data.
+                Expected sheet: <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:12px">prison_did_lookup</code>
+              </p>
+
+              <div class="file-drop" id="pdpDropZone" onclick="document.getElementById('pdpFileInput').click()">
+                <input type="file" id="pdpFileInput" accept=".xlsx,.xls" style="display:none">
+                <div class="file-drop-icon">📊</div>
+                <div class="file-drop-label">Click to select .xlsx file</div>
+                <div class="file-drop-hint">Prisoncall_PDP_Table_v3_0.xlsx</div>
+                <div class="file-drop-filename hidden" id="pdpFileName"></div>
+              </div>
+
+              <div id="pdpError" class="alert alert--error mt-12 hidden"></div>
+              <div id="pdpPreview" class="hidden"></div>
+
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+                <button class="btn btn--green" id="pdpUploadBtn" disabled onclick="confirmPdpUpload()">
+                  Confirm Upload
+                </button>
+                <button class="btn btn--outline btn--sm" onclick="loadCurrentPdpTable()">
+                  View Current Table
+                </button>
+              </div>
+
+              <div id="pdpProgress" class="hidden" style="margin-top:12px">
+                <div style="display:flex;align-items:center;gap:8px;color:var(--color-muted);font-size:14px">
+                  <div class="spinner"></div>
+                  <span id="pdpProgressText">Uploading...</span>
+                </div>
+              </div>
+
+              <div id="pdpSuccess" class="alert alert--success mt-12 hidden"></div>
+            </div>
+          </div>
+
+          <!-- Current table view -->
+          <div id="currentPdpCard" class="card mt-16 hidden">
+            <div class="card-header">
+              <div class="card-title">Current Prison DID Lookup</div>
+              <span class="badge badge--grey" id="pdpRowCount">0 rows</span>
+            </div>
+            <div id="currentPdpContent">
+              <div class="loading-state"><div class="spinner"></div>Loading...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Channel Scaling Table -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Channel Scaling Table</div>
+            </div>
+            <div class="card-body">
+              <p style="font-size:13px;color:var(--color-muted);margin-bottom:16px;line-height:1.6">
+                Upload <strong>Prisoncall_PEV_Table_v4_0.xlsx</strong> to update SIP channel scaling model.
+                Required sheets: <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:12px">scaling_model_new</code>,
+                <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:12px">scaling_model_old_fallback</code>,
+                <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:12px">assumptions</code>
+              </p>
+
+              <div class="file-drop" id="pevDropZone" onclick="document.getElementById('pevFileInput').click()">
+                <input type="file" id="pevFileInput" accept=".xlsx,.xls" style="display:none">
+                <div class="file-drop-icon">📈</div>
+                <div class="file-drop-label">Click to select .xlsx file</div>
+                <div class="file-drop-hint">Prisoncall_PEV_Table_v4_0.xlsx</div>
+                <div class="file-drop-filename hidden" id="pevFileName"></div>
+              </div>
+
+              <div id="pevError" class="alert alert--error mt-12 hidden"></div>
+              <div id="pevPreview" class="hidden"></div>
+
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+                <button class="btn btn--green" id="pevUploadBtn" disabled onclick="confirmPevUpload()">
+                  Confirm Upload
+                </button>
+              </div>
+
+              <div id="pevProgress" class="hidden" style="margin-top:12px">
+                <div style="display:flex;align-items:center;gap:8px;color:var(--color-muted);font-size:14px">
+                  <div class="spinner"></div>
+                  <span id="pevProgressText">Uploading...</span>
+                </div>
+              </div>
+
+              <div id="pevSuccess" class="alert alert--success mt-12 hidden"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom tab bar -->
+  <nav class="admin-bottom-bar">
+    <div class="bottom-bar-inner">
+      <a href="/admin/dashboard.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/orders.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Orders</span>
+      </a>
+      <a href="/admin/customers.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span>Customers</span>
+      </a>
+      <a href="/admin/products.html" class="bottom-bar-item" data-guness-only>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span>Products</span>
+      </a>
+      <a href="/admin/settings.html" class="bottom-bar-item active" data-guness-only>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span>Settings</span>
+      </a>
+    </div>
+  </nav>
+
+</div>
+
+<script type="module">
+  import { initAdminPage, api, logout, showToast } from '/admin/admin-auth.js';
+
+  // Expected columns for prison_did_lookup
+  const PDP_EXPECTED_COLS = [
+    'prison_name', 'prison_state', 'primary_exchange_code', 'primary_area',
+    'fallback_1', 'fallback_1_area', 'fallback_2', 'fallback_2_area',
+    'fallback_3', 'fallback_3_area', 'location', 'notes'
+  ];
+  const PDP_SHEET_NAME = 'prison_did_lookup';
+
+  // Expected sheets for PEV table
+  const PEV_REQUIRED_SHEETS = ['scaling_model_new', 'scaling_model_old_fallback', 'assumptions'];
+
+  let pdpParsedRows = null;
+  let pevParsedData = null;
+
+  async function init() {
+    const session = await initAdminPage(true);
+    if (!session) return;
+    setupFileInputs();
+  }
+
+  function setupFileInputs() {
+    // PDP file input
+    const pdpInput = document.getElementById('pdpFileInput');
+    pdpInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) parsePdpFile(file);
+    });
+
+    // PEV file input
+    const pevInput = document.getElementById('pevFileInput');
+    pevInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) parsePevFile(file);
+    });
+
+    // Drag and drop for PDP
+    setupDragDrop('pdpDropZone', 'pdpFileInput', parsePdpFile);
+    setupDragDrop('pevDropZone', 'pevFileInput', parsePevFile);
+  }
+
+  function setupDragDrop(zoneId, inputId, handler) {
+    const zone = document.getElementById(zoneId);
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--color-green)'; });
+    zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.style.borderColor = '';
+      const file = e.dataTransfer?.files[0];
+      if (file) {
+        document.getElementById(inputId).files = e.dataTransfer.files;
+        handler(file);
+      }
+    });
+  }
+
+  function showEl(id) { document.getElementById(id)?.classList.remove('hidden'); }
+  function hideEl(id) { document.getElementById(id)?.classList.add('hidden'); }
+
+  function setElHtml(id, html) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  }
+
+  // ── PDP (Prison DID Lookup) ────────────────────────────────────
+
+  function parsePdpFile(file) {
+    hideEl('pdpError');
+    hideEl('pdpPreview');
+    hideEl('pdpSuccess');
+    pdpParsedRows = null;
+    document.getElementById('pdpUploadBtn').disabled = true;
+
+    if (!file.name.match(/\.xlsx?$/i)) {
+      showEl('pdpError');
+      setElHtml('pdpError', '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg> Please select an .xlsx file');
+      return;
+    }
+
+    // Show filename
+    const nameEl = document.getElementById('pdpFileName');
+    nameEl.textContent = file.name;
+    nameEl.classList.remove('hidden');
+    document.getElementById('pdpDropZone').classList.add('has-file');
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        // Check for expected sheet
+        if (!workbook.SheetNames.includes(PDP_SHEET_NAME)) {
+          showEl('pdpError');
+          setElHtml('pdpError', `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg> Sheet "<strong>${PDP_SHEET_NAME}</strong>" not found. Available sheets: ${workbook.SheetNames.join(', ')}`);
+          return;
+        }
+
+        const sheet = workbook.Sheets[PDP_SHEET_NAME];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+        if (rows.length === 0) {
+          showEl('pdpError');
+          setElHtml('pdpError', '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg> Sheet is empty');
+          return;
+        }
+
+        // Validate columns
+        const rowCols = Object.keys(rows[0]);
+        const missing = PDP_EXPECTED_COLS.filter(c => !rowCols.includes(c));
+        if (missing.length > 0) {
+          showEl('pdpError');
+          setElHtml('pdpError', `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg> Missing required columns: <strong>${missing.join(', ')}</strong>. Found: ${rowCols.join(', ')}`);
+          return;
+        }
+
+        // Strip to only expected columns
+        pdpParsedRows = rows.map(row => {
+          const clean = {};
+          PDP_EXPECTED_COLS.forEach(col => { clean[col] = row[col] !== undefined ? String(row[col]).trim() : ''; });
+          return clean;
+        });
+
+        // Show preview (first 10 rows)
+        showEl('pdpPreview');
+        const preview10 = pdpParsedRows.slice(0, 10);
+        setElHtml('pdpPreview', `
+          <div style="margin-top:16px">
+            <div style="font-size:13px;font-weight:700;color:var(--color-hero);margin-bottom:8px">
+              Preview - first ${Math.min(10, pdpParsedRows.length)} of ${pdpParsedRows.length} rows
+            </div>
+            <div class="preview-table-wrap">
+              <table class="preview-table">
+                <thead>
+                  <tr>${PDP_EXPECTED_COLS.map(c => `<th>${c}</th>`).join('')}</tr>
+                </thead>
+                <tbody>
+                  ${preview10.map(row => `<tr>${PDP_EXPECTED_COLS.map(c => `<td>${row[c] || ''}</td>`).join('')}</tr>`).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `);
+
+        document.getElementById('pdpUploadBtn').disabled = false;
+      } catch (err) {
+        showEl('pdpError');
+        setElHtml('pdpError', `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg> Failed to parse file: ${err.message}`);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  window.confirmPdpUpload = async function() {
+    if (!pdpParsedRows || pdpParsedRows.length === 0) return;
+
+    const btn = document.getElementById('pdpUploadBtn');
+    btn.disabled = true;
+    showEl('pdpProgress');
+    setElHtml('pdpProgressText', `Uploading ${pdpParsedRows.length} rows to Supabase...`);
+    hideEl('pdpSuccess');
+    hideEl('pdpError');
+
+    try {
+      const result = await api('replacePrisonLookup', { rows: pdpParsedRows });
+      hideEl('pdpProgress');
+      showEl('pdpSuccess');
+      setElHtml('pdpSuccess', `
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div><strong>Upload successful!</strong> ${result.rowsInserted} rows written to prison_did_lookup table.</div>
+      `);
+      pdpParsedRows = null;
+      btn.disabled = true;
+      showToast('Prison lookup table updated');
+    } catch (err) {
+      hideEl('pdpProgress');
+      showEl('pdpError');
+      setElHtml('pdpError', `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg> Upload failed: ${err.message}`);
+      btn.disabled = false;
+    }
+  };
+
+  window.loadCurrentPdpTable = async function() {
+    const card = document.getElementById('currentPdpCard');
+    const content = document.getElementById('currentPdpContent');
+    card.classList.remove('hidden');
+    content.innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading current table...</div>';
+
+    try {
+      const rows = await api('getPrisonLookupAll');
+      document.getElementById('pdpRowCount').textContent = `${rows.length} rows`;
+
+      if (rows.length === 0) {
+        content.innerHTML = '<div class="empty-state" style="padding:32px"><h3>Table is empty</h3><p>No rows in prison_did_lookup</p></div>';
+        return;
+      }
+
+      content.innerHTML = `
+        <div class="preview-table-wrap" style="max-height:500px">
+          <table class="preview-table">
+            <thead>
+              <tr>
+                <th>Prison</th>
+                <th>State</th>
+                <th>Primary Exchange</th>
+                <th>Primary Area</th>
+                <th>Fallback 1</th>
+                <th>Fallback 2</th>
+                <th>Fallback 3</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(r => `
+                <tr>
+                  <td>${r.prison_name || ''}</td>
+                  <td>${r.prison_state || ''}</td>
+                  <td>${r.primary_exchange_code || ''}</td>
+                  <td>${r.primary_area || ''}</td>
+                  <td>${r.fallback_1 ? `${r.fallback_1_area} (${r.fallback_1})` : '-'}</td>
+                  <td>${r.fallback_2 ? `${r.fallback_2_area} (${r.fallback_2})` : '-'}</td>
+                  <td>${r.fallback_3 ? `${r.fallback_3_area} (${r.fallback_3})` : '-'}</td>
+                  <td>${r.location || ''}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    } catch (err) {
+      content.innerHTML = `<div class="alert alert--error" style="margin:16px"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg>${err.message}</div>`;
+    }
+  };
+
+  // ── PEV (Channel Scaling) ──────────────────────────────────────
+
+  function parsePevFile(file) {
+    hideEl('pevError');
+    hideEl('pevPreview');
+    hideEl('pevSuccess');
+    pevParsedData = null;
+    document.getElementById('pevUploadBtn').disabled = true;
+
+    if (!file.name.match(/\.xlsx?$/i)) {
+      showEl('pevError');
+      setElHtml('pevError', '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg> Please select an .xlsx file');
+      return;
+    }
+
+    const nameEl = document.getElementById('pevFileName');
+    nameEl.textContent = file.name;
+    nameEl.classList.remove('hidden');
+    document.getElementById('pevDropZone').classList.add('has-file');
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        // Validate required sheets
+        const missingSheets = PEV_REQUIRED_SHEETS.filter(s => !workbook.SheetNames.includes(s));
+        if (missingSheets.length > 0) {
+          showEl('pevError');
+          setElHtml('pevError', `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg> Missing required sheets: <strong>${missingSheets.join(', ')}</strong>. Found: ${workbook.SheetNames.join(', ')}`);
+          return;
+        }
+
+        // Parse each sheet (ignore model_comparison if present)
+        const parsed = {};
+        for (const sheetName of PEV_REQUIRED_SHEETS) {
+          const sheet = workbook.Sheets[sheetName];
+          parsed[sheetName] = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+        }
+
+        // The DB table for 'assumptions' sheet is 'scaling_assumptions'
+        pevParsedData = {
+          scaling_model_new: parsed['scaling_model_new'],
+          scaling_model_old_fallback: parsed['scaling_model_old_fallback'],
+          scaling_assumptions: parsed['assumptions'],
+        };
+
+        // Show preview of assumptions tab
+        showEl('pevPreview');
+        const assumRows = parsed['assumptions'].slice(0, 10);
+        const assumCols = assumRows.length > 0 ? Object.keys(assumRows[0]) : [];
+        setElHtml('pevPreview', `
+          <div style="margin-top:16px">
+            <div style="font-size:13px;font-weight:700;color:var(--color-hero);margin-bottom:4px">Parsed sheet counts:</div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+              <span class="badge badge--blue">scaling_model_new: ${parsed['scaling_model_new'].length} rows</span>
+              <span class="badge badge--blue">scaling_model_old_fallback: ${parsed['scaling_model_old_fallback'].length} rows</span>
+              <span class="badge badge--blue">assumptions: ${parsed['assumptions'].length} rows</span>
+            </div>
+            ${assumCols.length > 0 ? `
+              <div style="font-size:13px;font-weight:700;color:var(--color-hero);margin-bottom:8px">Assumptions preview (first ${Math.min(10, assumRows.length)} rows):</div>
+              <div class="preview-table-wrap">
+                <table class="preview-table">
+                  <thead><tr>${assumCols.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+                  <tbody>
+                    ${assumRows.map(r => `<tr>${assumCols.map(c => `<td>${r[c] !== undefined ? r[c] : ''}</td>`).join('')}</tr>`).join('')}
+                  </tbody>
+                </table>
+              </div>
+            ` : ''}
+          </div>
+        `);
+
+        document.getElementById('pevUploadBtn').disabled = false;
+      } catch (err) {
+        showEl('pevError');
+        setElHtml('pevError', `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg> Failed to parse file: ${err.message}`);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  window.confirmPevUpload = async function() {
+    if (!pevParsedData) return;
+
+    const btn = document.getElementById('pevUploadBtn');
+    btn.disabled = true;
+    showEl('pevProgress');
+    setElHtml('pevProgressText', 'Uploading scaling tables to Supabase...');
+    hideEl('pevSuccess');
+    hideEl('pevError');
+
+    try {
+      const result = await api('replaceScalingTables', pevParsedData);
+      hideEl('pevProgress');
+      showEl('pevSuccess');
+      setElHtml('pevSuccess', `
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div>
+          <strong>Upload successful!</strong>
+          <div style="font-size:13px;margin-top:4px">
+            scaling_model_new: ${result.scaling_model_new} rows,
+            scaling_model_old_fallback: ${result.scaling_model_old_fallback} rows,
+            scaling_assumptions: ${result.scaling_assumptions} rows
+          </div>
+        </div>
+      `);
+      pevParsedData = null;
+      btn.disabled = true;
+      showToast('Scaling tables updated');
+    } catch (err) {
+      hideEl('pevProgress');
+      showEl('pevError');
+      setElHtml('pevError', `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg> Upload failed: ${err.message}`);
+      btn.disabled = false;
+    }
+  };
+
+  window.doLogout = function() {
+    import('/admin/admin-auth.js').then(m => m.logout());
+  };
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/admin/sw.js').catch(() => {});
+  }
+
+  init();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prisoncall Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+</head>
+<body>
+  <script>
+    (function () {
+      var SESSION_KEY = 'pc_admin_session';
+      try {
+        var raw = localStorage.getItem(SESSION_KEY);
+        if (raw) {
+          var s = JSON.parse(raw);
+          if (s && s.access_token) {
+            var expiresAt = s.expires_at;
+            if (!expiresAt || Date.now() / 1000 < expiresAt - 60) {
+              window.location.replace('/admin/dashboard.html');
+              return;
+            }
+          }
+        }
+      } catch (e) {}
+      window.location.replace('/admin/login.html');
+    })();
+  </script>
+</body>
+</html>

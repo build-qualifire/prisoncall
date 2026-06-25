@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Admin Login | Prisoncall</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="../assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="manifest" href="/admin/manifest.json">
+  <meta name="theme-color" content="#00D258">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-green: #00D258;
+      --color-green-mid: #E6FAF0;
+      --color-hero: #101010;
+      --color-muted: #666666;
+      --color-border: #E5E5E5;
+      --color-surface: #F9F9F9;
+      --color-red: #EF4444;
+      --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-pill: 80px;
+      --tr: 150ms ease;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: var(--font-family);
+      font-size: 15px;
+      line-height: 1.5;
+      color: #000;
+      background: #F4F5F7;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-brand {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-wordmark {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: var(--color-hero);
+      text-transform: uppercase;
+    }
+
+    .login-wordmark span { color: var(--color-green); }
+
+    .login-sub {
+      font-size: 14px;
+      color: var(--color-muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .login-card {
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 28px 28px 32px;
+    }
+
+    .login-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--color-hero);
+      margin-bottom: 24px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-hero);
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-family);
+      font-size: 15px;
+      color: #000;
+      background: #fff;
+      transition: border-color var(--tr), box-shadow var(--tr);
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: var(--color-green);
+      box-shadow: 0 0 0 3px rgba(0,210,88,0.12);
+    }
+
+    .form-input.error { border-color: var(--color-red); }
+
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      margin-top: 4px;
+    }
+
+    .remember-row input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--color-green);
+      cursor: pointer;
+    }
+
+    .remember-row label {
+      font-size: 13px;
+      color: var(--color-muted);
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-signin {
+      width: 100%;
+      padding: 14px 24px;
+      background: var(--color-green);
+      color: #000;
+      font-family: var(--font-family);
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition: opacity var(--tr), transform var(--tr);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-signin:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-signin:active { transform: translateY(0); opacity: 1; }
+    .btn-signin:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .error-msg {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      background: #FEF2F2;
+      border: 1px solid #fca5a5;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      color: #991b1b;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .error-msg.visible { display: flex; }
+
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="login-wordmark">PRISON<span>CALL</span></div>
+      <div class="login-sub">Admin Portal</div>
+    </div>
+
+    <div class="login-card">
+      <h1 class="login-title">Sign in</h1>
+
+      <div class="error-msg" id="errorMsg">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="errorText">Invalid email or password</span>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label" for="email">Email address</label>
+          <input class="form-input" type="email" id="email" name="email"
+            placeholder="you@prisoncall.com.au" autocomplete="email" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input class="form-input" type="password" id="password" name="password"
+            placeholder="Enter your password" autocomplete="current-password" required>
+        </div>
+
+        <div class="remember-row">
+          <input type="checkbox" id="remember" name="remember">
+          <label for="remember">Remember me on this device</label>
+        </div>
+
+        <button type="submit" class="btn-signin" id="submitBtn">
+          <span id="btnText">Sign In</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_API = '/api/admin-supabase';
+    const SESSION_KEY = 'pc_admin_session';
+
+    // If already logged in, redirect
+    try {
+      var raw = localStorage.getItem(SESSION_KEY);
+      if (raw) {
+        var s = JSON.parse(raw);
+        if (s && s.access_token && s.expires_at && Date.now() / 1000 < s.expires_at - 60) {
+          window.location.replace('/admin/dashboard.html');
+        }
+      }
+    } catch(e) {}
+
+    const form = document.getElementById('loginForm');
+    const emailEl = document.getElementById('email');
+    const passwordEl = document.getElementById('password');
+    const rememberEl = document.getElementById('remember');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const errorMsg = document.getElementById('errorMsg');
+    const errorText = document.getElementById('errorText');
+
+    function showError(msg) {
+      errorText.textContent = msg;
+      errorMsg.classList.add('visible');
+      emailEl.classList.add('error');
+      passwordEl.classList.add('error');
+    }
+
+    function hideError() {
+      errorMsg.classList.remove('visible');
+      emailEl.classList.remove('error');
+      passwordEl.classList.remove('error');
+    }
+
+    function setLoading(on) {
+      submitBtn.disabled = on;
+      btnText.innerHTML = on ? '<span class="spinner"></span> Signing in...' : 'Sign In';
+    }
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      hideError();
+      setLoading(true);
+
+      const email = emailEl.value.trim();
+      const password = passwordEl.value;
+      const remember = rememberEl.checked;
+
+      try {
+        const res = await fetch(ADMIN_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'login', params: { email, password } }),
+        });
+        const body = await res.json();
+
+        if (!body.success) {
+          showError(body.error || 'Invalid email or password');
+          setLoading(false);
+          return;
+        }
+
+        // Save session
+        localStorage.setItem(SESSION_KEY, JSON.stringify(body.data));
+
+        if (!remember) {
+          sessionStorage.setItem('pc_session_only', '1');
+        }
+
+        window.location.replace('/admin/dashboard.html');
+      } catch (err) {
+        showError('Connection error. Please check your internet and try again.');
+        setLoading(false);
+      }
+    });
+
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/admin/sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
