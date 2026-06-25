@@ -1,80 +1,99 @@
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  let mobile, cleanCode;
+  let body;
   try {
-    const body = await request.json();
-    mobile    = (body.mobile || '').replace(/\D/g, '');
-    cleanCode = (body.code   || '').replace(/\D/g, '');
+    body = await request.json();
   } catch {
-    return jsonResponse({ success: false, error: 'Invalid request body' }, 400);
+    return new Response(JSON.stringify({ success: false, error: 'Invalid request body' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
+  const mobile    = (body.mobile || '').replace(/\D/g, '');
+  const cleanCode = (body.code   || '').replace(/\D/g, '');
+
   if (!/^04\d{8}$/.test(mobile)) {
-    return jsonResponse({ success: false, error: 'Invalid Australian mobile number' }, 400);
+    return new Response(JSON.stringify({ success: false, error: 'Invalid Australian mobile number' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
   if (!/^\d{6}$/.test(cleanCode)) {
-    return jsonResponse({ success: false, error: 'Invalid code format' }, 400);
+    return new Response(JSON.stringify({ success: false, error: 'Invalid code format' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   const accountSid = env.TWILIO_ACCOUNT_SID;
   const authToken  = env.TWILIO_AUTH_TOKEN;
   const serviceSid = env.TWILIO_VERIFY_SERVICE_SID;
 
-  console.log('[verify-otp] accountSid[:8]:', (accountSid || '').slice(0, 8), '| serviceSid[:8]:', (serviceSid || '').slice(0, 8));
-
   if (!accountSid || !authToken || !serviceSid) {
-    return jsonResponse({ success: false, error: 'Server misconfiguration' }, 500);
-  }
-
-  const e164 = '+61' + mobile.slice(1); // strip leading 0, prepend +61
-
-  const twilioUrl = `https://verify.twilio.com/v2/Services/${serviceSid}/VerificationChecks`;
-  const credentials = btoa(`${accountSid}:${authToken}`);
-
-  let twilioRes;
-  try {
-    twilioRes = await fetch(twilioUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Basic ${credentials}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: `To=${encodeURIComponent(e164)}&Code=${encodeURIComponent(cleanCode)}`,
+    return new Response(JSON.stringify({ success: false, error: 'Server misconfiguration' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
     });
-  } catch {
-    return jsonResponse({ success: false, error: 'Failed to reach Twilio' }, 502);
   }
 
-  let twilioData;
+  const e164 = '+61' + mobile.slice(1);
+
   try {
-    twilioData = await twilioRes.json();
-  } catch {
-    return jsonResponse({ success: false, error: 'Incorrect code. Please try again.' });
-  }
+    const twilioRes = await fetch(
+      'https://verify.twilio.com/v2/Services/' + serviceSid + '/VerificationChecks',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Basic ' + btoa(accountSid + ':' + authToken),
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'To=' + encodeURIComponent(e164) + '&Code=' + encodeURIComponent(cleanCode),
+      }
+    );
 
-  // Twilio 20404 means no pending verification exists (expired or already consumed)
-  if (twilioRes.status === 404 || (twilioData && twilioData.code === 20404)) {
-    return jsonResponse({ success: false, error: 'Code expired. Please request a new code.' });
-  }
+    const data = await twilioRes.json();
 
-  if (twilioData && twilioData.status === 'approved') {
-    return jsonResponse({ success: true });
-  }
+    if (data.code === 20404) {
+      return new Response(JSON.stringify({ success: false, error: 'Code expired. Please request a new code.' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
-  return jsonResponse({ success: false, error: 'Incorrect code. Please try again.' });
+    if (!twilioRes.ok) {
+      return new Response(JSON.stringify({ success: false, error: data.message || 'Verification failed' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (data.status === 'approved') {
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify({ success: false, error: 'Incorrect code. Please try again.' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: 'Failed to reach Twilio' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 }
 
 export async function onRequest(context) {
   if (context.request.method === 'OPTIONS') {
     return new Response(null, { status: 204 });
   }
-  return jsonResponse({ error: 'Method not allowed' }, 405);
-}
-
-function jsonResponse(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
+  return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+    status: 405,
     headers: { 'Content-Type': 'application/json' },
   });
 }
