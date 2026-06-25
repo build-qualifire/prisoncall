@@ -140,7 +140,7 @@ export async function onRequest(context) {
     null;
 
   const VALID_ROLES = ['super_admin', 'admin', 'staff'];
-  const SUPER_ADMIN_ONLY = ['getProducts', 'updateProduct', 'replacePrisonLookup', 'getPrisonLookupAll', 'replaceScalingTables'];
+  const SUPER_ADMIN_ONLY = ['getProducts', 'updateProduct', 'replacePrisonLookup', 'getPrisonLookupAll', 'replaceScalingTables', 'getTableStatus'];
   const ADMIN_PLUS = ['getSubscriptions', 'getSubscription', 'getOrdersBySubscription'];
 
   if (!VALID_ROLES.includes(userRole)) {
@@ -182,6 +182,34 @@ export async function onRequest(context) {
       // Return the current user's role (used by client to recover missing role from stored session)
       case 'getRole': {
         return json({ success: true, data: { role: userRole, email: userInfo.email } });
+      }
+
+      // Row count + most recent timestamp for a settings table (super_admin only)
+      case 'getTableStatus': {
+        const { table } = params;
+        if (!['prison_did_lookup', 'scaling_model_new'].includes(table)) {
+          return json({ success: false, error: 'Invalid table name' });
+        }
+
+        // Fetch one row with count=exact — PostgREST returns total in Content-Range header
+        const countRes = await sb(`${table}?select=*&limit=1`, { prefer: 'count=exact' });
+        const cr = countRes.headers.get('content-range'); // e.g. "0-0/48" or "*/48"
+        const count = (cr && cr.includes('/')) ? (parseInt(cr.split('/')[1]) || 0) : 0;
+
+        // Try updated_at then created_at for the most recent row timestamp
+        let lastUpdated = null;
+        for (const col of ['updated_at', 'created_at']) {
+          const tsRes = await sb(`${table}?select=${col}&order=${col}.desc&limit=1`);
+          if (tsRes.ok) {
+            const rows = await tsRes.json();
+            if (Array.isArray(rows) && rows.length > 0 && rows[0][col]) {
+              lastUpdated = rows[0][col];
+              break;
+            }
+          }
+        }
+
+        return json({ success: true, data: { count, lastUpdated } });
       }
 
       // Dashboard metrics

@@ -70,16 +70,17 @@
               <div class="card-title">Prison DID Lookup Table</div>
             </div>
             <div class="card-body">
-              <p style="font-size:13px;color:var(--color-muted);margin-bottom:16px;line-height:1.6">
-                Upload <strong>Prisoncall_PDP_Table_v3_0.xlsx</strong> to update prison exchange lookup data.
+              <p style="font-size:13px;color:var(--color-muted);margin-bottom:6px;line-height:1.6">
+                Upload the latest <strong>Prisoncall_PDP_Table .xlsx</strong> file to update prison exchange lookup data.
                 Expected sheet: <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:12px">prison_did_lookup</code>
               </p>
+              <div id="pdpStatus" style="font-size:12px;color:var(--color-muted);margin-bottom:16px;min-height:18px"></div>
 
               <div class="file-drop" id="pdpDropZone" onclick="document.getElementById('pdpFileInput').click()">
                 <input type="file" id="pdpFileInput" accept=".xlsx,.xls" style="display:none">
                 <div class="file-drop-icon">📊</div>
                 <div class="file-drop-label">Click to select .xlsx file</div>
-                <div class="file-drop-hint">Prisoncall_PDP_Table_v3_0.xlsx</div>
+                <div class="file-drop-hint">Prisoncall_PDP_Table .xlsx</div>
                 <div class="file-drop-filename hidden" id="pdpFileName"></div>
               </div>
 
@@ -125,18 +126,19 @@
               <div class="card-title">Channel Scaling Table</div>
             </div>
             <div class="card-body">
-              <p style="font-size:13px;color:var(--color-muted);margin-bottom:16px;line-height:1.6">
-                Upload <strong>Prisoncall_PEV_Table_v4_0.xlsx</strong> to update SIP channel scaling model.
+              <p style="font-size:13px;color:var(--color-muted);margin-bottom:6px;line-height:1.6">
+                Upload the latest <strong>Prisoncall_PEV_Table .xlsx</strong> file to update the SIP channel scaling model.
                 Required sheets: <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:12px">scaling_model_new</code>,
                 <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:12px">scaling_model_old_fallback</code>,
                 <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:12px">assumptions</code>
               </p>
+              <div id="pevStatus" style="font-size:12px;color:var(--color-muted);margin-bottom:16px;min-height:18px"></div>
 
               <div class="file-drop" id="pevDropZone" onclick="document.getElementById('pevFileInput').click()">
                 <input type="file" id="pevFileInput" accept=".xlsx,.xls" style="display:none">
                 <div class="file-drop-icon">📈</div>
                 <div class="file-drop-label">Click to select .xlsx file</div>
-                <div class="file-drop-hint">Prisoncall_PEV_Table_v4_0.xlsx</div>
+                <div class="file-drop-hint">Prisoncall_PEV_Table .xlsx</div>
                 <div class="file-drop-filename hidden" id="pevFileName"></div>
               </div>
 
@@ -219,6 +221,50 @@
       return;
     }
     setupFileInputs();
+    loadTableStatuses();
+  }
+
+  function fmtStatusDate(iso) {
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (isNaN(d)) return null;
+    return d.toLocaleDateString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  async function loadTableStatuses() {
+    // Load both statuses in parallel
+    const [pdp, pev] = await Promise.allSettled([
+      api('getTableStatus', { table: 'prison_did_lookup' }),
+      api('getTableStatus', { table: 'scaling_model_new' }),
+    ]);
+
+    const pdpEl = document.getElementById('pdpStatus');
+    if (pdp.status === 'fulfilled' && pdp.value) {
+      const { count, lastUpdated } = pdp.value;
+      if (count > 0) {
+        const dateStr = fmtStatusDate(lastUpdated);
+        pdpEl.textContent = 'Currently loaded: ' + count + ' prison' + (count !== 1 ? 's' : '') +
+          (dateStr ? ' — last updated ' + dateStr : '');
+      } else {
+        pdpEl.textContent = 'No data loaded yet';
+      }
+    } else {
+      pdpEl.textContent = '';
+    }
+
+    const pevEl = document.getElementById('pevStatus');
+    if (pev.status === 'fulfilled' && pev.value) {
+      const { count, lastUpdated } = pev.value;
+      if (count > 0) {
+        const dateStr = fmtStatusDate(lastUpdated);
+        pevEl.textContent = 'Currently loaded: ' + count + ' row' + (count !== 1 ? 's' : '') +
+          (dateStr ? ' — last updated ' + dateStr : '');
+      } else {
+        pevEl.textContent = 'No data loaded yet';
+      }
+    } else {
+      pevEl.textContent = '';
+    }
   }
 
   function setupFileInputs() {
@@ -374,6 +420,7 @@
       pdpParsedRows = null;
       btn.disabled = true;
       showToast('Prison lookup table updated');
+      loadTableStatuses();
     } catch (err) {
       hideEl('pdpProgress');
       showEl('pdpError');
@@ -545,6 +592,7 @@
       pevParsedData = null;
       btn.disabled = true;
       showToast('Scaling tables updated');
+      loadTableStatuses();
     } catch (err) {
       hideEl('pevProgress');
       showEl('pevError');
