@@ -35,7 +35,7 @@ export function clearSession() {
 
 function isSessionValid(session) {
   if (!session || !session.access_token) return false;
-  // Only check expiry when expires_at is actually set (it's a Unix seconds timestamp)
+  // Only check expiry when expires_at is present (Unix seconds timestamp)
   if (session.expires_at) {
     const nowSec = Date.now() / 1000;
     if (nowSec > session.expires_at - 60) return false;
@@ -54,7 +54,7 @@ async function tryRefresh(session) {
     const data = await res.json();
     if (data.success) {
       const refreshed = { ...session, ...data.data };
-      // Preserve role from the old session if the refresh response didn't return one
+      // Preserve role from old session if refresh response didn't include it
       if (!refreshed.user?.role && session.user?.role) {
         refreshed.user = { ...(refreshed.user || {}), role: session.user.role };
       }
@@ -85,6 +85,7 @@ function hasRole(userRole, requiredRole) {
 /**
  * Fetch the authenticated user's role directly from the server.
  * Used when the stored session is missing the role field.
+ * The CF function reads from user_metadata, raw_user_meta_data, and app_metadata.
  */
 async function fetchRoleFromServer(accessToken) {
   try {
@@ -94,9 +95,10 @@ async function fetchRoleFromServer(accessToken) {
       body: JSON.stringify({ action: 'getRole', token: accessToken }),
     });
     const body = await res.json();
+    console.log('[AdminAuth] fetchRoleFromServer response:', body);
     if (body.success && body.data?.role) return body.data.role;
-  } catch {
-    // ignore network errors
+  } catch (err) {
+    console.warn('[AdminAuth] fetchRoleFromServer error:', err);
   }
   return null;
 }
@@ -113,50 +115,64 @@ async function fetchRoleFromServer(accessToken) {
  *   'super_admin' - super_admin only; others redirected to dashboard
  */
 export async function initAdminPage(requiredRole = null) {
+  console.log('[AdminAuth] initAdminPage() — requiredRole:', requiredRole);
+
   let session = getSession();
 
   if (!session) {
+    console.log('[AdminAuth] No session in localStorage — redirecting to login');
     redirectToLogin();
     return null;
   }
 
+  console.log('[AdminAuth] Session found — user:', session.user, '| expires_at:', session.expires_at, '| has_token:', !!session.access_token);
+
   if (!isSessionValid(session)) {
+    console.log('[AdminAuth] Session invalid/expired — attempting token refresh');
     session = await tryRefresh(session);
     if (!session) {
+      console.log('[AdminAuth] Refresh failed — redirecting to login');
       clearSession();
       redirectToLogin();
       return null;
     }
+    console.log('[AdminAuth] Refresh succeeded — new role:', session.user?.role);
   }
 
   let role = session.user?.role || null;
+  console.log('[AdminAuth] Role from stored session:', role);
 
-  // Role is missing from the stored session (e.g. session pre-dates RBAC, or refresh
-  // response didn't include user_metadata). Fetch the current role from the server
-  // using the access token, then persist it into the stored session.
+  // Role is missing from the stored session.
+  // This happens when: (a) the session predates RBAC, (b) a token refresh didn't
+  // return user_metadata, or (c) Supabase returned the role under a different key
+  // (raw_user_meta_data vs user_metadata). Fetch the role live from the CF function.
   if (!role && session.access_token) {
+    console.log('[AdminAuth] Role missing — fetching live from server via getRole action');
     role = await fetchRoleFromServer(session.access_token);
+    console.log('[AdminAuth] Role returned by server:', role);
     if (role) {
-      session = {
-        ...session,
-        user: { ...(session.user || {}), role },
-      };
+      session = { ...session, user: { ...(session.user || {}), role } };
       saveSession(session);
+      console.log('[AdminAuth] Session updated with server-fetched role');
     }
   }
 
-  // Still no valid role: not an admin account or token is truly invalid
+  console.log('[AdminAuth] Final role:', role, '| ROLE_LEVELS lookup:', roleLevel(role), '| required level:', roleLevel(requiredRole));
+
   if (!role || roleLevel(role) < 0) {
+    console.warn('[AdminAuth] Role is invalid or missing — clearing session, redirecting to login');
     clearSession();
     redirectToLogin();
     return null;
   }
 
-  // Insufficient role for this page
   if (!hasRole(role, requiredRole)) {
+    console.warn('[AdminAuth] Role "' + role + '" is insufficient for requiredRole "' + requiredRole + '" — redirecting to dashboard');
     window.location.href = '/admin/dashboard.html';
     return null;
   }
+
+  console.log('[AdminAuth] Access granted — role "' + role + '" meets requiredRole "' + requiredRole + '"');
 
   // Populate sidebar user email
   document.querySelectorAll('[data-user-email]').forEach(el => {
@@ -164,7 +180,6 @@ export async function initAdminPage(requiredRole = null) {
   });
 
   // Remove nav items the current role cannot access
-  // Attribute: data-role-min="admin" or data-role-min="super_admin"
   document.querySelectorAll('[data-role-min]').forEach(el => {
     if (!hasRole(role, el.dataset.roleMin)) el.remove();
   });

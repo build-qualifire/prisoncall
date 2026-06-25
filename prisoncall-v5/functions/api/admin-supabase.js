@@ -61,7 +61,11 @@ export async function onRequest(context) {
       return json({ success: false, error: msg });
     }
 
-    const role = data.user?.user_metadata?.role || null;
+    const role =
+      data.user?.user_metadata?.role ||
+      data.user?.raw_user_meta_data?.role ||
+      data.user?.app_metadata?.role ||
+      null;
     const VALID_ROLES = ['super_admin', 'admin', 'staff'];
     if (!role || !VALID_ROLES.includes(role)) {
       return json({ success: false, error: 'Access denied: no admin role assigned to this account.' });
@@ -102,7 +106,11 @@ export async function onRequest(context) {
         user: {
           email: data.user.email,
           id: data.user.id,
-          role: data.user?.user_metadata?.role || data.user?.app_metadata?.role || null,
+          role:
+            data.user?.user_metadata?.role ||
+            data.user?.raw_user_meta_data?.role ||
+            data.user?.app_metadata?.role ||
+            null,
         },
       },
     });
@@ -123,7 +131,13 @@ export async function onRequest(context) {
   }
 
   const userInfo = await userRes.json();
-  const userRole = userInfo.user_metadata?.role || null;
+  // Supabase can return the role under user_metadata, raw_user_meta_data, or app_metadata
+  // depending on the GoTrue version and how the metadata was originally set.
+  const userRole =
+    userInfo.user_metadata?.role ||
+    userInfo.raw_user_meta_data?.role ||
+    userInfo.app_metadata?.role ||
+    null;
 
   const VALID_ROLES = ['super_admin', 'admin', 'staff'];
   const SUPER_ADMIN_ONLY = ['getProducts', 'updateProduct', 'replacePrisonLookup', 'getPrisonLookupAll', 'replaceScalingTables'];

@@ -291,6 +291,7 @@
 
         // Save session
         localStorage.setItem(SESSION_KEY, JSON.stringify(body.data));
+        console.log('[AdminLogin] Session stored — user:', body.data?.user, '| role:', body.data?.user?.role, '| expires_at:', body.data?.expires_at);
 
         if (!remember) {
           sessionStorage.setItem('pc_session_only', '1');
