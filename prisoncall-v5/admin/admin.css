@@ -85,16 +85,10 @@ input, select, textarea { font-family: inherit; }
   flex-shrink: 0;
 }
 
-.sidebar-wordmark {
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: var(--color-hero);
-  text-transform: uppercase;
-}
-
-.sidebar-wordmark span {
-  color: var(--color-green);
+.sidebar-logo {
+  height: 26px;
+  width: auto;
+  display: block;
 }
 
 .sidebar-nav {

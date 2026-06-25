@@ -72,7 +72,7 @@ export async function onRequest(context) {
       data: {
         access_token: data.access_token,
         refresh_token: data.refresh_token,
-        expires_at: data.expires_at,
+        expires_at: data.expires_at || (data.expires_in ? Math.floor(Date.now() / 1000) + Number(data.expires_in) : null),
         user: { email: data.user.email, id: data.user.id, role },
       },
     });
@@ -98,11 +98,11 @@ export async function onRequest(context) {
       data: {
         access_token: data.access_token,
         refresh_token: data.refresh_token,
-        expires_at: data.expires_at,
+        expires_at: data.expires_at || (data.expires_in ? Math.floor(Date.now() / 1000) + Number(data.expires_in) : null),
         user: {
           email: data.user.email,
           id: data.user.id,
-          role: data.user?.user_metadata?.role || null,
+          role: data.user?.user_metadata?.role || data.user?.app_metadata?.role || null,
         },
       },
     });
@@ -164,6 +164,11 @@ export async function onRequest(context) {
 
   try {
     switch (action) {
+
+      // Return the current user's role (used by client to recover missing role from stored session)
+      case 'getRole': {
+        return json({ success: true, data: { role: userRole, email: userInfo.email } });
+      }
 
       // Dashboard metrics
       case 'getDashboardMetrics': {

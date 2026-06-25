@@ -52,20 +52,17 @@
       margin-bottom: 32px;
     }
 
-    .login-wordmark {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      color: var(--color-hero);
-      text-transform: uppercase;
+    .login-logo {
+      height: 28px;
+      width: auto;
+      display: block;
+      margin: 0 auto;
     }
-
-    .login-wordmark span { color: var(--color-green); }
 
     .login-sub {
       font-size: 14px;
       color: var(--color-muted);
-      margin-top: 4px;
+      margin-top: 8px;
       font-weight: 500;
     }
 
@@ -186,7 +183,7 @@
 <body>
   <div class="login-wrap">
     <div class="login-brand">
-      <div class="login-wordmark">PRISON<span>CALL</span></div>
+      <img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall" class="login-logo">
       <div class="login-sub">Admin Portal</div>
     </div>
 
@@ -227,13 +224,17 @@
     const ADMIN_API = '/api/admin-supabase';
     const SESSION_KEY = 'pc_admin_session';
 
-    // If already logged in, redirect
+    // If already logged in with a valid session, skip the login page
     try {
       var raw = localStorage.getItem(SESSION_KEY);
       if (raw) {
         var s = JSON.parse(raw);
-        if (s && s.access_token && s.expires_at && Date.now() / 1000 < s.expires_at - 60) {
-          window.location.replace('/admin/dashboard.html');
+        if (s && s.access_token) {
+          // Check expiry only when expires_at is present (it's a Unix seconds timestamp)
+          var isExpired = s.expires_at ? (Date.now() / 1000 > s.expires_at - 60) : false;
+          if (!isExpired) {
+            window.location.replace('/admin/dashboard.html');
+          }
         }
       }
     } catch(e) {}

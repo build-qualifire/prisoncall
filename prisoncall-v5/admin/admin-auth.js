@@ -35,7 +35,11 @@ export function clearSession() {
 
 function isSessionValid(session) {
   if (!session || !session.access_token) return false;
-  if (session.expires_at && Date.now() / 1000 > session.expires_at - 60) return false;
+  // Only check expiry when expires_at is actually set (it's a Unix seconds timestamp)
+  if (session.expires_at) {
+    const nowSec = Date.now() / 1000;
+    if (nowSec > session.expires_at - 60) return false;
+  }
   return true;
 }
 
@@ -50,6 +54,10 @@ async function tryRefresh(session) {
     const data = await res.json();
     if (data.success) {
       const refreshed = { ...session, ...data.data };
+      // Preserve role from the old session if the refresh response didn't return one
+      if (!refreshed.user?.role && session.user?.role) {
+        refreshed.user = { ...(refreshed.user || {}), role: session.user.role };
+      }
       saveSession(refreshed);
       return refreshed;
     }
@@ -69,14 +77,28 @@ function roleLevel(role) {
   return ROLE_LEVELS[role] ?? -1;
 }
 
-/**
- * Returns true if the user's role meets or exceeds the required role.
- * @param {string} userRole
- * @param {string|null} requiredRole - null means any valid role is accepted
- */
 function hasRole(userRole, requiredRole) {
   if (!requiredRole) return roleLevel(userRole) >= 0;
   return roleLevel(userRole) >= roleLevel(requiredRole);
+}
+
+/**
+ * Fetch the authenticated user's role directly from the server.
+ * Used when the stored session is missing the role field.
+ */
+async function fetchRoleFromServer(accessToken) {
+  try {
+    const res = await fetch(ADMIN_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'getRole', token: accessToken }),
+    });
+    const body = await res.json();
+    if (body.success && body.data?.role) return body.data.role;
+  } catch {
+    // ignore network errors
+  }
+  return null;
 }
 
 // ── Page initialisation ────────────────────────────────────────
@@ -86,8 +108,8 @@ function hasRole(userRole, requiredRole) {
  * Returns the session or null (and redirects) if auth fails.
  *
  * @param {string|null} requiredRole
- *   null        - any valid role (staff, admin, super_admin)
- *   'admin'     - admin or super_admin only; staff redirected to dashboard
+ *   null          - any valid role (staff, admin, super_admin)
+ *   'admin'       - admin or super_admin; staff redirected to dashboard
  *   'super_admin' - super_admin only; others redirected to dashboard
  */
 export async function initAdminPage(requiredRole = null) {
@@ -107,9 +129,23 @@ export async function initAdminPage(requiredRole = null) {
     }
   }
 
-  const role = session.user?.role || null;
+  let role = session.user?.role || null;
 
-  // No valid role = not an admin account
+  // Role is missing from the stored session (e.g. session pre-dates RBAC, or refresh
+  // response didn't include user_metadata). Fetch the current role from the server
+  // using the access token, then persist it into the stored session.
+  if (!role && session.access_token) {
+    role = await fetchRoleFromServer(session.access_token);
+    if (role) {
+      session = {
+        ...session,
+        user: { ...(session.user || {}), role },
+      };
+      saveSession(session);
+    }
+  }
+
+  // Still no valid role: not an admin account or token is truly invalid
   if (!role || roleLevel(role) < 0) {
     clearSession();
     redirectToLogin();
@@ -122,7 +158,7 @@ export async function initAdminPage(requiredRole = null) {
     return null;
   }
 
-  // Populate sidebar user info
+  // Populate sidebar user email
   document.querySelectorAll('[data-user-email]').forEach(el => {
     el.textContent = session.user?.email || '';
   });
@@ -147,10 +183,6 @@ export function logout() {
 
 // ── API client ──────────────────────────────────────────────────
 
-/**
- * Call the admin-supabase CF Pages Function.
- * Handles UNAUTHORIZED by redirecting to login.
- */
 export async function api(action, params = {}) {
   const session = getSession();
 
