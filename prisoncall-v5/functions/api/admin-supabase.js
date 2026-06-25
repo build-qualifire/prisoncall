@@ -280,7 +280,7 @@ export async function onRequest(context) {
         return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : null });
       }
 
-      // All prison DID lookup rows (Guness only)
+      // All prison DID lookup rows (super_admin only)
       case 'getPrisonLookupAll': {
         const res = await sb('prison_did_lookup?select=*&order=prison_state.asc,prison_name.asc');
         const data = await res.json();
@@ -294,7 +294,7 @@ export async function onRequest(context) {
         return json({ success: true, data: Array.isArray(data) ? data : [] });
       }
 
-      // Update a product row (Guness only)
+      // Update a product row (super_admin only)
       case 'updateProduct': {
         const { id, fields } = params;
         if (!id || !fields) return json({ success: false, error: 'Missing id or fields' });
@@ -310,7 +310,7 @@ export async function onRequest(context) {
         return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : data });
       }
 
-      // Replace entire prison_did_lookup table (Guness only)
+      // Replace entire prison_did_lookup table (super_admin only)
       case 'replacePrisonLookup': {
         const { rows } = params;
         if (!Array.isArray(rows) || rows.length === 0) return json({ success: false, error: 'No rows provided' });
@@ -353,7 +353,7 @@ export async function onRequest(context) {
         return json({ success: true, data: { rowsInserted: rows.length } });
       }
 
-      // Replace all scaling tables atomically (Guness only)
+      // Replace all scaling tables atomically (super_admin only)
       case 'replaceScalingTables': {
         const { scaling_model_new, scaling_model_old_fallback, scaling_assumptions } = params;
         if (!Array.isArray(scaling_model_new)) return json({ success: false, error: 'Missing scaling_model_new data' });
