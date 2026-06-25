@@ -72,7 +72,6 @@
             <div class="card-body">
               <p style="font-size:13px;color:var(--color-muted);margin-bottom:6px;line-height:1.6">
                 Upload the latest <strong>Prisoncall_PDP_Table .xlsx</strong> file to update prison exchange lookup data.
-                Expected sheet: <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:12px">prison_did_lookup</code>
               </p>
               <div id="pdpStatus" style="font-size:12px;color:var(--color-muted);margin-bottom:16px;min-height:18px"></div>
 
@@ -128,9 +127,6 @@
             <div class="card-body">
               <p style="font-size:13px;color:var(--color-muted);margin-bottom:6px;line-height:1.6">
                 Upload the latest <strong>Prisoncall_PEV_Table .xlsx</strong> file to update the SIP channel scaling model.
-                Required sheets: <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:12px">scaling_model_new</code>,
-                <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:12px">scaling_model_old_fallback</code>,
-                <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:12px">assumptions</code>
               </p>
               <div id="pevStatus" style="font-size:12px;color:var(--color-muted);margin-bottom:16px;min-height:18px"></div>
 
@@ -199,10 +195,12 @@
   import { initAdminPage, api, logout, showToast } from '/admin/admin-auth.js';
 
   // Expected columns for prison_did_lookup
+  // Exact column names as they appear in the Excel file (prison_did_lookup sheet)
+  // 'popular' is in the Excel but not the Supabase table — it is stripped during mapping
   const PDP_EXPECTED_COLS = [
-    'prison_name', 'prison_state', 'primary_exchange_code', 'primary_area',
+    'prison_name', 'prison_state', 'location', 'primary', 'primary_area',
     'fallback_1', 'fallback_1_area', 'fallback_2', 'fallback_2_area',
-    'fallback_3', 'fallback_3_area', 'location', 'notes'
+    'fallback_3', 'fallback_3_area', 'notes'
   ];
   const PDP_SHEET_NAME = 'prison_did_lookup';
 

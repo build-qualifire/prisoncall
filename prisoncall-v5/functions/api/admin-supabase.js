@@ -362,13 +362,32 @@ export async function onRequest(context) {
         const { rows } = params;
         if (!Array.isArray(rows) || rows.length === 0) return json({ success: false, error: 'No rows provided' });
 
-        // Validate expected columns
-        const EXPECTED_COLS = ['prison_name', 'prison_state', 'primary_exchange_code', 'primary_area', 'fallback_1', 'fallback_1_area', 'fallback_2', 'fallback_2_area', 'fallback_3', 'fallback_3_area', 'location', 'notes'];
-        const rowCols = Object.keys(rows[0]);
-        const missing = EXPECTED_COLS.filter(c => !rowCols.includes(c));
+        // Map Excel column names → Supabase column names
+        // Excel uses 'primary'; Supabase table uses 'primary_exchange_code'
+        // 'popular' is an extra Excel column not in Supabase — stripped below
+        const EXCEL_TO_DB = { primary: 'primary_exchange_code' };
+        const SUPABASE_COLS = ['prison_name', 'prison_state', 'primary_exchange_code', 'primary_area', 'fallback_1', 'fallback_1_area', 'fallback_2', 'fallback_2_area', 'fallback_3', 'fallback_3_area', 'location', 'notes'];
+
+        const mappedRows = rows.map(row => {
+          const r = {};
+          for (const [k, v] of Object.entries(row)) {
+            r[EXCEL_TO_DB[k] !== undefined ? EXCEL_TO_DB[k] : k] = v;
+          }
+          return r;
+        });
+
+        const rowCols = Object.keys(mappedRows[0]);
+        const missing = SUPABASE_COLS.filter(c => !rowCols.includes(c));
         if (missing.length > 0) {
           return json({ success: false, error: `Missing columns: ${missing.join(', ')}` });
         }
+
+        // Strip to Supabase columns only (drops 'popular' and any other extras)
+        const cleanRows = mappedRows.map(row => {
+          const r = {};
+          SUPABASE_COLS.forEach(col => { r[col] = row[col] !== undefined ? row[col] : ''; });
+          return r;
+        });
 
         // Delete all existing rows using a filter that matches all
         const delRes = await sb('prison_did_lookup?prison_name=not.is.null', {
@@ -383,8 +402,8 @@ export async function onRequest(context) {
 
         // Insert in batches of 200
         const BATCH = 200;
-        for (let i = 0; i < rows.length; i += BATCH) {
-          const batch = rows.slice(i, i + BATCH);
+        for (let i = 0; i < cleanRows.length; i += BATCH) {
+          const batch = cleanRows.slice(i, i + BATCH);
           const insRes = await sb('prison_did_lookup', {
             method: 'POST',
             body: JSON.stringify(batch),
@@ -397,7 +416,7 @@ export async function onRequest(context) {
           }
         }
 
-        return json({ success: true, data: { rowsInserted: rows.length } });
+        return json({ success: true, data: { rowsInserted: cleanRows.length } });
       }
 
       // Replace all scaling tables atomically (super_admin only)
@@ -407,9 +426,16 @@ export async function onRequest(context) {
         if (!Array.isArray(scaling_model_old_fallback)) return json({ success: false, error: 'Missing scaling_model_old_fallback data' });
         if (!Array.isArray(scaling_assumptions)) return json({ success: false, error: 'Missing scaling_assumptions data' });
 
-        // Delete all rows from each table (use id=not.is.null assuming standard id columns)
+        // Delete all rows — filter on a real column from the Excel schema for each table
+        // scaling_model_new / scaling_model_old_fallback first column: subscribers_min
+        // scaling_assumptions first column: item
+        const tableDeleteFilters = {
+          scaling_model_new: 'subscribers_min=gte.0',
+          scaling_model_old_fallback: 'subscribers_min=gte.0',
+          scaling_assumptions: 'item=not.is.null',
+        };
         for (const table of ['scaling_model_new', 'scaling_model_old_fallback', 'scaling_assumptions']) {
-          const delRes = await sb(`${table}?id=not.is.null`, {
+          const delRes = await sb(`${table}?${tableDeleteFilters[table]}`, {
             method: 'DELETE',
             prefer: 'return=minimal',
             headers: { 'Prefer': 'return=minimal' },
