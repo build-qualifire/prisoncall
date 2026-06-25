@@ -48,14 +48,19 @@ export async function onRequestPost(context) {
   try {
     twilioData = await twilioRes.json();
   } catch {
-    return jsonResponse({ success: false, error: 'Invalid code' }, 400);
+    return jsonResponse({ success: false, error: 'Incorrect code. Please try again.' });
+  }
+
+  // Twilio 20404 means no pending verification exists (expired or already consumed)
+  if (twilioRes.status === 404 || (twilioData && twilioData.code === 20404)) {
+    return jsonResponse({ success: false, error: 'Code expired. Please request a new code.' });
   }
 
   if (twilioData && twilioData.status === 'approved') {
     return jsonResponse({ success: true });
   }
 
-  return jsonResponse({ success: false, error: 'Invalid code' }, 400);
+  return jsonResponse({ success: false, error: 'Incorrect code. Please try again.' });
 }
 
 export async function onRequest(context) {

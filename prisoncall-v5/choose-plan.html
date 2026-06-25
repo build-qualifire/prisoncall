@@ -1454,7 +1454,6 @@
       }
       newCont.disabled = true;
       newCont.textContent = 'Verifying\u2026';
-      console.log('[verify-otp] sending:', { mobile: digits, code: code, codeLength: code.length });
       fetch('/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1468,7 +1467,7 @@
           newCont.disabled = false;
           newCont.textContent = 'Confirm \u2192';
           codeInput.classList.add('has-error');
-          codeError.textContent = 'Incorrect code. Please try again.';
+          codeError.textContent = data.error || 'Incorrect code. Please try again.';
           codeError.classList.add('is-visible');
         }
       })
