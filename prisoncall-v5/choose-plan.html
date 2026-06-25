@@ -1433,7 +1433,7 @@
     }
 
     function doVerify(){
-      var code = codeInput.value.replace(/\D/g,'');
+      var code = codeInput.value.replace(/\D/g,'').replace(/\s+/g,'');
       if(DEV_FLAGS.OTP){
         /* Bypass mode: 111111 passes, anything else fails */
         if(code === '111111'){
