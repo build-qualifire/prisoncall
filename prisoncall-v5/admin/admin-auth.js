@@ -107,28 +107,21 @@ async function fetchRoleFromServer(accessToken) {
 
 /**
  * Call at the top of every protected page.
- * Returns the session or null (and redirects) if auth fails.
- *
- * @param {string|null} requiredRole
- *   null          - any valid role (staff, admin, super_admin)
- *   'admin'       - admin or super_admin; staff redirected to dashboard
- *   'super_admin' - super_admin only; others redirected to dashboard
+ * Checks authentication only — redirects to login if no valid session exists.
+ * Does NOT redirect based on role. Role-based UI is handled per-page.
+ * Returns the session (including session.user.role) or null if unauthenticated.
  */
-export async function initAdminPage(requiredRole = null) {
-  console.log('[AdminAuth] initAdminPage() — requiredRole:', requiredRole);
-
+export async function initAdminPage() {
   let session = getSession();
 
   if (!session) {
-    console.log('[AdminAuth] No session in localStorage — redirecting to login');
+    console.log('[AdminAuth] No session — redirecting to login');
     redirectToLogin();
     return null;
   }
 
-  console.log('[AdminAuth] Session found — user:', session.user, '| expires_at:', session.expires_at, '| has_token:', !!session.access_token);
-
   if (!isSessionValid(session)) {
-    console.log('[AdminAuth] Session invalid/expired — attempting token refresh');
+    console.log('[AdminAuth] Session expired — attempting refresh');
     session = await tryRefresh(session);
     if (!session) {
       console.log('[AdminAuth] Refresh failed — redirecting to login');
@@ -136,55 +129,40 @@ export async function initAdminPage(requiredRole = null) {
       redirectToLogin();
       return null;
     }
-    console.log('[AdminAuth] Refresh succeeded — new role:', session.user?.role);
   }
 
   let role = session.user?.role || null;
-  console.log('[AdminAuth] Cached role from session:', role);
+  console.log('[AdminAuth] Cached role:', role);
 
-  // Always fetch the live role from the server on every page load.
-  // This ensures a stale cached role (e.g. session stored when role was 'staff',
-  // before an admin updated it to 'super_admin' in Supabase) never blocks access.
-  // If the server fetch fails (network error, expired token), fall back to cached role.
+  // Always verify the live role from the server so a stale cached role
+  // (e.g. from before an admin updated it in Supabase) is corrected automatically.
   if (session.access_token) {
-    console.log('[AdminAuth] Verifying role with server...');
     const liveRole = await fetchRoleFromServer(session.access_token);
     console.log('[AdminAuth] Live role from server:', liveRole);
     if (liveRole) {
       if (liveRole !== role) {
-        console.log('[AdminAuth] Role changed: "' + role + '" → "' + liveRole + '" — updating session');
         session = { ...session, user: { ...(session.user || {}), role: liveRole } };
         saveSession(session);
       }
       role = liveRole;
-    } else {
-      console.warn('[AdminAuth] Server returned no role — using cached role "' + role + '" as fallback');
     }
   }
 
-  console.log('[AdminAuth] Final role:', role, '| level:', roleLevel(role), '| required:', requiredRole, '(level ' + roleLevel(requiredRole) + ')');
+  console.log('[AdminAuth] Final role:', role);
 
   if (!role || roleLevel(role) < 0) {
-    console.warn('[AdminAuth] Role is invalid or missing — clearing session, redirecting to login');
+    console.warn('[AdminAuth] No valid role — clearing session, redirecting to login');
     clearSession();
     redirectToLogin();
     return null;
   }
-
-  if (!hasRole(role, requiredRole)) {
-    console.warn('[AdminAuth] Role "' + role + '" is insufficient for requiredRole "' + requiredRole + '" — redirecting to dashboard');
-    window.location.href = '/admin/dashboard.html';
-    return null;
-  }
-
-  console.log('[AdminAuth] Access granted — role "' + role + '" meets requiredRole "' + requiredRole + '"');
 
   // Populate sidebar user email
   document.querySelectorAll('[data-user-email]').forEach(el => {
     el.textContent = session.user?.email || '';
   });
 
-  // Remove nav items the current role cannot access
+  // Hide nav items the current role cannot access
   document.querySelectorAll('[data-role-min]').forEach(el => {
     if (!hasRole(role, el.dataset.roleMin)) el.remove();
   });

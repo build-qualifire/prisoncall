@@ -125,8 +125,14 @@
   let searchTimeout;
 
   async function init() {
-    const session = await initAdminPage('admin');
+    const session = await initAdminPage();
     if (!session) return;
+    const role = session.user?.role;
+    if (role !== 'admin' && role !== 'super_admin') {
+      document.getElementById('customersContent').innerHTML =
+        '<div class="alert alert--error" style="margin:24px">Access denied. This page requires admin access.</div>';
+      return;
+    }
     loadCustomers();
   }
 

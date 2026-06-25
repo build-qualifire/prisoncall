@@ -108,8 +108,13 @@
   ];
 
   async function init() {
-    const session = await initAdminPage('super_admin');
+    const session = await initAdminPage();
     if (!session) return;
+    if (session.user?.role !== 'super_admin') {
+      document.getElementById('productsContent').innerHTML =
+        '<div class="alert alert--error" style="margin:24px">Access denied. This page is restricted to administrators.</div>';
+      return;
+    }
     loadProducts();
   }
 
