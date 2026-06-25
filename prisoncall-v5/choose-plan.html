@@ -1343,7 +1343,7 @@
       codeSent ? '<p class="otp-sent-msg">\u2713 Code sent to <strong>'+maskMobile(digits)+'</strong></p>' : '',
       '<p class="otp-verify-inst">Enter the 6-digit code we sent to <strong>'+formatMobile(digits)+'</strong></p>',
       '<input class="mobile-input otp-code-input" type="tel" inputmode="numeric" ',
-        'placeholder="000 000" maxlength="7" autocomplete="one-time-code">',
+        'placeholder="000000" maxlength="6" autocomplete="one-time-code">',
       '<p class="mobile-error otp-code-error"></p>',
       '<button class="otp-resend-link" type="button">Didn\'t get a code? <span>Resend</span></button>'
     ].join('');
@@ -1361,10 +1361,10 @@
     var codeError = verifyWrap.querySelector('.otp-code-error');
     var resendBtn = verifyWrap.querySelector('.otp-resend-link');
 
-    /* Format code as "000 000" while typing */
+    /* Strip any non-digit characters as user types */
     codeInput.addEventListener('input', function(){
       var d = codeInput.value.replace(/\D/g,'').slice(0,6);
-      codeInput.value = d.length > 3 ? d.slice(0,3)+' '+d.slice(3) : d;
+      codeInput.value = d;
       codeError.classList.remove('is-visible');
       codeInput.classList.remove('has-error');
     });
