@@ -209,6 +209,8 @@
 
   let pdpParsedRows = null;
   let pevParsedData = null;
+  let pdpCurrentFileName = null;
+  let pevCurrentFileName = null;
 
   async function init() {
     const session = await initAdminPage();
@@ -236,12 +238,14 @@
       api('getTableStatus', { table: 'scaling_model_new' }),
     ]);
 
+    const pdpFileName = localStorage.getItem('pdp_last_filename');
     const pdpEl = document.getElementById('pdpStatus');
     if (pdp.status === 'fulfilled' && pdp.value) {
       const { count, lastUpdated } = pdp.value;
       if (count > 0) {
         const dateStr = fmtStatusDate(lastUpdated);
         pdpEl.textContent = 'Currently loaded: ' + count + ' prison' + (count !== 1 ? 's' : '') +
+          (pdpFileName ? ' — ' + pdpFileName : '') +
           (dateStr ? ' — last updated ' + dateStr : '');
       } else {
         pdpEl.textContent = 'No data loaded yet';
@@ -250,12 +254,14 @@
       pdpEl.textContent = '';
     }
 
+    const pevFileName = localStorage.getItem('pev_last_filename');
     const pevEl = document.getElementById('pevStatus');
     if (pev.status === 'fulfilled' && pev.value) {
       const { count, lastUpdated } = pev.value;
       if (count > 0) {
         const dateStr = fmtStatusDate(lastUpdated);
         pevEl.textContent = 'Currently loaded: ' + count + ' row' + (count !== 1 ? 's' : '') +
+          (pevFileName ? ' — ' + pevFileName : '') +
           (dateStr ? ' — last updated ' + dateStr : '');
       } else {
         pevEl.textContent = 'No data loaded yet';
@@ -315,6 +321,7 @@
     hideEl('pdpPreview');
     hideEl('pdpSuccess');
     pdpParsedRows = null;
+    pdpCurrentFileName = file.name;
     document.getElementById('pdpUploadBtn').disabled = true;
 
     if (!file.name.match(/\.xlsx?$/i)) {
@@ -415,6 +422,7 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <div><strong>Upload successful!</strong> ${result.rowsInserted} rows written to prison_did_lookup table.</div>
       `);
+      if (pdpCurrentFileName) localStorage.setItem('pdp_last_filename', pdpCurrentFileName);
       pdpParsedRows = null;
       btn.disabled = true;
       showToast('Prison lookup table updated');
@@ -486,6 +494,7 @@
     hideEl('pevPreview');
     hideEl('pevSuccess');
     pevParsedData = null;
+    pevCurrentFileName = file.name;
     document.getElementById('pevUploadBtn').disabled = true;
 
     if (!file.name.match(/\.xlsx?$/i)) {
@@ -587,6 +596,7 @@
           </div>
         </div>
       `);
+      if (pevCurrentFileName) localStorage.setItem('pev_last_filename', pevCurrentFileName);
       pevParsedData = null;
       btn.disabled = true;
       showToast('Scaling tables updated');

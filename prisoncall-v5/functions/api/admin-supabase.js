@@ -426,13 +426,13 @@ export async function onRequest(context) {
         if (!Array.isArray(scaling_model_old_fallback)) return json({ success: false, error: 'Missing scaling_model_old_fallback data' });
         if (!Array.isArray(scaling_assumptions)) return json({ success: false, error: 'Missing scaling_assumptions data' });
 
-        // Delete all rows — filter on a real column from the Excel schema for each table
-        // scaling_model_new / scaling_model_old_fallback first column: subscribers_min
-        // scaling_assumptions first column: item
+        // Delete all rows — use or=(col.not.is.null,col.is.null) which always evaluates
+        // to true regardless of column type or value, guaranteeing a full clear.
+        // Column names are taken from the actual Excel schema (no auto-generated id exists).
         const tableDeleteFilters = {
-          scaling_model_new: 'subscribers_min=gte.0',
-          scaling_model_old_fallback: 'subscribers_min=gte.0',
-          scaling_assumptions: 'item=not.is.null',
+          scaling_model_new: 'or=(subscribers_min.not.is.null,subscribers_min.is.null)',
+          scaling_model_old_fallback: 'or=(subscribers_min.not.is.null,subscribers_min.is.null)',
+          scaling_assumptions: 'or=(item.not.is.null,item.is.null)',
         };
         for (const table of ['scaling_model_new', 'scaling_model_old_fallback', 'scaling_assumptions']) {
           const delRes = await sb(`${table}?${tableDeleteFilters[table]}`, {
