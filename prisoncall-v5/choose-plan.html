@@ -1454,6 +1454,7 @@
       }
       newCont.disabled = true;
       newCont.textContent = 'Verifying\u2026';
+      console.log('[verify-otp] sending:', { mobile: digits, code: code, codeLength: code.length });
       fetch('/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
