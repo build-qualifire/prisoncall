@@ -140,24 +140,29 @@ export async function initAdminPage(requiredRole = null) {
   }
 
   let role = session.user?.role || null;
-  console.log('[AdminAuth] Role from stored session:', role);
+  console.log('[AdminAuth] Cached role from session:', role);
 
-  // Role is missing from the stored session.
-  // This happens when: (a) the session predates RBAC, (b) a token refresh didn't
-  // return user_metadata, or (c) Supabase returned the role under a different key
-  // (raw_user_meta_data vs user_metadata). Fetch the role live from the CF function.
-  if (!role && session.access_token) {
-    console.log('[AdminAuth] Role missing — fetching live from server via getRole action');
-    role = await fetchRoleFromServer(session.access_token);
-    console.log('[AdminAuth] Role returned by server:', role);
-    if (role) {
-      session = { ...session, user: { ...(session.user || {}), role } };
-      saveSession(session);
-      console.log('[AdminAuth] Session updated with server-fetched role');
+  // Always fetch the live role from the server on every page load.
+  // This ensures a stale cached role (e.g. session stored when role was 'staff',
+  // before an admin updated it to 'super_admin' in Supabase) never blocks access.
+  // If the server fetch fails (network error, expired token), fall back to cached role.
+  if (session.access_token) {
+    console.log('[AdminAuth] Verifying role with server...');
+    const liveRole = await fetchRoleFromServer(session.access_token);
+    console.log('[AdminAuth] Live role from server:', liveRole);
+    if (liveRole) {
+      if (liveRole !== role) {
+        console.log('[AdminAuth] Role changed: "' + role + '" → "' + liveRole + '" — updating session');
+        session = { ...session, user: { ...(session.user || {}), role: liveRole } };
+        saveSession(session);
+      }
+      role = liveRole;
+    } else {
+      console.warn('[AdminAuth] Server returned no role — using cached role "' + role + '" as fallback');
     }
   }
 
-  console.log('[AdminAuth] Final role:', role, '| ROLE_LEVELS lookup:', roleLevel(role), '| required level:', roleLevel(requiredRole));
+  console.log('[AdminAuth] Final role:', role, '| level:', roleLevel(role), '| required:', requiredRole, '(level ' + roleLevel(requiredRole) + ')');
 
   if (!role || roleLevel(role) < 0) {
     console.warn('[AdminAuth] Role is invalid or missing — clearing session, redirecting to login');
@@ -173,6 +178,9 @@ export async function initAdminPage(requiredRole = null) {
   }
 
   console.log('[AdminAuth] Access granted — role "' + role + '" meets requiredRole "' + requiredRole + '"');
+
+  // Reveal the page (body was hidden to prevent a flash while the async auth check ran)
+  document.body.style.visibility = 'visible';
 
   // Populate sidebar user email
   document.querySelectorAll('[data-user-email]').forEach(el => {
