@@ -1,12 +1,11 @@
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  let mobile, code;
+  let mobile, cleanCode;
   try {
     const body = await request.json();
-    mobile = (body.mobile || '').replace(/\D/g, '');
-    code   = (body.code   || '').replace(/\D/g, '');
-    const cleanCode = code.replace(/\s+/g, '');
+    mobile    = (body.mobile || '').replace(/\D/g, '');
+    cleanCode = (body.code   || '').replace(/\D/g, '').replace(/\s+/g, '');
   } catch {
     return jsonResponse({ success: false, error: 'Invalid request body' }, 400);
   }
@@ -14,7 +13,7 @@ export async function onRequestPost(context) {
   if (!/^04\d{8}$/.test(mobile)) {
     return jsonResponse({ success: false, error: 'Invalid Australian mobile number' }, 400);
   }
-  if (!/^\d{6}$/.test(code)) {
+  if (!/^\d{6}$/.test(cleanCode)) {
     return jsonResponse({ success: false, error: 'Invalid code format' }, 400);
   }
 
