@@ -2847,12 +2847,12 @@ function renderCompletedArea(){
   }());
 
   /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     DEV PANEL â€” inject only on staging domain (prisoncall-1mc.pages.dev).
+     DEV PANEL â€” inject only on staging domain (prisoncall.pages.dev).
      Never appears on prisoncall.com.au or any other domain.
      Remove this entire IIFE at integration.
   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   (function(){
-    if(window.location.hostname !== 'prisoncall-1mc.pages.dev') return;
+    if(window.location.hostname !== 'prisoncall.pages.dev') return;
     var panel = document.createElement('div');
     panel.className = 'dev-panel';
     panel.setAttribute('role', 'region');
