@@ -410,6 +410,18 @@
     /* ─── Utility ─── */
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 
+    /* ─── Order summary loading state ─── */
+    .ty-loading {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 0; color: var(--color-muted); font-size: 14px;
+    }
+    .ty-spinner {
+      flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid var(--color-border); border-top-color: var(--color-black);
+      animation: ty-spin 0.7s linear infinite;
+    }
+    @keyframes ty-spin { to { transform: rotate(360deg); } }
+
     /* ═════════════════════════════════════════════════════════════
        YOUI-STYLE ROUNDED SECTION PANELS — DESKTOP ONLY
        Mobile layout is completely unchanged.
@@ -736,68 +748,137 @@
       .replace(/"/g,'&quot;');
   }
 
-  /* ─── Read URL params and populate order summary ─── */
-  (function renderSummary() {
+  /* ─── Interval display labels ─── */
+  var INTERVAL_LABELS = { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', annual: 'Annual' };
+
+  /* ─── Add-on display labels (in priority order for display) ─── */
+  var ADDON_DEFS = [
+    { key: 'addon_lifetime',     label: 'Lifetime Protection Bundle' },
+    { key: 'addon_combo23',      label: 'Unlimited Prison Transfers + 96 Hours Post Renewal Cancellation Bundle' },
+    { key: 'addon_48hr_cancel',  label: '48 Hours Cancellation Guarantee' },
+    { key: 'addon_transfers',    label: 'Unlimited Prison Transfers' },
+    { key: 'addon_post_renewal', label: '96 Hours Post Renewal Cancellation' },
+  ];
+
+  /* ─── Build a single summary row ─── */
+  function summaryRow(label, valueHtml) {
+    return '<div class="ty-summary__row">' +
+      '<span class="ty-summary__label">' + escHtml(label) + '</span>' +
+      '<span class="ty-summary__value">' + valueHtml + '</span>' +
+      '</div>';
+  }
+
+  /* ─── Render summary from Stripe session data ─── */
+  function renderSessionSummary(data) {
+    var rows = document.getElementById('summaryRows');
+    if (!rows) return;
+    var html = '';
+
+    /* Status */
+    html += summaryRow('Order status', '<span style="color:var(--color-green);font-weight:700">Confirmed</span>');
+
+    /* Email */
+    if (data.customer_email) {
+      html += summaryRow('Email', escHtml(data.customer_email));
+    }
+
+    /* Plans — detect single vs bundle by presence of plan_1_prison_name */
+    var isBundled = !!(data.plan_1_prison_name);
+    var plans = isBundled
+      ? [
+          { prison_name: data.plan_1_prison_name, prison_state: data.plan_1_prison_state, mobile: data.plan_1_mobile,    plan_interval: data.plan_1_plan_interval, label: 'Plan 1' },
+          data.plan_2_prison_name ? { prison_name: data.plan_2_prison_name, prison_state: data.plan_2_prison_state, mobile: data.plan_2_mobile, plan_interval: data.plan_2_plan_interval, label: 'Plan 2' } : null,
+        ].filter(Boolean)
+      : [{ prison_name: data.prison_name, prison_state: data.prison_state, mobile: data.mobile, plan_interval: data.plan_interval, label: null }];
+
+    plans.forEach(function(p) {
+      if (p.label) {
+        html += '<div class="ty-summary__row" style="padding-top:14px;border-top:1px solid var(--color-border)">' +
+          '<span class="ty-summary__label" style="font-weight:700;color:var(--color-black)">' + escHtml(p.label) + '</span>' +
+          '<span class="ty-summary__value"></span></div>';
+      }
+      if (p.prison_name) {
+        var prisonDisplay = p.prison_name + (p.prison_state ? ', ' + p.prison_state.toUpperCase() : '');
+        html += summaryRow('Prison', escHtml(prisonDisplay));
+      }
+      if (p.mobile) {
+        html += summaryRow('Mobile', escHtml(maskMobile(p.mobile)));
+      }
+      if (p.plan_interval) {
+        html += summaryRow('Billing', escHtml(INTERVAL_LABELS[p.plan_interval] || p.plan_interval));
+      }
+    });
+
+    /* Add-ons — check both prefixed (bundle) and unprefixed (single) keys */
+    var pfx = isBundled ? 'plan_1_' : '';
+    var activeAddons = ADDON_DEFS.filter(function(a) {
+      return data[pfx + a.key] === 'true' || data[a.key] === 'true';
+    });
+    if (activeAddons.length > 0) {
+      html += '<div class="ty-summary__row"><span class="ty-summary__label">Add-ons</span>' +
+        '<span class="ty-summary__value" style="text-align:right">' +
+        activeAddons.map(function(a) { return escHtml(a.label); }).join('<br>') +
+        '</span></div>';
+    }
+
+    /* Prisoncall number delivery note */
+    html += summaryRow('Prisoncall number', '<span class="ty-summary__fallback">On its way, check your SMS &amp; email</span>');
+
+    rows.innerHTML = html;
+  }
+
+  /* ─── Error state — payment succeeded but session details unavailable ─── */
+  function renderErrorSummary() {
+    var rows = document.getElementById('summaryRows');
+    if (!rows) return;
+    rows.innerHTML =
+      '<div class="ty-summary__row">' +
+        '<span class="ty-summary__fallback">Your payment was successful. Your order details will be sent to you by SMS and email shortly.</span>' +
+      '</div>' +
+      '<div class="ty-summary__row">' +
+        '<span class="ty-summary__label">Need help?</span>' +
+        '<span class="ty-summary__value"><a href="contact.html" class="ty-help__link">Contact support</a></span>' +
+      '</div>';
+  }
+
+  /* ─── Update header CTAs after successful auth ─── */
+  function updateHeaderAuth() {
+    var mobileCta  = document.querySelector('.header__mobile-cta');
+    var desktopCta = document.querySelector('.header__desktop-cta .btn');
+    var menuCta    = document.querySelector('.mobile-menu__cta .btn');
+    if (mobileCta)  { mobileCta.href  = '/portal'; mobileCta.textContent  = 'My Prisoncall'; }
+    if (desktopCta) { desktopCta.href = '/portal'; desktopCta.textContent = 'My Prisoncall'; }
+    if (menuCta)    { menuCta.href    = '/portal'; menuCta.textContent    = 'My Prisoncall'; }
+  }
+
+  /* ─── Load session from API ─── */
+  (function loadSession() {
     var params;
     try { params = new URLSearchParams(window.location.search); } catch(e) { params = null; }
+    var sessionId = params ? params.get('session_id') : null;
 
-    var prison = params ? (params.get('prison') || '').trim() : '';
-    var plan   = params ? (params.get('plan')   || '').trim() : '';
-    var mobile = params ? (params.get('mobile') || '').trim() : '';
-
-    var hasData = prison || plan || mobile;
-    var rows    = document.getElementById('summaryRows');
-    if (!rows) return;
-
-    if (!hasData) {
-      /* Fallback — clean and professional, no empty fields */
-      rows.innerHTML =
-        '<div class="ty-summary__row">' +
-          '<span class="ty-summary__label">Order status</span>' +
-          '<span class="ty-summary__value">Confirmed</span>' +
-        '</div>' +
-        '<div class="ty-summary__row">' +
-          '<span class="ty-summary__label">Prisoncall number</span>' +
-          '<span class="ty-summary__fallback">On its way, check your SMS &amp; email</span>' +
-        '</div>';
+    /* Redirect if no session_id — this page must not be accessed directly */
+    if (!sessionId) {
+      window.location.replace('/choose-plan');
       return;
     }
 
-    var html = '';
-
-    if (prison) {
-      html +=
-        '<div class="ty-summary__row">' +
-          '<span class="ty-summary__label">Prison</span>' +
-          '<span class="ty-summary__value">' + escHtml(prison) + '</span>' +
-        '</div>';
+    var rows = document.getElementById('summaryRows');
+    if (rows) {
+      rows.innerHTML = '<div class="ty-loading"><div class="ty-spinner"></div>Loading your order details\u2026</div>';
     }
 
-    if (plan) {
-      html +=
-        '<div class="ty-summary__row">' +
-          '<span class="ty-summary__label">Plan</span>' +
-          '<span class="ty-summary__value">' + escHtml(plan) + '</span>' +
-        '</div>';
-    }
-
-    if (mobile) {
-      html +=
-        '<div class="ty-summary__row">' +
-          '<span class="ty-summary__label">Mobile</span>' +
-          '<span class="ty-summary__value">' + escHtml(maskMobile(mobile)) + '</span>' +
-        '</div>';
-    }
-
-    /* Always append the Prisoncall number delivery note */
-    html +=
-      '<div class="ty-summary__row">' +
-        '<span class="ty-summary__label">Prisoncall number</span>' +
-        '<span class="ty-summary__fallback">On its way, check your SMS &amp; email</span>' +
-      '</div>';
-
-    rows.innerHTML = html;
-  })();
+    fetch('/api/get-session?session_id=' + encodeURIComponent(sessionId))
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (!data.is_authenticated) throw new Error('Session not found');
+        renderSessionSummary(data);
+        updateHeaderAuth();
+      })
+      .catch(function() {
+        renderErrorSummary();
+      });
+  }());
   </script>
 
 </body>
