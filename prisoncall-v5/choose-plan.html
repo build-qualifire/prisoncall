@@ -1083,18 +1083,32 @@
     };
     var PERIOD_MAP = { weekly: 'week', fortnightly: 'fortnight', monthly: 'month', annual: 'year' };
     var LABEL_MAP  = { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', annual: 'Annual' };
-    /* Map product_key group (interval suffix stripped) → addon key */
+
+    /* product_key (after stripping trailing interval suffix) → addon key */
     var KEY_TO_ADDON = {
       addon_48hr: 'addon1', addon_transfer: 'addon2',
       addon_post_renewal: 'addon3', addon_combo23: 'combo23', addon_lifetime: 'lifetimeAll'
     };
 
+    /* Name-based fallback — checked in order (most-specific first) when
+       product_key is absent or doesn't match KEY_TO_ADDON.
+       Matches against product_name using case-insensitive regex. */
+    var NAME_PATTERNS = [
+      { re: /combo|bundle.{0,10}deal/i,               key: 'combo23'     },
+      { re: /48.{0,4}h(ou)?r|cancellation.{0,10}guar/i, key: 'addon1'   },
+      { re: /post.{0,4}renew|96.{0,4}h(ou)?r/i,       key: 'addon3'     },
+      { re: /transfer/i,                               key: 'addon2'      },
+      { re: /lifetime/i,                               key: 'lifetimeAll' },
+    ];
+
     products.forEach(function(p) {
       var price       = parseFloat(p.price) || 0;
-      var productType = p.product_type || p.type        || '';
-      var productName = p.product_name  || p.name       || '';
-      var productKey  = p.product_key   || '';
-      var interval    = p.interval      || '';
+      var productType = (p.product_type || p.type  || '').toLowerCase();
+      var productName =  p.product_name  || p.name || '';
+      var productKey  =  p.product_key   || '';
+      var interval    = (p.interval      || '').toLowerCase();
+
+      console.log('[Prisoncall] product row:', productType, '|', productKey, '|', interval, '|', price, '|', productName);
 
       if (productType === 'plan') {
         /* Plan row — interval is the plan key (weekly / fortnightly / monthly / annual) */
@@ -1106,20 +1120,38 @@
           };
         }
       } else {
-        /* Add-on row — resolve which addon group this belongs to */
-        var groupKey = productKey
-          ? productKey.replace(/_(weekly|fortnightly|monthly|annual|one_time)$/, '')
-          : (KEY_TO_ADDON[productType] ? productType : null);
-        var addonKey = groupKey ? KEY_TO_ADDON[groupKey] : null;
-        if (!addonKey) return;
+        /* Add-on row — find the addon key via product_key or product_name */
+        var addonKey = null;
+
+        if (productKey) {
+          /* Strip trailing interval/payment-type suffix, then look up */
+          var stripped = productKey.replace(/_(weekly|fortnightly|monthly|annual|one_time)$/i, '');
+          addonKey = KEY_TO_ADDON[stripped] || KEY_TO_ADDON[productKey] || null;
+        }
+
+        /* Fallback: match product_name when product_key is absent or unmapped */
+        if (!addonKey && productName) {
+          for (var i = 0; i < NAME_PATTERNS.length; i++) {
+            if (NAME_PATTERNS[i].re.test(productName)) { addonKey = NAME_PATTERNS[i].key; break; }
+          }
+        }
+
+        if (!addonKey) {
+          console.warn('[Prisoncall] buildPricingFromProducts: cannot map row to addon — skipping:', productKey, productType, productName);
+          return;
+        }
+
         var ao = pricing.addons[addonKey];
         if (!ao) return;
 
-        if (productType === 'one_time' || !interval) {
-          /* One-time add-on: same price regardless of plan billing interval */
+        /* One-time: product_type is 'one_time', interval is blank or literally 'one_time' */
+        var isOneTime = productType === 'one_time' || interval === 'one_time' || !interval;
+
+        if (isOneTime) {
+          /* One-time add-on: same price regardless of which plan the customer picks */
           ao.weekly = ao.fortnightly = ao.monthly = ao.annual = price;
           if (p.stripe_price_id) ao.stripe_price_id = p.stripe_price_id;
-          if (productName) ao.label = productName.replace(/\s*[-\u2013]\s*(Weekly|Fortnightly|Monthly|Annual|One.time)$/i, '').trim();
+          if (productName) ao.label = productName.replace(/\s*[-\u2013]\s*(Weekly|Fortnightly|Monthly|Annual|One.?time)$/i, '').trim();
         } else if (PERIOD_MAP[interval]) {
           /* Recurring add-on: price varies per billing interval */
           ao[interval] = price;
@@ -1128,12 +1160,20 @@
             ao.stripe_price_ids[interval] = p.stripe_price_id;
           }
           if (productName && !ao._nameSet) {
-            ao.label = productName.replace(/\s*[-\u2013]\s*(Weekly|Fortnightly|Monthly|Annual|One.time)$/i, '').trim();
+            ao.label = productName.replace(/\s*[-\u2013]\s*(Weekly|Fortnightly|Monthly|Annual|One.?time)$/i, '').trim();
             ao._nameSet = true;
           }
+        } else {
+          console.warn('[Prisoncall] buildPricingFromProducts: unrecognized interval "' + interval + '" for addon', addonKey);
         }
       }
     });
+
+    console.log('[Prisoncall] buildPricingFromProducts done — addon1.monthly =', pricing.addons.addon1.monthly,
+      '| addon2.monthly =', pricing.addons.addon2.monthly,
+      '| combo23.monthly =', pricing.addons.combo23.monthly,
+      '| lifetimeAll.monthly =', pricing.addons.lifetimeAll.monthly);
+
     return pricing;
   }
 
