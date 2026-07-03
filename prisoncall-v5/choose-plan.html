@@ -842,6 +842,37 @@
       main    { padding: 8px 12px 0; }
       .footer { margin: 0 12px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden; }
     }
+
+    /* ═══════════════════════════════════════════════════
+       PRICING LOAD / ERROR STATES (Step 4 plan cards)
+    ═══════════════════════════════════════════════════ */
+    .pricing-loading {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 52px 20px; gap: 16px;
+      color: var(--color-muted); font-size: 14px; font-weight: 500;
+      width: 100%;
+    }
+    .pricing-spinner {
+      display: block; width: 32px; height: 32px;
+      border: 3px solid var(--color-border); border-top-color: var(--color-black);
+      border-radius: 50%; animation: pricingSpinAnim 0.8s linear infinite;
+    }
+    @keyframes pricingSpinAnim { to { transform: rotate(360deg); } }
+    .pricing-fetch-error {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 44px 20px; text-align: center; gap: 14px; width: 100%;
+    }
+    .pricing-fetch-error p {
+      font-size: 15px; font-weight: 600; color: var(--color-black);
+      line-height: 1.5; max-width: 340px;
+    }
+    .pricing-refresh-btn {
+      padding: 12px 28px; font-size: 14px; font-weight: 700; font-family: inherit;
+      border-radius: var(--radius-pill); border: 2px solid var(--color-black);
+      background: var(--color-black); color: var(--color-white); cursor: pointer;
+      transition: opacity var(--tr), transform var(--tr);
+    }
+    .pricing-refresh-btn:hover { opacity: 0.85; transform: translateY(-1px); }
   </style>
 </head>
 <body>
@@ -1017,23 +1048,168 @@
      DEV FLAGS â€” staging only. Toggled via the dev panel below.
      Remove this object and all DEV_FLAGS references at integration.
   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-  const PRICING = {
-    plans: {
-      annual:      { price: 349.99, interval: 'year',       label: 'Annual'       },
-      monthly:     { price: 34.99,  interval: 'month',      label: 'Monthly'      },
-      fortnightly: { price: 19.99,  interval: 'fortnight',  label: 'Fortnightly'  },
-      weekly:      { price: 14.99,  interval: 'week',       label: 'Weekly'       },
-    },
-    addons: {
-      addon1:      { annual: 5.99,  monthly: 5.99,  fortnightly: 5.99,  weekly: 5.99,  label: '48hr Cancellation Guarantee',    type: 'one-time'  },
-      addon2:      { annual: 19.99, monthly: 4.99,  fortnightly: 3.99,  weekly: 2.99,  label: 'Unlimited Prison Transfers',      type: 'recurring' },
-      addon3:      { annual: 19.99, monthly: 4.99,  fortnightly: 3.99,  weekly: 2.99,  label: '96hr Post-Renewal Cancellation', type: 'recurring' },
-      combo23:     { annual: 33.99, monthly: 7.99,  fortnightly: 6.99,  weekly: 4.99,  label: 'Combo: Add-ons 2 & 3',           type: 'recurring' },
-      lifetimeAll: { annual: 29.99, monthly: 29.99, fortnightly: 29.99, weekly: 29.99, label: 'Lifetime All 3 Add-ons',         type: 'one-time'  },
-    }
-  };
+  /* PRICING is fetched live from the Supabase products table on page load.
+     Populated by fetchPricing() below — do not hardcode here. */
+  var PRICING = null;
 
   var DEV_FLAGS = { OTP: false };
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     PRICING FETCH — loads active products from Supabase on page load.
+     Credentials come from window.SUPABASE_URL and window.SUPABASE_ANON_KEY,
+     injected by Cloudflare at build time.
+  ═══════════════════════════════════════════════════════════════════════ */
+  var pricingFetchDone  = false;
+  var pricingFetchError = false;
+  var pricingCallbacks  = []; /* { (ok: boolean) => void }[] — queued until fetch settles */
+
+  /* Call cb(true) when PRICING loads successfully, cb(false) on error.
+     If the fetch has already settled, cb is invoked immediately. */
+  function whenPricingReady(cb) {
+    if (pricingFetchDone) { cb(!pricingFetchError); } else { pricingCallbacks.push(cb); }
+  }
+
+  /* Build the PRICING object (same shape the rest of the page expects)
+     from an array of active rows returned by the Supabase products table. */
+  function buildPricingFromProducts(products) {
+    var pricing = {
+      plans: {},
+      addons: {
+        addon1:      { label: '48hr Cancellation Guarantee',    type: 'one-time'  },
+        addon2:      { label: 'Unlimited Prison Transfers',      type: 'recurring' },
+        addon3:      { label: '96hr Post-Renewal Cancellation', type: 'recurring' },
+        combo23:     { label: 'Combo: Add-ons 2 & 3',           type: 'recurring' },
+        lifetimeAll: { label: 'Lifetime All 3 Add-ons',         type: 'one-time'  },
+      }
+    };
+    var PERIOD_MAP = { weekly: 'week', fortnightly: 'fortnight', monthly: 'month', annual: 'year' };
+    var LABEL_MAP  = { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', annual: 'Annual' };
+    /* Map product_key group (interval suffix stripped) → addon key */
+    var KEY_TO_ADDON = {
+      addon_48hr: 'addon1', addon_transfer: 'addon2',
+      addon_post_renewal: 'addon3', addon_combo23: 'combo23', addon_lifetime: 'lifetimeAll'
+    };
+
+    products.forEach(function(p) {
+      var price       = parseFloat(p.price) || 0;
+      var productType = p.product_type || p.type        || '';
+      var productName = p.product_name  || p.name       || '';
+      var productKey  = p.product_key   || '';
+      var interval    = p.interval      || '';
+
+      if (productType === 'plan') {
+        /* Plan row — interval is the plan key (weekly / fortnightly / monthly / annual) */
+        if (PERIOD_MAP[interval]) {
+          pricing.plans[interval] = {
+            price: price, interval: PERIOD_MAP[interval],
+            label: productName || LABEL_MAP[interval],
+            stripe_price_id: p.stripe_price_id || null,
+          };
+        }
+      } else {
+        /* Add-on row — resolve which addon group this belongs to */
+        var groupKey = productKey
+          ? productKey.replace(/_(weekly|fortnightly|monthly|annual|one_time)$/, '')
+          : (KEY_TO_ADDON[productType] ? productType : null);
+        var addonKey = groupKey ? KEY_TO_ADDON[groupKey] : null;
+        if (!addonKey) return;
+        var ao = pricing.addons[addonKey];
+        if (!ao) return;
+
+        if (productType === 'one_time' || !interval) {
+          /* One-time add-on: same price regardless of plan billing interval */
+          ao.weekly = ao.fortnightly = ao.monthly = ao.annual = price;
+          if (p.stripe_price_id) ao.stripe_price_id = p.stripe_price_id;
+          if (productName) ao.label = productName.replace(/\s*[-\u2013]\s*(Weekly|Fortnightly|Monthly|Annual|One.time)$/i, '').trim();
+        } else if (PERIOD_MAP[interval]) {
+          /* Recurring add-on: price varies per billing interval */
+          ao[interval] = price;
+          if (p.stripe_price_id) {
+            if (!ao.stripe_price_ids) ao.stripe_price_ids = {};
+            ao.stripe_price_ids[interval] = p.stripe_price_id;
+          }
+          if (productName && !ao._nameSet) {
+            ao.label = productName.replace(/\s*[-\u2013]\s*(Weekly|Fortnightly|Monthly|Annual|One.time)$/i, '').trim();
+            ao._nameSet = true;
+          }
+        }
+      }
+    });
+    return pricing;
+  }
+
+  /* Build PLANS array from the already-populated PRICING object */
+  function buildPlansArray() {
+    return [
+      { key:'annual',      name:PRICING.plans.annual.label,      amount:PRICING.plans.annual.price,      period:PRICING.plans.annual.interval,      badge:'Best Value',   badgeCls:'',            equiv:'$'+(PRICING.plans.annual.price/12).toFixed(2)+'/month', cls:'plan-card--annual'      },
+      { key:'monthly',     name:PRICING.plans.monthly.label,     amount:PRICING.plans.monthly.price,     period:PRICING.plans.monthly.interval,     badge:'Most Popular', badgeCls:'badge--black', equiv:null,                                                   cls:'plan-card--monthly'     },
+      { key:'fortnightly', name:PRICING.plans.fortnightly.label, amount:PRICING.plans.fortnightly.price, period:PRICING.plans.fortnightly.interval, badge:null,           badgeCls:'',            equiv:null,                                                   cls:'plan-card--fortnightly' },
+      { key:'weekly',      name:PRICING.plans.weekly.label,      amount:PRICING.plans.weekly.price,      period:PRICING.plans.weekly.interval,      badge:null,           badgeCls:'',            equiv:null,                                                   cls:'plan-card--weekly'      }
+    ];
+  }
+
+  /* Fetch active products from Supabase and populate PRICING + PLANS.
+     Runs immediately on page load; Steps 1–3 do not need PRICING so the
+     user can proceed through the flow while the request is in-flight.
+     Step 4 (plan cards) shows a loading state if PRICING is not yet ready
+     and is swapped for the real cards as soon as settle(true) fires. */
+  (function fetchPricing() {
+    var supabaseUrl = window.SUPABASE_URL      || '';
+    var supabaseKey = window.SUPABASE_ANON_KEY || '';
+
+    function settle(ok) {
+      pricingFetchDone = true;
+      if (!ok) pricingFetchError = true;
+      var cbs = pricingCallbacks.slice(); pricingCallbacks = [];
+
+      /* If Step 4 is already visible in the DOM, rebuild it now */
+      var s4 = planFlow ? planFlow.querySelector('[data-step="4"]') : null;
+      if (s4) {
+        if (ok) {
+          var newS4 = buildStep4El(selectedPlan || 'monthly');
+          s4.parentNode.replaceChild(newS4, s4);
+          wireStep4(newS4);
+          snapCarouselToKey(newS4, selectedPlan || 'monthly');
+        } else {
+          var track = s4.querySelector('.carousel-track');
+          if (track) {
+            track.innerHTML =
+              '<div class="pricing-fetch-error">' +
+                '<p>Unable to load plans &mdash; please refresh the page and try again.</p>' +
+                '<button type="button" onclick="location.reload()" class="pricing-refresh-btn">Refresh page</button>' +
+              '</div>';
+          }
+        }
+      }
+
+      cbs.forEach(function(cb) { cb(ok); });
+    }
+
+    if (!supabaseUrl || !supabaseKey) { settle(false); return; }
+
+    fetch(supabaseUrl + '/rest/v1/products?active=eq.true&select=*', {
+      headers: {
+        'apikey':        supabaseKey,
+        'Authorization': 'Bearer ' + supabaseKey,
+      }
+    })
+    .then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function(products) {
+      if (!Array.isArray(products) || !products.length) throw new Error('No active products returned from Supabase');
+      PRICING = buildPricingFromProducts(products);
+      if (!PRICING.plans.monthly) throw new Error('Monthly plan not found in Supabase products table');
+      PLANS = buildPlansArray();
+      selectedPlanPrice = PRICING.plans.monthly.price;
+      settle(true);
+    })
+    .catch(function(err) {
+      console.error('[Prisoncall] Pricing fetch failed:', err && err.message);
+      settle(false);
+    });
+  }());
 
   /* â”€â”€â”€ Copyright year â”€â”€â”€ */
   document.getElementById('copyrightYear').textContent = new Date().getFullYear();
@@ -1087,17 +1263,13 @@
           'St Heliers CC','Tamworth CC','Wellington CC']
   };
 
-  /* Card order: Annual → Monthly → Fortnightly → Weekly */
-  var PLANS = [
-    { key:'annual',      name:PRICING.plans.annual.label,      amount:PRICING.plans.annual.price,      period:PRICING.plans.annual.interval,      badge:'Best Value',   badgeCls:'',            equiv:'$'+(PRICING.plans.annual.price/12).toFixed(2)+'/month', cls:'plan-card--annual'      },
-    { key:'monthly',     name:PRICING.plans.monthly.label,     amount:PRICING.plans.monthly.price,     period:PRICING.plans.monthly.interval,     badge:'Most Popular', badgeCls:'badge--black', equiv:null,           cls:'plan-card--monthly'     },
-    { key:'fortnightly', name:PRICING.plans.fortnightly.label, amount:PRICING.plans.fortnightly.price, period:PRICING.plans.fortnightly.interval, badge:null,           badgeCls:'',            equiv:null,           cls:'plan-card--fortnightly' },
-    { key:'weekly',      name:PRICING.plans.weekly.label,      amount:PRICING.plans.weekly.price,      period:PRICING.plans.weekly.interval,      badge:null,           badgeCls:'',            equiv:null,           cls:'plan-card--weekly'      }
-  ];
+  /* Card order: Annual → Monthly → Fortnightly → Weekly.
+     Populated by buildPlansArray() after the Supabase fetch resolves. */
+  var PLANS = [];
 
   /* Selected plan state — updated when customer picks a card */
   var selectedPlan      = 'monthly';
-  var selectedPlanPrice = PRICING.plans.monthly.price;
+  var selectedPlanPrice = 0; /* updated to PRICING.plans.monthly.price once the Supabase fetch resolves */
   var selectedAddons    = { addon1: false, addon2: false, addon3: false, combo23: false, lifetimeAll: false };
 
   
@@ -1553,42 +1725,61 @@
 
   function buildStep4El(prePlanKey){
     var defaultKey = prePlanKey || 'monthly';
-    var cardsHtml = PLANS.map(function(p){
-      var isSelected = p.key === defaultKey;
-      var badgeHtml;
-      if(p.badge){
-        var bCls = 'plan-card__badge' + (p.badgeCls ? ' plan-card__'+p.badgeCls : '');
-        badgeHtml = '<span class="'+bCls+'">'+p.badge+'</span>';
-      } else {
-        badgeHtml = '<span class="plan-card__badge-spacer"></span>';
-      }
-      var equivHtml = p.equiv ? '<p class="plan-card__equiv">'+p.equiv+'</p>' : '';
-      var featHtml = FEATURES.map(function(f){
-        return '<li class="plan-card__feature"><span class="plan-card__check" aria-hidden="true">&#10003;</span>'+f+'</li>';
-      }).join('');
-      return [
-        '<div class="plan-card '+p.cls+(isSelected?' is-selected':'')+'" data-plan-key="'+p.key+'" role="button" tabindex="0" aria-pressed="'+(isSelected?'true':'false')+'">',
-          '<div class="plan-card__header">',
-            '<div class="plan-card__selected-indicator">'+CHECK_INDICATOR_SVG+'</div>',
-            badgeHtml,
-            '<p class="plan-card__plan-name">'+p.name+'</p>',
-            '<div class="plan-card__price">',
-              '<span class="plan-card__amount">$'+p.amount.toFixed(2)+'</span>',
-              '<span class="plan-card__period"> / '+p.period+'</span>',
-            '</div>',
-            equivHtml,
-          '</div>',
-          '<div class="plan-card__body"><ul class="plan-card__features">'+featHtml+'</ul></div>',
-          '<div class="plan-card__footer">',
-            '<button class="plan-card__select" type="button" tabindex="-1">'+(isSelected?'\u2713 Selected':'Select plan')+'</button>',
-          '</div>',
-        '</div>'
-      ].join('');
-    }).join('');
+    var cardsHtml;
 
-    /* Sync module-level selectedPlan to the default shown */
-    var defPlan = PLANS.find(function(p){ return p.key === defaultKey; });
-    if(defPlan){ selectedPlan = defPlan.key; selectedPlanPrice = defPlan.amount; }
+    if(pricingFetchError){
+      /* Fetch failed — show a visible error so the customer knows to refresh */
+      cardsHtml =
+        '<div class="pricing-fetch-error">' +
+          '<p>Unable to load plans &mdash; please refresh the page and try again.</p>' +
+          '<button type="button" onclick="location.reload()" class="pricing-refresh-btn">Refresh page</button>' +
+        '</div>';
+    } else if(!PRICING){
+      /* Fetch still in-flight — show spinner; settle() will swap Step 4 when ready */
+      cardsHtml =
+        '<div class="pricing-loading" role="status" aria-live="polite">' +
+          '<span class="pricing-spinner" aria-hidden="true"></span>' +
+          '<p>Loading plans&hellip;</p>' +
+        '</div>';
+    } else {
+      /* PRICING is ready — build the plan cards exactly as before */
+      cardsHtml = PLANS.map(function(p){
+        var isSelected = p.key === defaultKey;
+        var badgeHtml;
+        if(p.badge){
+          var bCls = 'plan-card__badge' + (p.badgeCls ? ' plan-card__'+p.badgeCls : '');
+          badgeHtml = '<span class="'+bCls+'">'+p.badge+'</span>';
+        } else {
+          badgeHtml = '<span class="plan-card__badge-spacer"></span>';
+        }
+        var equivHtml = p.equiv ? '<p class="plan-card__equiv">'+p.equiv+'</p>' : '';
+        var featHtml = FEATURES.map(function(f){
+          return '<li class="plan-card__feature"><span class="plan-card__check" aria-hidden="true">&#10003;</span>'+f+'</li>';
+        }).join('');
+        return [
+          '<div class="plan-card '+p.cls+(isSelected?' is-selected':'')+'" data-plan-key="'+p.key+'" role="button" tabindex="0" aria-pressed="'+(isSelected?'true':'false')+'">',
+            '<div class="plan-card__header">',
+              '<div class="plan-card__selected-indicator">'+CHECK_INDICATOR_SVG+'</div>',
+              badgeHtml,
+              '<p class="plan-card__plan-name">'+p.name+'</p>',
+              '<div class="plan-card__price">',
+                '<span class="plan-card__amount">$'+p.amount.toFixed(2)+'</span>',
+                '<span class="plan-card__period"> / '+p.period+'</span>',
+              '</div>',
+              equivHtml,
+            '</div>',
+            '<div class="plan-card__body"><ul class="plan-card__features">'+featHtml+'</ul></div>',
+            '<div class="plan-card__footer">',
+              '<button class="plan-card__select" type="button" tabindex="-1">'+(isSelected?'\u2713 Selected':'Select plan')+'</button>',
+            '</div>',
+          '</div>'
+        ].join('');
+      }).join('');
+
+      /* Sync module-level selectedPlan to the default shown */
+      var defPlan = PLANS.find(function(p){ return p.key === defaultKey; });
+      if(defPlan){ selectedPlan = defPlan.key; selectedPlanPrice = defPlan.amount; }
+    }
 
     var el = document.createElement('section');
     el.className = 'step-section'; el.dataset.step = '4';
@@ -1599,7 +1790,10 @@
       '<button class="mobile-continue plan-continue" type="button">Continue &rarr;</button>',
       '<button class="step-back step-back--bottom" type="button" data-back="4">'+BACK_SVG+' Step 3</button>'
     ].join('');
-    el.querySelector('.plan-continue').insertAdjacentElement('beforebegin', buildAddonSection(defaultKey));
+    /* Only insert the add-on section when PRICING is available */
+    if(PRICING){
+      el.querySelector('.plan-continue').insertAdjacentElement('beforebegin', buildAddonSection(defaultKey));
+    }
     return el;
   }
 
@@ -2621,7 +2815,29 @@ function renderCompletedArea(){
           nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
           planFlow.innerHTML = '';
           clearGate();
-          renderCompletedArea();
+          /* PRICING may not be loaded yet when restoring a saved cart */
+          if(PRICING){
+            renderCompletedArea();
+          } else if(pricingFetchDone){
+            /* Fetch already settled with an error — discard saved cart, start fresh */
+            entries = [];
+            localStorage.removeItem('prisoncall_checkout_state');
+            startNewPlan(null);
+          } else {
+            /* Fetch still in progress — show placeholder, then render once PRICING arrives */
+            completedArea.innerHTML =
+              '<p style="padding:24px 0;text-align:center;font-size:14px;color:var(--color-muted);">Loading your saved plan\u2026</p>';
+            whenPricingReady(function(ok){
+              if(ok){
+                renderCompletedArea();
+              } else {
+                entries = [];
+                completedArea.innerHTML = '';
+                localStorage.removeItem('prisoncall_checkout_state');
+                startNewPlan(null);
+              }
+            });
+          }
           return;
         }
       } catch(e){}
