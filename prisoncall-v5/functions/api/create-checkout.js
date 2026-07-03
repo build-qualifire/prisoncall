@@ -7,83 +7,153 @@ export async function onRequestPost(context) {
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 
+  function jsonResponse(data, status = 200) {
+    return new Response(JSON.stringify(data), {
+      status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  /* ── 1. Parse request body ─────────────────────────────────────────── */
   let body;
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return jsonResponse({ error: 'Invalid JSON body' }, 400);
   }
 
   const { plans } = body;
   if (!Array.isArray(plans) || plans.length === 0) {
-    return new Response(JSON.stringify({ error: 'plans must be a non-empty array' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return jsonResponse({ error: 'plans must be a non-empty array' }, 400);
   }
 
-  const intervalPriceMap = {
-    weekly:      env.STRIPE_PRICE_WEEKLY,
-    fortnightly: env.STRIPE_PRICE_FORTNIGHTLY,
-    monthly:     env.STRIPE_PRICE_MONTHLY,
-    quarterly:   env.STRIPE_PRICE_QUARTERLY,
-  };
+  /* ── 2. Fetch Stripe price IDs from Supabase ───────────────────────── */
+  const SUPABASE_URL = env.SUPABASE_URL;
+  const SUPABASE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    return jsonResponse({ error: 'Server misconfiguration: missing Supabase credentials' }, 500);
+  }
+
+  let priceMap; /* product_key → stripe_price_id */
+  try {
+    const sbRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/products?active=eq.true&select=product_key,stripe_price_id`,
+      {
+        headers: {
+          'apikey':        SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Accept':        'application/json',
+        },
+      }
+    );
+    if (!sbRes.ok) {
+      const errText = await sbRes.text();
+      throw new Error(`Supabase ${sbRes.status}: ${errText.slice(0, 200)}`);
+    }
+    const products = await sbRes.json();
+    priceMap = {};
+    products.forEach(p => {
+      if (p.product_key && p.stripe_price_id) {
+        priceMap[p.product_key] = p.stripe_price_id;
+      }
+    });
+    console.log('[create-checkout] Loaded', Object.keys(priceMap).length, 'price IDs from Supabase');
+  } catch (err) {
+    console.error('[create-checkout] Supabase fetch failed:', err.message);
+    return jsonResponse({ error: 'Failed to load pricing data: ' + err.message }, 500);
+  }
+
+  const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
+  if (!STRIPE_SECRET_KEY) {
+    return jsonResponse({ error: 'Server misconfiguration: missing STRIPE_SECRET_KEY' }, 500);
+  }
+
+  /* ── 3. Build line items and subscription metadata ─────────────────── */
+
+  /* Top-level addons field sent by the add-on checkout path in the frontend:
+     { plans: [...], addons: { addon1, addon2, addon3, combo23, lifetimeAll } }
+     The order-summary path sends { plans: [...] } with no addons field. */
+  const topLevelAddons = body.addons || {};
 
   try {
-    const origin = new URL(request.url).origin;
-    const isBundle = plans.some(function(p) { return p.bundle === true; });
+    const line_items = [];
+    const subMeta = {}; /* flattened for subscription_data[metadata][...] */
 
-    const priceQuantityMap = {};
-    plans.forEach(function(plan) {
-      const priceId = intervalPriceMap[plan.plan_interval];
-      if (!priceId) throw new Error('Unknown plan_interval: ' + plan.plan_interval);
-      priceQuantityMap[priceId] = (priceQuantityMap[priceId] || 0) + 1;
+    plans.forEach(function(plan, idx) {
+      /* Normalise field names — frontend currently sends plan_interval / mobile_number;
+         spec uses plan_key / mobile. Accept either. */
+      const interval = plan.plan_key      || plan.plan_interval || '';
+      const mobile   = plan.mobile        || plan.mobile_number || '';
+      const prison   = plan.prison_name   || '';
+      const state    = plan.prison_state  || '';
+      /* Per-plan addons take priority; fall back to top-level body.addons */
+      const addons   = plan.addons        || topLevelAddons;
+
+      if (!interval) throw new Error(`Plan ${idx + 1} is missing plan_key / plan_interval`);
+
+      /* Plan line item */
+      const planProductKey = `plan_${interval}`;
+      const planPriceId    = priceMap[planProductKey];
+      if (!planPriceId) throw new Error(`No Stripe price ID for product_key "${planProductKey}" — check Supabase products table`);
+      line_items.push({ price: planPriceId, quantity: 1 });
+
+      /* Add-on line items
+         One-time add-ons (addon1, lifetimeAll) use a single product_key regardless of interval.
+         Recurring add-ons (addon2, addon3, combo23) are keyed by interval. */
+      const addonProductKeys = {
+        addon1:      'addon_48hr_cancel',
+        addon2:      `addon_transfers_${interval}`,
+        addon3:      `addon_post_renewal_${interval}`,
+        combo23:     `addon_combo23_${interval}`,
+        lifetimeAll: 'addon_lifetime',
+      };
+
+      Object.entries(addonProductKeys).forEach(function([addonKey, productKey]) {
+        if (!addons[addonKey]) return;
+        const addonPriceId = priceMap[productKey];
+        if (!addonPriceId) throw new Error(`No Stripe price ID for product_key "${productKey}" — check Supabase products table`);
+        line_items.push({ price: addonPriceId, quantity: 1 });
+      });
+
+      /* Metadata — prefix with plan index for bundles so all plans are represented */
+      const pfx = plans.length > 1 ? `plan_${idx + 1}_` : '';
+      subMeta[`${pfx}prison_name`]        = prison;
+      subMeta[`${pfx}prison_state`]       = state;
+      subMeta[`${pfx}mobile`]             = mobile;
+      subMeta[`${pfx}plan_interval`]      = interval;
+      subMeta[`${pfx}addon_48hr_cancel`]  = String(!!addons.addon1);
+      subMeta[`${pfx}addon_transfers`]    = String(!!addons.addon2);
+      subMeta[`${pfx}addon_post_renewal`] = String(!!addons.addon3);
+      subMeta[`${pfx}addon_combo23`]      = String(!!addons.combo23);
+      subMeta[`${pfx}addon_lifetime`]     = String(!!addons.lifetimeAll);
     });
 
-    const line_items = Object.entries(priceQuantityMap).map(function([priceId, qty]) {
-      return { price: priceId, quantity: qty };
-    });
-
-    const metadata = {
-      bundle: String(isBundle),
-      plan_count: String(plans.length),
-    };
-    plans.forEach(function(plan, i) {
-      const n = i + 1;
-      metadata['plan_' + n + '_prison']   = plan.prison_name;
-      metadata['plan_' + n + '_state']    = plan.prison_state;
-      metadata['plan_' + n + '_mobile']   = plan.mobile_number;
-      metadata['plan_' + n + '_interval'] = plan.plan_interval;
-    });
-
+    /* ── 4. Create Stripe Checkout Session ───────────────────────────── */
+    /* Stripe subscription mode supports mixing recurring + one-time line items.
+       One-time prices are charged on the first invoice only. */
     const sessionParams = new URLSearchParams();
-    sessionParams.append('mode', 'subscription');
-    sessionParams.append('currency', 'aud');
-    sessionParams.append('success_url', origin + '/thank-you.html?session_id={CHECKOUT_SESSION_ID}');
-    sessionParams.append('cancel_url', origin + '/choose-plan.html');
+    sessionParams.append('mode',        'subscription');
+    sessionParams.append('currency',    'aud');
+    sessionParams.append('success_url', 'https://prisoncall.pages.dev/success?session_id={CHECKOUT_SESSION_ID}');
+    sessionParams.append('cancel_url',  'https://prisoncall.pages.dev/choose-plan');
 
     line_items.forEach(function(item, i) {
-      sessionParams.append('line_items[' + i + '][price]', item.price);
-      sessionParams.append('line_items[' + i + '][quantity]', String(item.quantity));
+      sessionParams.append(`line_items[${i}][price]`,    item.price);
+      sessionParams.append(`line_items[${i}][quantity]`, String(item.quantity));
     });
 
-    Object.entries(metadata).forEach(function([key, value]) {
-      sessionParams.append('metadata[' + key + ']', value);
+    Object.entries(subMeta).forEach(function([key, value]) {
+      sessionParams.append(`subscription_data[metadata][${key}]`, String(value ?? ''));
     });
 
-    if (isBundle && env.STRIPE_BUNDLE_COUPON_ID) {
-      sessionParams.append('discounts[0][coupon]', env.STRIPE_BUNDLE_COUPON_ID);
-    }
+    console.log('[create-checkout] Creating Stripe session — line_items:', line_items.length, '| metadata keys:', Object.keys(subMeta).length);
 
-    console.log('Stripe session params:', sessionParams.toString());
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
       headers: {
-        'Authorization': 'Basic ' + btoa(env.STRIPE_SECRET_KEY + ':'),
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + btoa(STRIPE_SECRET_KEY + ':'),
+        'Content-Type':  'application/x-www-form-urlencoded',
       },
       body: sessionParams.toString(),
     });
@@ -91,19 +161,15 @@ export async function onRequestPost(context) {
     const session = await stripeRes.json();
 
     if (!stripeRes.ok) {
-      throw new Error(session.error ? session.error.message : 'Stripe error ' + stripeRes.status);
+      throw new Error(session.error ? session.error.message : `Stripe error ${stripeRes.status}`);
     }
 
-    return new Response(JSON.stringify({ url: session.url }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    /* ── 5. Return Checkout Session URL ──────────────────────────────── */
+    return jsonResponse({ url: session.url });
+
   } catch (err) {
-    console.error('Stripe API error:', err.message, JSON.stringify(err));
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error('[create-checkout] Error:', err.message);
+    return jsonResponse({ error: err.message }, 500);
   }
 }
 
