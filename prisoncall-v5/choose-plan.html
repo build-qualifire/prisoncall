@@ -2277,7 +2277,7 @@
       var isMobile = window.innerWidth <= 768;
       var toast = document.createElement('div');
       toast.id = 'lifetimeUpgradeToast';
-      toast.textContent = msg || 'You\u2019re getting the best deal. Lifetime Protection covers all three add-ons \u2014 once, forever.';
+      toast.textContent = msg || 'You\u2019re getting the best deal. Lifetime Protection covers all three add-ons, once, forever.';
       toast.style.cssText = [
         'position:fixed',
         'bottom:calc(' + (isMobile ? '80px' : '72px') + ' + env(safe-area-inset-bottom, 0px))',
@@ -2346,7 +2346,7 @@
       if(r2) setRow(r2, 'addon2', false);
       if(r3) setRow(r3, 'addon3', false);
       if(rc) setRow(rc, 'combo23', true);
-      showUpgradeToast('We\u2019ve switched you to the Bundle Deal \u2014 it\u2019s better value!');
+      showUpgradeToast('We\u2019ve switched you to the Bundle Deal, it\u2019s better value!');
     }
 
     function checkAutoUpgradeToCombo() {
