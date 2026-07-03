@@ -27,15 +27,18 @@ export async function onRequestPost(context) {
     return jsonResponse({ error: 'plans must be a non-empty array' }, 400);
   }
 
-  /* ── 2. Detect Stripe mode and fetch price IDs from Supabase ──────── */
-  const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
-  if (!STRIPE_SECRET_KEY) {
-    return jsonResponse({ error: 'Server misconfiguration: missing STRIPE_SECRET_KEY' }, 500);
-  }
+  /* ── 2. Detect mode from APP_ENV and select Stripe key ────────────── */
+  const isTestMode = env.APP_ENV === 'test';
+  console.log('[Checkout] Running in', isTestMode ? 'TEST' : 'LIVE', 'mode');
 
-  /* Detect sandbox vs live mode from the key prefix */
-  const isTestMode = STRIPE_SECRET_KEY.startsWith('sk_test_');
-  console.log('[create-checkout] Stripe mode:', isTestMode ? 'TEST (sandbox)' : 'LIVE');
+  const STRIPE_SECRET_KEY = isTestMode ? env.STRIPE_SECRET_KEY_TEST : env.STRIPE_SECRET_KEY;
+  if (!STRIPE_SECRET_KEY) {
+    return jsonResponse({
+      error: isTestMode
+        ? 'Server misconfiguration: missing STRIPE_SECRET_KEY_TEST'
+        : 'Server misconfiguration: missing STRIPE_SECRET_KEY',
+    }, 500);
+  }
 
   const SUPABASE_URL = env.SUPABASE_URL;
   const SUPABASE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;

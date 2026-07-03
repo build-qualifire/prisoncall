@@ -6,6 +6,10 @@
  */
 export async function onRequestGet(context) {
   const { env } = context;
+
+  const isTestMode = env.APP_ENV === 'test';
+  console.log('[Products] Running in', isTestMode ? 'TEST' : 'LIVE', 'mode');
+
   const SUPABASE_URL = env.SUPABASE_URL;
   /* Prefer service role key (bypasses RLS); fall back to anon key */
   const SUPABASE_KEY = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_ANON_KEY;
@@ -45,16 +49,27 @@ export async function onRequestGet(context) {
       });
     }
 
-    /* Parse to log row count, then return raw text (avoids double-serialise) */
+    /* Parse rows to log count and apply test-mode price ID remapping */
+    let responseBody = body;
     try {
       const rows = JSON.parse(body);
       console.log('[products] Returning', Array.isArray(rows) ? rows.length : '?', 'rows');
       if (Array.isArray(rows) && rows[0]) {
         console.log('[products] First row keys:', Object.keys(rows[0]).join(', '));
       }
-    } catch (_) { /* non-fatal — raw body still returned */ }
 
-    return new Response(body, {
+      /* In test mode, replace stripe_price_id with stripe_price_id_test so
+         choose-plan.html always reads stripe_price_id and gets the right value */
+      if (isTestMode && Array.isArray(rows)) {
+        const remapped = rows.map(function(row) {
+          return Object.assign({}, row, { stripe_price_id: row.stripe_price_id_test || null });
+        });
+        responseBody = JSON.stringify(remapped);
+        console.log('[products] Test mode: stripe_price_id remapped to stripe_price_id_test');
+      }
+    } catch (_) { /* non-fatal — raw body returned if parse fails */ }
+
+    return new Response(responseBody, {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
