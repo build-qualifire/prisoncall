@@ -153,7 +153,7 @@ export async function onRequestPost(context) {
     const sessionParams = new URLSearchParams();
     sessionParams.append('mode',        'subscription');
     sessionParams.append('currency',    'aud');
-    sessionParams.append('success_url', 'https://prisoncall.pages.dev/success?session_id={CHECKOUT_SESSION_ID}');
+    sessionParams.append('success_url', 'https://prisoncall.pages.dev/thank-you.html?session_id={CHECKOUT_SESSION_ID}');
     sessionParams.append('cancel_url',  'https://prisoncall.pages.dev/choose-plan');
 
     line_items.forEach(function(item, i) {
