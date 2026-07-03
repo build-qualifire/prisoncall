@@ -2271,13 +2271,13 @@
     }
 
     /* ── Toast: fires on auto-upgrade and URL-param pre-select only ── */
-    function showUpgradeToast() {
+    function showUpgradeToast(msg) {
       var existing = document.getElementById('lifetimeUpgradeToast');
       if(existing) existing.remove();
       var isMobile = window.innerWidth <= 768;
       var toast = document.createElement('div');
       toast.id = 'lifetimeUpgradeToast';
-      toast.textContent = 'You\u2019re getting the best deal. Lifetime Protection covers all three add-ons \u2014 once, forever.';
+      toast.textContent = msg || 'You\u2019re getting the best deal. Lifetime Protection covers all three add-ons \u2014 once, forever.';
       toast.style.cssText = [
         'position:fixed',
         'bottom:calc(' + (isMobile ? '80px' : '72px') + ' + env(safe-area-inset-bottom, 0px))',
@@ -2338,6 +2338,23 @@
       if(allThree || comboAndOne) autoSelectLifetime();
     }
 
+    /* ── Auto-upgrade to Bundle Deal when transfer + post-renewal both ticked ── */
+    function autoUpgradeToCombo() {
+      var r2 = sectionEl.querySelector('[data-addon="addon2"]');
+      var r3 = sectionEl.querySelector('[data-addon="addon3"]');
+      var rc = sectionEl.querySelector('[data-addon="combo23"]');
+      if(r2) setRow(r2, 'addon2', false);
+      if(r3) setRow(r3, 'addon3', false);
+      if(rc) setRow(rc, 'combo23', true);
+      showUpgradeToast('We\u2019ve switched you to the Bundle Deal \u2014 it\u2019s better value!');
+    }
+
+    function checkAutoUpgradeToCombo() {
+      if(selectedAddons.lifetimeAll) return; /* lifetime already covers this */
+      if(selectedAddons.combo23) return;     /* bundle deal already selected  */
+      if(selectedAddons.addon2 && selectedAddons.addon3) autoUpgradeToCombo();
+    }
+
     /* Expose autoSelectLifetime at module level for URL-param pre-selection */
     addonAutoSelectFn = autoSelectLifetime;
 
@@ -2385,7 +2402,9 @@
             if(r2) setRow(r2, 'addon2', false);
             if(r3) setRow(r3, 'addon3', false);
           }
-          /* CHANGE 1: Check if auto-upgrade threshold is now met */
+          /* Auto-upgrade to Bundle Deal if transfer + post-renewal both ticked */
+          checkAutoUpgradeToCombo();
+          /* Auto-upgrade to Lifetime if threshold met (all 3, or combo + addon1) */
           checkAutoUpgrade();
         });
         cb.addEventListener('keydown', function(e){
