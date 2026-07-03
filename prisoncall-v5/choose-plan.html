@@ -2022,8 +2022,9 @@
       });
     });
 
-    /* Wire the always-visible add-on section */
-    wireAddonSection(el.querySelector('.addon-section'));
+    /* Wire the add-on section — only present when PRICING has loaded */
+    var addonSectionEl = el.querySelector('.addon-section');
+    if (addonSectionEl) wireAddonSection(addonSectionEl);
 
     /* Continue — calls completePlan to confirm the selected plan */
     el.querySelector('.plan-continue').addEventListener('click', function(){
