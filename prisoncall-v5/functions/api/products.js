@@ -10,15 +10,23 @@ export async function onRequestGet(context) {
   /* Prefer service role key (bypasses RLS); fall back to anon key */
   const SUPABASE_KEY = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_ANON_KEY;
 
+  console.log('[products] SUPABASE_URL set:', !!SUPABASE_URL);
+  console.log('[products] SUPABASE_SERVICE_ROLE_KEY set:', !!env.SUPABASE_SERVICE_ROLE_KEY);
+  console.log('[products] SUPABASE_ANON_KEY set:', !!env.SUPABASE_ANON_KEY);
+
   if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.error('[products] Missing credentials — cannot query Supabase');
     return new Response(JSON.stringify({ error: 'Server misconfiguration: missing Supabase credentials' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
+  const url = `${SUPABASE_URL}/rest/v1/products?active=eq.true&select=*&order=product_type.asc,interval.asc`;
+  console.log('[products] Querying:', url.replace(SUPABASE_URL, '<SUPABASE_URL>'));
+
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/products?active=eq.true&select=*&order=product_type.asc,interval.asc`, {
+    const res = await fetch(url, {
       headers: {
         'apikey':        SUPABASE_KEY,
         'Authorization': `Bearer ${SUPABASE_KEY}`,
@@ -27,14 +35,24 @@ export async function onRequestGet(context) {
     });
 
     const body = await res.text();
+    console.log('[products] Supabase status:', res.status, '— body length:', body.length, '— first 300 chars:', body.slice(0, 300));
 
     if (!res.ok) {
       console.error('[products] Supabase error', res.status, body);
-      return new Response(JSON.stringify({ error: `Supabase responded with ${res.status}` }), {
+      return new Response(JSON.stringify({ error: `Supabase responded with ${res.status}: ${body.slice(0, 200)}` }), {
         status: res.status,
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
+    /* Parse to log row count, then return raw text (avoids double-serialise) */
+    try {
+      const rows = JSON.parse(body);
+      console.log('[products] Returning', Array.isArray(rows) ? rows.length : '?', 'rows');
+      if (Array.isArray(rows) && rows[0]) {
+        console.log('[products] First row keys:', Object.keys(rows[0]).join(', '));
+      }
+    } catch (_) { /* non-fatal — raw body still returned */ }
 
     return new Response(body, {
       status: 200,
@@ -45,7 +63,7 @@ export async function onRequestGet(context) {
     });
   } catch (err) {
     console.error('[products] Fetch error:', err && err.message);
-    return new Response(JSON.stringify({ error: 'Failed to reach Supabase' }), {
+    return new Response(JSON.stringify({ error: 'Failed to reach Supabase: ' + (err && err.message) }), {
       status: 502,
       headers: { 'Content-Type': 'application/json' },
     });

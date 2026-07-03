@@ -1137,14 +1137,28 @@
     return pricing;
   }
 
-  /* Build PLANS array from the already-populated PRICING object */
+  /* Build PLANS array from the already-populated PRICING object.
+     Only includes plans that are actually present in PRICING.plans so a
+     missing Supabase row does not crash the page with a TypeError. */
   function buildPlansArray() {
-    return [
-      { key:'annual',      name:PRICING.plans.annual.label,      amount:PRICING.plans.annual.price,      period:PRICING.plans.annual.interval,      badge:'Best Value',   badgeCls:'',            equiv:'$'+(PRICING.plans.annual.price/12).toFixed(2)+'/month', cls:'plan-card--annual'      },
-      { key:'monthly',     name:PRICING.plans.monthly.label,     amount:PRICING.plans.monthly.price,     period:PRICING.plans.monthly.interval,     badge:'Most Popular', badgeCls:'badge--black', equiv:null,                                                   cls:'plan-card--monthly'     },
-      { key:'fortnightly', name:PRICING.plans.fortnightly.label, amount:PRICING.plans.fortnightly.price, period:PRICING.plans.fortnightly.interval, badge:null,           badgeCls:'',            equiv:null,                                                   cls:'plan-card--fortnightly' },
-      { key:'weekly',      name:PRICING.plans.weekly.label,      amount:PRICING.plans.weekly.price,      period:PRICING.plans.weekly.interval,      badge:null,           badgeCls:'',            equiv:null,                                                   cls:'plan-card--weekly'      }
+    var defs = [
+      { key:'annual',      badge:'Best Value',   badgeCls:'',            cls:'plan-card--annual',      equivFn: function(p){ return '$'+(p.price/12).toFixed(2)+'/month'; } },
+      { key:'monthly',     badge:'Most Popular', badgeCls:'badge--black', cls:'plan-card--monthly',     equivFn: null },
+      { key:'fortnightly', badge:null,           badgeCls:'',            cls:'plan-card--fortnightly', equivFn: null },
+      { key:'weekly',      badge:null,           badgeCls:'',            cls:'plan-card--weekly',      equivFn: null },
     ];
+    var result = [];
+    defs.forEach(function(d) {
+      var p = PRICING.plans[d.key];
+      if (!p) { console.warn('[Prisoncall] buildPlansArray: missing plan interval "' + d.key + '" — skipping'); return; }
+      result.push({
+        key: d.key, name: p.label, amount: p.price, period: p.interval,
+        badge: d.badge, badgeCls: d.badgeCls,
+        equiv: d.equivFn ? d.equivFn(p) : null,
+        cls: d.cls,
+      });
+    });
+    return result;
   }
 
   /* Fetch active products via /api/products (Cloudflare Pages Function).
@@ -1183,21 +1197,36 @@
       cbs.forEach(function(cb) { cb(ok); });
     }
 
+    console.log('[Prisoncall] fetchPricing: calling /api/products');
+
     fetch('/api/products', { headers: { 'Accept': 'application/json' } })
     .then(function(res) {
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return res.json();
+      console.log('[Prisoncall] fetchPricing: response status', res.status, res.ok ? 'OK' : 'ERROR');
+      /* Read as text first so we can log the raw body before parsing */
+      return res.text().then(function(text) {
+        console.log('[Prisoncall] fetchPricing: raw body (first 600 chars):', text.slice(0, 600));
+        if (!res.ok) throw new Error('HTTP ' + res.status + ' — ' + text.slice(0, 200));
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          throw new Error('JSON parse failed: ' + e.message);
+        }
+      });
     })
     .then(function(products) {
-      if (!Array.isArray(products) || !products.length) throw new Error('No active products returned');
+      console.log('[Prisoncall] fetchPricing: parsed', Array.isArray(products) ? products.length + ' rows' : typeof products);
+      if (products && products[0]) console.log('[Prisoncall] fetchPricing: first row sample', JSON.stringify(products[0]));
+      if (!Array.isArray(products) || !products.length) throw new Error('No active products returned from /api/products');
       PRICING = buildPricingFromProducts(products);
-      if (!PRICING.plans.monthly) throw new Error('Monthly plan not found in products');
+      console.log('[Prisoncall] fetchPricing: PRICING.plans keys =', Object.keys(PRICING.plans));
+      if (!PRICING.plans.monthly) throw new Error('Monthly plan missing — check product_type and interval values in Supabase');
       PLANS = buildPlansArray();
+      console.log('[Prisoncall] fetchPricing: PLANS built, count =', PLANS.length);
       selectedPlanPrice = PRICING.plans.monthly.price;
       settle(true);
     })
     .catch(function(err) {
-      console.error('[Prisoncall] Pricing fetch failed:', err && err.message);
+      console.error('[Prisoncall] fetchPricing FAILED:', err && err.message, err);
       settle(false);
     });
   }());
