@@ -27,7 +27,16 @@ export async function onRequestPost(context) {
     return jsonResponse({ error: 'plans must be a non-empty array' }, 400);
   }
 
-  /* ── 2. Fetch Stripe price IDs from Supabase ───────────────────────── */
+  /* ── 2. Detect Stripe mode and fetch price IDs from Supabase ──────── */
+  const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
+  if (!STRIPE_SECRET_KEY) {
+    return jsonResponse({ error: 'Server misconfiguration: missing STRIPE_SECRET_KEY' }, 500);
+  }
+
+  /* Detect sandbox vs live mode from the key prefix */
+  const isTestMode = STRIPE_SECRET_KEY.startsWith('sk_test_');
+  console.log('[create-checkout] Stripe mode:', isTestMode ? 'TEST (sandbox)' : 'LIVE');
+
   const SUPABASE_URL = env.SUPABASE_URL;
   const SUPABASE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -35,10 +44,10 @@ export async function onRequestPost(context) {
     return jsonResponse({ error: 'Server misconfiguration: missing Supabase credentials' }, 500);
   }
 
-  let priceMap; /* product_key → stripe_price_id */
+  let priceMap; /* product_key → stripe_price_id (live or test depending on mode) */
   try {
     const sbRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/products?active=eq.true&select=product_key,stripe_price_id`,
+      `${SUPABASE_URL}/rest/v1/products?active=eq.true&select=product_key,stripe_price_id,stripe_price_id_test`,
       {
         headers: {
           'apikey':        SUPABASE_KEY,
@@ -54,19 +63,15 @@ export async function onRequestPost(context) {
     const products = await sbRes.json();
     priceMap = {};
     products.forEach(p => {
-      if (p.product_key && p.stripe_price_id) {
-        priceMap[p.product_key] = p.stripe_price_id;
-      }
+      if (!p.product_key) return;
+      /* In test mode use stripe_price_id_test; in live mode use stripe_price_id */
+      const priceId = isTestMode ? p.stripe_price_id_test : p.stripe_price_id;
+      if (priceId) priceMap[p.product_key] = priceId;
     });
-    console.log('[create-checkout] Loaded', Object.keys(priceMap).length, 'price IDs from Supabase');
+    console.log('[create-checkout] Loaded', Object.keys(priceMap).length, 'price IDs from Supabase (mode:', isTestMode ? 'test' : 'live', ')');
   } catch (err) {
     console.error('[create-checkout] Supabase fetch failed:', err.message);
     return jsonResponse({ error: 'Failed to load pricing data: ' + err.message }, 500);
-  }
-
-  const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
-  if (!STRIPE_SECRET_KEY) {
-    return jsonResponse({ error: 'Server misconfiguration: missing STRIPE_SECRET_KEY' }, 500);
   }
 
   /* ── 3. Build line items and subscription metadata ─────────────────── */
@@ -95,7 +100,12 @@ export async function onRequestPost(context) {
       /* Plan line item */
       const planProductKey = `plan_${interval}`;
       const planPriceId    = priceMap[planProductKey];
-      if (!planPriceId) throw new Error(`No Stripe price ID for product_key "${planProductKey}" — check Supabase products table`);
+      if (!planPriceId) {
+        throw new Error(isTestMode
+          ? `Test price ID not configured for product: ${planProductKey}. Add it in the admin portal Products page.`
+          : `No Stripe price ID for product_key "${planProductKey}" — check Supabase products table`
+        );
+      }
       line_items.push({ price: planPriceId, quantity: 1 });
 
       /* Add-on line items
@@ -112,7 +122,12 @@ export async function onRequestPost(context) {
       Object.entries(addonProductKeys).forEach(function([addonKey, productKey]) {
         if (!addons[addonKey]) return;
         const addonPriceId = priceMap[productKey];
-        if (!addonPriceId) throw new Error(`No Stripe price ID for product_key "${productKey}" — check Supabase products table`);
+        if (!addonPriceId) {
+          throw new Error(isTestMode
+            ? `Test price ID not configured for product: ${productKey}. Add it in the admin portal Products page.`
+            : `No Stripe price ID for product_key "${productKey}" — check Supabase products table`
+          );
+        }
         line_items.push({ price: addonPriceId, quantity: 1 });
       });
 

@@ -140,7 +140,7 @@ export async function onRequest(context) {
     null;
 
   const VALID_ROLES = ['super_admin', 'admin', 'staff'];
-  const SUPER_ADMIN_ONLY = ['getProducts', 'updateProduct', 'replacePrisonLookup', 'getPrisonLookupAll', 'replaceScalingTables', 'getTableStatus'];
+  const SUPER_ADMIN_ONLY = ['getProducts', 'updateProduct', 'replacePrisonLookup', 'getPrisonLookupAll', 'replaceScalingTables', 'getTableStatus', 'runMigration'];
   const ADMIN_PLUS = ['getSubscriptions', 'getSubscription', 'getOrdersBySubscription'];
 
   if (!VALID_ROLES.includes(userRole)) {
@@ -332,6 +332,27 @@ export async function onRequest(context) {
         const res = await sb('prison_did_lookup?select=*&order=prison_state.asc,prison_name.asc');
         const data = await res.json();
         return json({ success: true, data: Array.isArray(data) ? data : [] });
+      }
+
+      // Run pending database migrations (super_admin only)
+      // If stripe_price_id_test column is missing, returns the SQL to run manually
+      // in the Supabase SQL Editor: https://supabase.com/dashboard/project/_/sql
+      case 'runMigration': {
+        const MIGRATION_SQL = 'ALTER TABLE products ADD COLUMN IF NOT EXISTS stripe_price_id_test text;';
+        // Probe the column — PostgREST returns 400 if it doesn't exist yet
+        const probeRes = await sb('products?select=stripe_price_id_test&limit=1');
+        if (probeRes.ok) {
+          return json({ success: true, data: { alreadyApplied: true, message: 'stripe_price_id_test column already exists.' } });
+        }
+        // Column missing — return SQL for the admin to run manually
+        return json({
+          success: true,
+          data: {
+            alreadyApplied: false,
+            sql: MIGRATION_SQL,
+            message: 'Column stripe_price_id_test does not exist yet. Run the SQL in the Supabase SQL Editor, then click Run Migration again to verify.',
+          },
+        });
       }
 
       // Products list

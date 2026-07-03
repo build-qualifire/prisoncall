@@ -198,6 +198,12 @@
             value="${product.stripe_price_id || ''}"
             placeholder="price_..."
             style="font-size:13px">
+          <label style="font-size:12px;font-weight:700;color:var(--color-muted);display:block;margin-bottom:4px;margin-top:8px">Test Price ID (sandbox)</label>
+          <input class="form-input font-mono" type="text"
+            id="stripe_test_${product.id}"
+            value="${product.stripe_price_id_test || ''}"
+            placeholder="price_..."
+            style="font-size:13px">
         </div>
         <div>
           <label style="font-size:12px;font-weight:700;color:var(--color-muted);display:block;margin-bottom:4px">Active</label>
@@ -246,6 +252,7 @@
     const btn = document.getElementById(`save_${id}`);
     const priceInput = document.getElementById(`price_${id}`);
     const stripeInput = document.getElementById(`stripe_${id}`);
+    const stripeTestInput = document.getElementById(`stripe_test_${id}`);
     const activeInput = document.querySelector(`.toggle-active-btn[data-id="${id}"]`);
 
     if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
@@ -253,6 +260,7 @@
     const fields = {};
     if (priceInput) fields.price = parseFloat(priceInput.value) || 0;
     if (stripeInput) fields.stripe_price_id = stripeInput.value.trim() || null;
+    if (stripeTestInput) fields.stripe_price_id_test = stripeTestInput.value.trim() || null;
     if (activeInput) fields.active = activeInput.checked;
 
     try {
