@@ -14,33 +14,32 @@
 <body>
 
   <!-- ═══ HEADER ═══ -->
-  <header class="header header--scrolled" id="siteHeader">
-    <div class="container">
-      <div class="header__inner">
+  <header class="header" id="siteHeader">
+    <div class="container header__inner">
 
-        <div class="header__hamburger">
-          <button id="menuOpen" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
-            <img src="/assets/icons/hamburger.svg" alt="" width="24" height="24">
-          </button>
-        </div>
+      <!-- Col 1: Hamburger (44px) -->
+      <button class="header__hamburger" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+        <img src="/assets/icons/feature_icons/icon-hamburger.svg" alt="">
+      </button>
 
-        <div class="header__center">
-          <a href="/" class="header__wordmark" aria-label="Prisoncall home">
-            <img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia" width="140" height="32">
-          </a>
-          <a href="/portal/dashboard.html" class="header__mobile-cta">My Prisoncall</a>
-        </div>
-
-        <div class="header__right">
-          <a href="/portal/dashboard.html" class="header__icon-link" aria-label="My Prisoncall">
-            <img src="/assets/brand_logos/Prisoncall_Icon_BLACK.svg" class="header__icon-img" alt="" width="24" height="24">
-          </a>
-          <div class="header__desktop-cta">
-            <a href="/portal/dashboard.html" class="btn btn--black">My Prisoncall</a>
-          </div>
-        </div>
-
+      <!-- Col 2: Centre — wordmark (state 1) or mobile CTA (state 2) -->
+      <div class="header__center">
+        <a href="/" class="header__wordmark" aria-label="Prisoncall Australia — home">
+          <img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
+        </a>
+        <a href="/choose-plan.html" class="header__mobile-cta" id="headerCtaBtn">Get Prisoncall now</a>
       </div>
+
+      <!-- Col 3: Right (44px) — icon mark on mobile scroll / CTA on desktop -->
+      <div class="header__right">
+        <a href="/" class="header__icon-link" aria-label="Prisoncall Australia — home">
+          <img src="/assets/brand_logos/Prisoncall_Icon_BLACK.svg" alt="Prisoncall Australia" class="header__icon-img">
+        </a>
+        <div class="header__desktop-cta">
+          <a href="/choose-plan.html" class="btn btn--black">Get Prisoncall now</a>
+        </div>
+      </div>
+
     </div>
   </header>
 
@@ -49,18 +48,28 @@
     <div class="mobile-menu__top">
       <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">&#x2715;</button>
       <div class="mobile-menu__logo">
-        <img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia" width="120" height="26">
+        <img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
       </div>
       <div></div>
     </div>
     <div class="mobile-menu__body">
       <nav class="mobile-menu__links">
-        <a href="/portal/dashboard.html">My Prisoncall</a>
-        <a href="/choose-plan.html">Add another plan</a>
+        <a href="/choose-plan.html">Choose Prisoncall plan</a>
+        <a href="/portal/dashboard.html" aria-current="page">My Prisoncall</a>
         <a href="/contact.html">Contact us</a>
       </nav>
+      <div class="mobile-menu__social">
+        <a href="https://www.facebook.com/prisoncallaustralia" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          Follow us on Facebook
+        </a>
+        <a href="https://www.instagram.com/prisoncallaustralia/" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          Follow us on Instagram
+        </a>
+      </div>
       <div class="mobile-menu__cta">
-        <button class="btn btn--black" id="mobileSignOutBtn" style="width:100%;font-size:16px;padding:17px 24px;">Sign out</button>
+        <a href="/choose-plan.html" class="btn btn--green">Get started now</a>
       </div>
     </div>
   </div>
@@ -715,24 +724,47 @@
     /* ─── Sign out ─── */
     function doSignOut() { PortalAuth.logout(); }
     document.getElementById('signOutBtn').addEventListener('click', doSignOut);
-    document.getElementById('mobileSignOutBtn').addEventListener('click', doSignOut);
 
-    /* ─── Mobile menu ─── */
-    document.getElementById('menuOpen').addEventListener('click', function () {
-      document.getElementById('mobileMenu').classList.add('is-open');
-      this.setAttribute('aria-expanded', 'true');
-    });
-    document.getElementById('menuClose').addEventListener('click', function () {
-      document.getElementById('mobileMenu').classList.remove('is-open');
-      document.getElementById('menuOpen').setAttribute('aria-expanded', 'false');
+    /* ─── Mobile menu (exact from index.html) ─── */
+    var menuToggle = document.getElementById('menuToggle');
+    var menuClose  = document.getElementById('menuClose');
+    var mobileMenu = document.getElementById('mobileMenu');
+
+    function openMenu() {
+      mobileMenu.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      menuToggle.setAttribute('aria-expanded', 'true');
+    }
+    function closeMenu() {
+      mobileMenu.classList.remove('is-open');
+      document.body.style.overflow = '';
+      menuToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    menuToggle.addEventListener('click', openMenu);
+    menuClose.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeMenu(); });
+    mobileMenu.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', closeMenu);
     });
 
-    /* ─── Header scroll state ─── */
-    (function () {
-      var header = document.getElementById('siteHeader');
-      window.addEventListener('scroll', function () {
-        header.classList.toggle('header--scrolled', window.scrollY > 10);
-      }, { passive: true });
+    /* ─── Header scroll state (exact from index.html) ─── */
+    (function() {
+      var header  = document.getElementById('siteHeader');
+      var heroCta = document.getElementById('heroCta');
+      if (!header || !heroCta || !('IntersectionObserver' in window)) return;
+      var hasScrolled = false;
+      window.addEventListener('scroll', function() { hasScrolled = true; }, { once: true, passive: true });
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            header.classList.remove('header--scrolled');
+          } else {
+            if (hasScrolled) header.classList.add('header--scrolled');
+          }
+        });
+      }, { threshold: 0 });
+      obs.observe(heroCta);
     })();
   </script>
 
