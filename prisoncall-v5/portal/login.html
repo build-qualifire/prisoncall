@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in | My Prisoncall</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="/assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/portal/portal.css">
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header" id="siteHeader">
+    <div class="container">
+      <div class="header__inner">
+        <div class="header__hamburger"><!-- no hamburger needed on login --></div>
+        <div class="header__center">
+          <a href="/" class="header__wordmark" aria-label="Prisoncall home">
+            <img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia" width="140" height="20">
+          </a>
+        </div>
+        <div class="header__right">
+          <div class="header__desktop-cta">
+            <a href="/choose-plan.html" class="btn btn--black btn--sm">Get started</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ LOGIN CARD ═══ -->
+  <main>
+    <div class="login-bg">
+      <div class="login-card">
+
+        <img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall" class="login-logo" width="140" height="20">
+
+        <h1 class="login-title">Welcome back</h1>
+        <p class="login-sub">Enter your mobile number to sign in to your account</p>
+
+        <!-- Form -->
+        <form id="loginForm" novalidate>
+          <div class="login-field">
+            <label for="mobileInput" class="login-label">Mobile number</label>
+            <input
+              type="tel"
+              id="mobileInput"
+              class="login-input"
+              placeholder="0412 345 678"
+              autocomplete="tel"
+              inputmode="numeric"
+              maxlength="13"
+            >
+            <p class="login-input-hint">Australian mobile numbers only (04XX XXX XXX)</p>
+            <p class="login-error" id="mobileError">Please enter a valid Australian mobile number</p>
+          </div>
+
+          <div class="login-submit">
+            <button type="submit" class="btn btn--green btn--full" id="submitBtn">
+              Send me a sign-in link
+            </button>
+          </div>
+        </form>
+
+        <!-- Success message (replaces form) -->
+        <div class="login-message" id="successMsg">
+          We have sent a sign-in link to your mobile. Check your SMS and tap the link to continue.
+        </div>
+
+        <!-- Inline error (API errors) -->
+        <p class="login-error" id="apiError" style="margin-top:14px; text-align:center;"></p>
+
+        <p class="login-footer">
+          New to Prisoncall?&nbsp;<a href="/choose-plan.html">Get started</a>
+        </p>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    'use strict';
+
+    var mobileInput = document.getElementById('mobileInput');
+    var mobileError = document.getElementById('mobileError');
+    var apiError    = document.getElementById('apiError');
+    var submitBtn   = document.getElementById('submitBtn');
+    var loginForm   = document.getElementById('loginForm');
+    var successMsg  = document.getElementById('successMsg');
+
+    /* ─── Auto-format mobile as 04XX XXX XXX ─── */
+    mobileInput.addEventListener('input', function () {
+      var raw = this.value.replace(/\D/g, '').slice(0, 10);
+      var fmt = raw;
+      if (raw.length > 4 && raw.length <= 7) {
+        fmt = raw.slice(0, 4) + ' ' + raw.slice(4);
+      } else if (raw.length > 7) {
+        fmt = raw.slice(0, 4) + ' ' + raw.slice(4, 7) + ' ' + raw.slice(7);
+      }
+      this.value = fmt;
+      mobileError.classList.remove('is-visible');
+      this.classList.remove('is-error');
+      apiError.style.display = 'none';
+    });
+
+    /* ─── Validate mobile ─── */
+    function getMobileDigits() {
+      return mobileInput.value.replace(/\D/g, '');
+    }
+
+    function isValidMobile(digits) {
+      return /^04\d{8}$/.test(digits);
+    }
+
+    /* ─── Form submit ─── */
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var digits = getMobileDigits();
+
+      if (!isValidMobile(digits)) {
+        mobileInput.classList.add('is-error');
+        mobileError.classList.add('is-visible');
+        mobileInput.focus();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+      apiError.style.display = 'none';
+
+      fetch('/api/send-magic-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile: digits }),
+      })
+        .then(function (res) {
+          if (res.status === 404) {
+            throw { type: 'not_found' };
+          }
+          if (!res.ok) {
+            throw { type: 'error' };
+          }
+          return res.json();
+        })
+        .then(function () {
+          loginForm.style.display = 'none';
+          successMsg.classList.add('is-visible');
+        })
+        .catch(function (err) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send me a sign-in link';
+          apiError.style.display = 'block';
+          if (err && err.type === 'not_found') {
+            apiError.textContent =
+              'No account found for this number. If you recently purchased, please wait a few minutes and try again.';
+          } else {
+            apiError.textContent = 'Something went wrong. Please try again.';
+          }
+        });
+    });
+
+    /* ═══════════════════════════════════
+       DEV TOOLS BYPASS — staging only
+       Shows only on prisoncall.pages.dev
+    ═══════════════════════════════════ */
+    (function () {
+      if (window.location.hostname !== 'prisoncall.pages.dev') return;
+
+      var panel = document.createElement('div');
+      panel.className = 'dev-panel';
+      panel.setAttribute('role', 'region');
+      panel.setAttribute('aria-label', 'Developer tools');
+      panel.innerHTML =
+        '<p class="dev-panel__title">DEV TOOLS</p>' +
+        '<button class="dev-panel__btn" id="devBypassBtn">Bypass login - use test session</button>';
+      document.body.appendChild(panel);
+
+      document.getElementById('devBypassBtn').addEventListener('click', function () {
+        var btn = this;
+        btn.disabled = true;
+        btn.textContent = 'Loading...';
+
+        fetch('/api/portal-supabase', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'dev-bypass' }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            window.location.replace(data.redirect || '/portal/dashboard.html');
+          })
+          .catch(function () {
+            btn.disabled = false;
+            btn.textContent = 'Bypass login - use test session';
+            alert('Dev bypass failed. Check console.');
+          });
+      });
+    })();
+  </script>
+
+</body>
+</html>

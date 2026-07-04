@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Prisoncall</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="/assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/portal/portal.css">
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header header--scrolled" id="siteHeader">
+    <div class="container">
+      <div class="header__inner">
+
+        <div class="header__hamburger">
+          <button id="menuOpen" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+            <img src="/assets/icons/hamburger.svg" alt="" width="24" height="24">
+          </button>
+        </div>
+
+        <div class="header__center">
+          <a href="/" class="header__wordmark" aria-label="Prisoncall home">
+            <img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia" width="140" height="32">
+          </a>
+          <a href="/portal/dashboard.html" class="header__mobile-cta">My Prisoncall</a>
+        </div>
+
+        <div class="header__right">
+          <a href="/portal/dashboard.html" class="header__icon-link" aria-label="My Prisoncall">
+            <img src="/assets/brand_logos/Prisoncall_Icon_BLACK.svg" class="header__icon-img" alt="" width="24" height="24">
+          </a>
+          <div class="header__desktop-cta">
+            <a href="/portal/dashboard.html" class="btn btn--black">My Prisoncall</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ MOBILE MENU ═══ -->
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <div class="mobile-menu__top">
+      <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">&#x2715;</button>
+      <div class="mobile-menu__logo">
+        <img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia" width="120" height="26">
+      </div>
+      <div></div>
+    </div>
+    <div class="mobile-menu__body">
+      <nav class="mobile-menu__links">
+        <a href="/portal/dashboard.html">My Prisoncall</a>
+        <a href="/choose-plan.html">Add another plan</a>
+        <a href="/contact.html">Contact us</a>
+      </nav>
+      <div class="mobile-menu__cta">
+        <button class="btn btn--black" id="mobileSignOutBtn" style="width:100%;font-size:16px;padding:17px 24px;">Sign out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CANCEL OVERLAY (global) ═══ -->
+  <div id="cancelOverlay" class="cancel-overlay" hidden aria-modal="true" role="dialog" aria-labelledby="cancelTitle">
+    <div class="cancel-overlay__inner">
+      <div class="cancel-overlay__icon">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="16" cy="16" r="15" stroke="#DC2626" stroke-width="2"/>
+          <rect x="14.5" y="8" width="3" height="11" rx="1.5" fill="#DC2626"/>
+          <circle cx="16" cy="23" r="1.75" fill="#DC2626"/>
+        </svg>
+      </div>
+      <h2 class="cancel-overlay__title" id="cancelTitle">Are you sure you want to cancel?</h2>
+      <p class="cancel-overlay__body" id="cancelBody"></p>
+      <p class="cancel-overlay__policy">
+        <a href="/cancellation-policy.html" target="_blank" rel="noopener">View cancellation policy</a>
+      </p>
+      <label class="cancel-overlay__check" id="cancelCheckLabel">
+        <input type="checkbox" id="cancelCheck" aria-label="Confirm cancellation">
+        <span class="cancel-overlay__check-text" id="cancelCheckText"></span>
+      </label>
+      <div class="cancel-overlay__btns">
+        <button class="btn btn--danger btn--full" id="confirmCancelBtn" disabled>Cancel My Plan</button>
+        <button class="btn btn--outline btn--full" id="keepPlanBtn">Keep My Plan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN ═══ -->
+  <main>
+
+    <!-- Loading state -->
+    <div id="loadingState" class="portal-loading">
+      <div class="spinner spinner--lg" role="status" aria-label="Loading"></div>
+      <p>Loading your account...</p>
+    </div>
+
+    <!-- Dashboard content -->
+    <div id="dashContent" class="portal-wrap" hidden>
+      <div class="portal-head">
+        <div class="portal-head__text">
+          <h1 class="portal-title">My Prisoncall</h1>
+          <p class="portal-sub" id="portalMobile"></p>
+        </div>
+        <button class="sign-out-btn" id="signOutBtn">Sign out</button>
+      </div>
+
+      <!-- Subscription cards injected here -->
+      <div id="subCards"></div>
+
+      <!-- Empty state -->
+      <div id="emptyState" class="portal-empty" hidden>
+        <h2 class="portal-empty__title">You have no active plans</h2>
+        <p class="portal-empty__sub">Set up your Prisoncall number and start connecting today.</p>
+        <a href="/choose-plan.html" class="btn btn--green">Get a Prisoncall plan</a>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/portal/portal-auth.js"></script>
+  <script>
+    'use strict';
+
+    /* ─── Global state ─── */
+    var subs = [];
+    var cancelSubId = null;
+    var PLAN_OPTIONS = [
+      { key: 'weekly',      label: 'Weekly',      price: '14.99', interval: '/week' },
+      { key: 'fortnightly', label: 'Fortnightly',  price: '19.99', interval: '/fortnight' },
+      { key: 'monthly',     label: 'Monthly',      price: '34.99', interval: '/month' },
+      { key: 'annual',      label: 'Annual',       price: '349.99',interval: '/year' },
+    ];
+
+    /* ─── Init ─── */
+    (function init() {
+      PortalAuth.checkSession(
+        function (data) {
+          document.getElementById('portalMobile').textContent = PortalAuth.maskMobile(data.mobile || '');
+          loadSubscriptions();
+        },
+        function () {
+          window.location.replace('/portal/login.html');
+        }
+      );
+    })();
+
+    /* ─── Load subscriptions ─── */
+    function loadSubscriptions() {
+      fetch('/api/portal-supabase?action=get-subscriptions')
+        .then(function (r) {
+          if (!r.ok) throw new Error('fetch error');
+          return r.json();
+        })
+        .then(function (data) {
+          subs = Array.isArray(data) ? data : [];
+          renderDash();
+        })
+        .catch(function () {
+          document.getElementById('loadingState').innerHTML =
+            '<p style="text-align:center;color:#666;padding:64px 16px;font-size:15px;">Unable to load your account. Please try refreshing the page.</p>';
+        });
+    }
+
+    /* ─── Render dashboard ─── */
+    function renderDash() {
+      document.getElementById('loadingState').hidden = true;
+      var dash = document.getElementById('dashContent');
+      dash.hidden = false;
+
+      if (!subs.length) {
+        document.getElementById('emptyState').hidden = false;
+        return;
+      }
+
+      var activeCount = subs.filter(function (s) { return s.status === 'ACTIVE'; }).length;
+      var html = '';
+      subs.forEach(function (sub) { html += renderCard(sub, activeCount); });
+      document.getElementById('subCards').innerHTML = html;
+      wireAllCards();
+    }
+
+    /* ─── Status badge ─── */
+    function statusBadge(status) {
+      var map = {
+        PENDING:              { cls: 'badge--amber',  text: 'Setting up your number' },
+        DID_ORDERED:          { cls: 'badge--blue',   text: 'Number ordered' },
+        ACTIVATING:           { cls: 'badge--blue',   text: 'Activating your number' },
+        TRANSFER_PENDING:     { cls: 'badge--blue',   text: 'Transfer in progress' },
+        CANCELLATION_PENDING: { cls: 'badge--orange', text: 'Cancellation pending' },
+        ACTIVE:               { cls: 'badge--active', text: 'Active' },
+        SUSPENDED:            { cls: 'badge--red',    text: 'Payment overdue' },
+        CANCELLED:            { cls: 'badge--grey',   text: 'Cancelled' },
+      };
+      var b = map[status] || { cls: 'badge--grey', text: status };
+      return '<span class="badge ' + b.cls + '">' + PortalAuth.esc(b.text) + '</span>';
+    }
+
+    /* ─── DID display ─── */
+    function didDisplay(sub) {
+      var s = sub.status;
+      var did = sub.current_did;
+      if (s === 'PENDING' || s === 'DID_ORDERED' || s === 'ACTIVATING') {
+        return '<span class="pc-did--registering">Registering</span>';
+      }
+      if (s === 'ACTIVE') {
+        return '<span class="pc-did--active">' + PortalAuth.esc(PortalAuth.formatDid(did)) + '</span>';
+      }
+      if (s === 'SUSPENDED' || s === 'CANCELLATION_PENDING') {
+        return '<span class="pc-did--muted">' + PortalAuth.esc(PortalAuth.formatDid(did)) + '</span>';
+      }
+      if (s === 'CANCELLED') {
+        return '<span class="pc-did--released">Number released</span>';
+      }
+      return '<span>' + PortalAuth.esc(PortalAuth.formatDid(did)) + '</span>';
+    }
+
+    /* ─── Add-on badges ─── */
+    function addonBadges(sub) {
+      var defs = [
+        { key: 'addon_48hr_cancel',   label: '48hr Guarantee' },
+        { key: 'addon_transfers',      label: 'Unlimited Transfers' },
+        { key: 'addon_post_renewal',   label: 'Post-Renewal Window' },
+        { key: 'addon_combo23',        label: 'Transfer + Post-Renewal' },
+        { key: 'addon_lifetime',       label: 'Lifetime Protection' },
+      ];
+      var html = '';
+      defs.forEach(function (d) {
+        if (sub[d.key]) {
+          html += '<span class="addon-badge">' + PortalAuth.esc(d.label) + '</span>';
+        }
+      });
+      return html ? '<div class="pc-addon-row">' + html + '</div>' : '';
+    }
+
+    /* ─── Plan interval label ─── */
+    function intervalLabel(key) {
+      var map = { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', annual: 'Annual' };
+      return map[(key || '').toLowerCase()] || key || '-';
+    }
+
+    /* ─── Card actions HTML ─── */
+    function cardActions(sub) {
+      var s = sub.status;
+      var id = sub.id;
+      if (s === 'ACTIVE') {
+        return [
+          '<button class="btn btn--black btn--full transfer-btn" data-sub-id="' + id + '">Transfer Prison</button>',
+          '<button class="btn btn--outline btn--full change-plan-btn" data-sub-id="' + id + '">Change Plan</button>',
+          '<button class="cancel-link cancel-btn" data-sub-id="' + id + '">Cancel Plan</button>',
+        ].join('');
+      }
+      if (s === 'SUSPENDED') {
+        return [
+          '<button class="btn btn--outline btn--full payment-update-btn" data-sub-id="' + id + '">Update payment method</button>',
+          '<p class="payment-stub" id="pay-stub-' + id + '">Payment update coming soon. Please contact support.</p>',
+        ].join('');
+      }
+      if (s === 'PENDING' || s === 'DID_ORDERED' || s === 'ACTIVATING') {
+        return '<p class="pc-setting-note">We are setting up your number. You will receive an SMS once it is ready.</p>';
+      }
+      return '';
+    }
+
+    /* ─── Render a single card ─── */
+    function renderCard(sub, activeCount) {
+      var isBundled = activeCount >= 2 && sub.status === 'ACTIVE';
+      var hasActions = (sub.status === 'ACTIVE' || sub.status === 'SUSPENDED' ||
+                        sub.status === 'PENDING' || sub.status === 'DID_ORDERED' ||
+                        sub.status === 'ACTIVATING');
+      var nextBill = (sub.status !== 'CANCELLED')
+        ? '<div class="pc-row"><span class="pc-key">Next billing</span><span class="pc-val">' + PortalAuth.esc(PortalAuth.formatDate(sub.next_billing_date)) + '</span></div>'
+        : '';
+      var price = parseFloat(sub.plan_price || 0).toFixed(2);
+
+      return [
+        '<div class="pc-card" data-sub-id="' + sub.id + '" data-status="' + PortalAuth.esc(sub.status) + '" data-did="' + PortalAuth.esc(sub.current_did || '') + '">',
+
+          '<div class="pc-card__top" id="top-' + sub.id + '">',
+            statusBadge(sub.status),
+            isBundled ? '<span class="badge badge--green-dark">10% bundle discount active</span>' : '',
+          '</div>',
+
+          '<div class="pc-card__body">',
+            '<div class="pc-row">',
+              '<span class="pc-key">Prison</span>',
+              '<span class="pc-val">' + PortalAuth.esc(sub.prison_name) + (sub.prison_state ? ', ' + PortalAuth.esc(sub.prison_state) : '') + '</span>',
+            '</div>',
+            '<div class="pc-row">',
+              '<span class="pc-key">Your Prisoncall number</span>',
+              '<span class="pc-val">' + didDisplay(sub) + '</span>',
+            '</div>',
+            '<div class="pc-row">',
+              '<span class="pc-key">Plan</span>',
+              '<span class="pc-val">' + PortalAuth.esc(intervalLabel(sub.plan_interval)) + ' - $' + price + '</span>',
+            '</div>',
+            nextBill,
+            addonBadges(sub),
+          '</div>',
+
+          hasActions
+            ? '<div class="pc-card__actions" id="actions-' + sub.id + '">' + cardActions(sub) + '</div>'
+            : '',
+
+          '<div class="inline-panel" id="transfer-' + sub.id + '"></div>',
+          '<div class="inline-panel" id="change-plan-' + sub.id + '"></div>',
+          '<div class="card-message" id="msg-' + sub.id + '"></div>',
+
+        '</div>',
+      ].join('');
+    }
+
+    /* ─── Wire all card buttons ─── */
+    function wireAllCards() {
+      /* Transfer Prison */
+      document.querySelectorAll('.transfer-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          openTransferPanel(this.dataset.subId);
+        });
+      });
+      /* Change Plan */
+      document.querySelectorAll('.change-plan-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          openChangePlanPanel(this.dataset.subId);
+        });
+      });
+      /* Cancel Plan */
+      document.querySelectorAll('.cancel-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          openCancelOverlay(this.dataset.subId);
+        });
+      });
+      /* Payment update stub */
+      document.querySelectorAll('.payment-update-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var stub = document.getElementById('pay-stub-' + this.dataset.subId);
+          if (stub) stub.classList.add('is-visible');
+        });
+      });
+    }
+
+    /* ─── Helpers: close / open panels ─── */
+    function closePanelEl(el) {
+      el.classList.remove('is-open');
+      setTimeout(function () { el.innerHTML = ''; }, 210);
+    }
+
+    function closeAllPanels(exceptId) {
+      document.querySelectorAll('.inline-panel').forEach(function (p) {
+        if (p.id !== exceptId) closePanelEl(p);
+      });
+    }
+
+    function openPanel(el, html) {
+      el.innerHTML = html;
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { el.classList.add('is-open'); });
+      });
+    }
+
+    function showCardMsg(subId, text, type) {
+      var el = document.getElementById('msg-' + subId);
+      if (!el) return;
+      el.textContent = text;
+      el.className = 'card-message is-visible card-message--' + type;
+    }
+
+    /* ─── Update card status (badge + DID + actions) ─── */
+    function updateSubStatus(subId, newStatus) {
+      var sub = subs.find(function (s) { return String(s.id) === String(subId); });
+      if (sub) sub.status = newStatus;
+
+      var topEl = document.getElementById('top-' + subId);
+      if (topEl) {
+        var first = topEl.querySelector('.badge');
+        if (first) first.outerHTML = statusBadge(newStatus);
+      }
+
+      var actionsEl = document.getElementById('actions-' + subId);
+      if (actionsEl && sub) {
+        actionsEl.innerHTML = cardActions(sub);
+        wireAllCards();
+      }
+    }
+
+    /* ════════════════════════════════════════
+       TRANSFER PRISON FLOW
+    ════════════════════════════════════════ */
+
+    function openTransferPanel(subId) {
+      var panel = document.getElementById('transfer-' + subId);
+      if (!panel) return;
+
+      if (panel.classList.contains('is-open')) {
+        closePanelEl(panel);
+        return;
+      }
+      closeAllPanels('transfer-' + subId);
+
+      openPanel(panel, [
+        '<div class="panel-inner">',
+          '<p class="panel-title">',
+            'Transfer to a new prison',
+            ' <a class="panel-info-link" href="/transfer-policy.html" target="_blank" rel="noopener">(i)</a>',
+          '</p>',
+          '<div class="state-pills">',
+            '<button class="state-pill" data-state="VIC">Victoria</button>',
+            '<button class="state-pill" data-state="NSW">New South Wales</button>',
+          '</div>',
+        '</div>',
+      ].join(''));
+
+      panel.querySelectorAll('[data-state]').forEach(function (pill) {
+        pill.addEventListener('click', function () {
+          var state = this.dataset.state;
+          panel.querySelectorAll('.state-pill').forEach(function (p) {
+            p.classList.toggle('selected', p.dataset.state === state);
+          });
+          panel.querySelector('.panel-inner').innerHTML = [
+            '<div class="panel-loading"><div class="spinner spinner--sm"></div> Loading prisons...</div>',
+          ].join('');
+
+          fetch('/api/portal-supabase?action=get-prisons&state=' + encodeURIComponent(state))
+            .then(function (r) { return r.json(); })
+            .then(function (prisons) {
+              showTransferPrisonGrid(panel, subId, state, prisons);
+            })
+            .catch(function () {
+              panel.querySelector('.panel-inner').innerHTML =
+                '<p class="panel-error">Failed to load prisons. Please try again.</p>';
+            });
+        });
+      });
+    }
+
+    function showTransferPrisonGrid(panel, subId, state, prisons) {
+      var sub = subs.find(function (s) { return String(s.id) === String(subId); });
+      var pills = prisons.map(function (p) {
+        var isCurrent = sub && p.prison_name === sub.prison_name;
+        return '<button class="prison-pill' + (isCurrent ? ' selected' : '') + '" data-prison="' +
+               PortalAuth.esc(p.prison_name) + '">' + PortalAuth.esc(p.prison_name) + '</button>';
+      }).join('');
+
+      panel.innerHTML = [
+        '<div class="panel-inner">',
+          '<p class="panel-title">',
+            'Transfer to a new prison',
+            ' <a class="panel-info-link" href="/transfer-policy.html" target="_blank" rel="noopener">(i)</a>',
+          '</p>',
+          '<div class="state-pills">',
+            '<button class="state-pill' + (state === 'VIC' ? ' selected' : '') + '" data-state="VIC">Victoria</button>',
+            '<button class="state-pill' + (state === 'NSW' ? ' selected' : '') + '" data-state="NSW">New South Wales</button>',
+          '</div>',
+          '<div class="prison-grid" id="prisonGrid-' + subId + '">',
+            pills || '<p class="panel-subtext">No prisons found for this state.</p>',
+          '</div>',
+        '</div>',
+      ].join('');
+
+      /* Re-wire state pills */
+      panel.querySelectorAll('[data-state]').forEach(function (pill) {
+        pill.addEventListener('click', function () {
+          var newState = this.dataset.state;
+          panel.querySelector('.panel-inner').innerHTML =
+            '<div class="panel-loading"><div class="spinner spinner--sm"></div> Loading prisons...</div>';
+          fetch('/api/portal-supabase?action=get-prisons&state=' + encodeURIComponent(newState))
+            .then(function (r) { return r.json(); })
+            .then(function (p) { showTransferPrisonGrid(panel, subId, newState, p); })
+            .catch(function () {
+              panel.querySelector('.panel-inner').innerHTML =
+                '<p class="panel-error">Failed to load prisons. Please try again.</p>';
+            });
+        });
+      });
+
+      /* Wire prison pills */
+      panel.querySelectorAll('.prison-pill').forEach(function (pill) {
+        pill.addEventListener('click', function () {
+          var prison = this.dataset.prison;
+          var sub2 = subs.find(function (s) { return String(s.id) === String(subId); });
+          if (sub2 && prison === sub2.prison_name) return; // same prison — no-op
+          showTransferConfirm(panel, subId, sub2, prison, state);
+        });
+      });
+    }
+
+    function showTransferConfirm(panel, subId, sub, newPrison, newState) {
+      panel.innerHTML = [
+        '<div class="panel-inner">',
+          '<p class="panel-title">',
+            'Transfer to a new prison',
+            ' <a class="panel-info-link" href="/transfer-policy.html" target="_blank" rel="noopener">(i)</a>',
+          '</p>',
+          '<div class="confirm-block">',
+            '<p class="confirm-block__text">',
+              'Transfer from ' + PortalAuth.esc(sub ? sub.prison_name : '-') + ' to ' + PortalAuth.esc(newPrison),
+            '</p>',
+            '<p class="confirm-block__note">',
+              'Your current number stays active for 7 days while your new number is set up. Both numbers will work during this time.',
+            '</p>',
+          '</div>',
+          '<button class="btn btn--green btn--full" id="confirmTransferBtn-' + subId + '">Confirm Transfer</button>',
+          '<button class="panel-cancel-link" id="cancelTransferLink-' + subId + '">Cancel</button>',
+        '</div>',
+      ].join('');
+
+      document.getElementById('cancelTransferLink-' + subId).addEventListener('click', function () {
+        closePanelEl(panel);
+      });
+
+      document.getElementById('confirmTransferBtn-' + subId).addEventListener('click', function () {
+        var btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner spinner--sm"></span>';
+
+        fetch('/api/portal-supabase', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'submit-transfer',
+            subscription_id: subId,
+            new_prison_name: newPrison,
+            new_prison_state: newState,
+          }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (!data.success) throw new Error(data.error || 'error');
+            closePanelEl(panel);
+            updateSubStatus(subId, 'TRANSFER_PENDING');
+            showCardMsg(subId,
+              'Transfer request submitted. Your new number will be set up within 2 hours on business days. Both numbers will work during the 7-day transition.',
+              'success');
+          })
+          .catch(function () {
+            btn.disabled = false;
+            btn.textContent = 'Confirm Transfer';
+            showCardMsg(subId, 'Transfer failed. Please try again.', 'error');
+          });
+      });
+    }
+
+    /* ════════════════════════════════════════
+       CHANGE PLAN FLOW
+    ════════════════════════════════════════ */
+
+    function openChangePlanPanel(subId) {
+      var panel = document.getElementById('change-plan-' + subId);
+      if (!panel) return;
+
+      if (panel.classList.contains('is-open')) {
+        closePanelEl(panel);
+        return;
+      }
+      closeAllPanels('change-plan-' + subId);
+
+      var sub = subs.find(function (s) { return String(s.id) === String(subId); });
+      var currentKey = sub ? (sub.plan_interval || '').toLowerCase() : '';
+      var selectedKey = null;
+
+      function buildGrid() {
+        return PLAN_OPTIONS.map(function (opt) {
+          var isCurrent = opt.key === currentKey;
+          var isSelected = opt.key === selectedKey;
+          return [
+            '<div class="plan-option ' + (isCurrent ? 'is-current' : '') + (isSelected ? ' is-selected' : '') + '"',
+              ' data-plan-key="' + opt.key + '">',
+              isCurrent ? '<div class="plan-current-tag">Current plan</div>' : '',
+              '<div class="plan-option__label">' + PortalAuth.esc(opt.label) + '</div>',
+              '<div class="plan-option__price">$' + opt.price + '</div>',
+              '<div class="plan-option__interval">' + opt.interval + '</div>',
+            '</div>',
+          ].join('');
+        }).join('');
+      }
+
+      function render() {
+        var nextBill = sub ? PortalAuth.formatDate(sub.next_billing_date) : '-';
+        return [
+          '<div class="panel-inner">',
+            '<p class="panel-title">Change your plan</p>',
+            '<div class="plan-grid" id="planGrid-' + subId + '">' + buildGrid() + '</div>',
+            '<p class="panel-subtext">',
+              'Plan changes take effect at your next billing date.',
+              ' <a class="panel-info-link" href="/terms-of-service.html" target="_blank" rel="noopener">(i)</a>',
+            '</p>',
+            selectedKey
+              ? '<button class="btn btn--green btn--full" id="confirmPlanBtn-' + subId + '" style="margin-bottom:8px;">Confirm Change</button>'
+              : '<button class="btn btn--green btn--full" id="confirmPlanBtn-' + subId + '" disabled style="margin-bottom:8px;opacity:0.4;cursor:not-allowed;">Confirm Change</button>',
+            '<button class="panel-cancel-link" id="cancelPlanLink-' + subId + '">Cancel</button>',
+          '</div>',
+        ].join('');
+      }
+
+      openPanel(panel, render());
+      wirePlanPanel(panel, subId, currentKey);
+
+      function wirePlanPanel(p, sid, cur) {
+        p.querySelectorAll('.plan-option:not(.is-current)').forEach(function (opt) {
+          opt.addEventListener('click', function () {
+            selectedKey = this.dataset.planKey;
+            p.innerHTML = render();
+            wirePlanPanel(p, sid, cur);
+          });
+        });
+
+        var confirmBtn = document.getElementById('confirmPlanBtn-' + sid);
+        if (confirmBtn) {
+          confirmBtn.addEventListener('click', function () {
+            if (!selectedKey) return;
+            var btn = this;
+            var newPlan = PLAN_OPTIONS.find(function (o) { return o.key === selectedKey; });
+            // STUB: no Stripe API call — log and show confirmation
+            console.log(
+              'PLAN CHANGE STUB - ' +
+              (sub ? sub.customer_name : '-') +
+              ' / ' + currentKey + ' -> ' + selectedKey +
+              ' / subscription_id: ' + sid
+            );
+            closePanelEl(panel);
+            showCardMsg(sid,
+              'Your plan change has been saved and will take effect on ' +
+              (sub ? PortalAuth.formatDate(sub.next_billing_date) : '-') + '.',
+              'success');
+          });
+        }
+
+        var cancelLink = document.getElementById('cancelPlanLink-' + sid);
+        if (cancelLink) {
+          cancelLink.addEventListener('click', function () { closePanelEl(panel); });
+        }
+      }
+    }
+
+    /* ════════════════════════════════════════
+       CANCEL PLAN FLOW
+    ════════════════════════════════════════ */
+
+    function openCancelOverlay(subId) {
+      var sub = subs.find(function (s) { return String(s.id) === String(subId); });
+      if (!sub) return;
+
+      cancelSubId = subId;
+      var did = PortalAuth.formatDid(sub.current_did);
+      var nextBill = PortalAuth.formatDate(sub.next_billing_date);
+
+      document.getElementById('cancelBody').textContent =
+        'Once cancelled, your Prisoncall number ' + did +
+        ' cannot be reissued to you or anyone else due to prison compliance requirements. ' +
+        'Your service will continue until ' + nextBill + '.';
+
+      document.getElementById('cancelCheckText').textContent =
+        'I understand my Prisoncall number ' + did +
+        ' will be permanently cancelled and cannot be recovered.';
+
+      var check = document.getElementById('cancelCheck');
+      var confirmBtn = document.getElementById('confirmCancelBtn');
+      check.checked = false;
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Cancel My Plan';
+
+      document.getElementById('cancelOverlay').hidden = false;
+    }
+
+    document.getElementById('cancelCheck').addEventListener('change', function () {
+      document.getElementById('confirmCancelBtn').disabled = !this.checked;
+    });
+
+    document.getElementById('keepPlanBtn').addEventListener('click', function () {
+      document.getElementById('cancelOverlay').hidden = true;
+      cancelSubId = null;
+    });
+
+    document.getElementById('confirmCancelBtn').addEventListener('click', function () {
+      if (!cancelSubId) return;
+      var btn = this;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner spinner--sm"></span>';
+
+      var subId = cancelSubId;
+      var sub = subs.find(function (s) { return String(s.id) === String(subId); });
+
+      fetch('/api/portal-supabase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'cancel-subscription', subscription_id: subId }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!data.success) throw new Error(data.error || 'error');
+          document.getElementById('cancelOverlay').hidden = true;
+          cancelSubId = null;
+          updateSubStatus(subId, 'CANCELLATION_PENDING');
+          var did = sub ? PortalAuth.formatDid(sub.current_did) : '-';
+          var nextBill = sub ? PortalAuth.formatDate(sub.next_billing_date) : '-';
+          showCardMsg(subId,
+            'Your plan has been cancelled. Your number ' + did +
+            ' remains active until ' + nextBill + '.',
+            'amber');
+        })
+        .catch(function () {
+          btn.disabled = false;
+          btn.textContent = 'Cancel My Plan';
+          document.getElementById('cancelOverlay').hidden = true;
+          if (cancelSubId) showCardMsg(cancelSubId, 'Cancellation failed. Please try again.', 'error');
+          cancelSubId = null;
+        });
+    });
+
+    /* ─── Sign out ─── */
+    function doSignOut() { PortalAuth.logout(); }
+    document.getElementById('signOutBtn').addEventListener('click', doSignOut);
+    document.getElementById('mobileSignOutBtn').addEventListener('click', doSignOut);
+
+    /* ─── Mobile menu ─── */
+    document.getElementById('menuOpen').addEventListener('click', function () {
+      document.getElementById('mobileMenu').classList.add('is-open');
+      this.setAttribute('aria-expanded', 'true');
+    });
+    document.getElementById('menuClose').addEventListener('click', function () {
+      document.getElementById('mobileMenu').classList.remove('is-open');
+      document.getElementById('menuOpen').setAttribute('aria-expanded', 'false');
+    });
+
+    /* ─── Header scroll state ─── */
+    (function () {
+      var header = document.getElementById('siteHeader');
+      window.addEventListener('scroll', function () {
+        header.classList.toggle('header--scrolled', window.scrollY > 10);
+      }, { passive: true });
+    })();
+  </script>
+
+</body>
+</html>
