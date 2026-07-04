@@ -427,8 +427,9 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
 }
 .panel-info-link {
-  font-size: 13px; color: var(--color-muted); font-weight: 400;
-  text-decoration: underline; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 44px; min-height: 44px;
+  cursor: pointer; flex-shrink: 0;
 }
 .panel-subtext {
   font-size: 13px; color: var(--color-muted); margin-bottom: 16px; line-height: 1.5;

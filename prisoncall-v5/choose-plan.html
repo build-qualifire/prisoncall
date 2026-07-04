@@ -822,18 +822,17 @@
       50%       { transform: scale(1.18); }
     }
     .addon-row__info-btn {
-      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
-      border: 1.5px solid #ccc; background: transparent;
-      color: #888; font-size: 11px; font-weight: 700; font-style: italic;
+      flex-shrink: 0; width: 44px; height: 44px;
+      border: none; background: transparent;
+      font-size: 18px; font-weight: 700; color: var(--color-black);
       font-family: inherit; cursor: pointer; line-height: 1;
       display: flex; align-items: center; justify-content: center;
-      transition: border-color 150ms ease, transform 200ms ease, color 150ms ease;
+      transition: opacity 150ms ease;
       animation: infoPulse 2.5s ease-in-out infinite;
       pointer-events: all;
     }
     .addon-row.is-open .addon-row__info-btn {
-      font-style: normal; animation: none;
-      border-color: var(--color-black); color: var(--color-black);
+      animation: none;
     }
     /* FIX 10: Ensure spacing between lifetime block and continue button */
     .plan-continue { margin-top: 28px; }
@@ -2143,7 +2142,7 @@
         '<div class="addon-row" data-addon="addon1" role="checkbox" aria-checked="false" tabindex="0">',
           '<div class="addon-checkbox">'+TICK_SVG+'</div>',
           '<div class="addon-row__content">',
-            '<div class="addon-row__header"><p class="addon-row__name">48 Hours Cancellation Guarantee</p><button class="addon-row__info-btn" type="button" tabindex="-1">i</button></div>',
+            '<div class="addon-row__header"><p class="addon-row__name">48 Hours Cancellation Guarantee</p><button class="addon-row__info-btn" type="button" tabindex="-1"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></button></div>',
             '<div class="addon-row__details">',
             '<p class="addon-row__why">Your number is activated within 24 hours. Once activated, refunds are not available. This guarantee gives you a full refund if you change your mind within 48 hours of purchase, no questions asked.</p>',
             '<div class="addon-row__risk">Without this you risk: losing your full plan payment with no recourse.</div>',
@@ -2159,7 +2158,7 @@
         '<div class="addon-row" data-addon="addon2" role="checkbox" aria-checked="false" tabindex="0">',
           '<div class="addon-checkbox">'+TICK_SVG+'</div>',
           '<div class="addon-row__content">',
-            '<div class="addon-row__header"><p class="addon-row__name">Unlimited Prison Transfers</p><button class="addon-row__info-btn" type="button" tabindex="-1">i</button></div>',
+            '<div class="addon-row__header"><p class="addon-row__name">Unlimited Prison Transfers</p><button class="addon-row__info-btn" type="button" tabindex="-1"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></button></div>',
             '<div class="addon-row__details">',
             '<p class="addon-row__why">If your loved one is transferred to a different prison, their current number may no longer be the closest local number. This add-on covers unlimited transfers so calls always stay at the lowest rate.</p>',
             '<div class="addon-row__risk">Without this you risk: paying $24.99 per transfer every time your loved one is moved.</div>',
@@ -2175,7 +2174,7 @@
         '<div class="addon-row" data-addon="addon3" role="checkbox" aria-checked="false" tabindex="0">',
           '<div class="addon-checkbox">'+TICK_SVG+'</div>',
           '<div class="addon-row__content">',
-            '<div class="addon-row__header"><p class="addon-row__name">96 Hours Post Renewal Cancellation</p><button class="addon-row__info-btn" type="button" tabindex="-1">i</button></div>',
+            '<div class="addon-row__header"><p class="addon-row__name">96 Hours Post Renewal Cancellation</p><button class="addon-row__info-btn" type="button" tabindex="-1"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></button></div>',
             '<div class="addon-row__details">',
             '<p class="addon-row__why">If your loved one is released shortly after a renewal, you have already been charged. This add-on gives you 96 hours after every renewal to cancel and receive a full refund.</p>',
             '<div class="addon-row__risk">Without this you risk: losing a full renewal payment you will not use.</div>',
@@ -2192,7 +2191,7 @@
           '<div class="addon-checkbox">'+TICK_SVG+'</div>',
           '<div class="addon-row__content">',
             '<span class="addon-combo-label">Bundle deal</span>',
-            '<div class="addon-row__header"><p class="addon-row__name">Unlimited Prison Transfers + 96 Hours Post Renewal Cancellation</p><button class="addon-row__info-btn" type="button" tabindex="-1">i</button></div>',
+            '<div class="addon-row__header"><p class="addon-row__name">Unlimited Prison Transfers + 96 Hours Post Renewal Cancellation</p><button class="addon-row__info-btn" type="button" tabindex="-1"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></button></div>',
             '<div class="addon-row__details">',
             '<p class="addon-row__why">Both recurring add-ons together at a reduced combined price.</p>',
             '</div>',
@@ -2368,7 +2367,7 @@
         var opening = !row.classList.contains('is-open');
         sectionEl.querySelectorAll('.addon-row.is-open').forEach(function(r){
           r.classList.remove('is-open');
-          var b = r.querySelector('.addon-row__info-btn'); if(b) b.textContent = 'i';
+          var b = r.querySelector('.addon-row__info-btn'); if(b) b.innerHTML = '<img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16">';
         });
         if(opening){
           row.classList.add('is-open');

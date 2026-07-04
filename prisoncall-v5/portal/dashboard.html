@@ -87,7 +87,10 @@
       <h2 class="cancel-overlay__title" id="cancelTitle">Are you sure you want to cancel?</h2>
       <p class="cancel-overlay__body" id="cancelBody"></p>
       <p class="cancel-overlay__policy">
-        <a href="/cancellation-policy.html" target="_blank" rel="noopener">View cancellation policy</a>
+        <a href="/cancellation-policy.html" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;color:inherit">
+          <img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16">
+          View cancellation policy
+        </a>
       </p>
       <label class="cancel-overlay__check" id="cancelCheckLabel">
         <input type="checkbox" id="cancelCheck" aria-label="Confirm cancellation">
@@ -408,6 +411,13 @@
       el.className = 'card-message is-visible card-message--' + type;
     }
 
+    function clearCardMsg(subId) {
+      var el = document.getElementById('msg-' + subId);
+      if (!el) return;
+      el.textContent = '';
+      el.className = 'card-message';
+    }
+
     /* ─── Update card status (badge + DID + actions) ─── */
     function updateSubStatus(subId, newStatus) {
       var sub = subs.find(function (s) { return String(s.id) === String(subId); });
@@ -434,6 +444,8 @@
       var panel = document.getElementById('transfer-' + subId);
       if (!panel) return;
 
+      clearCardMsg(subId);
+
       if (panel.classList.contains('is-open')) {
         closePanelEl(panel);
         return;
@@ -444,7 +456,7 @@
         '<div class="panel-inner">',
           '<p class="panel-title">',
             'Transfer to a new prison',
-            ' <a class="panel-info-link" href="/transfer-policy.html" target="_blank" rel="noopener">(i)</a>',
+            ' <a class="panel-info-link" href="/transfer-policy.html" target="_blank" rel="noopener noreferrer"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></a>',
           '</p>',
           '<div class="state-pills">',
             '<button class="state-pill" data-state="VIC">Victoria</button>',
@@ -456,6 +468,7 @@
       panel.querySelectorAll('[data-state]').forEach(function (pill) {
         pill.addEventListener('click', function () {
           var state = this.dataset.state;
+          clearCardMsg(subId);
           panel.querySelectorAll('.state-pill').forEach(function (p) {
             p.classList.toggle('selected', p.dataset.state === state);
           });
@@ -488,7 +501,7 @@
         '<div class="panel-inner">',
           '<p class="panel-title">',
             'Transfer to a new prison',
-            ' <a class="panel-info-link" href="/transfer-policy.html" target="_blank" rel="noopener">(i)</a>',
+            ' <a class="panel-info-link" href="/transfer-policy.html" target="_blank" rel="noopener noreferrer"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></a>',
           '</p>',
           '<div class="state-pills">',
             '<button class="state-pill' + (state === 'VIC' ? ' selected' : '') + '" data-state="VIC">Victoria</button>',
@@ -504,6 +517,7 @@
       panel.querySelectorAll('[data-state]').forEach(function (pill) {
         pill.addEventListener('click', function () {
           var newState = this.dataset.state;
+          clearCardMsg(subId);
           panel.querySelector('.panel-inner').innerHTML =
             '<div class="panel-loading"><div class="spinner spinner--sm"></div> Loading prisons...</div>';
           fetch('/api/portal-supabase?action=get-prisons&state=' + encodeURIComponent(newState))
@@ -532,7 +546,7 @@
         '<div class="panel-inner">',
           '<p class="panel-title">',
             'Transfer to a new prison',
-            ' <a class="panel-info-link" href="/transfer-policy.html" target="_blank" rel="noopener">(i)</a>',
+            ' <a class="panel-info-link" href="/transfer-policy.html" target="_blank" rel="noopener noreferrer"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></a>',
           '</p>',
           '<div class="confirm-block">',
             '<p class="confirm-block__text">',
@@ -548,6 +562,7 @@
       ].join('');
 
       document.getElementById('cancelTransferLink-' + subId).addEventListener('click', function () {
+        clearCardMsg(subId);
         closePanelEl(panel);
       });
 
@@ -625,7 +640,7 @@
             '<div class="plan-grid" id="planGrid-' + subId + '">' + buildGrid() + '</div>',
             '<p class="panel-subtext">',
               'Plan changes take effect at your next billing date.',
-              ' <a class="panel-info-link" href="/terms-of-service.html" target="_blank" rel="noopener">(i)</a>',
+              ' <a class="panel-info-link" href="/terms-of-service.html" target="_blank" rel="noopener noreferrer"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></a>',
             '</p>',
             selectedKey
               ? '<button class="btn btn--green btn--full" id="confirmPlanBtn-' + subId + '" style="margin-bottom:8px;">Confirm Change</button>'
