@@ -410,6 +410,10 @@
     /* ─── Utility ─── */
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 
+    /* ─── Portal CTA block ─── */
+    .ty-portal-cta { margin-bottom: 36px; }
+    .ty-portal-cta .btn { display: flex; width: 100%; justify-content: center; }
+
     /* ─── Order summary loading state ─── */
     .ty-loading {
       display: flex; align-items: center; gap: 10px;
@@ -527,6 +531,9 @@
           <!-- Populated by JS from URL params or fallback -->
         </div>
       </section>
+
+      <!-- ─── Portal CTA (login mobile + Go to My Prisoncall) ─── -->
+      <div class="ty-portal-cta" id="portalCtaWrap" style="display:none"></div>
 
       <!-- ─── Section 3: What happens next ─── -->
       <section class="ty-next" aria-labelledby="ty-next-heading">
@@ -739,6 +746,13 @@
     return '04\u2022\u2022 \u2022\u2022\u2022 ' + digits.slice(-3);
   }
 
+  /* ─── Format mobile as 04XX XXX XXX (unmasked) ─── */
+  function fmtMobile(raw) {
+    var d = (raw || '').replace(/\D/g, '');
+    if (d.length !== 10) return raw || '';
+    return d.slice(0, 4) + ' ' + d.slice(4, 7) + ' ' + d.slice(7);
+  }
+
   /* ─── Escape HTML ─── */
   function escHtml(str) {
     return String(str || '')
@@ -824,7 +838,19 @@
     /* Prisoncall number delivery note */
     html += summaryRow('Prisoncall number', '<span style="color:var(--color-green);font-weight:700">Registering</span>');
 
+    /* Login mobile — shown once, always the account owner's number */
+    if (data.customer_mobile) {
+      html += summaryRow('Your My Prisoncall login number', '<span style="font-weight:700">' + escHtml(fmtMobile(data.customer_mobile)) + '</span>');
+    }
+
     rows.innerHTML = html;
+
+    /* Portal CTA */
+    var ctaWrap = document.getElementById('portalCtaWrap');
+    if (ctaWrap) {
+      ctaWrap.innerHTML = '<a href="/portal" class="btn btn--green">Go to My Prisoncall</a>';
+      ctaWrap.style.display = '';
+    }
   }
 
   /* ─── Error state — payment succeeded but session details unavailable ─── */
