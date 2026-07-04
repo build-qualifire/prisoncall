@@ -1648,7 +1648,8 @@
       var successWrap = document.createElement('div');
       successWrap.innerHTML =
         '<p class="mobile-hint">Calls from your loved one will be forwarded to:</p>' +
-        '<input class="mobile-input" type="tel" value="' + formatMobile(digits) + '" readonly tabindex="-1" style="pointer-events:none;">';
+        '<input class="mobile-input" type="tel" value="' + formatMobile(digits) + '" readonly tabindex="-1" style="pointer-events:none;">' +
+        (entries.length === 0 ? '<p class="step-hint" style="margin-top:10px;">This number will be your My Prisoncall login. You will use it to sign in and manage all your plans.</p>' : '');
       newCont.parentNode.insertBefore(successWrap, newCont);
       newCont.textContent = 'Choose Plan \u2192';
       newCont.addEventListener('click', function advanceToStep4(){
@@ -2780,13 +2781,14 @@ function renderCompletedArea(){
           checkoutBtn.parentNode.insertBefore(mismatchMsg, checkoutBtn.nextSibling);
           return;
         }
+        var customerMobile = entries.length > 0 ? entries[0].mobile : '';
         var plansArray = entries.map(function(e){
           return {
-            prison_name:   e.prison,
-            prison_state:  e.state,
-            mobile_number: e.mobile,
-            plan_interval: e.planKey,
-            bundle:        entries.length >= 2
+            prison_name:     e.prison,
+            prison_state:    e.state,
+            assigned_mobile: e.mobile,
+            plan_interval:   e.planKey,
+            bundle:          entries.length >= 2
           };
         });
         checkoutBtn.textContent = 'Preparing checkout\u2026';
@@ -2794,7 +2796,7 @@ function renderCompletedArea(){
         fetch('/api/create-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plans: plansArray })
+          body: JSON.stringify({ plans: plansArray, customer_mobile: customerMobile })
         })
         .then(function(res){ return res.json(); })
         .then(function(data){

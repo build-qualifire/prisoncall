@@ -71,8 +71,8 @@ export async function onRequestGet(context) {
   const meta        = Object.assign({}, sessionMeta, subMeta);
 
   /* ── Build cookie — pc_session (HttpOnly, read server-side only) ──────── */
-  /* Use plan_1_mobile for bundles, mobile for single plans */
-  const cookieMobile = meta.plan_1_mobile || meta.mobile || null;
+  /* customer_mobile is the account owner's login mobile, set by create-checkout.js */
+  const cookieMobile = meta.customer_mobile || null;
 
   const cookiePayload = JSON.stringify({
     mobile:              cookieMobile,

@@ -786,10 +786,10 @@
     var isBundled = !!(data.plan_1_prison_name);
     var plans = isBundled
       ? [
-          { prison_name: data.plan_1_prison_name, prison_state: data.plan_1_prison_state, mobile: data.plan_1_mobile,    plan_interval: data.plan_1_plan_interval, label: 'Plan 1' },
-          data.plan_2_prison_name ? { prison_name: data.plan_2_prison_name, prison_state: data.plan_2_prison_state, mobile: data.plan_2_mobile, plan_interval: data.plan_2_plan_interval, label: 'Plan 2' } : null,
+          { prison_name: data.plan_1_prison_name, prison_state: data.plan_1_prison_state, assigned_mobile: data.plan_1_assigned_mobile, plan_interval: data.plan_1_plan_interval, label: 'Plan 1' },
+          data.plan_2_prison_name ? { prison_name: data.plan_2_prison_name, prison_state: data.plan_2_prison_state, assigned_mobile: data.plan_2_assigned_mobile, plan_interval: data.plan_2_plan_interval, label: 'Plan 2' } : null,
         ].filter(Boolean)
-      : [{ prison_name: data.prison_name, prison_state: data.prison_state, mobile: data.mobile, plan_interval: data.plan_interval, label: null }];
+      : [{ prison_name: data.prison_name, prison_state: data.prison_state, assigned_mobile: data.assigned_mobile, plan_interval: data.plan_interval, label: null }];
 
     plans.forEach(function(p) {
       if (p.label) {
@@ -801,8 +801,8 @@
         var prisonDisplay = p.prison_name + (p.prison_state ? ', ' + p.prison_state.toUpperCase() : '');
         html += summaryRow('Prison', escHtml(prisonDisplay));
       }
-      if (p.mobile) {
-        html += summaryRow('Mobile', escHtml(maskMobile(p.mobile)));
+      if (p.assigned_mobile) {
+        html += summaryRow('Assigned mobile', escHtml(maskMobile(p.assigned_mobile)));
       }
       if (p.plan_interval) {
         html += summaryRow('Billing', escHtml(INTERVAL_LABELS[p.plan_interval] || p.plan_interval));

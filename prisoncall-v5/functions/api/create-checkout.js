@@ -27,6 +27,9 @@ export async function onRequestPost(context) {
     return jsonResponse({ error: 'plans must be a non-empty array' }, 400);
   }
 
+  /* customer_mobile — account owner's login mobile, always from first plan's OTP verification */
+  const customer_mobile = body.customer_mobile || '';
+
   /* ── 2. Detect mode from APP_ENV and select Stripe key ────────────── */
   const isTestMode = env.APP_ENV === 'test';
   console.log('[Checkout] Running in', isTestMode ? 'TEST' : 'LIVE', 'mode');
@@ -91,8 +94,8 @@ export async function onRequestPost(context) {
     plans.forEach(function(plan, idx) {
       /* Normalise field names — frontend currently sends plan_interval / mobile_number;
          spec uses plan_key / mobile. Accept either. */
-      const interval = plan.plan_key      || plan.plan_interval || '';
-      const mobile   = plan.mobile        || plan.mobile_number || '';
+      const interval         = plan.plan_key        || plan.plan_interval || '';
+      const assigned_mobile  = plan.assigned_mobile || plan.mobile_number || plan.mobile || '';
       const prison   = plan.prison_name   || '';
       const state    = plan.prison_state  || '';
       /* Per-plan addons take priority; fall back to top-level body.addons */
@@ -138,7 +141,7 @@ export async function onRequestPost(context) {
       const pfx = plans.length > 1 ? `plan_${idx + 1}_` : '';
       subMeta[`${pfx}prison_name`]        = prison;
       subMeta[`${pfx}prison_state`]       = state;
-      subMeta[`${pfx}mobile`]             = mobile;
+      subMeta[`${pfx}assigned_mobile`]    = assigned_mobile;
       subMeta[`${pfx}plan_interval`]      = interval;
       subMeta[`${pfx}addon_48hr_cancel`]  = String(!!addons.addon1);
       subMeta[`${pfx}addon_transfers`]    = String(!!addons.addon2);
@@ -146,6 +149,9 @@ export async function onRequestPost(context) {
       subMeta[`${pfx}addon_combo23`]      = String(!!addons.combo23);
       subMeta[`${pfx}addon_lifetime`]     = String(!!addons.lifetimeAll);
     });
+
+    /* Top-level account owner identity — same for all plans in this order */
+    subMeta['customer_mobile'] = customer_mobile;
 
     /* ── 4. Create Stripe Checkout Session ───────────────────────────── */
     /* Stripe subscription mode supports mixing recurring + one-time line items.
