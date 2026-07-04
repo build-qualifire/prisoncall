@@ -1647,8 +1647,7 @@
       var successWrap = document.createElement('div');
       successWrap.innerHTML =
         '<p class="mobile-hint">Calls from your loved one will be forwarded to:</p>' +
-        '<input class="mobile-input" type="tel" value="' + formatMobile(digits) + '" readonly tabindex="-1" style="pointer-events:none;">' +
-        (entries.length === 0 ? '<p class="step-hint" style="margin-top:10px;">This number will be your My Prisoncall login. You will use it to sign in and manage all your plans.</p>' : '');
+        '<input class="mobile-input" type="tel" value="' + formatMobile(digits) + '" readonly tabindex="-1" style="pointer-events:none;">';
       newCont.parentNode.insertBefore(successWrap, newCont);
       newCont.textContent = 'Choose Plan \u2192';
       newCont.addEventListener('click', function advanceToStep4(){
