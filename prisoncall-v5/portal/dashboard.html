@@ -152,10 +152,30 @@
       return d.slice(0, 4) + ' ' + d.slice(4, 7) + ' ' + d.slice(7);
     }
 
+    /* ─── Authenticated header CTAs — green "Add a plan" pill ─── */
+    function updateAuthHeader() {
+      var mobileCta  = document.querySelector('.header__mobile-cta');
+      var desktopCta = document.querySelector('.header__desktop-cta .btn');
+      if (mobileCta) {
+        mobileCta.href        = '/choose-plan.html';
+        mobileCta.textContent = 'Add a plan';
+        mobileCta.style.background  = 'var(--color-green)';
+        mobileCta.style.color       = 'var(--color-black)';
+        mobileCta.style.borderColor = 'var(--color-green)';
+      }
+      if (desktopCta) {
+        desktopCta.href        = '/choose-plan.html';
+        desktopCta.textContent = 'Add a plan';
+        desktopCta.classList.remove('btn--black');
+        desktopCta.classList.add('btn--green');
+      }
+    }
+
     /* ─── Init ─── */
     (function init() {
       PortalAuth.checkSession(
         function (data) {
+          updateAuthHeader();
           loadSubscriptions();
         },
         function () {
