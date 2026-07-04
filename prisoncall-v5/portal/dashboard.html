@@ -114,7 +114,6 @@
       <div class="portal-head">
         <div class="portal-head__text">
           <h1 class="portal-title">My Prisoncall</h1>
-          <p class="portal-sub" id="portalMobile"></p>
         </div>
         <button class="sign-out-btn" id="signOutBtn">Sign out</button>
       </div>
@@ -146,11 +145,17 @@
       { key: 'annual',      label: 'Annual',       price: '349.99',interval: '/year' },
     ];
 
+    /* ─── Format mobile as 04XX XXX XXX ─── */
+    function fmtMobile(raw) {
+      var d = (raw || '').replace(/\D/g, '');
+      if (d.length !== 10) return raw || '';
+      return d.slice(0, 4) + ' ' + d.slice(4, 7) + ' ' + d.slice(7);
+    }
+
     /* ─── Init ─── */
     (function init() {
       PortalAuth.checkSession(
         function (data) {
-          document.getElementById('portalMobile').textContent = PortalAuth.maskMobile(data.mobile || '');
           loadSubscriptions();
         },
         function () {
@@ -303,6 +308,10 @@
             '<div class="pc-row">',
               '<span class="pc-key">Your Prisoncall number</span>',
               '<span class="pc-val">' + didDisplay(sub) + '</span>',
+            '</div>',
+            '<div class="pc-row">',
+              '<span class="pc-key">Assigned mobile</span>',
+              '<span class="pc-val">' + (sub.assigned_mobile ? fmtMobile(sub.assigned_mobile) : '<span style="color:var(--color-muted)">Not set</span>') + '</span>',
             '</div>',
             '<div class="pc-row">',
               '<span class="pc-key">Plan</span>',

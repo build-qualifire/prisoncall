@@ -199,7 +199,7 @@
                   <div class="detail-val">${sub.customer_name || '-'}</div>
                 </div>
                 <div class="detail-row">
-                  <div class="detail-key">Mobile</div>
+                  <div class="detail-key">Login mobile</div>
                   <div class="detail-val">${fmtMobile(sub.customer_mobile)}</div>
                 </div>
                 <div class="detail-row">
@@ -217,6 +217,10 @@
                 <div class="detail-row">
                   <div class="detail-key">Current DID</div>
                   <div class="detail-val font-mono copyable" onclick="doCopy(this,'${sub.current_did||''}')" title="Click to copy" style="color:var(--color-green);font-weight:700">${sub.current_did || '-'}</div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-key">Assigned mobile</div>
+                  <div class="detail-val">${fmtMobile(sub.assigned_mobile) || '-'}</div>
                 </div>
                 <div class="detail-row">
                   <div class="detail-key">3CX Extension</div>

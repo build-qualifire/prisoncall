@@ -122,6 +122,7 @@ export async function onRequestPost(context) {
       customer_name: sub.customer_name,
       customer_mobile: sub.customer_mobile,
       customer_email: sub.customer_email,
+      assigned_mobile: sub.assigned_mobile || null,
       prison_name: new_prison_name,
       prison_state: new_prison_state,
       primary_exchange: prison.primary_exchange_code || null,
