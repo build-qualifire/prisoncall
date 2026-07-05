@@ -212,7 +212,7 @@
       }
       .ty-confirm { padding-bottom: 40px; margin-bottom: 36px; }
       .ty-summary { padding: 24px; margin-bottom: 36px; }
-      .ty-portal-cta { margin-bottom: 36px; }
+      .ty-portal-cta { margin-bottom: 200px; }
     }
     @media (min-width: 1024px) {
       .ty-wrap {
@@ -230,9 +230,14 @@
       margin-bottom: 20px;
     }
     .ty-confirm__tick {
-      display: block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: var(--color-green-mid);
       margin: 0 auto 20px;
-      line-height: 0;
     }
     .ty-confirm__heading {
       font-size: 30px;
