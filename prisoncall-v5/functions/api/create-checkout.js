@@ -88,8 +88,7 @@ export async function onRequestPost(context) {
   const topLevelAddons = body.addons || {};
 
   try {
-    const line_items    = []; /* recurring prices — plan + recurring add-ons */
-    const invoice_items = []; /* one-time prices — charged on first invoice only */
+    const line_items = []; /* all prices — Stripe Checkout accepts both recurring and one-time in line_items for subscription mode */
     const subMeta = {}; /* flattened for subscription_data[metadata][...] */
 
     plans.forEach(function(plan, idx) {
@@ -104,7 +103,7 @@ export async function onRequestPost(context) {
 
       if (!interval) throw new Error(`Plan ${idx + 1} is missing plan_key / plan_interval`);
 
-      /* Plan line item (always recurring) */
+      /* Plan line item */
       const planProductKey = `plan_${interval}`;
       const planPriceId    = priceMap[planProductKey];
       if (!planPriceId) {
@@ -116,29 +115,33 @@ export async function onRequestPost(context) {
       line_items.push({ price: planPriceId, quantity: 1 });
 
       /* Add-on line items.
-         STRIPE RULE: in mode=subscription, line_items must all be recurring prices.
-         One-time prices (addon1, lifetimeAll) must go into subscription_data[invoice_items].
+         All prices (recurring and one-time) go into line_items for Stripe Checkout subscription mode.
+         Stripe charges one-time prices on the first invoice automatically.
+
+         addon_48hr_cancel: dual-key fallback — Supabase product_key may be stored as either
+         'addon_48hr_cancel' (from create-sandbox-products.js) or 'addon_48hr' (if set manually).
 
          SERVER-SIDE DEDUPLICATION:
          - If lifetimeAll selected → only charge lifetime (covers everything else)
-         - If combo23 selected → only charge combo (covers addon2 + addon3)
+         - If combo23 selected → only charge combo (covers addon2 + addon3 individually)
          - addon2 and addon3 are never charged individually alongside combo23 */
 
+      /* Resolve addon_48hr price using dual-key fallback */
+      const addon48hrKey      = priceMap['addon_48hr_cancel'] ? 'addon_48hr_cancel' : 'addon_48hr';
+
       const addonProductKeys = {
-        addon1:      { key: 'addon_48hr_cancel',            oneTime: true  },
-        addon2:      { key: `addon_transfers_${interval}`,  oneTime: false },
-        addon3:      { key: `addon_post_renewal_${interval}`, oneTime: false },
-        combo23:     { key: `addon_combo23_${interval}`,    oneTime: false },
-        lifetimeAll: { key: 'addon_lifetime',               oneTime: true  },
+        addon1:      addon48hrKey,
+        addon2:      `addon_transfers_${interval}`,
+        addon3:      `addon_post_renewal_${interval}`,
+        combo23:     `addon_combo23_${interval}`,
+        lifetimeAll: 'addon_lifetime',
       };
 
       /* Build effective addon set — deduplicate per business rules */
       const effectiveAddons = {};
       if (addons.lifetimeAll) {
-        /* Lifetime replaces everything */
         effectiveAddons.lifetimeAll = true;
       } else if (addons.combo23) {
-        /* Bundle deal replaces individual addon2/addon3 */
         if (addons.addon1) effectiveAddons.addon1 = true;
         effectiveAddons.combo23 = true;
       } else {
@@ -147,21 +150,16 @@ export async function onRequestPost(context) {
         if (addons.addon3) effectiveAddons.addon3 = true;
       }
 
-      Object.entries(addonProductKeys).forEach(function([addonKey, addonDef]) {
+      Object.entries(addonProductKeys).forEach(function([addonKey, productKey]) {
         if (!effectiveAddons[addonKey]) return;
-        const addonPriceId = priceMap[addonDef.key];
+        const addonPriceId = priceMap[productKey];
         if (!addonPriceId) {
           throw new Error(isTestMode
-            ? `Test price ID not configured for product: ${addonDef.key}. Add it in the admin portal Products page.`
-            : `No Stripe price ID for product_key "${addonDef.key}" — check Supabase products table`
+            ? `Test price ID not configured for product: ${productKey}. Add it in the admin portal Products page.`
+            : `No Stripe price ID for product_key "${productKey}" — check Supabase products table`
           );
         }
-        /* Route to correct bucket: one-time → invoice_items, recurring → line_items */
-        if (addonDef.oneTime) {
-          invoice_items.push({ price: addonPriceId, quantity: 1 });
-        } else {
-          line_items.push({ price: addonPriceId, quantity: 1 });
-        }
+        line_items.push({ price: addonPriceId, quantity: 1 });
       });
 
       /* Metadata — prefix with plan index for bundles so all plans are represented */
@@ -181,31 +179,24 @@ export async function onRequestPost(context) {
     subMeta['customer_mobile'] = customer_mobile;
 
     /* ── 4. Create Stripe Checkout Session ───────────────────────────── */
-    /* Stripe subscription mode supports mixing recurring + one-time line items.
-       One-time prices are charged on the first invoice only. */
+    /* Stripe Checkout subscription mode accepts both recurring and one-time prices in
+       line_items. One-time prices are charged on the first invoice automatically. */
     const sessionParams = new URLSearchParams();
     sessionParams.append('mode',        'subscription');
     sessionParams.append('currency',    'aud');
     sessionParams.append('success_url', 'https://prisoncall.pages.dev/thank-you.html?session_id={CHECKOUT_SESSION_ID}');
     sessionParams.append('cancel_url',  'https://prisoncall.pages.dev/choose-plan');
 
-    /* Recurring prices → line_items */
     line_items.forEach(function(item, i) {
       sessionParams.append(`line_items[${i}][price]`,    item.price);
       sessionParams.append(`line_items[${i}][quantity]`, String(item.quantity));
-    });
-
-    /* One-time prices → subscription_data[invoice_items] (charged on first invoice only) */
-    invoice_items.forEach(function(item, i) {
-      sessionParams.append(`subscription_data[invoice_items][${i}][price]`,    item.price);
-      sessionParams.append(`subscription_data[invoice_items][${i}][quantity]`, String(item.quantity));
     });
 
     Object.entries(subMeta).forEach(function([key, value]) {
       sessionParams.append(`subscription_data[metadata][${key}]`, String(value ?? ''));
     });
 
-    console.log('[create-checkout] Creating Stripe session — line_items:', line_items.length, '| invoice_items:', invoice_items.length, '| metadata keys:', Object.keys(subMeta).length);
+    console.log('[create-checkout] Creating Stripe session — line_items:', line_items.length, '| metadata keys:', Object.keys(subMeta).length);
 
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
