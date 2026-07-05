@@ -650,7 +650,7 @@
             '<p class="panel-title">Change your plan</p>',
             '<div class="plan-grid" id="planGrid-' + subId + '">' + buildGrid() + '</div>',
             '<p class="panel-subtext">',
-              'Plan changes take effect at your next billing date.',
+              'Plan changes take effect immediately. Stripe automatically adjusts your next billing amount and date.',
               ' <a class="panel-info-link" href="/terms-of-service.html" target="_blank" rel="noopener noreferrer"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></a>',
             '</p>',
             selectedKey
@@ -663,6 +663,11 @@
 
       openPanel(panel, render());
       wirePlanPanel(panel, subId, currentKey);
+
+      /* Scroll panel into view once it opens */
+      setTimeout(function () {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
 
       function wirePlanPanel(p, sid, cur) {
         p.querySelectorAll('.plan-option:not(.is-current)').forEach(function (opt) {
@@ -686,11 +691,14 @@
               ' / ' + currentKey + ' -> ' + selectedKey +
               ' / subscription_id: ' + sid
             );
-            closePanelEl(panel);
             showCardMsg(sid,
-              'Your plan change has been saved and will take effect on ' +
-              (sub ? PortalAuth.formatDate(sub.next_billing_date) : '-') + '.',
+              'Your plan has been changed. Stripe will automatically adjust your next billing amount and date.',
               'success');
+            /* Auto-close the panel after 3 s, then clear the success message */
+            setTimeout(function () {
+              closePanelEl(panel);
+              setTimeout(function () { clearCardMsg(sid); }, 220);
+            }, 3000);
           });
         }
 
