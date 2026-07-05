@@ -465,6 +465,11 @@
         '</div>',
       ].join(''));
 
+      /* Scroll panel into view once the is-open class has been applied */
+      setTimeout(function () {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+
       panel.querySelectorAll('[data-state]').forEach(function (pill) {
         pill.addEventListener('click', function () {
           var state = this.dataset.state;
@@ -539,6 +544,9 @@
           showTransferConfirm(panel, subId, sub2, prison, state);
         });
       });
+
+      /* Scroll prison grid into view */
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function showTransferConfirm(panel, subId, sub, newPrison, newState) {
@@ -560,6 +568,9 @@
           '<button class="panel-cancel-link" id="cancelTransferLink-' + subId + '">Cancel</button>',
         '</div>',
       ].join('');
+
+      /* Scroll confirmation screen into view */
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       document.getElementById('cancelTransferLink-' + subId).addEventListener('click', function () {
         clearCardMsg(subId);
