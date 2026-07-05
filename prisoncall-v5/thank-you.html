@@ -213,6 +213,8 @@
       .ty-confirm { padding-bottom: 40px; margin-bottom: 36px; }
       .ty-summary { padding: 24px; margin-bottom: 36px; }
       .ty-portal-cta { margin-bottom: 200px; }
+      /* Ensure the two "Go to My Prisoncall" CTAs are never simultaneously in the viewport */
+      .ty-next { margin-bottom: 120px; }
     }
     @media (min-width: 1024px) {
       .ty-wrap {
@@ -832,7 +834,7 @@
 
     /* Login mobile — shown once, always the account owner's number */
     if (data.customer_mobile) {
-      html += summaryRow('Your My Prisoncall login number', '<span style="font-weight:700">' + escHtml(fmtMobile(data.customer_mobile)) + '</span>');
+      html += summaryRow('My Prisoncall login', '<span style="font-weight:700">' + escHtml(fmtMobile(data.customer_mobile)) + '</span>');
     }
 
     rows.innerHTML = html;

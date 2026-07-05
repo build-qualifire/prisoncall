@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -468,7 +468,7 @@
       .hero__pill { font-size: 13px; padding: 8px 14px; gap: 6px; }
       .hero__pill img { width: 14px; height: 14px; }
       .hero__cta-wrap { margin-bottom: 22px; }
-      .hero__cta-wrap .btn { width: auto; font-size: 17px; padding: 18px 32px; }
+      .hero__cta-wrap .btn { display: flex; max-width: 480px; margin: 0 auto; font-size: 17px; padding: 18px 32px; }
       .hero__trust { align-items: flex-start; gap: 10px; }
       .hero__trust-item { font-size: 13px; gap: 8px; }
       .hero__trust-item img { width: 15px; height: 15px; }
@@ -602,6 +602,7 @@
     }
 
     .why__cta { margin-top: 48px; text-align: center; }
+    @media (min-width: 768px) { .why__cta .btn, .reviews__cta .btn { display: flex; max-width: 480px; margin: 0 auto; } }
 
     /* ═══════════════════════════════════
        REVIEWS
@@ -836,6 +837,7 @@
     .final-cta__sub { font-size: 17px; color: rgba(255,255,255,0.72); margin-bottom: 36px; }
     .final-cta .btn { font-size: 17px; padding: 18px 40px; }
     @media (max-width: 767px) { .final-cta .btn { width: 100%; } }
+    @media (min-width: 768px) { .final-cta .btn { display: flex; max-width: 480px; margin: 0 auto; } }
     .final-cta__checker { max-width: 600px; margin: 0 auto; text-align: left; }
     .final-cta__checker .checker__btn { font-size: 15px; padding: 14px 22px; }
     @media (max-width: 767px) { .final-cta__checker .checker__btn { width: auto; } }
