@@ -88,7 +88,8 @@ export async function onRequestPost(context) {
   const topLevelAddons = body.addons || {};
 
   try {
-    const line_items = [];
+    const line_items    = []; /* recurring prices — plan + recurring add-ons */
+    const invoice_items = []; /* one-time prices — charged on first invoice only */
     const subMeta = {}; /* flattened for subscription_data[metadata][...] */
 
     plans.forEach(function(plan, idx) {
@@ -103,7 +104,7 @@ export async function onRequestPost(context) {
 
       if (!interval) throw new Error(`Plan ${idx + 1} is missing plan_key / plan_interval`);
 
-      /* Plan line item */
+      /* Plan line item (always recurring) */
       const planProductKey = `plan_${interval}`;
       const planPriceId    = priceMap[planProductKey];
       if (!planPriceId) {
@@ -114,27 +115,53 @@ export async function onRequestPost(context) {
       }
       line_items.push({ price: planPriceId, quantity: 1 });
 
-      /* Add-on line items
-         One-time add-ons (addon1, lifetimeAll) use a single product_key regardless of interval.
-         Recurring add-ons (addon2, addon3, combo23) are keyed by interval. */
+      /* Add-on line items.
+         STRIPE RULE: in mode=subscription, line_items must all be recurring prices.
+         One-time prices (addon1, lifetimeAll) must go into subscription_data[invoice_items].
+
+         SERVER-SIDE DEDUPLICATION:
+         - If lifetimeAll selected → only charge lifetime (covers everything else)
+         - If combo23 selected → only charge combo (covers addon2 + addon3)
+         - addon2 and addon3 are never charged individually alongside combo23 */
+
       const addonProductKeys = {
-        addon1:      'addon_48hr_cancel',
-        addon2:      `addon_transfers_${interval}`,
-        addon3:      `addon_post_renewal_${interval}`,
-        combo23:     `addon_combo23_${interval}`,
-        lifetimeAll: 'addon_lifetime',
+        addon1:      { key: 'addon_48hr_cancel',            oneTime: true  },
+        addon2:      { key: `addon_transfers_${interval}`,  oneTime: false },
+        addon3:      { key: `addon_post_renewal_${interval}`, oneTime: false },
+        combo23:     { key: `addon_combo23_${interval}`,    oneTime: false },
+        lifetimeAll: { key: 'addon_lifetime',               oneTime: true  },
       };
 
-      Object.entries(addonProductKeys).forEach(function([addonKey, productKey]) {
-        if (!addons[addonKey]) return;
-        const addonPriceId = priceMap[productKey];
+      /* Build effective addon set — deduplicate per business rules */
+      const effectiveAddons = {};
+      if (addons.lifetimeAll) {
+        /* Lifetime replaces everything */
+        effectiveAddons.lifetimeAll = true;
+      } else if (addons.combo23) {
+        /* Bundle deal replaces individual addon2/addon3 */
+        if (addons.addon1) effectiveAddons.addon1 = true;
+        effectiveAddons.combo23 = true;
+      } else {
+        if (addons.addon1) effectiveAddons.addon1 = true;
+        if (addons.addon2) effectiveAddons.addon2 = true;
+        if (addons.addon3) effectiveAddons.addon3 = true;
+      }
+
+      Object.entries(addonProductKeys).forEach(function([addonKey, addonDef]) {
+        if (!effectiveAddons[addonKey]) return;
+        const addonPriceId = priceMap[addonDef.key];
         if (!addonPriceId) {
           throw new Error(isTestMode
-            ? `Test price ID not configured for product: ${productKey}. Add it in the admin portal Products page.`
-            : `No Stripe price ID for product_key "${productKey}" — check Supabase products table`
+            ? `Test price ID not configured for product: ${addonDef.key}. Add it in the admin portal Products page.`
+            : `No Stripe price ID for product_key "${addonDef.key}" — check Supabase products table`
           );
         }
-        line_items.push({ price: addonPriceId, quantity: 1 });
+        /* Route to correct bucket: one-time → invoice_items, recurring → line_items */
+        if (addonDef.oneTime) {
+          invoice_items.push({ price: addonPriceId, quantity: 1 });
+        } else {
+          line_items.push({ price: addonPriceId, quantity: 1 });
+        }
       });
 
       /* Metadata — prefix with plan index for bundles so all plans are represented */
@@ -162,16 +189,23 @@ export async function onRequestPost(context) {
     sessionParams.append('success_url', 'https://prisoncall.pages.dev/thank-you.html?session_id={CHECKOUT_SESSION_ID}');
     sessionParams.append('cancel_url',  'https://prisoncall.pages.dev/choose-plan');
 
+    /* Recurring prices → line_items */
     line_items.forEach(function(item, i) {
       sessionParams.append(`line_items[${i}][price]`,    item.price);
       sessionParams.append(`line_items[${i}][quantity]`, String(item.quantity));
+    });
+
+    /* One-time prices → subscription_data[invoice_items] (charged on first invoice only) */
+    invoice_items.forEach(function(item, i) {
+      sessionParams.append(`subscription_data[invoice_items][${i}][price]`,    item.price);
+      sessionParams.append(`subscription_data[invoice_items][${i}][quantity]`, String(item.quantity));
     });
 
     Object.entries(subMeta).forEach(function([key, value]) {
       sessionParams.append(`subscription_data[metadata][${key}]`, String(value ?? ''));
     });
 
-    console.log('[create-checkout] Creating Stripe session — line_items:', line_items.length, '| metadata keys:', Object.keys(subMeta).length);
+    console.log('[create-checkout] Creating Stripe session — line_items:', line_items.length, '| invoice_items:', invoice_items.length, '| metadata keys:', Object.keys(subMeta).length);
 
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
