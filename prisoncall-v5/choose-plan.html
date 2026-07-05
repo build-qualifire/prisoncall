@@ -1830,7 +1830,7 @@
             '</div>',
             '<div class="plan-card__body"><ul class="plan-card__features">'+featHtml+'</ul></div>',
             '<div class="plan-card__footer">',
-              '<button class="plan-card__select" type="button" tabindex="-1">'+(isSelected?'<img src="/assets/icons/feature_icons/icon_check_green.svg" alt="" width="16" height="16" aria-hidden="true" style="vertical-align:middle;margin-right:4px"> Selected':'Select plan')+'</button>',
+              '<button class="plan-card__select" type="button" tabindex="-1">'+(isSelected?'<span style="display:inline-flex;align-items:center;justify-content:center;gap:5px"><img src="/assets/icons/feature_icons/icon_check_green.svg" alt="" width="16" height="16" aria-hidden="true"> Selected</span>':'Select plan')+'</button>',
             '</div>',
           '</div>'
         ].join('');
@@ -2058,7 +2058,7 @@
           c.querySelector('.plan-card__select').textContent = 'Select plan';
         });
         card.classList.add('is-selected'); card.setAttribute('aria-pressed','true');
-        card.querySelector('.plan-card__select').innerHTML = '<img src="/assets/icons/feature_icons/icon_check_green.svg" alt="" width="16" height="16" aria-hidden="true" style="vertical-align:middle;margin-right:4px"> Selected';
+        card.querySelector('.plan-card__select').innerHTML = '<span style="display:inline-flex;align-items:center;justify-content:center;gap:5px"><img src="/assets/icons/feature_icons/icon_check_green.svg" alt="" width="16" height="16" aria-hidden="true"> Selected</span>';
         /* Track selectedPlan / selectedPlanPrice */
         var planKey = card.dataset.planKey;
         var planObj = PLANS.find(function(p){ return p.key === planKey; });
@@ -2443,10 +2443,10 @@
       }
       if(!cur) return;
       var allPlans = entries.slice();
-      allPlans.push({ prison: cur.prison, state: cur.state, mobile: cur.mobile, planKey: selectedPlan });
+      allPlans.push({ prison: cur.prison, state: cur.state, mobile: cur.mobile, planKey: selectedPlan, addons: Object.assign({}, selectedAddons) });
       var isBundle = allPlans.length >= 2;
       var plansArray = allPlans.map(function(e){
-        return { prison_name: e.prison, prison_state: e.state, mobile_number: e.mobile, plan_interval: e.planKey, bundle: isBundle };
+        return { prison_name: e.prison, prison_state: e.state, assigned_mobile: e.mobile, plan_interval: e.planKey, bundle: isBundle, addons: e.addons || {} };
       });
       checkoutBtn.textContent = 'Preparing checkout\u2026';
       checkoutBtn.disabled = true;
@@ -2454,7 +2454,7 @@
       fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plans: plansArray, addons: selectedAddons })
+        body: JSON.stringify({ plans: plansArray, customer_mobile: entries.length > 0 ? entries[0].mobile : cur.mobile })
       })
       .then(function(res){ return res.json(); })
       .then(function(data){
@@ -2787,7 +2787,8 @@ function renderCompletedArea(){
             prison_state:    e.state,
             assigned_mobile: e.mobile,
             plan_interval:   e.planKey,
-            bundle:          entries.length >= 2
+            bundle:          entries.length >= 2,
+            addons:          e.addons || {}
           };
         });
         checkoutBtn.textContent = 'Preparing checkout\u2026';
