@@ -78,11 +78,7 @@
   <div id="cancelOverlay" class="cancel-overlay" hidden aria-modal="true" role="dialog" aria-labelledby="cancelTitle">
     <div class="cancel-overlay__inner">
       <div class="cancel-overlay__icon">
-        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <circle cx="16" cy="16" r="15" stroke="#DC2626" stroke-width="2"/>
-          <rect x="14.5" y="8" width="3" height="11" rx="1.5" fill="#DC2626"/>
-          <circle cx="16" cy="23" r="1.75" fill="#DC2626"/>
-        </svg>
+        <img src="/assets/icons/feature_icons/icon_warning_red.svg" alt="" width="48" height="48">
       </div>
       <h2 class="cancel-overlay__title" id="cancelTitle">Are you sure you want to cancel?</h2>
       <p class="cancel-overlay__body" id="cancelBody"></p>
@@ -229,7 +225,7 @@
         DID_ORDERED:          { cls: 'badge--blue',   text: 'Number ordered' },
         ACTIVATING:           { cls: 'badge--blue',   text: 'Activating your number' },
         TRANSFER_PENDING:     { cls: 'badge--blue',   text: 'Transfer in progress' },
-        CANCELLATION_PENDING: { cls: 'badge--orange', text: 'Cancellation pending' },
+        CANCELLATION_PENDING: { cls: 'badge--grey',   text: 'Cancelled' },
         ACTIVE:               { cls: 'badge--active', text: 'Active' },
         SUSPENDED:            { cls: 'badge--red',    text: 'Payment overdue' },
         CANCELLED:            { cls: 'badge--grey',   text: 'Cancelled' },
@@ -248,10 +244,10 @@
       if (s === 'ACTIVE') {
         return '<span class="pc-did--active">' + PortalAuth.esc(PortalAuth.formatDid(did)) + '</span>';
       }
-      if (s === 'SUSPENDED' || s === 'CANCELLATION_PENDING') {
+      if (s === 'SUSPENDED') {
         return '<span class="pc-did--muted">' + PortalAuth.esc(PortalAuth.formatDid(did)) + '</span>';
       }
-      if (s === 'CANCELLED') {
+      if (s === 'CANCELLED' || s === 'CANCELLATION_PENDING') {
         return '<span class="pc-did--released">Number released</span>';
       }
       return '<span>' + PortalAuth.esc(PortalAuth.formatDid(did)) + '</span>';
@@ -724,7 +720,7 @@
       document.getElementById('cancelBody').textContent =
         'Once cancelled, your Prisoncall number ' + did +
         ' cannot be reissued to you or anyone else due to prison compliance requirements. ' +
-        'Your service will continue until ' + nextBill + '.';
+        'This cancellation is permanent and cannot be undone.';
 
       document.getElementById('cancelCheckText').textContent =
         'I understand my Prisoncall number ' + did +
@@ -768,12 +764,9 @@
           document.getElementById('cancelOverlay').hidden = true;
           cancelSubId = null;
           updateSubStatus(subId, 'CANCELLATION_PENDING');
-          var did = sub ? PortalAuth.formatDid(sub.current_did) : '-';
-          var nextBill = sub ? PortalAuth.formatDate(sub.next_billing_date) : '-';
           showCardMsg(subId,
-            'Your plan has been cancelled. Your number ' + did +
-            ' remains active until ' + nextBill + '.',
-            'amber');
+            'Your plan has been cancelled. Thank you for using Prisoncall.',
+            'success');
         })
         .catch(function () {
           btn.disabled = false;
