@@ -206,14 +206,18 @@
       var dash = document.getElementById('dashContent');
       dash.hidden = false;
 
-      if (!subs.length) {
+      var visibleSubs = subs.filter(function (s) {
+        return s.status !== 'CANCELLED' && s.status !== 'CANCELLATION_PENDING';
+      });
+
+      if (!visibleSubs.length) {
         document.getElementById('emptyState').hidden = false;
         return;
       }
 
-      var activeCount = subs.filter(function (s) { return s.status === 'ACTIVE'; }).length;
+      var activeCount = visibleSubs.filter(function (s) { return s.status === 'ACTIVE'; }).length;
       var html = '';
-      subs.forEach(function (sub) { html += renderCard(sub, activeCount); });
+      visibleSubs.forEach(function (sub) { html += renderCard(sub, activeCount); });
       document.getElementById('subCards').innerHTML = html;
       wireAllCards();
     }
