@@ -160,8 +160,11 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   padding: 16px 0; border-bottom: 1px solid var(--color-border);
   display: flex; align-items: center; gap: 10px;
 }
-.mobile-menu__cta { margin-top: 28px; max-width: 400px; }
+.mobile-menu__cta { margin-top: 28px; }
 .mobile-menu__cta .btn { width: 100%; font-size: 16px; padding: 17px 24px; }
+@media (min-width: 768px) {
+  .mobile-menu__cta { max-width: 400px; margin-left: auto; margin-right: auto; }
+}
 
 /* ═══════════════════════════════════
    BUTTONS

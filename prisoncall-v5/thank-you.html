@@ -159,6 +159,9 @@
     .mobile-menu__social a { font-size: 15px; font-weight: 500; color: var(--color-muted); padding: 16px 0; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: 10px; }
     .mobile-menu__cta { margin-top: 28px; }
     .mobile-menu__cta .btn { width: 100%; font-size: 16px; padding: 17px 24px; }
+    @media (min-width: 768px) {
+      .mobile-menu__cta { max-width: 400px; margin: 0 auto; }
+    }
 
     /* ═══════════════════════════════════
        FOOTER
@@ -200,13 +203,16 @@
     .ty-wrap {
       max-width: 680px;
       margin: 0 auto;
-      padding: 40px 20px 80px;
+      padding: 24px 20px 60px;
     }
     @media (min-width: 768px) {
       .ty-wrap {
         max-width: var(--container-max);
         padding: 56px 24px 96px;
       }
+      .ty-confirm { padding-bottom: 40px; margin-bottom: 36px; }
+      .ty-summary { padding: 24px; margin-bottom: 36px; }
+      .ty-portal-cta { margin-bottom: 36px; }
     }
     @media (min-width: 1024px) {
       .ty-wrap {
@@ -219,22 +225,14 @@
     ═══════════════════════════════════ */
     .ty-confirm {
       text-align: center;
-      padding-bottom: 40px;
+      padding-bottom: 20px;
       border-bottom: 1px solid var(--color-border);
-      margin-bottom: 36px;
+      margin-bottom: 20px;
     }
     .ty-confirm__tick {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: var(--color-green-mid);
-      margin: 0 auto 24px;
-    }
-    .ty-confirm__tick svg {
       display: block;
+      margin: 0 auto 20px;
+      line-height: 0;
     }
     .ty-confirm__heading {
       font-size: 30px;
@@ -261,8 +259,8 @@
       background: var(--color-surface);
       border: 1.5px solid var(--color-border);
       border-radius: var(--radius-md);
-      padding: 24px;
-      margin-bottom: 36px;
+      padding: 20px;
+      margin-bottom: 20px;
     }
     .ty-summary__title {
       font-size: 11px;
@@ -371,15 +369,9 @@
     .ty-tips__icon {
       flex-shrink: 0;
       margin-top: 2px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--color-green);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: block;
+      line-height: 0;
     }
-    .ty-tips__icon svg { display: block; }
     .ty-tips__text {
       font-size: 14px;
       color: #1a5c33;
@@ -411,8 +403,11 @@
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 
     /* ─── Portal CTA block ─── */
-    .ty-portal-cta { margin-bottom: 36px; }
+    .ty-portal-cta { margin-bottom: 28px; }
     .ty-portal-cta .btn { display: flex; width: 100%; justify-content: center; }
+    @media (min-width: 768px) {
+      .ty-portal-cta .btn { max-width: 480px; margin: 0 auto; }
+    }
 
     /* ─── Order summary loading state ─── */
     .ty-loading {
@@ -516,9 +511,7 @@
       <!-- ─── Section 1: Confirmation header ─── -->
       <section class="ty-confirm" aria-label="Order confirmed">
         <div class="ty-confirm__tick" aria-hidden="true">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 21L16.5 29.5L32 12" stroke="#00D258" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <img src="/assets/icons/feature_icons/icon_check_green.svg" alt="" width="64" height="64">
         </div>
         <h1 class="ty-confirm__heading">You're all set!</h1>
         <p class="ty-confirm__sub">You will receive your Prisoncall number via SMS and email.</p>
@@ -582,39 +575,36 @@
         <ul class="ty-tips__list">
 
           <li class="ty-tips__item">
-            <span class="ty-tips__icon" aria-hidden="true">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
+            <img src="/assets/icons/feature_icons/icon_check_black.svg" alt="" width="20" height="20" class="ty-tips__icon" aria-hidden="true">
             <p class="ty-tips__text">Check your SMS and email. Your Prisoncall number will arrive within 30 minutes to 2 hours for most orders. Peak periods, weekends and public holidays may take up to 24 hours or more.</p>
           </li>
 
           <li class="ty-tips__item">
-            <span class="ty-tips__icon" aria-hidden="true">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
+            <img src="/assets/icons/feature_icons/icon_check_black.svg" alt="" width="20" height="20" class="ty-tips__icon" aria-hidden="true">
             <p class="ty-tips__text">Turn off voicemail temporarily, the prison may call to verify your number</p>
           </li>
 
           <li class="ty-tips__item">
-            <span class="ty-tips__icon" aria-hidden="true">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
+            <img src="/assets/icons/feature_icons/icon_check_black.svg" alt="" width="20" height="20" class="ty-tips__icon" aria-hidden="true">
             <p class="ty-tips__text">Answer all unknown incoming calls, it could be the prison calling to verify</p>
           </li>
 
           <li class="ty-tips__item">
-            <span class="ty-tips__icon" aria-hidden="true">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
+            <img src="/assets/icons/feature_icons/icon_check_black.svg" alt="" width="20" height="20" class="ty-tips__icon" aria-hidden="true">
             <p class="ty-tips__text">Save your Prisoncall number in your contacts. When the prison officer calls to verify, they will ask you to confirm your number. Quote your Prisoncall number, not your personal mobile number.</p>
           </li>
 
         </ul>
       </section>
 
+      <!-- ─── Second portal CTA ─── -->
+      <div class="ty-portal-cta">
+        <a href="/portal" class="btn btn--green">Go to My Prisoncall</a>
+      </div>
+
       <!-- ─── Section 5: Need help ─── -->
       <section class="ty-help" aria-label="Support">
-        <p class="ty-help__text">Need help? <a href="contact.html" class="ty-help__link">Contact us</a></p>
+        <p class="ty-help__text">Have a question? <a href="/faq.html" class="ty-help__link">Visit our FAQ</a></p>
       </section>
 
     </div>
