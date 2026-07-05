@@ -10,27 +10,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/portal/portal.css">
+  <style>
+    /* Override portal.css login-bg so the card centres against the full viewport
+       now that the header has been removed from this page. */
+    .login-bg {
+      min-height: 100vh;
+      align-items: center;
+    }
+  </style>
 </head>
 <body>
-
-  <!-- ═══ HEADER ═══ -->
-  <header class="header" id="siteHeader">
-    <div class="container">
-      <div class="header__inner">
-        <div class="header__hamburger"><!-- no hamburger needed on login --></div>
-        <div class="header__center">
-          <a href="/" class="header__wordmark" aria-label="Prisoncall home">
-            <img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia" width="140" height="20">
-          </a>
-        </div>
-        <div class="header__right">
-          <div class="header__desktop-cta">
-            <a href="/choose-plan.html" class="btn btn--black btn--sm">Get started</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
 
   <!-- ═══ LOGIN CARD ═══ -->
   <main>
