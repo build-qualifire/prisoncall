@@ -67,6 +67,13 @@ export async function onRequestPost(context) {
       throw new Error(`Supabase ${sbRes.status}: ${errText.slice(0, 200)}`);
     }
     const products = await sbRes.json();
+    console.log('[create-checkout] Raw Supabase products count:', products.length);
+    console.log('[create-checkout] Raw product rows:', JSON.stringify(products.map(p => ({
+      product_key: p.product_key,
+      has_live_price: !!p.stripe_price_id,
+      has_test_price: !!p.stripe_price_id_test,
+      test_price_id: p.stripe_price_id_test || null,
+    }))));
     priceMap = {};
     products.forEach(p => {
       if (!p.product_key) return;
@@ -75,6 +82,9 @@ export async function onRequestPost(context) {
       if (priceId) priceMap[p.product_key] = priceId;
     });
     console.log('[create-checkout] Loaded', Object.keys(priceMap).length, 'price IDs from Supabase (mode:', isTestMode ? 'test' : 'live', ')');
+    console.log('[create-checkout] Full priceMap keys:', JSON.stringify(Object.keys(priceMap)));
+    console.log('[create-checkout] addon_48hr_cancel in priceMap:', 'addon_48hr_cancel' in priceMap, '| value:', priceMap['addon_48hr_cancel'] || 'MISSING');
+    console.log('[create-checkout] addon_48hr in priceMap:', 'addon_48hr' in priceMap, '| value:', priceMap['addon_48hr'] || 'MISSING');
   } catch (err) {
     console.error('[create-checkout] Supabase fetch failed:', err.message);
     return jsonResponse({ error: 'Failed to load pricing data: ' + err.message }, 500);
@@ -91,6 +101,10 @@ export async function onRequestPost(context) {
     const line_items = []; /* all prices — Stripe Checkout accepts both recurring and one-time in line_items for subscription mode */
     const subMeta = {}; /* flattened for subscription_data[metadata][...] */
 
+    console.log('[create-checkout] Request body plans count:', plans.length);
+    console.log('[create-checkout] Request body addons (top-level):', JSON.stringify(body.addons || {}));
+    console.log('[create-checkout] Plan addons (per-plan[0]):', JSON.stringify(plans[0] && plans[0].addons || 'none'));
+
     plans.forEach(function(plan, idx) {
       /* Normalise field names — frontend currently sends plan_interval / mobile_number;
          spec uses plan_key / mobile. Accept either. */
@@ -100,6 +114,8 @@ export async function onRequestPost(context) {
       const state    = plan.prison_state  || '';
       /* Per-plan addons take priority; fall back to top-level body.addons */
       const addons   = plan.addons        || topLevelAddons;
+
+      console.log(`[create-checkout] Plan[${idx}] interval="${interval}" addons:`, JSON.stringify(addons));
 
       if (!interval) throw new Error(`Plan ${idx + 1} is missing plan_key / plan_interval`);
 
@@ -128,6 +144,7 @@ export async function onRequestPost(context) {
 
       /* Resolve addon_48hr price using dual-key fallback */
       const addon48hrKey      = priceMap['addon_48hr_cancel'] ? 'addon_48hr_cancel' : 'addon_48hr';
+      console.log('[create-checkout] addon48hrKey resolved to:', addon48hrKey, '| priceMap["addon_48hr_cancel"]:', priceMap['addon_48hr_cancel'] || 'MISSING', '| priceMap["addon_48hr"]:', priceMap['addon_48hr'] || 'MISSING');
 
       const addonProductKeys = {
         addon1:      addon48hrKey,
@@ -149,16 +166,20 @@ export async function onRequestPost(context) {
         if (addons.addon2) effectiveAddons.addon2 = true;
         if (addons.addon3) effectiveAddons.addon3 = true;
       }
+      console.log('[create-checkout] effectiveAddons after deduplication:', JSON.stringify(effectiveAddons));
 
       Object.entries(addonProductKeys).forEach(function([addonKey, productKey]) {
         if (!effectiveAddons[addonKey]) return;
         const addonPriceId = priceMap[productKey];
+        console.log(`[create-checkout] Addon lookup — addonKey="${addonKey}" productKey="${productKey}" priceId="${addonPriceId || 'MISSING'}"`);
         if (!addonPriceId) {
+          console.error(`[create-checkout] MISSING PRICE: productKey="${productKey}" not in priceMap. Available keys:`, JSON.stringify(Object.keys(priceMap)));
           throw new Error(isTestMode
             ? `Test price ID not configured for product: ${productKey}. Add it in the admin portal Products page.`
             : `No Stripe price ID for product_key "${productKey}" — check Supabase products table`
           );
         }
+        console.log(`[create-checkout] Adding line_item: price="${addonPriceId}" (addonKey="${addonKey}")`);
         line_items.push({ price: addonPriceId, quantity: 1 });
       });
 
@@ -196,6 +217,7 @@ export async function onRequestPost(context) {
       sessionParams.append(`subscription_data[metadata][${key}]`, String(value ?? ''));
     });
 
+    console.log('[create-checkout] Final line_items array:', JSON.stringify(line_items));
     console.log('[create-checkout] Creating Stripe session — line_items:', line_items.length, '| metadata keys:', Object.keys(subMeta).length);
 
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
@@ -210,8 +232,11 @@ export async function onRequestPost(context) {
     const session = await stripeRes.json();
 
     if (!stripeRes.ok) {
+      console.error('[create-checkout] Stripe API error status:', stripeRes.status);
+      console.error('[create-checkout] Stripe API error body:', JSON.stringify(session));
       throw new Error(session.error ? session.error.message : `Stripe error ${stripeRes.status}`);
     }
+    console.log('[create-checkout] Stripe session created successfully:', session.id);
 
     /* ── 5. Return Checkout Session URL ──────────────────────────────── */
     return jsonResponse({ url: session.url });
