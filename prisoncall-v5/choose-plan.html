@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -1562,10 +1562,9 @@
   var pendingRemoveId = null; // id of entry awaiting inline remove confirmation (null = none)
 
   /* Path C — existing customer recognition */
-  var bundleModalShown         = false; // true once the modal has been shown (or skipped) this session
   var bundleApplied            = false; // true when an existing active subscription is found
   var existingStripeCustomerId = null;  // Stripe customer ID from silent recognition
-  var showAuthExpiredBanner    = false; // true when ?auth=expired was in the URL on load
+  var noExistingPlanFlag       = false; // true when OTP verified but no active plan found for the number
 
   var planFlow      = document.getElementById('planFlow');
   var completedArea = document.getElementById('completedArea');
@@ -2638,27 +2637,6 @@
     return d.slice(0,4) + ' \u2022\u2022\u2022\u2022 ' + d.slice(-3);
   }
 
-  /* ═══════════════════════════════════════════════════════════════════════
-     PATH C — EXISTING CUSTOMER RECOGNITION
-  ═══════════════════════════════════════════════════════════════════════ */
-
-  async function checkExistingCustomer() {
-    try {
-      var res = await fetch('/api/check-existing-customer');
-      var data = await res.json();
-      if (data.recognised) {
-        bundleApplied            = true;
-        existingStripeCustomerId = data.stripe_customer_id || null;
-      } else {
-        bundleApplied            = false;
-        existingStripeCustomerId = null;
-      }
-    } catch(_) {
-      bundleApplied            = false;
-      existingStripeCustomerId = null;
-    }
-  }
-
   /* Module-level checkout function — called by the CTA click handler and
      by the modal "Continue" / close-X buttons. Passes bundle data to the API. */
   function doMainCheckout() {
@@ -2689,7 +2667,10 @@
     })
     .then(function(res){ return res.json(); })
     .then(function(data){
-      if(data.url){ window.location.href = data.url; }
+      if(data.url){
+        localStorage.removeItem('prisoncall_bundle_recognition');
+        window.location.href = data.url;
+      }
       else { throw new Error(data.error || 'Unexpected response'); }
     })
     .catch(function(){
@@ -2718,7 +2699,9 @@
     if(modal) modal.setAttribute('hidden', '');
   }
 
-  /* Wire Path C modal events — called once at page init */
+  /* Wire Path C modal events — called once at page init.
+     restoreDefault() runs at the end; it reads bundleApplied to decide
+     whether to show the welcome-back state or the full sign-in state. */
   function wirePathCModal() {
     var modal = document.getElementById('path-c-modal');
     var inner = document.getElementById('path-c-card-inner');
@@ -2741,9 +2724,73 @@
       '</div>'
     ].join('');
 
+    /* ── After every modal choice: restore cart if available, else start fresh ── */
+    function afterModalChoice() {
+      var raw = localStorage.getItem('prisoncall_checkout_state');
+      if(raw){
+        try {
+          var saved = JSON.parse(raw);
+          if(saved && Array.isArray(saved.entries) && saved.entries.length > 0 &&
+             Date.now() - saved.timestamp < 345600000){
+            saved.entries.forEach(function(e){ entries.push(e); });
+            nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
+            planFlow.innerHTML = '';
+            clearGate();
+            if(PRICING){
+              renderCompletedArea();
+            } else if(pricingFetchDone){
+              entries = [];
+              localStorage.removeItem('prisoncall_checkout_state');
+              startNewPlan(getUrlState(), getUrlPrison());
+            } else {
+              completedArea.innerHTML =
+                '<p style="padding:24px 0;text-align:center;font-size:14px;color:var(--color-muted);">Loading your saved plan\u2026</p>';
+              whenPricingReady(function(ok){
+                if(ok){
+                  renderCompletedArea();
+                } else {
+                  entries = [];
+                  completedArea.innerHTML = '';
+                  localStorage.removeItem('prisoncall_checkout_state');
+                  startNewPlan(null);
+                }
+              });
+            }
+            return;
+          }
+        } catch(e){}
+        localStorage.removeItem('prisoncall_checkout_state');
+      }
+      startNewPlan(getUrlState(), getUrlPrison());
+    }
+
+    /* ── WELCOME BACK STATE — shown when localStorage recognition is valid ── */
+    function showWelcomeBackState() {
+      inner.innerHTML = [
+        '<h2 class="path-c-heading" id="path-c-modal-heading">Welcome back!</h2>',
+        '<p class="path-c-body">Your 10% bundle discount has been applied.</p>',
+        '<div class="path-c-btn-group">',
+          '<div class="path-c-btn-wrap">',
+            '<button class="path-c-btn-primary" id="path-c-wb-continue-btn">Continue</button>',
+          '</div>',
+        '</div>'
+      ].join('');
+
+      var wbBtn = document.getElementById('path-c-wb-continue-btn');
+      if(wbBtn) wbBtn.addEventListener('click', function(){
+        hidePathCModal();
+        afterModalChoice();
+      });
+    }
+
+    /* restoreDefault: show welcome-back if bundleApplied, else full 2-button state */
     function restoreDefault() {
-      inner.innerHTML = DEFAULT_HTML;
-      bindDefaultButtons();
+      if(bundleApplied){
+        showWelcomeBackState();
+      } else {
+        inner.innerHTML = DEFAULT_HTML;
+        bindDefaultButtons();
+      }
     }
 
     function bindDefaultButtons() {
@@ -2752,15 +2799,17 @@
       var continueBtn = document.getElementById('path-c-continue-btn');
 
       if(closeBtn) closeBtn.addEventListener('click', function(){
-        bundleApplied = false;
+        bundleApplied            = false;
+        existingStripeCustomerId = null;
         hidePathCModal();
-        doMainCheckout();
+        afterModalChoice();
       });
 
       if(continueBtn) continueBtn.addEventListener('click', function(){
-        bundleApplied = false;
+        bundleApplied            = false;
+        existingStripeCustomerId = null;
         hidePathCModal();
-        doMainCheckout();
+        afterModalChoice();
       });
 
       if(signinBtn) signinBtn.addEventListener('click', function(){
@@ -2776,8 +2825,8 @@
       var fmtVal = prefillMobile || '';
       inner.innerHTML = [
         '<button class="path-c-close" id="path-c-close2" aria-label="Close">\u00d7</button>',
-        '<h2 class="path-c-heading">Enter your mobile number</h2>',
-        '<p class="path-c-body">We\u2019ll send you a 6-digit code to sign in</p>',
+        '<h2 class="path-c-heading">Enter the mobile number you used when you first joined Prisoncall</h2>',
+        '<p class="path-c-body">We\u2019ll send a 6-digit code to confirm it\u2019s you</p>',
         '<input type="tel" class="path-c-input" id="path-c-mobile-input" inputmode="numeric" ',
           'placeholder="04xx xxx xxx" maxlength="10" autocomplete="tel" value="' + escHtml(fmtVal) + '">',
         '<p class="path-c-input-error" id="path-c-input-error"></p>',
@@ -2796,9 +2845,10 @@
       if(mobileInp) mobileInp.focus();
 
       if(closeBtn2) closeBtn2.addEventListener('click', function(){
-        bundleApplied = false;
+        bundleApplied            = false;
+        existingStripeCustomerId = null;
         hidePathCModal();
-        doMainCheckout();
+        afterModalChoice();
       });
 
       if(backBtn) backBtn.addEventListener('click', restoreDefault);
@@ -2878,9 +2928,10 @@
       if(codeInp) codeInp.focus();
 
       if(closeBtn3) closeBtn3.addEventListener('click', function(){
-        bundleApplied = false;
+        bundleApplied            = false;
+        existingStripeCustomerId = null;
         hidePathCModal();
-        doMainCheckout();
+        afterModalChoice();
       });
 
       /* Back → mobile entry phase, mobile pre-filled, no auto-send */
@@ -2914,20 +2965,35 @@
         .then(function(r){ return r.json(); })
         .then(function(d){
           if(d.success){
-            /* OTP verified — call check-existing-customer to detect an active subscription */
-            return fetch('/api/check-existing-customer')
-              .then(function(r2){ return r2.json(); })
-              .then(function(d2){
+            /* OTP verified — POST mobile to check-existing-customer (no cookie dependency) */
+            return fetch('/api/check-existing-customer', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ mobile: cleanMobile })
+            })
+            .then(function(r2){ return r2.json(); })
+            .then(function(d2){
+              if(d2.recognised){
+                bundleApplied            = true;
+                existingStripeCustomerId = d2.stripe_customer_id || null;
+                try {
+                  localStorage.setItem('prisoncall_bundle_recognition', JSON.stringify({
+                    recognised:        true,
+                    stripe_customer_id: d2.stripe_customer_id || null,
+                    mobile:            cleanMobile,
+                    timestamp:         Date.now()
+                  }));
+                } catch(_){}
                 hidePathCModal();
-                if(d2.recognised){
-                  bundleApplied            = true;
-                  existingStripeCustomerId = d2.stripe_customer_id || null;
-                  renderCompletedArea(); /* re-renders with bundle confirmation line */
-                } else {
-                  bundleApplied = false;
-                  showNoExistingPlanNotice();
-                }
-              });
+                afterModalChoice();
+              } else {
+                bundleApplied            = false;
+                existingStripeCustomerId = null;
+                noExistingPlanFlag       = true;
+                hidePathCModal();
+                afterModalChoice();
+              }
+            });
           } else {
             confirmBtn.textContent = 'Confirm';
             confirmBtn.disabled = false;
@@ -2946,20 +3012,6 @@
           if(confirmErr){ confirmErr.textContent = 'Something went wrong. Please try again.'; confirmErr.classList.add('is-visible'); }
         });
       });
-    }
-
-    /* Shown when OTP succeeds but no active subscription found for the mobile */
-    function showNoExistingPlanNotice() {
-      var completedEl = document.getElementById('completedArea');
-      if(!completedEl) return;
-      if(document.getElementById('path-c-no-plan-notice')) return;
-      var notice = document.createElement('p');
-      notice.id = 'path-c-no-plan-notice';
-      notice.style.cssText = 'font-size:13px;color:var(--color-muted);margin-bottom:10px;';
-      notice.textContent = 'No existing plan found for this number. Continuing without bundle discount.';
-      var totalEl = completedEl.querySelector('.order-total');
-      if(totalEl){ totalEl.parentNode.insertBefore(notice, totalEl); }
-      else { completedEl.appendChild(notice); }
     }
 
     restoreDefault();
@@ -3165,9 +3217,10 @@ function renderCompletedArea(){
         ' Bundle discount applied \u2014 10% off every renewal</div>';
     }
 
-    /* Path C: auth expired error */
-    if(hasEntries && showAuthExpiredBanner){
-      html += '<div class="path-c-auth-error">Sign-in link expired. Please try again.</div>';
+    /* Path C: no existing plan found notice (set by wirePathCModal after OTP verify) */
+    if(hasEntries && noExistingPlanFlag){
+      noExistingPlanFlag = false;
+      html += '<p style="font-size:13px;color:var(--color-muted);margin:0 0 10px;">We couldn\u2019t find an active Prisoncall plan for this number. If you used a different number for your first plan, try that one instead.</p>';
     }
 
     /* Order total */
@@ -3263,22 +3316,7 @@ function renderCompletedArea(){
           checkoutBtn.parentNode.insertBefore(mismatchMsg, checkoutBtn.nextSibling);
           return;
         }
-        /* Path C: if modal was already shown this session, skip it */
-        if(bundleModalShown){
-          doMainCheckout();
-          return;
-        }
-        /* Path C: first click — check for existing customer */
-        bundleModalShown = true;
-        checkExistingCustomer().then(function(){
-          if(bundleApplied){
-            /* Silent recognition — re-render to show confirmation line, then checkout */
-            renderCompletedArea();
-            doMainCheckout();
-          } else {
-            showPathCModal();
-          }
-        });
+        doMainCheckout();
       });
     }
   }
@@ -3340,77 +3378,30 @@ function renderCompletedArea(){
 
   /* â”€â”€â”€ Init â”€â”€â”€ */
   (function(){
-    /* If URL params are present the customer arrived from a prison-specific CTA â€”
-       always honour those and skip any saved cart. */
-    /* Path C: handle ?auth=success / ?auth=expired URL params before anything else */
-    (function(){
-      try {
-        var p = new URLSearchParams(window.location.search);
-        var authVal = p.get('auth');
-        if(authVal === 'success' || authVal === 'expired'){
-          p.delete('auth');
-          var newSearch = p.toString();
-          history.replaceState(null, '', window.location.pathname + (newSearch ? '?' + newSearch : ''));
-          if(authVal === 'success'){
-            checkExistingCustomer().then(function(){
-              if(bundleApplied && entries.length > 0){ renderCompletedArea(); }
-            });
-          }
-          if(authVal === 'expired'){
-            showAuthExpiredBanner = true;
-          }
+    /* 1. Check 24-hour localStorage recognition BEFORE wiring modal.
+       wirePathCModal() reads bundleApplied at the end (via restoreDefault())
+       to decide whether to render the welcome-back state or full sign-in state. */
+    try {
+      var _recRaw = localStorage.getItem('prisoncall_bundle_recognition');
+      if(_recRaw){
+        var _rec = JSON.parse(_recRaw);
+        if(_rec && _rec.recognised && typeof _rec.timestamp === 'number' &&
+           Date.now() - _rec.timestamp < 86400000){
+          bundleApplied            = true;
+          existingStripeCustomerId = _rec.stripe_customer_id || null;
+        } else {
+          localStorage.removeItem('prisoncall_bundle_recognition');
         }
-      } catch(_){}
-    }());
+      }
+    } catch(_){}
 
-    /* Wire the Path C modal once — events are stable across re-renders */
+    /* 2. Wire modal events — restoreDefault() at the end picks welcome-back or full state */
     wirePathCModal();
 
-    if(getUrlState() || getUrlPrison()){
-      startNewPlan(getUrlState(), getUrlPrison());
-      return;
-    }
-    /* Otherwise restore any saved cart (navigate away, home button, back button, etc.)
-       Cart is only cleared on: successful payment, or customer removes all plans. */
-    var raw = localStorage.getItem('prisoncall_checkout_state');
-    if(raw){
-      try {
-        var saved = JSON.parse(raw);
-        if(saved && Array.isArray(saved.entries) && saved.entries.length > 0 &&
-           Date.now() - saved.timestamp < 345600000){
-          saved.entries.forEach(function(e){ entries.push(e); });
-          nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
-          planFlow.innerHTML = '';
-          clearGate();
-          /* PRICING may not be loaded yet when restoring a saved cart */
-          if(PRICING){
-            renderCompletedArea();
-          } else if(pricingFetchDone){
-            /* Fetch already settled with an error — discard saved cart, start fresh */
-            entries = [];
-            localStorage.removeItem('prisoncall_checkout_state');
-            startNewPlan(null);
-          } else {
-            /* Fetch still in progress — show placeholder, then render once PRICING arrives */
-            completedArea.innerHTML =
-              '<p style="padding:24px 0;text-align:center;font-size:14px;color:var(--color-muted);">Loading your saved plan\u2026</p>';
-            whenPricingReady(function(ok){
-              if(ok){
-                renderCompletedArea();
-              } else {
-                entries = [];
-                completedArea.innerHTML = '';
-                localStorage.removeItem('prisoncall_checkout_state');
-                startNewPlan(null);
-              }
-            });
-          }
-          return;
-        }
-      } catch(e){}
-      localStorage.removeItem('prisoncall_checkout_state');
-    }
-    startNewPlan(getUrlState(), getUrlPrison());
+    /* 3. Always show the modal on every page load.
+       startNewPlan() and cart restore are handled inside wirePathCModal
+       after the customer makes their choice (via afterModalChoice()). */
+    showPathCModal();
   }());
 
   /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
