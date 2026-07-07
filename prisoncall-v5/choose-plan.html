@@ -2764,17 +2764,24 @@
       });
 
       if(signinBtn) signinBtn.addEventListener('click', function(){
-        showMobileInputState();
+        showMobileInputState(null);
       });
     }
 
-    function showMobileInputState() {
+    /* ── MOBILE ENTRY PHASE ──
+       prefillMobile: 10-digit string to pre-fill, or null.
+       When prefillMobile is a valid AU mobile the Send code POST fires automatically
+       (handles the "Resend" use-case). */
+    function showMobileInputState(prefillMobile) {
+      var fmtVal = prefillMobile || '';
       inner.innerHTML = [
         '<button class="path-c-close" id="path-c-close2" aria-label="Close">\u00d7</button>',
         '<h2 class="path-c-heading">Enter your mobile number</h2>',
-        '<input type="tel" class="path-c-input" id="path-c-mobile-input" inputmode="numeric" placeholder="04xx xxx xxx" maxlength="10" autocomplete="tel">',
+        '<p class="path-c-body">We\u2019ll send you a 6-digit code to sign in</p>',
+        '<input type="tel" class="path-c-input" id="path-c-mobile-input" inputmode="numeric" ',
+          'placeholder="04xx xxx xxx" maxlength="10" autocomplete="tel" value="' + escHtml(fmtVal) + '">',
         '<p class="path-c-input-error" id="path-c-input-error"></p>',
-        '<button class="path-c-send-btn" id="path-c-send-btn">Send sign-in link</button>',
+        '<button class="path-c-send-btn" id="path-c-send-btn">Send code</button>',
         '<p class="path-c-send-error" id="path-c-send-error"></p>',
         '<button class="path-c-back-link" id="path-c-back">\u2190 Back</button>'
       ].join('');
@@ -2785,6 +2792,8 @@
       var sendBtn   = document.getElementById('path-c-send-btn');
       var sendErr   = document.getElementById('path-c-send-error');
       var backBtn   = document.getElementById('path-c-back');
+
+      if(mobileInp) mobileInp.focus();
 
       if(closeBtn2) closeBtn2.addEventListener('click', function(){
         bundleApplied = false;
@@ -2800,17 +2809,18 @@
         mobileInp.value = mobileInp.value.replace(/\D/g,'').slice(0,10);
       });
 
-      if(sendBtn) sendBtn.addEventListener('click', function(){
-        var raw = (mobileInp ? mobileInp.value.replace(/\s/g,'') : '');
+      function doSendCode() {
+        var raw = (mobileInp ? mobileInp.value.replace(/\D/g,'') : '');
         if(!/^04\d{8}$/.test(raw)){
           if(mobileInp) mobileInp.classList.add('has-error');
           if(inputErr){ inputErr.textContent = 'Enter a valid Australian mobile number'; inputErr.classList.add('is-visible'); }
           return;
         }
-        sendBtn.disabled = true;
+        if(sendBtn){ sendBtn.textContent = 'Sending\u2026'; sendBtn.disabled = true; }
+        if(mobileInp){ mobileInp.disabled = true; }
         if(sendErr){ sendErr.textContent = ''; sendErr.classList.remove('is-visible'); }
 
-        fetch('/api/send-magic-link-checkout', {
+        fetch('/send-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mobile: raw })
@@ -2818,27 +2828,138 @@
         .then(function(r){ return r.json(); })
         .then(function(d){
           if(d.success){
-            showConfirmationState(raw);
+            showCodeEntryPhase(raw);
           } else {
-            sendBtn.disabled = false;
-            if(sendErr){ sendErr.textContent = d.error || 'Something went wrong. Please try again.'; sendErr.classList.add('is-visible'); }
+            if(sendBtn){ sendBtn.textContent = 'Send code'; sendBtn.disabled = false; }
+            if(mobileInp){ mobileInp.disabled = false; }
+            if(sendErr){ sendErr.textContent = d.error || 'Failed to send code. Please try again.'; sendErr.classList.add('is-visible'); }
           }
         })
         .catch(function(){
-          sendBtn.disabled = false;
-          if(sendErr){ sendErr.textContent = 'Something went wrong. Please try again.'; sendErr.classList.add('is-visible'); }
+          if(sendBtn){ sendBtn.textContent = 'Send code'; sendBtn.disabled = false; }
+          if(mobileInp){ mobileInp.disabled = false; }
+          if(sendErr){ sendErr.textContent = 'Failed to send code. Please try again.'; sendErr.classList.add('is-visible'); }
+        });
+      }
+
+      if(sendBtn) sendBtn.addEventListener('click', doSendCode);
+
+      /* Auto-fire when called from Resend (pre-filled valid mobile) */
+      if(prefillMobile && /^04\d{8}$/.test(prefillMobile)){
+        doSendCode();
+      }
+    }
+
+    /* ── CODE ENTRY PHASE ──
+       cleanMobile: validated 10-digit string from the mobile entry phase. */
+    function showCodeEntryPhase(cleanMobile) {
+      var masked = maskMobilePathC(cleanMobile);
+      inner.innerHTML = [
+        '<button class="path-c-close" id="path-c-close3" aria-label="Close">\u00d7</button>',
+        '<h2 class="path-c-heading">Enter your 6-digit code</h2>',
+        '<p class="path-c-body">Sent to <strong>' + escHtml(masked) + '</strong></p>',
+        '<input type="tel" class="path-c-input" id="path-c-code-input" inputmode="numeric" ',
+          'placeholder="000000" maxlength="6" autocomplete="one-time-code">',
+        '<p class="path-c-input-error" id="path-c-code-error"></p>',
+        '<button class="path-c-send-btn" id="path-c-confirm-btn">Confirm</button>',
+        '<p class="path-c-send-error" id="path-c-confirm-error"></p>',
+        '<button class="path-c-back-link" id="path-c-resend">Didn\u2019t get it? Resend</button>',
+        '<button class="path-c-back-link" id="path-c-back2" style="margin-top:6px;">\u2190 Back</button>'
+      ].join('');
+
+      var closeBtn3  = document.getElementById('path-c-close3');
+      var codeInp    = document.getElementById('path-c-code-input');
+      var codeErr    = document.getElementById('path-c-code-error');
+      var confirmBtn = document.getElementById('path-c-confirm-btn');
+      var confirmErr = document.getElementById('path-c-confirm-error');
+      var resendBtn  = document.getElementById('path-c-resend');
+      var backBtn2   = document.getElementById('path-c-back2');
+
+      if(codeInp) codeInp.focus();
+
+      if(closeBtn3) closeBtn3.addEventListener('click', function(){
+        bundleApplied = false;
+        hidePathCModal();
+        doMainCheckout();
+      });
+
+      /* Back → mobile entry phase, mobile pre-filled, no auto-send */
+      if(backBtn2) backBtn2.addEventListener('click', function(){
+        showMobileInputState(cleanMobile);
+      });
+
+      /* Resend → mobile entry phase, mobile pre-filled, auto-sends immediately */
+      if(resendBtn) resendBtn.addEventListener('click', function(){
+        showMobileInputState(cleanMobile);
+      });
+
+      if(confirmBtn) confirmBtn.addEventListener('click', function(){
+        var clean = (codeInp ? codeInp.value.replace(/\D/g,'') : '');
+        if(!/^\d{6}$/.test(clean)){
+          if(codeInp) codeInp.classList.add('has-error');
+          if(codeErr){ codeErr.textContent = 'Enter the 6-digit code from your SMS'; codeErr.classList.add('is-visible'); }
+          return;
+        }
+        confirmBtn.textContent = 'Confirming\u2026';
+        confirmBtn.disabled = true;
+        if(codeInp){ codeInp.disabled = true; }
+        if(codeErr){ codeErr.classList.remove('is-visible'); codeErr.textContent = ''; }
+        if(confirmErr){ confirmErr.classList.remove('is-visible'); confirmErr.textContent = ''; }
+
+        fetch('/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile: cleanMobile, code: clean })
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if(d.success){
+            /* OTP verified — call check-existing-customer to detect an active subscription */
+            return fetch('/api/check-existing-customer')
+              .then(function(r2){ return r2.json(); })
+              .then(function(d2){
+                hidePathCModal();
+                if(d2.recognised){
+                  bundleApplied            = true;
+                  existingStripeCustomerId = d2.stripe_customer_id || null;
+                  renderCompletedArea(); /* re-renders with bundle confirmation line */
+                } else {
+                  bundleApplied = false;
+                  showNoExistingPlanNotice();
+                }
+              });
+          } else {
+            confirmBtn.textContent = 'Confirm';
+            confirmBtn.disabled = false;
+            if(codeInp){ codeInp.disabled = false; }
+            var errMsg = d.error || 'Incorrect code. Please try again.';
+            if(errMsg.toLowerCase().indexOf('expired') !== -1){
+              errMsg = 'Code expired. Tap Resend to get a new one.';
+            }
+            if(codeErr){ codeErr.textContent = errMsg; codeErr.classList.add('is-visible'); }
+          }
+        })
+        .catch(function(){
+          confirmBtn.textContent = 'Confirm';
+          confirmBtn.disabled = false;
+          if(codeInp){ codeInp.disabled = false; }
+          if(confirmErr){ confirmErr.textContent = 'Something went wrong. Please try again.'; confirmErr.classList.add('is-visible'); }
         });
       });
     }
 
-    function showConfirmationState(rawMobile) {
-      var masked = maskMobilePathC(rawMobile);
-      inner.innerHTML = [
-        '<h2 class="path-c-heading">Check your messages</h2>',
-        '<p class="path-c-body">We\u2019ve sent a sign-in link to <strong>' + escHtml(masked) + '</strong>. ',
-        'Tap it to sign in and your bundle discount will be applied automatically. ',
-        'The link expires in 15 minutes.</p>'
-      ].join('');
+    /* Shown when OTP succeeds but no active subscription found for the mobile */
+    function showNoExistingPlanNotice() {
+      var completedEl = document.getElementById('completedArea');
+      if(!completedEl) return;
+      if(document.getElementById('path-c-no-plan-notice')) return;
+      var notice = document.createElement('p');
+      notice.id = 'path-c-no-plan-notice';
+      notice.style.cssText = 'font-size:13px;color:var(--color-muted);margin-bottom:10px;';
+      notice.textContent = 'No existing plan found for this number. Continuing without bundle discount.';
+      var totalEl = completedEl.querySelector('.order-total');
+      if(totalEl){ totalEl.parentNode.insertBefore(notice, totalEl); }
+      else { completedEl.appendChild(notice); }
     }
 
     restoreDefault();
