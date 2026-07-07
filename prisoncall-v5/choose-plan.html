@@ -875,6 +875,136 @@
       transition: opacity var(--tr), transform var(--tr);
     }
     .pricing-refresh-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       PATH C — EXISTING CUSTOMER MODAL
+    ═══════════════════════════════════════════════════════════════════════ */
+    #path-c-modal { display: block; }
+    #path-c-modal[hidden] { display: none !important; }
+
+    .path-c-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.55);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .path-c-card {
+      background: var(--color-white);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      max-width: 440px; width: 100%;
+      position: relative;
+      animation: stepIn 260ms ease forwards;
+    }
+    @media (max-width: 767px) {
+      .path-c-overlay { align-items: flex-end; padding: 0; }
+      .path-c-card {
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        padding: 28px 24px 36px;
+        max-width: 100%;
+      }
+    }
+    .path-c-close {
+      position: absolute; top: 16px; right: 16px;
+      font-size: 22px; line-height: 1; color: var(--color-muted);
+      background: none; border: none; cursor: pointer;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: inherit; transition: color var(--tr);
+      padding: 0;
+    }
+    .path-c-close:hover { color: var(--color-black); }
+    .path-c-heading {
+      font-size: 20px; font-weight: 700; line-height: 1.2;
+      margin-bottom: 10px; padding-right: 36px;
+    }
+    .path-c-body {
+      font-size: 14px; color: var(--color-muted); line-height: 1.55;
+      margin-bottom: 20px;
+    }
+    .path-c-divider {
+      border: none; border-top: 1px solid var(--color-border);
+      margin-bottom: 20px;
+    }
+    .path-c-btn-group { display: flex; flex-direction: column; gap: 12px; }
+    .path-c-btn-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .path-c-btn-primary {
+      display: block; width: 100%; padding: 15px;
+      font-size: 15px; font-weight: 700; font-family: inherit; text-align: center;
+      border-radius: var(--radius-pill);
+      background: var(--color-green); color: var(--color-black);
+      border: 2px solid var(--color-green); cursor: pointer;
+      transition: opacity var(--tr), transform var(--tr);
+    }
+    .path-c-btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .path-c-btn-secondary {
+      display: block; width: 100%; padding: 15px;
+      font-size: 15px; font-weight: 700; font-family: inherit; text-align: center;
+      border-radius: var(--radius-pill);
+      background: var(--color-white); color: var(--color-black);
+      border: 2px solid var(--color-black); cursor: pointer;
+      transition: opacity var(--tr), transform var(--tr);
+    }
+    .path-c-btn-secondary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .path-c-btn-sub {
+      font-size: 12px; color: var(--color-muted); text-align: center;
+      margin: 0;
+    }
+    /* Mobile input state */
+    .path-c-input {
+      display: block; width: 100%; padding: 16px 18px;
+      font-size: 20px; font-weight: 700; letter-spacing: 0.06em;
+      font-family: inherit; border: 2px solid var(--color-border);
+      border-radius: var(--radius-md); background: var(--color-white);
+      color: var(--color-black); outline: none;
+      transition: border-color var(--tr);
+      margin-bottom: 0;
+    }
+    .path-c-input:focus { border-color: var(--color-black); }
+    .path-c-input.has-error { border-color: #e53e3e; }
+    .path-c-input-error {
+      font-size: 12px; color: #e53e3e; margin: 6px 0 0; display: none;
+    }
+    .path-c-input-error.is-visible { display: block; }
+    .path-c-send-btn {
+      display: block; width: 100%; margin-top: 14px; padding: 15px;
+      font-size: 15px; font-weight: 700; font-family: inherit;
+      background: var(--color-green); color: var(--color-black);
+      border: 2px solid var(--color-green); border-radius: var(--radius-pill);
+      cursor: pointer; transition: opacity var(--tr), transform var(--tr); text-align: center;
+    }
+    .path-c-send-btn:hover { opacity: 0.86; transform: translateY(-1px); }
+    .path-c-send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+    .path-c-send-error {
+      font-size: 12px; color: #e53e3e; margin-top: 8px; display: none;
+    }
+    .path-c-send-error.is-visible { display: block; }
+    .path-c-back-link {
+      display: inline-block; margin-top: 14px;
+      font-size: 12px; color: var(--color-muted);
+      background: none; border: none; padding: 0;
+      cursor: pointer; font-family: inherit;
+      transition: color var(--tr);
+    }
+    .path-c-back-link:hover { color: var(--color-black); }
+    /* Bundle confirmation line in order summary */
+    .path-c-bundle-confirm {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 16px; margin-bottom: 10px;
+      background: var(--color-green-mid);
+      border: 1px solid #a3e9c5;
+      border-radius: var(--radius-md);
+      font-size: 13px; font-weight: 600; color: #1a5c33;
+    }
+    /* Auth expired error in order summary */
+    .path-c-auth-error {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 16px; margin-bottom: 10px;
+      background: #fff5f5;
+      border: 1px solid #feb2b2;
+      border-radius: var(--radius-md);
+      font-size: 13px; font-weight: 600; color: #c53030;
+    }
   </style>
 </head>
 <body>
@@ -1430,6 +1560,12 @@
   var nextId   = 0;
   var MAX_PLANS = 3;
   var pendingRemoveId = null; // id of entry awaiting inline remove confirmation (null = none)
+
+  /* Path C — existing customer recognition */
+  var bundleModalShown         = false; // true once the modal has been shown (or skipped) this session
+  var bundleApplied            = false; // true when an existing active subscription is found
+  var existingStripeCustomerId = null;  // Stripe customer ID from silent recognition
+  var showAuthExpiredBanner    = false; // true when ?auth=expired was in the URL on load
 
   var planFlow      = document.getElementById('planFlow');
   var completedArea = document.getElementById('completedArea');
@@ -2495,6 +2631,219 @@
     return '04\u2022\u2022 \u2022\u2022\u2022 ' + digits.slice(-3);
   }
 
+  /* ─── Path C: mask mobile for sign-in confirmation (0412 •••• 815 style) ─── */
+  function maskMobilePathC(raw){
+    var d = (raw || '').replace(/\D/g,'');
+    if(d.length < 7) return raw || '';
+    return d.slice(0,4) + ' \u2022\u2022\u2022\u2022 ' + d.slice(-3);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     PATH C — EXISTING CUSTOMER RECOGNITION
+  ═══════════════════════════════════════════════════════════════════════ */
+
+  async function checkExistingCustomer() {
+    try {
+      var res = await fetch('/api/check-existing-customer');
+      var data = await res.json();
+      if (data.recognised) {
+        bundleApplied            = true;
+        existingStripeCustomerId = data.stripe_customer_id || null;
+      } else {
+        bundleApplied            = false;
+        existingStripeCustomerId = null;
+      }
+    } catch(_) {
+      bundleApplied            = false;
+      existingStripeCustomerId = null;
+    }
+  }
+
+  /* Module-level checkout function — called by the CTA click handler and
+     by the modal "Continue" / close-X buttons. Passes bundle data to the API. */
+  function doMainCheckout() {
+    var btn   = document.getElementById('checkoutBtn');
+    var errEl = document.getElementById('checkoutBtnError');
+    if(errEl){ errEl.parentNode.removeChild(errEl); }
+    var customerMobile = entries.length > 0 ? entries[0].mobile : '';
+    var plansArray = entries.map(function(e){
+      return {
+        prison_name:     e.prison,
+        prison_state:    e.state,
+        assigned_mobile: e.mobile,
+        plan_interval:   e.planKey,
+        bundle:          entries.length >= 2,
+        addons:          e.addons || {}
+      };
+    });
+    if(btn){ btn.textContent = 'Preparing checkout\u2026'; btn.style.pointerEvents = 'none'; }
+    fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        plans:              plansArray,
+        customer_mobile:    customerMobile,
+        bundle:             bundleApplied,
+        stripe_customer_id: existingStripeCustomerId
+      })
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      if(data.url){ window.location.href = data.url; }
+      else { throw new Error(data.error || 'Unexpected response'); }
+    })
+    .catch(function(){
+      var b = document.getElementById('checkoutBtn');
+      if(b){ b.textContent = 'Activate my number now'; b.style.pointerEvents = ''; }
+      var msg = document.createElement('p');
+      msg.id = 'checkoutBtnError';
+      msg.style.color = 'red';
+      msg.style.marginTop = '0.5em';
+      msg.style.fontSize = '13px';
+      msg.style.fontWeight = '600';
+      msg.textContent = 'Something went wrong. Please try again.';
+      var b2 = document.getElementById('checkoutBtn');
+      if(b2){ b2.parentNode.insertBefore(msg, b2.nextSibling); }
+    });
+  }
+
+  /* Show / hide the Path C modal */
+  function showPathCModal() {
+    var modal = document.getElementById('path-c-modal');
+    if(modal) modal.removeAttribute('hidden');
+  }
+
+  function hidePathCModal() {
+    var modal = document.getElementById('path-c-modal');
+    if(modal) modal.setAttribute('hidden', '');
+  }
+
+  /* Wire Path C modal events — called once at page init */
+  function wirePathCModal() {
+    var modal = document.getElementById('path-c-modal');
+    var inner = document.getElementById('path-c-card-inner');
+    if(!modal || !inner) return;
+
+    var DEFAULT_HTML = [
+      '<button class="path-c-close" id="path-c-close" aria-label="Close">\u00d7</button>',
+      '<h2 class="path-c-heading" id="path-c-modal-heading">Already have a Prisoncall plan?</h2>',
+      '<p class="path-c-body">Sign in to automatically apply your 10% bundle discount on every renewal.</p>',
+      '<hr class="path-c-divider">',
+      '<div class="path-c-btn-group">',
+        '<div class="path-c-btn-wrap">',
+          '<button class="path-c-btn-primary" id="path-c-signin-btn">Sign in</button>',
+          '<p class="path-c-btn-sub">Enter your mobile number to sign in</p>',
+        '</div>',
+        '<div class="path-c-btn-wrap">',
+          '<button class="path-c-btn-secondary" id="path-c-continue-btn">Continue</button>',
+          '<p class="path-c-btn-sub">Bundle discount applies when I add a second plan</p>',
+        '</div>',
+      '</div>'
+    ].join('');
+
+    function restoreDefault() {
+      inner.innerHTML = DEFAULT_HTML;
+      bindDefaultButtons();
+    }
+
+    function bindDefaultButtons() {
+      var closeBtn    = document.getElementById('path-c-close');
+      var signinBtn   = document.getElementById('path-c-signin-btn');
+      var continueBtn = document.getElementById('path-c-continue-btn');
+
+      if(closeBtn) closeBtn.addEventListener('click', function(){
+        bundleApplied = false;
+        hidePathCModal();
+        doMainCheckout();
+      });
+
+      if(continueBtn) continueBtn.addEventListener('click', function(){
+        bundleApplied = false;
+        hidePathCModal();
+        doMainCheckout();
+      });
+
+      if(signinBtn) signinBtn.addEventListener('click', function(){
+        showMobileInputState();
+      });
+    }
+
+    function showMobileInputState() {
+      inner.innerHTML = [
+        '<button class="path-c-close" id="path-c-close2" aria-label="Close">\u00d7</button>',
+        '<h2 class="path-c-heading">Enter your mobile number</h2>',
+        '<input type="tel" class="path-c-input" id="path-c-mobile-input" inputmode="numeric" placeholder="04xx xxx xxx" maxlength="10" autocomplete="tel">',
+        '<p class="path-c-input-error" id="path-c-input-error"></p>',
+        '<button class="path-c-send-btn" id="path-c-send-btn">Send sign-in link</button>',
+        '<p class="path-c-send-error" id="path-c-send-error"></p>',
+        '<button class="path-c-back-link" id="path-c-back">\u2190 Back</button>'
+      ].join('');
+
+      var closeBtn2 = document.getElementById('path-c-close2');
+      var mobileInp = document.getElementById('path-c-mobile-input');
+      var inputErr  = document.getElementById('path-c-input-error');
+      var sendBtn   = document.getElementById('path-c-send-btn');
+      var sendErr   = document.getElementById('path-c-send-error');
+      var backBtn   = document.getElementById('path-c-back');
+
+      if(closeBtn2) closeBtn2.addEventListener('click', function(){
+        bundleApplied = false;
+        hidePathCModal();
+        doMainCheckout();
+      });
+
+      if(backBtn) backBtn.addEventListener('click', restoreDefault);
+
+      if(mobileInp) mobileInp.addEventListener('input', function(){
+        mobileInp.classList.remove('has-error');
+        if(inputErr){ inputErr.classList.remove('is-visible'); inputErr.textContent = ''; }
+        mobileInp.value = mobileInp.value.replace(/\D/g,'').slice(0,10);
+      });
+
+      if(sendBtn) sendBtn.addEventListener('click', function(){
+        var raw = (mobileInp ? mobileInp.value.replace(/\s/g,'') : '');
+        if(!/^04\d{8}$/.test(raw)){
+          if(mobileInp) mobileInp.classList.add('has-error');
+          if(inputErr){ inputErr.textContent = 'Enter a valid Australian mobile number'; inputErr.classList.add('is-visible'); }
+          return;
+        }
+        sendBtn.disabled = true;
+        if(sendErr){ sendErr.textContent = ''; sendErr.classList.remove('is-visible'); }
+
+        fetch('/api/send-magic-link-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile: raw })
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if(d.success){
+            showConfirmationState(raw);
+          } else {
+            sendBtn.disabled = false;
+            if(sendErr){ sendErr.textContent = d.error || 'Something went wrong. Please try again.'; sendErr.classList.add('is-visible'); }
+          }
+        })
+        .catch(function(){
+          sendBtn.disabled = false;
+          if(sendErr){ sendErr.textContent = 'Something went wrong. Please try again.'; sendErr.classList.add('is-visible'); }
+        });
+      });
+    }
+
+    function showConfirmationState(rawMobile) {
+      var masked = maskMobilePathC(rawMobile);
+      inner.innerHTML = [
+        '<h2 class="path-c-heading">Check your messages</h2>',
+        '<p class="path-c-body">We\u2019ve sent a sign-in link to <strong>' + escHtml(masked) + '</strong>. ',
+        'Tap it to sign in and your bundle discount will be applied automatically. ',
+        'The link expires in 15 minutes.</p>'
+      ].join('');
+    }
+
+    restoreDefault();
+  }
+
   /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      COMPLETE PLAN
   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
@@ -2688,6 +3037,18 @@ function renderCompletedArea(){
       }
     }
 
+    /* Path C: bundle discount confirmation line */
+    if(hasEntries && bundleApplied){
+      html += '<div class="path-c-bundle-confirm">'+
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>'+
+        ' Bundle discount applied \u2014 10% off every renewal</div>';
+    }
+
+    /* Path C: auth expired error */
+    if(hasEntries && showAuthExpiredBanner){
+      html += '<div class="path-c-auth-error">Sign-in link expired. Please try again.</div>';
+    }
+
     /* Order total */
     if(hasEntries){
       var totalHtml = (isBundle && !hasIntervalMismatch)
@@ -2781,43 +3142,21 @@ function renderCompletedArea(){
           checkoutBtn.parentNode.insertBefore(mismatchMsg, checkoutBtn.nextSibling);
           return;
         }
-        var customerMobile = entries.length > 0 ? entries[0].mobile : '';
-        var plansArray = entries.map(function(e){
-          return {
-            prison_name:     e.prison,
-            prison_state:    e.state,
-            assigned_mobile: e.mobile,
-            plan_interval:   e.planKey,
-            bundle:          entries.length >= 2,
-            addons:          e.addons || {}
-          };
-        });
-        checkoutBtn.textContent = 'Preparing checkout\u2026';
-        checkoutBtn.style.pointerEvents = 'none';
-        fetch('/api/create-checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plans: plansArray, customer_mobile: customerMobile })
-        })
-        .then(function(res){ return res.json(); })
-        .then(function(data){
-          if(data.url){
-            window.location.href = data.url;
+        /* Path C: if modal was already shown this session, skip it */
+        if(bundleModalShown){
+          doMainCheckout();
+          return;
+        }
+        /* Path C: first click — check for existing customer */
+        bundleModalShown = true;
+        checkExistingCustomer().then(function(){
+          if(bundleApplied){
+            /* Silent recognition — re-render to show confirmation line, then checkout */
+            renderCompletedArea();
+            doMainCheckout();
           } else {
-            throw new Error(data.error || 'Unexpected response');
+            showPathCModal();
           }
-        })
-        .catch(function(){
-          checkoutBtn.textContent = 'Activate my number now';
-          checkoutBtn.style.pointerEvents = '';
-          var msg = document.createElement('p');
-          msg.id = 'checkoutBtnError';
-          msg.style.color = 'red';
-          msg.style.marginTop = '0.5em';
-          msg.style.fontSize = '13px';
-          msg.style.fontWeight = '600';
-          msg.textContent = 'Something went wrong. Please try again.';
-          checkoutBtn.parentNode.insertBefore(msg, checkoutBtn.nextSibling);
         });
       });
     }
@@ -2882,6 +3221,30 @@ function renderCompletedArea(){
   (function(){
     /* If URL params are present the customer arrived from a prison-specific CTA â€”
        always honour those and skip any saved cart. */
+    /* Path C: handle ?auth=success / ?auth=expired URL params before anything else */
+    (function(){
+      try {
+        var p = new URLSearchParams(window.location.search);
+        var authVal = p.get('auth');
+        if(authVal === 'success' || authVal === 'expired'){
+          p.delete('auth');
+          var newSearch = p.toString();
+          history.replaceState(null, '', window.location.pathname + (newSearch ? '?' + newSearch : ''));
+          if(authVal === 'success'){
+            checkExistingCustomer().then(function(){
+              if(bundleApplied && entries.length > 0){ renderCompletedArea(); }
+            });
+          }
+          if(authVal === 'expired'){
+            showAuthExpiredBanner = true;
+          }
+        }
+      } catch(_){}
+    }());
+
+    /* Wire the Path C modal once — events are stable across re-renders */
+    wirePathCModal();
+
     if(getUrlState() || getUrlPrison()){
       startNewPlan(getUrlState(), getUrlPrison());
       return;
@@ -2957,6 +3320,17 @@ function renderCompletedArea(){
     });
   })();
   </script>
+
+  <!-- ═══ PATH C — EXISTING CUSTOMER MODAL ═══ -->
+  <div id="path-c-modal" hidden role="dialog" aria-modal="true" aria-labelledby="path-c-modal-heading">
+    <div class="path-c-overlay">
+      <div class="path-c-card">
+        <div id="path-c-card-inner">
+          <!-- populated by wirePathCModal() -->
+        </div>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>

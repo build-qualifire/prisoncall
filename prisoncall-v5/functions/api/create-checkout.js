@@ -30,6 +30,12 @@ export async function onRequestPost(context) {
   /* customer_mobile — account owner's login mobile, always from first plan's OTP verification */
   const customer_mobile = body.customer_mobile || '';
 
+  /* Path C — bundle discount fields */
+  const applyBundle        = body.bundle === true;
+  const bundleCustomerId   = (typeof body.stripe_customer_id === 'string' && body.stripe_customer_id.trim())
+    ? body.stripe_customer_id.trim()
+    : null;
+
   /* ── 2. Detect mode from APP_ENV and select Stripe key ────────────── */
   const isTestMode = env.APP_ENV === 'test';
   console.log('[Checkout] Running in', isTestMode ? 'TEST' : 'LIVE', 'mode');
@@ -199,6 +205,9 @@ export async function onRequestPost(context) {
     /* Top-level account owner identity — same for all plans in this order */
     subMeta['customer_mobile'] = customer_mobile;
 
+    /* Path C — bundle flag in metadata so n8n WF1 can read it from the Stripe webhook */
+    subMeta['bundle'] = applyBundle ? 'true' : 'false';
+
     /* ── 4. Create Stripe Checkout Session ───────────────────────────── */
     /* Stripe Checkout subscription mode accepts both recurring and one-time prices in
        line_items. One-time prices are charged on the first invoice automatically. */
@@ -207,6 +216,17 @@ export async function onRequestPost(context) {
     sessionParams.append('currency',    'aud');
     sessionParams.append('success_url', 'https://prisoncall.pages.dev/thank-you.html?session_id={CHECKOUT_SESSION_ID}');
     sessionParams.append('cancel_url',  'https://prisoncall.pages.dev/choose-plan');
+
+    /* Path C — attach existing Stripe customer and bundle coupon when recognised.
+       customer and customer_email are mutually exclusive in Stripe Checkout. */
+    if (applyBundle && bundleCustomerId) {
+      sessionParams.append('customer',        bundleCustomerId);
+      sessionParams.append('discounts[0][coupon]', '9beEKMmG');
+      console.log('[create-checkout] Path C bundle discount applied — customer:', bundleCustomerId);
+    } else {
+      /* customer_email pre-fills the Checkout form for new customers */
+      /* (not set here by default — left to Stripe to collect) */
+    }
 
     line_items.forEach(function(item, i) {
       sessionParams.append(`line_items[${i}][price]`,    item.price);
