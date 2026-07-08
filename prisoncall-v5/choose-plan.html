@@ -2937,16 +2937,19 @@
     /* ── NOT RECOGNISED STATE — shown when Supabase returns recognised: false ── */
     function showNotRecognisedState() {
       inner.innerHTML = [
-        '<h2 class="path-c-heading" id="path-c-modal-heading">Welcome to Prisoncall!</h2>',
-        '<p class="path-c-body">You\u2019re all set. Bundle discount applies automatically when you add a second plan for another family member.</p>',
+        '<h2 class="path-c-heading" id="path-c-modal-heading">Welcome to Prisoncall</h2>',
+        '<p class="path-c-body">You\u2019re one step closer to having an active Prisoncall plan. Bundle discount will apply when you order additional plans.</p>',
         '<div class="path-c-btn-group">',
           '<div class="path-c-btn-wrap">',
             '<button class="path-c-btn-primary" id="path-c-nr-continue-btn">Continue</button>',
           '</div>',
-        '</div>'
+        '</div>',
+        '<button class="path-c-back-link" id="path-c-nr-back-link">\u2190 Try a different number</button>'
       ].join('');
 
-      var nrBtn = document.getElementById('path-c-nr-continue-btn');
+      var nrBtn  = document.getElementById('path-c-nr-continue-btn');
+      var nrBack = document.getElementById('path-c-nr-back-link');
+
       if(nrBtn) nrBtn.addEventListener('click', function(){
         bundleApplied            = false;
         existingStripeCustomerId = null;
@@ -2954,6 +2957,10 @@
         pathCModalShown          = true;
         hidePathCModal();
         proceedToStep3();
+      });
+
+      if(nrBack) nrBack.addEventListener('click', function(){
+        showMobileEntryState();
       });
     }
 
