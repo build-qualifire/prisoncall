@@ -922,6 +922,16 @@
       font-size: 14px; color: var(--color-muted); line-height: 1.55;
       margin-bottom: 20px;
     }
+    .path-c-recognised-line {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a5c33;
+      background: var(--color-green-mid);
+      border: 1px solid #a3e9c5;
+      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      margin-bottom: 16px;
+    }
     .path-c-divider {
       border: none; border-top: 1px solid var(--color-border);
       margin-bottom: 20px;
@@ -2681,7 +2691,7 @@
       body: JSON.stringify({
         plans:              plansArray,
         customer_mobile:    customerMobile,
-        bundle:             bundleApplied,
+        bundle:             bundleApplied || entries.length >= 2,
         stripe_customer_id: existingStripeCustomerId
       })
     })
@@ -2819,7 +2829,7 @@
       var masked = maskMobilePathC(cleanMobile);
       inner.innerHTML = [
         '<p class="path-c-recognised-line">\u2713 Active Prisoncall plan found</p>',
-        '<h2 class="path-c-heading">\u2018Confirm it\u2019s you</h2>',
+        '<h2 class="path-c-heading">Confirm it\u2019s you</h2>',
         '<p class="path-c-body">We\u2019ve sent a 6-digit code to <strong>' + escHtml(masked) + '</strong>. Enter it below to apply your 10% bundle discount.</p>',
         '<input type="tel" class="path-c-input" id="path-c-code-input" inputmode="numeric" ',
           'placeholder="000000" maxlength="6" autocomplete="one-time-code">',
@@ -2827,7 +2837,8 @@
         '<button class="path-c-send-btn" id="path-c-confirm-btn">Confirm</button>',
         '<p class="path-c-send-error" id="path-c-confirm-error"></p>',
         '<button class="path-c-back-link" id="path-c-resend">Didn\u2019t get it? Resend</button>',
-        '<button class="path-c-back-link" id="path-c-back2" style="margin-top:6px;">\u2190 Use a different number</button>'
+        '<span style="display:block;margin-top:10px;border-top:1px solid var(--color-border);"></span>',
+        '<button class="path-c-back-link" id="path-c-back2" style="margin-top:10px;display:block;">\u2190 Use a different number</button>'
       ].join('');
 
       var codeInp    = document.getElementById('path-c-code-input');
@@ -2880,6 +2891,23 @@
         });
       });
 
+      function showBundleConfirmedState() {
+        inner.innerHTML = [
+          '<h2 class="path-c-heading">Bundle discount applied!</h2>',
+          '<p class="path-c-body">Your 10% discount has been confirmed. ',
+          'It will be applied automatically at checkout and on every ',
+          'renewal.</p>',
+          '<button class="path-c-send-btn" id="path-c-confirmed-btn">',
+          'Continue to next step</button>'
+        ].join('');
+        var confirmedBtn = document.getElementById('path-c-confirmed-btn');
+        if(confirmedBtn) confirmedBtn.addEventListener('click', function(){
+          pathCModalShown = true;
+          hidePathCModal();
+          proceedToStep3();
+        });
+      }
+
       if(confirmBtn) confirmBtn.addEventListener('click', function(){
         var cleanCode = (codeInp ? codeInp.value.replace(/\D/g,'') : '');
         if(!/^\d{6}$/.test(cleanCode)){
@@ -2911,9 +2939,7 @@
                 timestamp:          Date.now()
               }));
             } catch(_){}
-            pathCModalShown = true;
-            hidePathCModal();
-            proceedToStep3();
+            showBundleConfirmedState();
           } else {
             confirmBtn.textContent = 'Confirm';
             confirmBtn.disabled = false;
@@ -3088,8 +3114,10 @@ function renderCompletedArea(){
     var isBundle        = entries.length >= 2;
     var planTotal  = entries.reduce(function(s,e){ return s + (PRICING.plans[e.planKey] ? PRICING.plans[e.planKey].price : 0); }, 0);
     var addonTotal = entries.reduce(function(s,e){ return s + getAddonTotal(e.planKey, e.addons); }, 0);
-    var rawTotal   = planTotal + addonTotal;
-    var finalTotal = isBundle ? Math.round(planTotal * 0.9 * 100) / 100 + addonTotal : rawTotal;
+    var rawTotal       = planTotal + addonTotal;
+    var isBundleOrder  = isBundle || bundleApplied;
+    var discountAmount = isBundleOrder ? Math.round(rawTotal * 0.1 * 100) / 100 : 0;
+    var finalTotal     = isBundleOrder ? Math.round(rawTotal * 0.9 * 100) / 100 : rawTotal;
 
     /* Interval mismatch detection */
     var INTERVAL_ORDER = { weekly: 1, fortnightly: 2, monthly: 3, annual: 4 };
@@ -3184,9 +3212,15 @@ function renderCompletedArea(){
 
     /* Order total */
     if(hasEntries){
-      var totalHtml = (isBundle && !hasIntervalMismatch)
-        ? '<span class="order-total__orig">$'+rawTotal.toFixed(2)+'</span><span class="order-total__disc">$'+finalTotal.toFixed(2)+'</span>'
-        : '<span class="order-total__plain">$'+rawTotal.toFixed(2)+'</span>';
+      var totalHtml;
+      if(isBundleOrder){
+        totalHtml =
+          '<span class="order-total__orig">$'+rawTotal.toFixed(2)+'</span>'+
+          '<span style="display:block;font-size:12px;color:#1a5c33;font-weight:600;margin-top:2px;">\u2212 $'+discountAmount.toFixed(2)+' bundle discount (10% off)</span>'+
+          '<span class="order-total__disc">$'+finalTotal.toFixed(2)+'</span>';
+      } else {
+        totalHtml = '<span class="order-total__plain">$'+rawTotal.toFixed(2)+'</span>';
+      }
       html += '<div class="order-total"><span class="order-total__label">Total</span><span class="order-total__val">'+totalHtml+'</span></div>';
     }
 

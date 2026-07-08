@@ -31,10 +31,11 @@ export async function onRequestPost(context) {
   const customer_mobile = body.customer_mobile || '';
 
   /* Path C — bundle discount fields */
-  const applyBundle        = body.bundle === true;
   const bundleCustomerId   = (typeof body.stripe_customer_id === 'string' && body.stripe_customer_id.trim())
     ? body.stripe_customer_id.trim()
     : null;
+  const isMultiPlan        = Array.isArray(plans) && plans.length >= 2;
+  const applyBundle        = (body.bundle === true && !!bundleCustomerId) || isMultiPlan;
 
   /* ── 2. Detect mode from APP_ENV and select Stripe key ────────────── */
   const isTestMode = env.APP_ENV === 'test';
@@ -211,21 +212,24 @@ export async function onRequestPost(context) {
     /* ── 4. Create Stripe Checkout Session ───────────────────────────── */
     /* Stripe Checkout subscription mode accepts both recurring and one-time prices in
        line_items. One-time prices are charged on the first invoice automatically. */
+    const bundleCouponId = isTestMode ? 'qhXO9jPm' : '9beEKMmG';
     const sessionParams = new URLSearchParams();
     sessionParams.append('mode',        'subscription');
     sessionParams.append('currency',    'aud');
     sessionParams.append('success_url', 'https://prisoncall.pages.dev/thank-you.html?session_id={CHECKOUT_SESSION_ID}');
     sessionParams.append('cancel_url',  'https://prisoncall.pages.dev/choose-plan');
 
-    /* Path C — attach existing Stripe customer and bundle coupon when recognised.
-       customer and customer_email are mutually exclusive in Stripe Checkout. */
-    if (applyBundle && bundleCustomerId) {
-      sessionParams.append('customer',        bundleCustomerId);
-      sessionParams.append('discounts[0][coupon]', '9beEKMmG');
-      console.log('[create-checkout] Path C bundle discount applied — customer:', bundleCustomerId);
+    /* Apply bundle coupon — for Path C recognised customers (with Stripe customer ID)
+       or for multi-plan orders (2+ plans). customer and customer_email are mutually
+       exclusive in Stripe Checkout. */
+    if (applyBundle) {
+      if (bundleCustomerId) {
+        sessionParams.append('customer', bundleCustomerId);
+      }
+      sessionParams.append('discounts[0][coupon]', bundleCouponId);
+      console.log('[create-checkout] Bundle discount applied — coupon:', bundleCouponId, isMultiPlan ? '(multi-plan)' : '(Path C recognition)');
     } else {
-      /* customer_email pre-fills the Checkout form for new customers */
-      /* (not set here by default — left to Stripe to collect) */
+      /* customer_email not set by default — Stripe collects it */
     }
 
     line_items.forEach(function(item, i) {
