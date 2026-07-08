@@ -1172,6 +1172,19 @@
   </footer>
 
   <!-- â•â•â• SCRIPTS â•â•â• -->
+  <!-- ═══ PATH C — EXISTING CUSTOMER MODAL ═══
+       Must appear BEFORE the main <script> block so that #path-c-card-inner
+       is in the DOM when wirePathCModal() runs during script initialisation. -->
+  <div id="path-c-modal" hidden role="dialog" aria-modal="true" aria-labelledby="path-c-modal-heading">
+    <div class="path-c-overlay">
+      <div class="path-c-card">
+        <div id="path-c-card-inner">
+          <!-- populated by wirePathCModal() -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
   'use strict';
 
@@ -3445,17 +3458,6 @@ function renderCompletedArea(){
     });
   })();
   </script>
-
-  <!-- ═══ PATH C — EXISTING CUSTOMER MODAL ═══ -->
-  <div id="path-c-modal" hidden role="dialog" aria-modal="true" aria-labelledby="path-c-modal-heading">
-    <div class="path-c-overlay">
-      <div class="path-c-card">
-        <div id="path-c-card-inner">
-          <!-- populated by wirePathCModal() -->
-        </div>
-      </div>
-    </div>
-  </div>
 
 </body>
 </html>
