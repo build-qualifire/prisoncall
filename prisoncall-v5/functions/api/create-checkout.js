@@ -223,11 +223,11 @@ export async function onRequestPost(context) {
        or for multi-plan orders (2+ plans). customer and customer_email are mutually
        exclusive in Stripe Checkout. */
     if (applyBundle) {
-      if (bundleCustomerId) {
+      if (bundleCustomerId && !isTestMode) {
         sessionParams.append('customer', bundleCustomerId);
       }
       sessionParams.append('discounts[0][coupon]', bundleCouponId);
-      console.log('[create-checkout] Bundle discount applied — coupon:', bundleCouponId, isMultiPlan ? '(multi-plan)' : '(Path C recognition)');
+      console.log('[create-checkout] Bundle discount applied — coupon:', bundleCouponId, isMultiPlan ? '(multi-plan)' : '(Path C recognition)', bundleCustomerId && !isTestMode ? '+ customer linked' : '(no customer link — test mode or new customer)');
     } else {
       /* customer_email not set by default — Stripe collects it */
     }

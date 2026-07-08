@@ -2703,7 +2703,8 @@
       }
       else { throw new Error(data.error || 'Unexpected response'); }
     })
-    .catch(function(){
+    .catch(function(err){
+      console.error('[doMainCheckout] error:', err && err.message ? err.message : err);
       var b = document.getElementById('checkoutBtn');
       if(b){ b.textContent = 'Activate my number now'; b.style.pointerEvents = ''; }
       var msg = document.createElement('p');
@@ -2767,6 +2768,7 @@
     /* ── MOBILE ENTRY STATE — initial state for unrecognised / fresh sessions ── */
     function showMobileEntryState() {
       inner.innerHTML = [
+        '<button class="path-c-close" id="path-c-close-mobile" aria-label="Close">\u00d7</button>',
         '<h2 class="path-c-heading" id="path-c-modal-heading">Already have a Prisoncall plan?</h2>',
         '<p class="path-c-body">Enter your mobile number below. We\u2019ll check if you have an active plan and apply your 10% bundle discount automatically.</p>',
         '<input type="tel" class="path-c-input" id="path-c-mobile-input" inputmode="numeric" ',
@@ -2776,10 +2778,17 @@
         '<p class="path-c-send-error" id="path-c-check-error"></p>'
       ].join('');
 
+      var closeMobileBtn = document.getElementById('path-c-close-mobile');
       var mobileInp = document.getElementById('path-c-mobile-input');
       var inputErr  = document.getElementById('path-c-input-error');
       var checkBtn  = document.getElementById('path-c-check-btn');
       var checkErr  = document.getElementById('path-c-check-error');
+
+      if(closeMobileBtn) closeMobileBtn.addEventListener('click', function(){
+        hidePathCModal();
+        /* pathCModalShown stays false — modal will fire again if
+           customer goes back to Step 2 and re-selects prison */
+      });
 
       if(mobileInp) mobileInp.focus();
 
@@ -2828,6 +2837,7 @@
     function showOtpVerifyState(cleanMobile, recognisedStripeId) {
       var masked = maskMobilePathC(cleanMobile);
       inner.innerHTML = [
+        '<button class="path-c-close" id="path-c-close-otp" aria-label="Close">\u00d7</button>',
         '<p class="path-c-recognised-line">\u2713 Active Prisoncall plan found</p>',
         '<h2 class="path-c-heading">Confirm it\u2019s you</h2>',
         '<p class="path-c-body">We\u2019ve sent a 6-digit code to <strong>' + escHtml(masked) + '</strong>. Enter it below to apply your 10% bundle discount.</p>',
@@ -2841,12 +2851,21 @@
         '<button class="path-c-back-link" id="path-c-back2" style="margin-top:10px;display:block;">\u2190 Use a different number</button>'
       ].join('');
 
+      var closeOtpBtn = document.getElementById('path-c-close-otp');
       var codeInp    = document.getElementById('path-c-code-input');
       var codeErr    = document.getElementById('path-c-code-error');
       var confirmBtn = document.getElementById('path-c-confirm-btn');
       var confirmErr = document.getElementById('path-c-confirm-error');
       var resendBtn  = document.getElementById('path-c-resend');
       var backBtn2   = document.getElementById('path-c-back2');
+
+      if(closeOtpBtn) closeOtpBtn.addEventListener('click', function(){
+        bundleApplied            = false;
+        existingStripeCustomerId = null;
+        hidePathCModal();
+        /* pathCModalShown stays false — modal will fire again if
+           customer goes back to Step 2 and re-selects prison */
+      });
 
       if(codeInp) codeInp.focus();
 
