@@ -1920,7 +1920,7 @@
     el.className = 'step-section'; el.dataset.step = '3';
     el.innerHTML = [
       '<p class="step-eyebrow">Step 3 of 4</p>',
-      '<h2 class="step-heading">Enter your mobile number</h2>',
+      '<h2 class="step-heading">Enter the mobile number to receive prison calls</h2>',
       '<p class="mobile-hint">Your loved one\'s prison is covered. Calls will be forwarded to this number.</p>',
       '<input class="mobile-input" type="tel" inputmode="numeric" placeholder="04xx xxx xxx" maxlength="14" autocomplete="tel" value="'+fmtMobile+'">',
       '<p class="mobile-error">Please enter a valid Australian mobile number (e.g. 0412 345 678)</p>',
@@ -2056,9 +2056,9 @@
       if(!ackCheck.checked) return;
       removeStepsFrom(3);
       if(!pathCModalShown){
-        pathCModalShown = true;
         showPathCModal();
-        /* Step 3 is rendered when the customer exits the modal — see wirePathCModal() */
+        /* pathCModalShown is set to true only when customer completes
+           the modal — inside wirePathCModal() exit paths */
       } else {
         var s3 = buildStep3El(null);
         planFlow.appendChild(s3);
@@ -2721,28 +2721,11 @@
 
   /* Wire Path C modal events — called once at page init.
      restoreDefault() runs at the end; it reads bundleApplied to decide
-     whether to show the welcome-back state or the full sign-in state. */
+     whether to show the welcome-back state or the mobile entry state. */
   function wirePathCModal() {
     var modal = document.getElementById('path-c-modal');
     var inner = document.getElementById('path-c-card-inner');
     if(!modal || !inner) return;
-
-    var DEFAULT_HTML = [
-      '<button class="path-c-close" id="path-c-close" aria-label="Close">\u00d7</button>',
-      '<h2 class="path-c-heading" id="path-c-modal-heading">Already have a Prisoncall plan?</h2>',
-      '<p class="path-c-body">Sign in to automatically apply your 10% bundle discount on every renewal.</p>',
-      '<hr class="path-c-divider">',
-      '<div class="path-c-btn-group">',
-        '<div class="path-c-btn-wrap">',
-          '<button class="path-c-btn-primary" id="path-c-signin-btn">Sign in</button>',
-          '<p class="path-c-btn-sub">Enter your mobile number to sign in</p>',
-        '</div>',
-        '<div class="path-c-btn-wrap">',
-          '<button class="path-c-btn-secondary" id="path-c-continue-btn">Continue</button>',
-          '<p class="path-c-btn-sub">Bundle discount applies when I add a second plan</p>',
-        '</div>',
-      '</div>'
-    ].join('');
 
     /* ── Proceed to Step 3 after modal exits — same render path as direct transition ── */
     function proceedToStep3() {
@@ -2771,75 +2754,26 @@
       });
     }
 
-    /* restoreDefault: show welcome-back if bundleApplied, else full 2-button state */
-    function restoreDefault() {
-      if(bundleApplied){
-        showWelcomeBackState();
-      } else {
-        inner.innerHTML = DEFAULT_HTML;
-        bindDefaultButtons();
-      }
-    }
-
-    function bindDefaultButtons() {
-      var closeBtn    = document.getElementById('path-c-close');
-      var signinBtn   = document.getElementById('path-c-signin-btn');
-      var continueBtn = document.getElementById('path-c-continue-btn');
-
-      if(closeBtn) closeBtn.addEventListener('click', function(){
-        bundleApplied            = false;
-        existingStripeCustomerId = null;
-        hidePathCModal();
-        proceedToStep3();
-      });
-
-      if(continueBtn) continueBtn.addEventListener('click', function(){
-        bundleApplied            = false;
-        existingStripeCustomerId = null;
-        hidePathCModal();
-        proceedToStep3();
-      });
-
-      if(signinBtn) signinBtn.addEventListener('click', function(){
-        showMobileInputState(null);
-      });
-    }
-
-    /* ── MOBILE ENTRY PHASE ──
-       prefillMobile: 10-digit string to pre-fill, or null.
-       When prefillMobile is a valid AU mobile the Send code POST fires automatically
-       (handles the "Resend" use-case). */
-    function showMobileInputState(prefillMobile) {
-      var fmtVal = prefillMobile || '';
+    /* ── MOBILE ENTRY STATE — initial state for unrecognised / fresh sessions ── */
+    function showMobileEntryState() {
       inner.innerHTML = [
-        '<button class="path-c-close" id="path-c-close2" aria-label="Close">\u00d7</button>',
-        '<h2 class="path-c-heading">Enter the mobile number you used when you first joined Prisoncall</h2>',
-        '<p class="path-c-body">We\u2019ll send a 6-digit code to confirm it\u2019s you</p>',
+        '<h2 class="path-c-heading" id="path-c-modal-heading">Already have a Prisoncall plan?</h2>',
+        '<p class="path-c-body">Enter your mobile number below \u2014 we\u2019ll check if you have an active plan and apply your 10% bundle discount automatically.</p>',
         '<input type="tel" class="path-c-input" id="path-c-mobile-input" inputmode="numeric" ',
-          'placeholder="04xx xxx xxx" maxlength="10" autocomplete="tel" value="' + escHtml(fmtVal) + '">',
+          'placeholder="04xx xxx xxx" maxlength="10" autocomplete="tel">',
         '<p class="path-c-input-error" id="path-c-input-error"></p>',
-        '<button class="path-c-send-btn" id="path-c-send-btn">Send code</button>',
-        '<p class="path-c-send-error" id="path-c-send-error"></p>',
-        '<button class="path-c-back-link" id="path-c-back">\u2190 Back</button>'
+        '<button class="path-c-send-btn" id="path-c-check-btn">Check</button>',
+        '<p class="path-c-send-error" id="path-c-check-error"></p>',
+        '<button class="path-c-back-link" id="path-c-skip-link">Skip \u2014 I\u2019m new to Prisoncall</button>'
       ].join('');
 
-      var closeBtn2 = document.getElementById('path-c-close2');
       var mobileInp = document.getElementById('path-c-mobile-input');
       var inputErr  = document.getElementById('path-c-input-error');
-      var sendBtn   = document.getElementById('path-c-send-btn');
-      var sendErr   = document.getElementById('path-c-send-error');
-      var backBtn   = document.getElementById('path-c-back');
+      var checkBtn  = document.getElementById('path-c-check-btn');
+      var checkErr  = document.getElementById('path-c-check-error');
+      var skipLink  = document.getElementById('path-c-skip-link');
 
       if(mobileInp) mobileInp.focus();
-
-      if(closeBtn2) closeBtn2.addEventListener('click', function(){
-        bundleApplied            = false;
-        existingStripeCustomerId = null;
-        hidePathCModal();
-        proceedToStep3();
-      });
-
-      if(backBtn) backBtn.addEventListener('click', restoreDefault);
 
       if(mobileInp) mobileInp.addEventListener('input', function(){
         mobileInp.classList.remove('has-error');
@@ -2847,65 +2781,65 @@
         mobileInp.value = mobileInp.value.replace(/\D/g,'').slice(0,10);
       });
 
-      function doSendCode() {
-        var raw = (mobileInp ? mobileInp.value.replace(/\D/g,'') : '');
-        if(!/^04\d{8}$/.test(raw)){
+      if(skipLink) skipLink.addEventListener('click', function(){
+        bundleApplied            = false;
+        existingStripeCustomerId = null;
+        pathCModalShown          = true;
+        hidePathCModal();
+        proceedToStep3();
+      });
+
+      if(checkBtn) checkBtn.addEventListener('click', function(){
+        var cleanMobile = (mobileInp ? mobileInp.value.replace(/\D/g,'') : '');
+        if(!/^04\d{8}$/.test(cleanMobile)){
           if(mobileInp) mobileInp.classList.add('has-error');
           if(inputErr){ inputErr.textContent = 'Enter a valid Australian mobile number'; inputErr.classList.add('is-visible'); }
           return;
         }
-        if(sendBtn){ sendBtn.textContent = 'Sending\u2026'; sendBtn.disabled = true; }
-        if(mobileInp){ mobileInp.disabled = true; }
-        if(sendErr){ sendErr.textContent = ''; sendErr.classList.remove('is-visible'); }
+        checkBtn.textContent = 'Checking\u2026';
+        checkBtn.disabled = true;
+        if(mobileInp) mobileInp.disabled = true;
+        if(inputErr){ inputErr.classList.remove('is-visible'); inputErr.textContent = ''; }
+        if(checkErr){ checkErr.classList.remove('is-visible'); checkErr.textContent = ''; }
 
-        fetch('/send-otp', {
+        fetch('/api/check-existing-customer', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mobile: raw })
+          body: JSON.stringify({ mobile: cleanMobile })
         })
         .then(function(r){ return r.json(); })
         .then(function(d){
-          if(d.success){
-            showCodeEntryPhase(raw);
+          if(d.recognised){
+            showOtpVerifyState(cleanMobile, d.stripe_customer_id || null);
           } else {
-            if(sendBtn){ sendBtn.textContent = 'Send code'; sendBtn.disabled = false; }
-            if(mobileInp){ mobileInp.disabled = false; }
-            if(sendErr){ sendErr.textContent = d.error || 'Failed to send code. Please try again.'; sendErr.classList.add('is-visible'); }
+            showNotRecognisedState();
           }
         })
         .catch(function(){
-          if(sendBtn){ sendBtn.textContent = 'Send code'; sendBtn.disabled = false; }
-          if(mobileInp){ mobileInp.disabled = false; }
-          if(sendErr){ sendErr.textContent = 'Failed to send code. Please try again.'; sendErr.classList.add('is-visible'); }
+          checkBtn.textContent = 'Check';
+          checkBtn.disabled = false;
+          if(mobileInp) mobileInp.disabled = false;
+          if(checkErr){ checkErr.textContent = 'Something went wrong. Please try again.'; checkErr.classList.add('is-visible'); }
         });
-      }
-
-      if(sendBtn) sendBtn.addEventListener('click', doSendCode);
-
-      /* Auto-fire when called from Resend (pre-filled valid mobile) */
-      if(prefillMobile && /^04\d{8}$/.test(prefillMobile)){
-        doSendCode();
-      }
+      });
     }
 
-    /* ── CODE ENTRY PHASE ──
-       cleanMobile: validated 10-digit string from the mobile entry phase. */
-    function showCodeEntryPhase(cleanMobile) {
+    /* ── OTP VERIFY STATE — reached when Supabase confirms an active plan ── */
+    function showOtpVerifyState(cleanMobile, recognisedStripeId) {
       var masked = maskMobilePathC(cleanMobile);
       inner.innerHTML = [
-        '<button class="path-c-close" id="path-c-close3" aria-label="Close">\u00d7</button>',
-        '<h2 class="path-c-heading">Enter your 6-digit code</h2>',
-        '<p class="path-c-body">Sent to <strong>' + escHtml(masked) + '</strong></p>',
+        '<p class="path-c-recognised-line">\u2713 Active Prisoncall plan found</p>',
+        '<h2 class="path-c-heading">\u2018Confirm it\u2019s you</h2>',
+        '<p class="path-c-body">We\u2019ve sent a 6-digit code to <strong>' + escHtml(masked) + '</strong>. Enter it below to apply your 10% bundle discount.</p>',
         '<input type="tel" class="path-c-input" id="path-c-code-input" inputmode="numeric" ',
           'placeholder="000000" maxlength="6" autocomplete="one-time-code">',
         '<p class="path-c-input-error" id="path-c-code-error"></p>',
         '<button class="path-c-send-btn" id="path-c-confirm-btn">Confirm</button>',
         '<p class="path-c-send-error" id="path-c-confirm-error"></p>',
         '<button class="path-c-back-link" id="path-c-resend">Didn\u2019t get it? Resend</button>',
-        '<button class="path-c-back-link" id="path-c-back2" style="margin-top:6px;">\u2190 Back</button>'
+        '<button class="path-c-back-link" id="path-c-back2" style="margin-top:6px;">\u2190 Use a different number</button>'
       ].join('');
 
-      var closeBtn3  = document.getElementById('path-c-close3');
       var codeInp    = document.getElementById('path-c-code-input');
       var codeErr    = document.getElementById('path-c-code-error');
       var confirmBtn = document.getElementById('path-c-confirm-btn');
@@ -2915,26 +2849,50 @@
 
       if(codeInp) codeInp.focus();
 
-      if(closeBtn3) closeBtn3.addEventListener('click', function(){
-        bundleApplied            = false;
-        existingStripeCustomerId = null;
-        hidePathCModal();
-        proceedToStep3();
-      });
+      /* Send OTP immediately on entering this state */
+      function doSendOtp() {
+        fetch('/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile: cleanMobile })
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if(!d.success){
+            if(confirmErr){ confirmErr.textContent = 'Failed to send code. Please try again.'; confirmErr.classList.add('is-visible'); }
+          }
+        })
+        .catch(function(){
+          if(confirmErr){ confirmErr.textContent = 'Failed to send code. Please try again.'; confirmErr.classList.add('is-visible'); }
+        });
+      }
+      doSendOtp();
 
-      /* Back → mobile entry phase, mobile pre-filled, no auto-send */
       if(backBtn2) backBtn2.addEventListener('click', function(){
-        showMobileInputState(cleanMobile);
+        showMobileEntryState();
       });
 
-      /* Resend → mobile entry phase, mobile pre-filled, auto-sends immediately */
       if(resendBtn) resendBtn.addEventListener('click', function(){
-        showMobileInputState(cleanMobile);
+        if(codeInp){ codeInp.value = ''; codeInp.focus(); }
+        if(codeErr){ codeErr.classList.remove('is-visible'); codeErr.textContent = ''; }
+        if(confirmErr){ confirmErr.classList.remove('is-visible'); confirmErr.textContent = ''; }
+        fetch('/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile: cleanMobile })
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if(confirmErr){ confirmErr.textContent = 'Code resent \u2713'; confirmErr.classList.add('is-visible'); }
+        })
+        .catch(function(){
+          if(confirmErr){ confirmErr.textContent = 'Failed to resend. Please try again.'; confirmErr.classList.add('is-visible'); }
+        });
       });
 
       if(confirmBtn) confirmBtn.addEventListener('click', function(){
-        var clean = (codeInp ? codeInp.value.replace(/\D/g,'') : '');
-        if(!/^\d{6}$/.test(clean)){
+        var cleanCode = (codeInp ? codeInp.value.replace(/\D/g,'') : '');
+        if(!/^\d{6}$/.test(cleanCode)){
           if(codeInp) codeInp.classList.add('has-error');
           if(codeErr){ codeErr.textContent = 'Enter the 6-digit code from your SMS'; codeErr.classList.add('is-visible'); }
           return;
@@ -2948,40 +2906,24 @@
         fetch('/verify-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mobile: cleanMobile, code: clean })
+          body: JSON.stringify({ mobile: cleanMobile, code: cleanCode })
         })
         .then(function(r){ return r.json(); })
         .then(function(d){
           if(d.success){
-            /* OTP verified — POST mobile to check-existing-customer (no cookie dependency) */
-            return fetch('/api/check-existing-customer', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ mobile: cleanMobile })
-            })
-            .then(function(r2){ return r2.json(); })
-            .then(function(d2){
-              if(d2.recognised){
-                bundleApplied            = true;
-                existingStripeCustomerId = d2.stripe_customer_id || null;
-                try {
-                  localStorage.setItem('prisoncall_bundle_recognition', JSON.stringify({
-                    recognised:        true,
-                    stripe_customer_id: d2.stripe_customer_id || null,
-                    mobile:            cleanMobile,
-                    timestamp:         Date.now()
-                  }));
-                } catch(_){}
-                hidePathCModal();
-                proceedToStep3();
-              } else {
-                bundleApplied            = false;
-                existingStripeCustomerId = null;
-                noExistingPlanFlag       = true;
-                hidePathCModal();
-                proceedToStep3();
-              }
-            });
+            bundleApplied            = true;
+            existingStripeCustomerId = recognisedStripeId;
+            try {
+              localStorage.setItem('prisoncall_bundle_recognition', JSON.stringify({
+                recognised:         true,
+                stripe_customer_id: recognisedStripeId,
+                mobile:             cleanMobile,
+                timestamp:          Date.now()
+              }));
+            } catch(_){}
+            pathCModalShown = true;
+            hidePathCModal();
+            proceedToStep3();
           } else {
             confirmBtn.textContent = 'Confirm';
             confirmBtn.disabled = false;
@@ -3000,6 +2942,38 @@
           if(confirmErr){ confirmErr.textContent = 'Something went wrong. Please try again.'; confirmErr.classList.add('is-visible'); }
         });
       });
+    }
+
+    /* ── NOT RECOGNISED STATE — shown when Supabase returns recognised: false ── */
+    function showNotRecognisedState() {
+      inner.innerHTML = [
+        '<h2 class="path-c-heading" id="path-c-modal-heading">Welcome to Prisoncall!</h2>',
+        '<p class="path-c-body">You\u2019re all set. Bundle discount applies automatically when you add a second plan for another family member.</p>',
+        '<div class="path-c-btn-group">',
+          '<div class="path-c-btn-wrap">',
+            '<button class="path-c-btn-primary" id="path-c-nr-continue-btn">Continue</button>',
+          '</div>',
+        '</div>'
+      ].join('');
+
+      var nrBtn = document.getElementById('path-c-nr-continue-btn');
+      if(nrBtn) nrBtn.addEventListener('click', function(){
+        bundleApplied            = false;
+        existingStripeCustomerId = null;
+        noExistingPlanFlag       = false;
+        pathCModalShown          = true;
+        hidePathCModal();
+        proceedToStep3();
+      });
+    }
+
+    /* restoreDefault: show welcome-back if bundleApplied, else mobile entry state */
+    function restoreDefault() {
+      if(bundleApplied){
+        showWelcomeBackState();
+      } else {
+        showMobileEntryState();
+      }
     }
 
     restoreDefault();
