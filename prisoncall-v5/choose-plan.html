@@ -2688,7 +2688,6 @@
     .then(function(res){ return res.json(); })
     .then(function(data){
       if(data.url){
-        localStorage.removeItem('prisoncall_bundle_recognition');
         window.location.href = data.url;
       }
       else { throw new Error(data.error || 'Unexpected response'); }
@@ -2734,25 +2733,6 @@
       planFlow.appendChild(s3);
       wireStep3(s3);
       scrollToEl(s3, true);
-    }
-
-    /* ── WELCOME BACK STATE — shown when localStorage recognition is valid ── */
-    function showWelcomeBackState() {
-      inner.innerHTML = [
-        '<h2 class="path-c-heading" id="path-c-modal-heading">Welcome back!</h2>',
-        '<p class="path-c-body">Your 10% bundle discount has been applied.</p>',
-        '<div class="path-c-btn-group">',
-          '<div class="path-c-btn-wrap">',
-            '<button class="path-c-btn-primary" id="path-c-wb-continue-btn">Continue</button>',
-          '</div>',
-        '</div>'
-      ].join('');
-
-      var wbBtn = document.getElementById('path-c-wb-continue-btn');
-      if(wbBtn) wbBtn.addEventListener('click', function(){
-        hidePathCModal();
-        proceedToStep3();
-      });
     }
 
     /* ── MOBILE ENTRY STATE — initial state for unrecognised / fresh sessions ── */
@@ -2932,14 +2912,6 @@
           if(d.success){
             bundleApplied            = true;
             existingStripeCustomerId = recognisedStripeId;
-            try {
-              localStorage.setItem('prisoncall_bundle_recognition', JSON.stringify({
-                recognised:         true,
-                stripe_customer_id: recognisedStripeId,
-                mobile:             cleanMobile,
-                timestamp:          Date.now()
-              }));
-            } catch(_){}
             showBundleConfirmedState();
           } else {
             confirmBtn.textContent = 'Confirm';
@@ -2991,13 +2963,9 @@
       });
     }
 
-    /* restoreDefault: show welcome-back if bundleApplied, else mobile entry state */
+    /* restoreDefault: always show mobile entry state — full flow every visit */
     function restoreDefault() {
-      if(bundleApplied){
-        showWelcomeBackState();
-      } else {
-        showMobileEntryState();
-      }
+      showMobileEntryState();
     }
 
     restoreDefault();
@@ -3372,24 +3340,7 @@ function renderCompletedArea(){
 
   /* â”€â”€â”€ Init â”€â”€â”€ */
   (function(){
-    /* 1. Check 24-hour localStorage recognition BEFORE wiring modal.
-       wirePathCModal() reads bundleApplied at the end (via restoreDefault())
-       to decide whether to render the welcome-back state or full sign-in state. */
-    try {
-      var _recRaw = localStorage.getItem('prisoncall_bundle_recognition');
-      if(_recRaw){
-        var _rec = JSON.parse(_recRaw);
-        if(_rec && _rec.recognised && typeof _rec.timestamp === 'number' &&
-           Date.now() - _rec.timestamp < 86400000){
-          bundleApplied            = true;
-          existingStripeCustomerId = _rec.stripe_customer_id || null;
-        } else {
-          localStorage.removeItem('prisoncall_bundle_recognition');
-        }
-      }
-    } catch(_){}
-
-    /* 2. Wire the Path C modal once — events fire on Step 2→3 transition */
+    /* Wire the Path C modal once — events fire on Step 2→3 transition */
     wirePathCModal();
 
     if(getUrlState() || getUrlPrison()){
