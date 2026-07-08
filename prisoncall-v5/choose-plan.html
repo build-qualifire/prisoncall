@@ -1911,8 +1911,8 @@
       '<h2 class="step-heading">Select prison</h2>',
       '<div class="prison-grid">'+pillsHtml+'</div>',
       '<div class="ack-block">',
-        '<h3 class="step-heading" style="margin-bottom:6px;">Your number is being registered</h3>',
-        '<p class="step-hint">We source your number directly from Telstra. Your number will be active within 24 hours (weekdays only, orders placed on weekends or public holidays may take longer).</p>',
+        '<h3 class="step-heading" style="margin-bottom:6px;">Prisoncall is available for your chosen prison.</h3>',
+        '<p class="step-hint">Your number will be registered within 24 hours. Weekday orders only \u2014 orders placed on weekends or public holidays may take longer.</p>',
         '<label class="no-num-check-label">',
           '<input type="checkbox" class="no-num-check ack-check">',
           'I understand my Prisoncall number will be ready within 24 hours (weekdays only, orders placed on weekends or public holidays may take longer).',
@@ -2768,7 +2768,7 @@
     /* ── MOBILE ENTRY STATE — initial state for unrecognised / fresh sessions ── */
     function showMobileEntryState() {
       inner.innerHTML = [
-        '<button class="path-c-close" id="path-c-close-mobile" aria-label="Close">\u00d7</button>',
+        '<button class="path-c-close" id="path-c-close-mobile" aria-label="Close"><img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="18" height="18" alt="" aria-hidden="true" style="display:block;"></button>',
         '<h2 class="path-c-heading" id="path-c-modal-heading">Already have a Prisoncall plan?</h2>',
         '<p class="path-c-body">Enter your mobile number below. We\u2019ll check if you have an active plan and apply your 10% bundle discount automatically.</p>',
         '<input type="tel" class="path-c-input" id="path-c-mobile-input" inputmode="numeric" ',
@@ -2837,8 +2837,8 @@
     function showOtpVerifyState(cleanMobile, recognisedStripeId) {
       var masked = maskMobilePathC(cleanMobile);
       inner.innerHTML = [
-        '<button class="path-c-close" id="path-c-close-otp" aria-label="Close">\u00d7</button>',
-        '<p class="path-c-recognised-line">\u2713 Active Prisoncall plan found</p>',
+        '<p class="path-c-recognised-line">Active Prisoncall plan found</p>',
+        '<button class="path-c-close" id="path-c-close-otp" aria-label="Close"><img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="18" height="18" alt="" aria-hidden="true" style="display:block;"></button>',
         '<h2 class="path-c-heading">Confirm it\u2019s you</h2>',
         '<p class="path-c-body">We\u2019ve sent a 6-digit code to <strong>' + escHtml(masked) + '</strong>. Enter it below to apply your 10% bundle discount.</p>',
         '<input type="tel" class="path-c-input" id="path-c-code-input" inputmode="numeric" ',
@@ -2846,9 +2846,7 @@
         '<p class="path-c-input-error" id="path-c-code-error"></p>',
         '<button class="path-c-send-btn" id="path-c-confirm-btn">Confirm</button>',
         '<p class="path-c-send-error" id="path-c-confirm-error"></p>',
-        '<button class="path-c-back-link" id="path-c-resend">Didn\u2019t get it? Resend</button>',
-        '<span style="display:block;margin-top:10px;border-top:1px solid var(--color-border);"></span>',
-        '<button class="path-c-back-link" id="path-c-back2" style="margin-top:10px;display:block;">\u2190 Use a different number</button>'
+        '<button class="path-c-back-link" id="path-c-resend">Didn\u2019t get it? Resend</button>'
       ].join('');
 
       var closeOtpBtn = document.getElementById('path-c-close-otp');
@@ -2857,7 +2855,6 @@
       var confirmBtn = document.getElementById('path-c-confirm-btn');
       var confirmErr = document.getElementById('path-c-confirm-error');
       var resendBtn  = document.getElementById('path-c-resend');
-      var backBtn2   = document.getElementById('path-c-back2');
 
       if(closeOtpBtn) closeOtpBtn.addEventListener('click', function(){
         bundleApplied            = false;
@@ -2887,10 +2884,6 @@
         });
       }
       doSendOtp();
-
-      if(backBtn2) backBtn2.addEventListener('click', function(){
-        showMobileEntryState();
-      });
 
       if(resendBtn) resendBtn.addEventListener('click', function(){
         if(codeInp){ codeInp.value = ''; codeInp.focus(); }
