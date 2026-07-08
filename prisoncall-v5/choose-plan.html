@@ -2758,20 +2758,18 @@
     function showMobileEntryState() {
       inner.innerHTML = [
         '<h2 class="path-c-heading" id="path-c-modal-heading">Already have a Prisoncall plan?</h2>',
-        '<p class="path-c-body">Enter your mobile number below \u2014 we\u2019ll check if you have an active plan and apply your 10% bundle discount automatically.</p>',
+        '<p class="path-c-body">Enter your mobile number below. We\u2019ll check if you have an active plan and apply your 10% bundle discount automatically.</p>',
         '<input type="tel" class="path-c-input" id="path-c-mobile-input" inputmode="numeric" ',
           'placeholder="04xx xxx xxx" maxlength="10" autocomplete="tel">',
         '<p class="path-c-input-error" id="path-c-input-error"></p>',
         '<button class="path-c-send-btn" id="path-c-check-btn">Check</button>',
-        '<p class="path-c-send-error" id="path-c-check-error"></p>',
-        '<button class="path-c-back-link" id="path-c-skip-link">Skip \u2014 I\u2019m new to Prisoncall</button>'
+        '<p class="path-c-send-error" id="path-c-check-error"></p>'
       ].join('');
 
       var mobileInp = document.getElementById('path-c-mobile-input');
       var inputErr  = document.getElementById('path-c-input-error');
       var checkBtn  = document.getElementById('path-c-check-btn');
       var checkErr  = document.getElementById('path-c-check-error');
-      var skipLink  = document.getElementById('path-c-skip-link');
 
       if(mobileInp) mobileInp.focus();
 
@@ -2779,14 +2777,6 @@
         mobileInp.classList.remove('has-error');
         if(inputErr){ inputErr.classList.remove('is-visible'); inputErr.textContent = ''; }
         mobileInp.value = mobileInp.value.replace(/\D/g,'').slice(0,10);
-      });
-
-      if(skipLink) skipLink.addEventListener('click', function(){
-        bundleApplied            = false;
-        existingStripeCustomerId = null;
-        pathCModalShown          = true;
-        hidePathCModal();
-        proceedToStep3();
       });
 
       if(checkBtn) checkBtn.addEventListener('click', function(){
