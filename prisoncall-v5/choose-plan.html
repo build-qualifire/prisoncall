@@ -1565,6 +1565,7 @@
   var bundleApplied            = false; // true when an existing active subscription is found
   var existingStripeCustomerId = null;  // Stripe customer ID from silent recognition
   var noExistingPlanFlag       = false; // true when OTP verified but no active plan found for the number
+  var pathCModalShown          = false; // true once the modal has fired this page session (Step 2→3)
 
   var planFlow      = document.getElementById('planFlow');
   var completedArea = document.getElementById('completedArea');
@@ -2037,14 +2038,20 @@
       ackCont.disabled = !ackCheck.checked;
     });
 
-    /* Continue â€” ack accepted, advance to Step 3 */
+    /* Continue — ack accepted: first time → show Path C modal; repeat → go straight to Step 3 */
     ackCont.addEventListener('click', function(){
       if(!ackCheck.checked) return;
       removeStepsFrom(3);
-      var s3 = buildStep3El(null);
-      planFlow.appendChild(s3);
-      wireStep3(s3);
-      scrollToEl(s3, true);
+      if(!pathCModalShown){
+        pathCModalShown = true;
+        showPathCModal();
+        /* Step 3 is rendered when the customer exits the modal — see wirePathCModal() */
+      } else {
+        var s3 = buildStep3El(null);
+        planFlow.appendChild(s3);
+        wireStep3(s3);
+        scrollToEl(s3, true);
+      }
     });
 
     /* Prison pills */
@@ -2724,44 +2731,12 @@
       '</div>'
     ].join('');
 
-    /* ── After every modal choice: restore cart if available, else start fresh ── */
-    function afterModalChoice() {
-      var raw = localStorage.getItem('prisoncall_checkout_state');
-      if(raw){
-        try {
-          var saved = JSON.parse(raw);
-          if(saved && Array.isArray(saved.entries) && saved.entries.length > 0 &&
-             Date.now() - saved.timestamp < 345600000){
-            saved.entries.forEach(function(e){ entries.push(e); });
-            nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
-            planFlow.innerHTML = '';
-            clearGate();
-            if(PRICING){
-              renderCompletedArea();
-            } else if(pricingFetchDone){
-              entries = [];
-              localStorage.removeItem('prisoncall_checkout_state');
-              startNewPlan(getUrlState(), getUrlPrison());
-            } else {
-              completedArea.innerHTML =
-                '<p style="padding:24px 0;text-align:center;font-size:14px;color:var(--color-muted);">Loading your saved plan\u2026</p>';
-              whenPricingReady(function(ok){
-                if(ok){
-                  renderCompletedArea();
-                } else {
-                  entries = [];
-                  completedArea.innerHTML = '';
-                  localStorage.removeItem('prisoncall_checkout_state');
-                  startNewPlan(null);
-                }
-              });
-            }
-            return;
-          }
-        } catch(e){}
-        localStorage.removeItem('prisoncall_checkout_state');
-      }
-      startNewPlan(getUrlState(), getUrlPrison());
+    /* ── Proceed to Step 3 after modal exits — same render path as direct transition ── */
+    function proceedToStep3() {
+      var s3 = buildStep3El(null);
+      planFlow.appendChild(s3);
+      wireStep3(s3);
+      scrollToEl(s3, true);
     }
 
     /* ── WELCOME BACK STATE — shown when localStorage recognition is valid ── */
@@ -2779,7 +2754,7 @@
       var wbBtn = document.getElementById('path-c-wb-continue-btn');
       if(wbBtn) wbBtn.addEventListener('click', function(){
         hidePathCModal();
-        afterModalChoice();
+        proceedToStep3();
       });
     }
 
@@ -2802,14 +2777,14 @@
         bundleApplied            = false;
         existingStripeCustomerId = null;
         hidePathCModal();
-        afterModalChoice();
+        proceedToStep3();
       });
 
       if(continueBtn) continueBtn.addEventListener('click', function(){
         bundleApplied            = false;
         existingStripeCustomerId = null;
         hidePathCModal();
-        afterModalChoice();
+        proceedToStep3();
       });
 
       if(signinBtn) signinBtn.addEventListener('click', function(){
@@ -2848,7 +2823,7 @@
         bundleApplied            = false;
         existingStripeCustomerId = null;
         hidePathCModal();
-        afterModalChoice();
+        proceedToStep3();
       });
 
       if(backBtn) backBtn.addEventListener('click', restoreDefault);
@@ -2931,7 +2906,7 @@
         bundleApplied            = false;
         existingStripeCustomerId = null;
         hidePathCModal();
-        afterModalChoice();
+        proceedToStep3();
       });
 
       /* Back → mobile entry phase, mobile pre-filled, no auto-send */
@@ -2985,13 +2960,13 @@
                   }));
                 } catch(_){}
                 hidePathCModal();
-                afterModalChoice();
+                proceedToStep3();
               } else {
                 bundleApplied            = false;
                 existingStripeCustomerId = null;
                 noExistingPlanFlag       = true;
                 hidePathCModal();
-                afterModalChoice();
+                proceedToStep3();
               }
             });
           } else {
@@ -3395,13 +3370,51 @@ function renderCompletedArea(){
       }
     } catch(_){}
 
-    /* 2. Wire modal events — restoreDefault() at the end picks welcome-back or full state */
+    /* 2. Wire the Path C modal once — events fire on Step 2→3 transition */
     wirePathCModal();
 
-    /* 3. Always show the modal on every page load.
-       startNewPlan() and cart restore are handled inside wirePathCModal
-       after the customer makes their choice (via afterModalChoice()). */
-    showPathCModal();
+    if(getUrlState() || getUrlPrison()){
+      startNewPlan(getUrlState(), getUrlPrison());
+      return;
+    }
+    /* Otherwise restore any saved cart (navigate away, home button, back button, etc.)
+       Cart is only cleared on: successful payment, or customer removes all plans. */
+    var raw = localStorage.getItem('prisoncall_checkout_state');
+    if(raw){
+      try {
+        var saved = JSON.parse(raw);
+        if(saved && Array.isArray(saved.entries) && saved.entries.length > 0 &&
+           Date.now() - saved.timestamp < 345600000){
+          saved.entries.forEach(function(e){ entries.push(e); });
+          nextId = entries.reduce(function(max, e){ return Math.max(max, e.id + 1); }, nextId);
+          planFlow.innerHTML = '';
+          clearGate();
+          if(PRICING){
+            renderCompletedArea();
+          } else if(pricingFetchDone){
+            entries = [];
+            localStorage.removeItem('prisoncall_checkout_state');
+            startNewPlan(null);
+          } else {
+            completedArea.innerHTML =
+              '<p style="padding:24px 0;text-align:center;font-size:14px;color:var(--color-muted);">Loading your saved plan\u2026</p>';
+            whenPricingReady(function(ok){
+              if(ok){
+                renderCompletedArea();
+              } else {
+                entries = [];
+                completedArea.innerHTML = '';
+                localStorage.removeItem('prisoncall_checkout_state');
+                startNewPlan(null);
+              }
+            });
+          }
+          return;
+        }
+      } catch(e){}
+      localStorage.removeItem('prisoncall_checkout_state');
+    }
+    startNewPlan(getUrlState(), getUrlPrison());
   }());
 
   /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
