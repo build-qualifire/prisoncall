@@ -1947,7 +1947,6 @@
           '<span class="state-btn__abbr">NSW</span><span class="state-btn__name">New South Wales</span>',
         '</button>',
       '</div>',
-      '<button class="dev-panel__btn" id="devSkipToStep4" type="button">Skip to Step 4</button>'
     ].join('');
     return el;
   }
@@ -2432,7 +2431,7 @@
         '<h4 class="addon-lifetime__heading">Get all three add-ons for life.</h4>',
         '<p class="addon-lifetime__sub">'+'\$'+ltp.toFixed(2)+' once. Never pay for transfers, cancellations, or renewal refunds again. Ever.</p>',
         '<button class="addon-lifetime__btn" type="button">Get lifetime protection \u2014 $'+ltp.toFixed(2)+'</button>',
-      '</div>'
+      '</div>',
     ].join('');
     return div;
   }
@@ -3498,7 +3497,8 @@ function renderCompletedArea(){
           '<input type="checkbox" id="devToggleOTP">',
           '<span class="dev-toggle__track"></span>',
         '</label>',
-      '</div>'
+      '</div>',
+      '<button class="dev-panel__btn" id="devSkipToStep4" type="button">Skip to Step 4</button>'
     ].join('');
     document.body.appendChild(panel);
     /* Wire toggle to DEV_FLAGS â€” updates take effect immediately */
