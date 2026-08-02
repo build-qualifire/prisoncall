@@ -324,7 +324,7 @@
     @media (min-width: 768px) { .carousel-outer { overflow: visible; margin: 0; } }
 
     .carousel-track {
-      display: flex; gap: 12px; align-items: stretch;
+      display: flex; gap: 12px; align-items: center;
       overflow-x: scroll; scroll-snap-type: x mandatory; scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch; scrollbar-width: none;
       padding: 8px 10% 20px;
@@ -335,7 +335,7 @@
       .carousel-track {
         overflow: visible; scroll-snap-type: none;
         padding: 28px 0 16px; gap: 12px;
-        align-items: stretch;
+        align-items: center;
       }
     }
 
@@ -686,9 +686,14 @@
     /* Equiv rate line below price (Annual card) */
     .plan-card__equiv { font-size: 11px; color: var(--color-muted); margin-top: 4px; transition: color var(--tr); display: none; }
     .plan-card.is-selected .plan-card__equiv { color: rgba(255,255,255,0.55); display: block; }
-    /* Savings line variant for Half-Yearly card — always visible, subtle green detail */
-    .plan-card__equiv--savings { display: block !important; color: #00D258; font-size: 13px; font-weight: 400; margin-top: 6px; margin-bottom: 0; line-height: 1.4; }
-    .plan-card.is-selected .plan-card__equiv--savings { color: #00D258; }
+    /* Outlined SAVE 17% pill shown inline after the Half-Yearly plan name */
+    .plan-name__save-pill {
+      display: inline-flex; align-items: center;
+      border: 1.5px solid #00D258; color: #00D258; background: transparent;
+      font-size: 8px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 1px 5px; border-radius: 80px;
+      vertical-align: middle; margin-left: 5px; line-height: 1;
+    }
 
     /* Top-right selected indicator: white circle, black checkmark */
     .plan-card__selected-indicator {
@@ -1332,7 +1337,7 @@
   function buildPlansArray() {
     var defs = [
       { key:'annual',      badge:'Best Value',   badgeCls:'',            cls:'plan-card--annual',      equivFn: function(p){ return '$'+(p.price/12).toFixed(2)+'/month'; } },
-      { key:'half_yearly', badge:'Best Value',   badgeCls:'',            cls:'plan-card--half-yearly', equivFn: function(p){ return 'Save 17% \u2014 just $'+(p.price/6).toFixed(2)+'/month'; } },
+      { key:'half_yearly', badge:'Best Value',   badgeCls:'',            cls:'plan-card--half-yearly', equivFn: null },
       { key:'monthly',     badge:'Most Popular', badgeCls:'badge--black', cls:'plan-card--monthly',     equivFn: null },
       { key:'fortnightly', badge:'Short Term',   badgeCls:'badge--dark',  cls:'plan-card--fortnightly', equivFn: null },
       { key:'weekly',      badge:null,           badgeCls:'',            cls:'plan-card--weekly',      equivFn: null },
@@ -1968,7 +1973,10 @@
         } else {
           badgeHtml = '<span class="plan-card__badge-spacer"></span>';
         }
-        var equivHtml = p.equiv ? '<p class="plan-card__equiv'+(p.key === 'half_yearly' ? ' plan-card__equiv--savings' : '')+'">'+p.equiv+'</p>' : '';
+        var equivHtml = p.equiv ? '<p class="plan-card__equiv">'+p.equiv+'</p>' : '';
+        var planNameHtml = p.key === 'half_yearly'
+          ? p.name+'<span class="plan-name__save-pill">Save 17%</span>'
+          : p.name;
         var featHtml = FEATURES.map(function(f){
           return '<li class="plan-card__feature"><img src="/assets/icons/feature_icons/icon_check_black.svg" alt="" width="20" height="20" class="plan-card__check" aria-hidden="true">'+f+'</li>';
         }).join('');
@@ -1977,7 +1985,7 @@
             '<div class="plan-card__header">',
               '<div class="plan-card__selected-indicator">'+CHECK_INDICATOR_SVG+'</div>',
               badgeHtml,
-              '<p class="plan-card__plan-name">'+p.name+'</p>',
+              '<p class="plan-card__plan-name">'+planNameHtml+'</p>',
               '<div class="plan-card__price">',
                 '<span class="plan-card__amount">$'+p.amount.toFixed(2)+'</span>',
                 '<span class="plan-card__period"> / '+p.period+'</span>',
