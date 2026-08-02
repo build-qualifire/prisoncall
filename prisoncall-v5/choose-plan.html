@@ -3191,6 +3191,22 @@
     return t;
   }
 
+  /* Returns the sum of RECURRING add-on prices only (excludes one-time add-ons:
+     addon1 = 48hr Cancellation Guarantee, lifetimeAll = Lifetime Protection). 
+     Used as the discount base so 10% bundle discount never applies to one-time items. */
+  function getRecurringAddonTotal(planKey, addons) {
+    if(!addons) return 0;
+    if(addons.lifetimeAll) return 0; /* lifetimeAll is one-time and supersedes recurring addons */
+    /* addon1 (48hr Cancellation Guarantee) is one-time — excluded */
+    var t = 0;
+    if(addons.combo23) t += PRICING.addons.combo23[planKey] || 0;
+    else {
+      if(addons.addon2) t += PRICING.addons.addon2[planKey] || 0;
+      if(addons.addon3) t += PRICING.addons.addon3[planKey] || 0;
+    }
+    return t;
+  }
+
   function buildSummaryAddonLines(e) {
     if(!e.addons) return '';
     var pk   = e.planKey;
@@ -3237,7 +3253,9 @@ function renderCompletedArea(){
     var isBundle        = entries.length >= 2;
     var planTotal  = entries.reduce(function(s,e){ return s + (PRICING.plans[e.planKey] ? PRICING.plans[e.planKey].price : 0); }, 0);
     var addonTotal = entries.reduce(function(s,e){ return s + getAddonTotal(e.planKey, e.addons); }, 0);
-    var rawTotal       = planTotal + addonTotal;
+    var rawTotal          = planTotal + addonTotal;
+    var recurringAddonTotal = entries.reduce(function(s,e){ return s + getRecurringAddonTotal(e.planKey, e.addons); }, 0);
+    var recurringTotal      = planTotal + recurringAddonTotal;
     /* Interval mismatch detection — must run before isBundleOrder so the
        discount display and discount codes correctly respect mismatched intervals */
     var INTERVAL_ORDER = { weekly: 1, fortnightly: 2, monthly: 3, annual: 4 };
@@ -3257,8 +3275,8 @@ function renderCompletedArea(){
 
     /* Discount applies only when intervals match (or bundleApplied via Path C) */
     var isBundleOrder  = (isBundle && !hasIntervalMismatch) || bundleApplied;
-    var discountAmount = isBundleOrder ? Math.round(rawTotal * 0.1 * 100) / 100 : 0;
-    var finalTotal     = isBundleOrder ? Math.round(rawTotal * 0.9 * 100) / 100 : rawTotal;
+    var discountAmount = isBundleOrder ? Math.round(recurringTotal * 0.1 * 100) / 100 : 0;
+    var finalTotal     = isBundleOrder ? Math.round((rawTotal - discountAmount) * 100) / 100 : rawTotal;
 
     /* Summary lines â€” entry being edited shown dimmed with tag */
     entries.forEach(function(e){
