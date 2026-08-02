@@ -2775,6 +2775,14 @@
 
     entries.forEach(function(e){
       var addons   = e.addons || {};
+
+      /* Count one-time add-ons for every entry regardless of plan key — must
+         happen before the planMap guard so entries with unmapped plan keys
+         (e.g. annual, weekly) still contribute to one-time quantities. */
+      if(addons.lifetimeAll) lifetimeQty++;
+      if(addons.addon3)      addon3Qty++;
+
+      /* Recurring plan variant — only add if plan key is in the map */
       var planMap  = VARIANT_MAP[e.planKey];
       if(!planMap) return;
 
@@ -2797,9 +2805,6 @@
           { key: 'assigned_mobile', value: e.mobile  }
         ]
       });
-
-      if(addons.lifetimeAll) lifetimeQty++;
-      if(addons.addon3)      addon3Qty++;
     });
 
     /* One-time add-ons: quantity reflects how many plans have the addon selected */
