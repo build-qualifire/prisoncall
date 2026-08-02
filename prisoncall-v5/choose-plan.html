@@ -2736,40 +2736,97 @@
     return d.slice(0,4) + ' \u2022\u2022\u2022\u2022 ' + d.slice(-3);
   }
 
-  /* Module-level checkout function — called by the CTA click handler and
-     by the modal "Continue" / close-X buttons. Passes bundle data to the API. */
+  /* Module-level checkout function — wires cart entries into a Shopify cartCreate
+     via /api/shopify-cart, then redirects to the returned checkoutUrl. */
   function doMainCheckout() {
     var btn   = document.getElementById('checkoutBtn');
     var errEl = document.getElementById('checkoutBtnError');
     if(errEl){ errEl.parentNode.removeChild(errEl); }
-    var customerMobile = entries.length > 0 ? entries[0].mobile : '';
-    var plansArray = entries.map(function(e){
-      return {
-        prison_name:     e.prison,
-        prison_state:    e.state,
-        assigned_mobile: e.mobile,
-        plan_interval:   e.planKey,
-        bundle:          entries.length >= 2,
-        addons:          e.addons || {}
-      };
+    if(btn){ btn.textContent = 'Processing\u2026'; btn.style.pointerEvents = 'none'; }
+
+    /* ── Variant + selling-plan lookup (fortnightly / monthly / half_yearly) ── */
+    var VARIANT_MAP = {
+      fortnightly: {
+        base:    { variantId: '54535954497815',  sellingPlanId: '698693091607' },
+        addon1:  { variantId: '54535954891031',  sellingPlanId: '698693091607' },
+        addon2:  { variantId: '54535954956567',  sellingPlanId: '698693091607' },
+        combo23: { variantId: '54535955218711',  sellingPlanId: '698693091607' }
+      },
+      monthly: {
+        base:    { variantId: '54535955382551',  sellingPlanId: '698693124375' },
+        addon1:  { variantId: '54535955546391',  sellingPlanId: '698693124375' },
+        addon2:  { variantId: '54535955710231',  sellingPlanId: '698693124375' },
+        combo23: { variantId: '54535955841303',  sellingPlanId: '698693124375' }
+      },
+      half_yearly: {
+        base:    { variantId: '54535956005143',  sellingPlanId: '698693157143' },
+        addon1:  { variantId: '54535957020951',  sellingPlanId: '698693157143' },
+        addon2:  { variantId: '54535957086487',  sellingPlanId: '698693157143' },
+        combo23: { variantId: '54535957119255',  sellingPlanId: '698693157143' }
+      }
+    };
+    var LIFETIME_VARIANT = '54535991394583';
+    var ADDON3_VARIANT   = '54535991361815';
+
+    var lineItems = [];
+    var needLifetime = false;
+    var needAddon3   = false;
+
+    entries.forEach(function(e){
+      var addons   = e.addons || {};
+      var planMap  = VARIANT_MAP[e.planKey];
+      if(!planMap) return;
+
+      /* Pick the right recurring variant for this entry */
+      var comboKey = 'base';
+      if(addons.combo23)       comboKey = 'combo23';
+      else if(addons.addon1)   comboKey = 'addon1';
+      else if(addons.addon2)   comboKey = 'addon2';
+
+      var lookup = planMap[comboKey];
+      if(!lookup) return;
+
+      lineItems.push({
+        merchandiseId: 'gid://shopify/ProductVariant/' + lookup.variantId,
+        sellingPlanId: 'gid://shopify/SellingPlan/'  + lookup.sellingPlanId,
+        quantity: 1,
+        attributes: [
+          { key: 'prison_name',     value: e.prison  },
+          { key: 'prison_state',    value: e.state   },
+          { key: 'assigned_mobile', value: e.mobile  }
+        ]
+      });
+
+      if(addons.lifetimeAll) needLifetime = true;
+      if(addons.addon3)      needAddon3   = true;
     });
-    if(btn){ btn.textContent = 'Preparing checkout\u2026'; btn.style.pointerEvents = 'none'; }
-    fetch('/api/create-checkout', {
+
+    /* One-time add-ons are appended once, regardless of plan count */
+    if(needLifetime){
+      lineItems.push({ merchandiseId: 'gid://shopify/ProductVariant/' + LIFETIME_VARIANT, quantity: 1 });
+    }
+    if(needAddon3){
+      lineItems.push({ merchandiseId: 'gid://shopify/ProductVariant/' + ADDON3_VARIANT,   quantity: 1 });
+    }
+
+    var attributes = [
+      { key: 'customer_mobile', value: entries.length > 0 ? entries[0].mobile : '' },
+      { key: 'bundle',          value: entries.length >= 2 ? 'true' : 'false' }
+    ];
+    var discountCodes = entries.length >= 2 ? ['BUNDLE10'] : [];
+
+    fetch('/api/shopify-cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        plans:              plansArray,
-        customer_mobile:    customerMobile,
-        bundle:             bundleApplied || entries.length >= 2,
-        stripe_customer_id: existingStripeCustomerId
-      })
+      body: JSON.stringify({ lineItems: lineItems, attributes: attributes, discountCodes: discountCodes })
     })
     .then(function(res){ return res.json(); })
     .then(function(data){
-      if(data.url){
-        window.location.href = data.url;
+      if(data.checkoutUrl){
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error(data.error || 'Unexpected response');
       }
-      else { throw new Error(data.error || 'Unexpected response'); }
     })
     .catch(function(err){
       console.error('[doMainCheckout] error:', err && err.message ? err.message : err);
@@ -2781,11 +2838,12 @@
       msg.style.marginTop = '0.5em';
       msg.style.fontSize = '13px';
       msg.style.fontWeight = '600';
-      msg.textContent = 'Something went wrong. Please try again.';
+      msg.textContent = 'Something went wrong. Please try again.'
       var b2 = document.getElementById('checkoutBtn');
       if(b2){ b2.parentNode.insertBefore(msg, b2.nextSibling); }
     });
   }
+
 
   /* Show / hide the Path C modal */
   function showPathCModal() {
