@@ -2767,30 +2767,34 @@
       }
     };
     var LIFETIME_VARIANT = '54535991394583';
-    var ADDON3_VARIANT   = '54535991361815';
+    var ADDON1_VARIANT   = '54535991361815'; /* 48hr Cancellation Guarantee */
 
     var lineItems    = [];
     var lifetimeQty  = 0;
-    var addon3Qty    = 0;
+    var addon1Qty    = 0; /* addon1 = 48hr Cancellation Guarantee (one-time) */
 
     entries.forEach(function(e){
       var addons   = e.addons || {};
 
       /* Count one-time add-ons for every entry regardless of plan key — must
          happen before the planMap guard so entries with unmapped plan keys
-         (e.g. annual, weekly) still contribute to one-time quantities. */
+         (e.g. annual, weekly) still contribute to one-time quantities.
+         addon1 = 48hr CG (one-time); lifetimeAll = Lifetime Protection (one-time). */
       if(addons.lifetimeAll) lifetimeQty++;
-      if(addons.addon3)      addon3Qty++;
+      if(addons.addon1)      addon1Qty++;
 
       /* Recurring plan variant — only add if plan key is in the map */
       var planMap  = VARIANT_MAP[e.planKey];
       if(!planMap) return;
 
-      /* Pick the right recurring variant for this entry */
+      /* Map real selectedAddons keys to VARIANT_MAP lookup keys:
+           addons.addon2 (Transfer Guarantee)  → VARIANT_MAP 'addon1'
+           addons.addon3 (Renewal Guarantee)   → VARIANT_MAP 'addon2'
+           addons.addon1 (48hr CG) is one-time — never affects recurring variant */
       var comboKey = 'base';
       if(addons.combo23)       comboKey = 'combo23';
-      else if(addons.addon1)   comboKey = 'addon1';
-      else if(addons.addon2)   comboKey = 'addon2';
+      else if(addons.addon2)   comboKey = 'addon1';
+      else if(addons.addon3)   comboKey = 'addon2';
 
       var lookup = planMap[comboKey];
       if(!lookup) return;
@@ -2811,8 +2815,8 @@
     if(lifetimeQty > 0){
       lineItems.push({ merchandiseId: 'gid://shopify/ProductVariant/' + LIFETIME_VARIANT, quantity: lifetimeQty });
     }
-    if(addon3Qty > 0){
-      lineItems.push({ merchandiseId: 'gid://shopify/ProductVariant/' + ADDON3_VARIANT,   quantity: addon3Qty });
+    if(addon1Qty > 0){
+      lineItems.push({ merchandiseId: 'gid://shopify/ProductVariant/' + ADDON1_VARIANT, quantity: addon1Qty });
     }
 
     var attributes = [
