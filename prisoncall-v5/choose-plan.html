@@ -1225,8 +1225,8 @@
         lifetimeAll: { label: 'Lifetime All 3 Add-ons',         type: 'one-time'  },
       }
     };
-    var PERIOD_MAP = { weekly: 'week', fortnightly: 'fortnight', monthly: 'month', annual: 'year' };
-    var LABEL_MAP  = { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', annual: 'Annual' };
+    var PERIOD_MAP = { weekly: 'week', fortnightly: 'fortnight', monthly: 'month', half_yearly: '6 months', annual: 'year' };
+    var LABEL_MAP  = { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', half_yearly: 'Half-Yearly', annual: 'Annual' };
 
     /* Name-based fallback — checked in order (most-specific first) when
        includes flags are absent or do not resolve to a known addon key.
@@ -1292,7 +1292,7 @@
         /* is_one_time flag drives one-time vs recurring treatment */
         if (isOneTime) {
           /* One-time add-on: same price regardless of which plan the customer picks */
-          ao.weekly = ao.fortnightly = ao.monthly = ao.annual = price;
+          ao.weekly = ao.fortnightly = ao.monthly = ao.half_yearly = ao.annual = price;
           if (p.stripe_price_id) ao.stripe_price_id = p.stripe_price_id;
           if (productName) ao.label = productName.replace(/\s*[-\u2013]\s*(Weekly|Fortnightly|Monthly|Annual|One.?time)$/i, '').trim();
         } else if (PERIOD_MAP[interval]) {
@@ -1326,6 +1326,7 @@
   function buildPlansArray() {
     var defs = [
       { key:'annual',      badge:'Best Value',   badgeCls:'',            cls:'plan-card--annual',      equivFn: function(p){ return '$'+(p.price/12).toFixed(2)+'/month'; } },
+      { key:'half_yearly', badge:null,           badgeCls:'',            cls:'plan-card--half-yearly', equivFn: function(p){ return '$'+(p.price/6).toFixed(2)+'/month'; } },
       { key:'monthly',     badge:'Most Popular', badgeCls:'badge--black', cls:'plan-card--monthly',     equivFn: null },
       { key:'fortnightly', badge:null,           badgeCls:'',            cls:'plan-card--fortnightly', equivFn: null },
       { key:'weekly',      badge:null,           badgeCls:'',            cls:'plan-card--weekly',      equivFn: null },
