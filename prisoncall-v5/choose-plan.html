@@ -1228,14 +1228,8 @@
     var PERIOD_MAP = { weekly: 'week', fortnightly: 'fortnight', monthly: 'month', annual: 'year' };
     var LABEL_MAP  = { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', annual: 'Annual' };
 
-    /* product_key (after stripping trailing interval suffix) → addon key */
-    var KEY_TO_ADDON = {
-      addon_48hr: 'addon1', addon_transfer: 'addon2',
-      addon_post_renewal: 'addon3', addon_combo23: 'combo23', addon_lifetime: 'lifetimeAll'
-    };
-
     /* Name-based fallback — checked in order (most-specific first) when
-       product_key is absent or doesn't match KEY_TO_ADDON.
+       includes flags are absent or do not resolve to a known addon key.
        Matches against product_name using case-insensitive regex. */
     var NAME_PATTERNS = [
       { re: /combo|bundle.{0,10}deal/i,               key: 'combo23'     },
@@ -1246,16 +1240,19 @@
     ];
 
     products.forEach(function(p) {
-      var price       = parseFloat(p.price) || 0;
-      var productType = (p.product_type || p.type  || '').toLowerCase();
-      var productName =  p.product_name  || p.name || '';
-      var productKey  =  p.product_key   || '';
-      var interval    = (p.interval      || '').toLowerCase();
+      var price       = parseFloat(p.plan_price) || 0;
+      var productName = p.product_name || '';
+      var interval    = (p.plan_interval || '').toLowerCase();
+      var isOneTime   = !!p.is_one_time;
 
-      console.log('[Prisoncall] product row:', productType, '|', productKey, '|', interval, '|', price, '|', productName);
+      console.log('[Prisoncall] product row:', productName, '|', interval, '|', price, '| one_time:', isOneTime,
+        '| transfer:', p.includes_transfer_guarantee, '| renewal:', p.includes_renewal_guarantee, '| combo:', p.includes_combo);
 
-      if (productType === 'plan') {
-        /* Plan row — interval is the plan key (weekly / fortnightly / monthly / annual) */
+      /* A row is a base plan when none of the add-on flags are set and it is not one-time */
+      var isAddon = !!(p.includes_transfer_guarantee || p.includes_renewal_guarantee || p.includes_combo || isOneTime);
+
+      if (!isAddon) {
+        /* Plan row — plan_interval is the plan key (weekly / fortnightly / monthly / annual) */
         if (PERIOD_MAP[interval]) {
           pricing.plans[interval] = {
             price: price, interval: PERIOD_MAP[interval],
@@ -1264,16 +1261,20 @@
           };
         }
       } else {
-        /* Add-on row — find the addon key via product_key or product_name */
+        /* Add-on row — identify via includes flags first, then product_name */
         var addonKey = null;
 
-        if (productKey) {
-          /* Strip trailing interval/payment-type suffix, then look up */
-          var stripped = productKey.replace(/_(weekly|fortnightly|monthly|annual|one_time)$/i, '');
-          addonKey = KEY_TO_ADDON[stripped] || KEY_TO_ADDON[productKey] || null;
+        if (p.is_one_time && (p.includes_combo || (p.includes_transfer_guarantee && p.includes_renewal_guarantee))) {
+          addonKey = 'lifetimeAll';
+        } else if (p.includes_combo) {
+          addonKey = 'combo23';
+        } else if (p.includes_transfer_guarantee) {
+          addonKey = 'addon2';
+        } else if (p.includes_renewal_guarantee) {
+          addonKey = 'addon3';
         }
 
-        /* Fallback: match product_name when product_key is absent or unmapped */
+        /* Fallback: match product_name when flags are absent or unmapped */
         if (!addonKey && productName) {
           for (var i = 0; i < NAME_PATTERNS.length; i++) {
             if (NAME_PATTERNS[i].re.test(productName)) { addonKey = NAME_PATTERNS[i].key; break; }
@@ -1281,16 +1282,14 @@
         }
 
         if (!addonKey) {
-          console.warn('[Prisoncall] buildPricingFromProducts: cannot map row to addon — skipping:', productKey, productType, productName);
+          console.warn('[Prisoncall] buildPricingFromProducts: cannot map row to addon — skipping:', productName);
           return;
         }
 
         var ao = pricing.addons[addonKey];
         if (!ao) return;
 
-        /* One-time: product_type is 'one_time', interval is blank or literally 'one_time' */
-        var isOneTime = productType === 'one_time' || interval === 'one_time' || !interval;
-
+        /* is_one_time flag drives one-time vs recurring treatment */
         if (isOneTime) {
           /* One-time add-on: same price regardless of which plan the customer picks */
           ao.weekly = ao.fortnightly = ao.monthly = ao.annual = price;
@@ -2000,8 +1999,8 @@
       '<button class="mobile-continue plan-continue" type="button">Continue &rarr;</button>',
       '<button class="step-back step-back--bottom" type="button" data-back="4">'+BACK_SVG+' Step 3</button>'
     ].join('');
-    /* Only insert the add-on section when PRICING is available */
-    if(PRICING){
+    /* Only insert the add-on section when PRICING loaded successfully */
+    if(PRICING && !pricingFetchError){
       el.querySelector('.plan-continue').insertAdjacentElement('beforebegin', buildAddonSection(defaultKey));
     }
     return el;
