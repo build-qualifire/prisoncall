@@ -3275,7 +3275,7 @@ function renderCompletedArea(){
 
     /* Discount applies only when intervals match (or bundleApplied via Path C) */
     var isBundleOrder  = (isBundle && !hasIntervalMismatch) || bundleApplied;
-    var discountAmount = isBundleOrder ? Math.round(recurringTotal * 0.1 * 100) / 100 : 0;
+    var discountAmount = isBundleOrder ? Math.floor(recurringTotal * 0.1 * 100) / 100 : 0;
     var finalTotal     = isBundleOrder ? Math.round((rawTotal - discountAmount) * 100) / 100 : rawTotal;
 
     /* Summary lines â€” entry being edited shown dimmed with tag */
