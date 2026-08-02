@@ -3238,11 +3238,8 @@ function renderCompletedArea(){
     var planTotal  = entries.reduce(function(s,e){ return s + (PRICING.plans[e.planKey] ? PRICING.plans[e.planKey].price : 0); }, 0);
     var addonTotal = entries.reduce(function(s,e){ return s + getAddonTotal(e.planKey, e.addons); }, 0);
     var rawTotal       = planTotal + addonTotal;
-    var isBundleOrder  = isBundle || bundleApplied;
-    var discountAmount = isBundleOrder ? Math.round(rawTotal * 0.1 * 100) / 100 : 0;
-    var finalTotal     = isBundleOrder ? Math.round(rawTotal * 0.9 * 100) / 100 : rawTotal;
-
-    /* Interval mismatch detection */
+    /* Interval mismatch detection — must run before isBundleOrder so the
+       discount display and discount codes correctly respect mismatched intervals */
     var INTERVAL_ORDER = { weekly: 1, fortnightly: 2, monthly: 3, annual: 4 };
     var hasIntervalMismatch = false;
     var pulseEntryId = null;
@@ -3257,6 +3254,11 @@ function renderCompletedArea(){
         });
       }
     }
+
+    /* Discount applies only when intervals match (or bundleApplied via Path C) */
+    var isBundleOrder  = (isBundle && !hasIntervalMismatch) || bundleApplied;
+    var discountAmount = isBundleOrder ? Math.round(rawTotal * 0.1 * 100) / 100 : 0;
+    var finalTotal     = isBundleOrder ? Math.round(rawTotal * 0.9 * 100) / 100 : rawTotal;
 
     /* Summary lines â€” entry being edited shown dimmed with tag */
     entries.forEach(function(e){
