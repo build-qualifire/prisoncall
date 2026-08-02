@@ -324,7 +324,7 @@
     @media (min-width: 768px) { .carousel-outer { overflow: visible; margin: 0; } }
 
     .carousel-track {
-      display: flex; gap: 12px; align-items: center;
+      display: flex; gap: 12px; align-items: stretch;
       overflow-x: scroll; scroll-snap-type: x mandatory; scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch; scrollbar-width: none;
       padding: 8px 10% 20px;
@@ -335,7 +335,7 @@
       .carousel-track {
         overflow: visible; scroll-snap-type: none;
         padding: 28px 0 16px; gap: 12px;
-        align-items: center; /* Monthly floats by being taller, centred vertically */
+        align-items: stretch;
       }
     }
 
@@ -686,8 +686,8 @@
     /* Equiv rate line below price (Annual card) */
     .plan-card__equiv { font-size: 11px; color: var(--color-muted); margin-top: 4px; transition: color var(--tr); display: none; }
     .plan-card.is-selected .plan-card__equiv { color: rgba(255,255,255,0.55); display: block; }
-    /* Savings line variant for Half-Yearly card — always visible, prominent green */
-    .plan-card__equiv--savings { display: block !important; color: #00D258; font-size: 14px; font-weight: 800; margin-top: 14px; margin-bottom: 4px; line-height: 1.3; }
+    /* Savings line variant for Half-Yearly card — always visible, subtle green detail */
+    .plan-card__equiv--savings { display: block !important; color: #00D258; font-size: 13px; font-weight: 400; margin-top: 6px; margin-bottom: 0; line-height: 1.4; }
     .plan-card.is-selected .plan-card__equiv--savings { color: #00D258; }
 
     /* Top-right selected indicator: white circle, black checkmark */
