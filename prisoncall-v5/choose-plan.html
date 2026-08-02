@@ -2769,9 +2769,9 @@
     var LIFETIME_VARIANT = '54535991394583';
     var ADDON3_VARIANT   = '54535991361815';
 
-    var lineItems = [];
-    var needLifetime = false;
-    var needAddon3   = false;
+    var lineItems    = [];
+    var lifetimeQty  = 0;
+    var addon3Qty    = 0;
 
     entries.forEach(function(e){
       var addons   = e.addons || {};
@@ -2798,16 +2798,16 @@
         ]
       });
 
-      if(addons.lifetimeAll) needLifetime = true;
-      if(addons.addon3)      needAddon3   = true;
+      if(addons.lifetimeAll) lifetimeQty++;
+      if(addons.addon3)      addon3Qty++;
     });
 
-    /* One-time add-ons are appended once, regardless of plan count */
-    if(needLifetime){
-      lineItems.push({ merchandiseId: 'gid://shopify/ProductVariant/' + LIFETIME_VARIANT, quantity: 1 });
+    /* One-time add-ons: quantity reflects how many plans have the addon selected */
+    if(lifetimeQty > 0){
+      lineItems.push({ merchandiseId: 'gid://shopify/ProductVariant/' + LIFETIME_VARIANT, quantity: lifetimeQty });
     }
-    if(needAddon3){
-      lineItems.push({ merchandiseId: 'gid://shopify/ProductVariant/' + ADDON3_VARIANT,   quantity: 1 });
+    if(addon3Qty > 0){
+      lineItems.push({ merchandiseId: 'gid://shopify/ProductVariant/' + ADDON3_VARIANT,   quantity: addon3Qty });
     }
 
     var attributes = [
