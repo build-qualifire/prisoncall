@@ -651,6 +651,56 @@
     }
     .dev-toggle input:checked + .dev-toggle__track { background: #00D258; }
     .dev-toggle input:checked + .dev-toggle__track::after { transform: translateX(15px); }
+    .dev-panel__btn {
+      display: block; width: 100%; margin-top: 10px;
+      padding: 6px 10px; font-size: 11px; font-weight: 700; font-family: inherit;
+      background: #00D258; color: #000; border: none; border-radius: 6px; cursor: pointer;
+      text-align: center; letter-spacing: 0.04em;
+    }
+    .dev-panel__btn:hover { opacity: 0.85; }
+
+    /* --- Bundle discount modal --- */
+    .bundle-modal-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(0,0,0,0.55);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    @media (max-width: 767px) {
+      .bundle-modal-overlay { align-items: flex-end; padding: 0; }
+      .bundle-modal {
+        border-radius: 18px 18px 0 0 !important;
+        padding: 28px 24px 36px !important;
+        animation: bundleModalUp 280ms cubic-bezier(0.22,1,0.36,1) both;
+      }
+    }
+    @keyframes bundleModalUp {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+    .bundle-modal {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 36px 32px 32px;
+      max-width: 440px; width: 100%;
+      font-family: var(--font-family);
+    }
+    .bundle-modal__heading {
+      font-size: 22px; font-weight: 800; color: #000;
+      margin: 0 0 12px; line-height: 1.25;
+    }
+    .bundle-modal__body {
+      font-size: 15px; color: #666666; line-height: 1.6; margin: 0 0 28px;
+    }
+    .bundle-modal__btn {
+      display: block; width: 100%; padding: 16px;
+      font-size: 16px; font-weight: 700; font-family: inherit; text-align: center;
+      background: #000; color: #fff;
+      border: none; border-radius: var(--radius-pill); cursor: pointer;
+      transition: opacity 150ms ease;
+    }
+    .bundle-modal__btn:hover { opacity: 0.82; }
+
 
     /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        YOUI-STYLE ROUNDED SECTION PANELS â€” DESKTOP ONLY
@@ -1896,7 +1946,8 @@
         '<button class="state-btn'+(preState==='nsw'?' is-active':'')+'" type="button" data-sv="nsw">',
           '<span class="state-btn__abbr">NSW</span><span class="state-btn__name">New South Wales</span>',
         '</button>',
-      '</div>'
+      '</div>',
+      '<button class="dev-panel__btn" id="devSkipToStep4" type="button">Skip to Step 4</button>'
     ].join('');
     return el;
   }
@@ -3105,6 +3156,18 @@
     return s ? '<div class="summary-line__addons">' + s + '</div>' : '';
   }
 
+  /* === BUNDLE DISCOUNT MODAL === */
+  function showBundleDiscountModal(onContinue) {
+    var overlay = document.createElement('div');
+    overlay.className = 'bundle-modal-overlay';
+    overlay.innerHTML = ['<div class="bundle-modal" role="dialog" aria-modal="true" aria-labelledby="bundleModalHeading">','<h2 class="bundle-modal__heading" id="bundleModalHeading">Already a Prisoncall customer?</h2>','<p class="bundle-modal__body">Log in at the next page to automatically save 10% on this plan.</p>','<button class="bundle-modal__btn" type="button">Continue to checkout</button>','</div>'].join('');
+    document.body.appendChild(overlay);
+    overlay.querySelector('.bundle-modal__btn').addEventListener('click', function(){
+      if(overlay.parentNode){ overlay.parentNode.removeChild(overlay); }
+      onContinue();
+    });
+  }
+
 function renderCompletedArea(){
     var html = '';
     var hasEntries      = entries.length > 0;
@@ -3307,7 +3370,7 @@ function renderCompletedArea(){
           checkoutBtn.parentNode.insertBefore(mismatchMsg, checkoutBtn.nextSibling);
           return;
         }
-        doMainCheckout();
+        showBundleDiscountModal(function(){ doMainCheckout(); });
       });
     }
   }
@@ -3441,6 +3504,29 @@ function renderCompletedArea(){
     /* Wire toggle to DEV_FLAGS â€” updates take effect immediately */
     document.getElementById('devToggleOTP').addEventListener('change', function(){
       DEV_FLAGS.OTP = this.checked;
+    });
+    document.getElementById('devSkipToStep4').addEventListener('click', function(){
+      entries = [];
+      selectedAddons = { addon1:false, addon2:false, addon3:false, combo23:false, lifetimeAll:false };
+      cur = { id: nextId++, state: 'vic', prison: 'Melbourne Assessment Prison', mobile: '0400000001', planKey: null };
+      editId = null;
+      clearGate();
+      planFlow.innerHTML = '';
+      renderCompletedArea();
+      var s1 = buildStep1El('vic');
+      planFlow.appendChild(s1);
+      wireStep1(s1);
+      var s2 = buildStep2El('vic', 'Melbourne Assessment Prison');
+      planFlow.appendChild(s2);
+      wireStep2(s2);
+      var s3 = buildStep3El('0400000001');
+      planFlow.appendChild(s3);
+      wireStep3(s3);
+      var s4 = buildStep4El(null);
+      planFlow.appendChild(s4);
+      wireStep4(s4);
+      scrollToEl(s4, true);
+      if(typeof snapCarouselToKey === 'function'){ snapCarouselToKey(s4, 'monthly'); }
     });
   })();
   </script>
