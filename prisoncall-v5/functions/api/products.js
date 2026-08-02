@@ -26,7 +26,7 @@ export async function onRequestGet(context) {
     });
   }
 
-  const url = `${SUPABASE_URL}/rest/v1/products?active=eq.true&select=*&order=product_type.asc,interval.asc`;
+  const url = `${SUPABASE_URL}/rest/v1/products?active=eq.true&select=id,product_name,plan_interval,plan_interval_type,plan_interval_count,plan_price,includes_transfer_guarantee,includes_renewal_guarantee,includes_combo,is_one_time,active,created_at&order=plan_interval_type.asc,plan_interval.asc`;
   console.log('[products] Querying:', url.replace(SUPABASE_URL, '<SUPABASE_URL>'));
 
   try {
