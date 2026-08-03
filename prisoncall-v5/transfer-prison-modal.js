@@ -38,6 +38,10 @@
     selectedPrison: null,  // chosen in step 4
   };
 
+  /* ── DEV TOOLS state (staging only) ──────────────────────────────────────── */
+  var devSkipStep3 = false;
+  var devPanelEl = null;
+
   /* ── DOM refs ─────────────────────────────────────────────────────────────── */
   var overlay, card, closeConfirmPanel, stepContent;
 
@@ -83,6 +87,42 @@
     inputEl.classList.remove('tpm-has-error');
     errorEl.classList.remove('tpm-visible');
     errorEl.textContent = '';
+  }
+
+  /* ── DEV TOOLS panel (prisoncall.pages.dev only) ────────────────────────── */
+  function injectDevPanel() {
+    if (window.location.hostname !== 'prisoncall.pages.dev') return;
+    if (devPanelEl) return;
+
+    devPanelEl = document.createElement('div');
+    devPanelEl.className = 'tpm-dev-panel';
+    devPanelEl.setAttribute('role', 'region');
+    devPanelEl.setAttribute('aria-label', 'Developer tools');
+    devPanelEl.innerHTML = [
+      '<p class="tpm-dev-panel__title">Dev Tools</p>',
+      '<div class="tpm-dev-panel__row">',
+        '<span class="tpm-dev-panel__label">Skip Step 3</span>',
+        '<label class="tpm-dev-toggle" aria-label="Toggle Skip Step 3">',
+          '<input type="checkbox" id="tpm-dev-toggle-skip3">',
+          '<span class="tpm-dev-toggle__track"></span>',
+        '</label>',
+      '</div>',
+    ].join('');
+    document.body.appendChild(devPanelEl);
+
+    devPanelEl.querySelector('#tpm-dev-toggle-skip3').addEventListener('change', function () {
+      devSkipStep3 = this.checked;
+      var btn = document.getElementById('tpm-dev-skip-step3-btn');
+      if (btn) btn.style.display = devSkipStep3 ? 'block' : 'none';
+    });
+  }
+
+  function removeDevPanel() {
+    if (devPanelEl && devPanelEl.parentNode) {
+      devPanelEl.parentNode.removeChild(devPanelEl);
+    }
+    devPanelEl = null;
+    devSkipStep3 = false;
   }
 
   /* ── CSS injection ────────────────────────────────────────────────────────── */
@@ -208,6 +248,31 @@
         'font-size:28px;color:#fff;}',
       '.tpm-success-heading{font-size:20px;font-weight:700;margin:0 0 10px;color:#000;}',
       '.tpm-success-body{font-size:14px;color:#666;margin:0 0 20px;line-height:1.55;}',
+
+      /* DEV TOOLS panel (staging only) */
+      '.tpm-dev-panel{position:fixed;bottom:16px;right:16px;z-index:10001;',
+        "background:#1a1a1a;color:#fff;padding:12px 14px;border-radius:10px;",
+        "font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;",
+        'box-shadow:0 4px 20px rgba(0,0,0,.4);min-width:148px;}',
+      '.tpm-dev-panel__title{font-size:9px;font-weight:700;letter-spacing:.12em;',
+        'text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:10px;}',
+      '.tpm-dev-panel__row{display:flex;align-items:center;justify-content:space-between;',
+        'gap:14px;margin-bottom:8px;}',
+      '.tpm-dev-panel__row:last-child{margin-bottom:0;}',
+      '.tpm-dev-panel__label{font-size:11px;font-weight:600;color:rgba(255,255,255,.82);}',
+      '.tpm-dev-toggle{position:relative;display:inline-block;width:34px;height:19px;flex-shrink:0;}',
+      '.tpm-dev-toggle input{opacity:0;width:0;height:0;position:absolute;}',
+      '.tpm-dev-toggle__track{position:absolute;inset:0;background:#444;',
+        'border-radius:10px;cursor:pointer;transition:background 150ms ease;}',
+      '.tpm-dev-toggle__track::after{content:"";position:absolute;top:3px;left:3px;',
+        'width:13px;height:13px;background:#fff;border-radius:50%;transition:transform 150ms ease;}',
+      '.tpm-dev-toggle input:checked + .tpm-dev-toggle__track{background:#00D258;}',
+      '.tpm-dev-toggle input:checked + .tpm-dev-toggle__track::after{transform:translateX(15px);}',
+      '.tpm-dev-skip-btn{display:none;width:100%;margin-top:14px;padding:10px 15px;',
+        'font-size:13px;font-weight:700;font-family:inherit;',
+        'background:#1a1a1a;color:#00D258;border:2px solid #00D258;',
+        'border-radius:80px;cursor:pointer;text-align:center;box-sizing:border-box;}',
+      '.tpm-dev-skip-btn:hover{opacity:.85;}',
     ].join('');
     document.head.appendChild(style);
   }
@@ -262,12 +327,14 @@
     hideCloseConfirm();
     overlay.classList.add('tpm-open');
     document.body.style.overflow = 'hidden';
+    injectDevPanel();
     renderStep(1);
   }
 
   function closeModal() {
     overlay.classList.remove('tpm-open');
     document.body.style.overflow = '';
+    removeDevPanel();
     resetState();
   }
 
@@ -766,6 +833,21 @@
           showError(mobileInput, mobileError, 'Failed to send code. Please try again.');
         });
     });
+
+    /* DEV TOOLS — Skip Step 3 button (staging only) */
+    if (window.location.hostname === 'prisoncall.pages.dev') {
+      var devSkipBtn = document.createElement('button');
+      devSkipBtn.id = 'tpm-dev-skip-step3-btn';
+      devSkipBtn.className = 'tpm-dev-skip-btn';
+      devSkipBtn.type = 'button';
+      devSkipBtn.textContent = 'Skip Step 3 (DEV)';
+      devSkipBtn.style.display = devSkipStep3 ? 'block' : 'none';
+      devSkipBtn.addEventListener('click', function () {
+        state.mobile = '0400000000';
+        renderStep(4);
+      });
+      body.appendChild(devSkipBtn);
+    }
   }
 
   /* ── Step 4 — Select new prison ──────────────────────────────────────────── */
