@@ -53,7 +53,8 @@ export async function onRequestPost(context) {
   }
 
   /* Build OR filter: current_did=eq.X,current_did=eq.Y,... */
-  const orFilter = didFormats(did)
+  const formats = didFormats(did);
+  const orFilter = formats
     .map(function (fmt) { return 'current_did.eq.' + encodeURIComponent(fmt); })
     .join(',');
 
@@ -71,27 +72,46 @@ export async function onRequestPost(context) {
       },
     });
 
+    const rawBody = await res.text();
+
+    const debug = {
+      formatsQueried: formats,
+      supabaseStatus: res.status,
+      supabaseBody: rawBody,
+    };
+
     if (!res.ok) {
-      return jsonResponse({ success: false, error: 'Lookup failed' });
+      return jsonResponse({ success: false, error: 'Lookup failed', debug });
     }
 
-    const rows = await res.json();
+    let rows;
+    try { rows = JSON.parse(rawBody); } catch { rows = null; }
+
     if (!Array.isArray(rows) || rows.length === 0) {
-      return jsonResponse({ success: false, error: 'Not found or not active' });
+      return jsonResponse({ success: false, error: 'Not found or not active', debug });
     }
 
     const row = rows[0];
     if (row.status !== 'ACTIVE') {
-      return jsonResponse({ success: false, error: 'Not found or not active' });
+      return jsonResponse({ success: false, error: 'Not found or not active', debug });
     }
 
     return jsonResponse({
       success: true,
       currentPrison: row.prison_name,
       state: row.prison_state,
+      debug,
     });
-  } catch {
-    return jsonResponse({ success: false, error: 'Lookup failed' });
+  } catch (err) {
+    return jsonResponse({
+      success: false,
+      error: 'Lookup failed',
+      debug: {
+        formatsQueried: formats,
+        supabaseStatus: null,
+        supabaseBody: String(err),
+      },
+    });
   }
 }
 
