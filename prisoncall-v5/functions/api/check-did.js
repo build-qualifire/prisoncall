@@ -1,8 +1,8 @@
 /* POST /api/check-did
    Body: { did: "0312345678" }
    Looks up subscriptions table by current_did.
-   Tries all common storage formats in a single OR query so the lookup
-   succeeds regardless of how the DID was originally saved.
+   Tries all common storage formats one at a time using the same simple
+   column=eq.value pattern used by all other functions in this repo.
    Returns { success, currentPrison, state } or { success: false, error }.
 */
 
@@ -30,6 +30,27 @@ function didFormats(digits) {
   ];
 }
 
+/* Single-format lookup — identical pattern to check-existing-customer.js */
+async function queryOneFmt(supabaseUrl, supabaseKey, fmt) {
+  const url =
+    supabaseUrl +
+    '/rest/v1/subscriptions?current_did=eq.' +
+    encodeURIComponent(fmt) +
+    '&status=eq.ACTIVE&select=prison_name,prison_state,status&limit=1';
+
+  const res = await fetch(url, {
+    headers: {
+      Authorization: 'Bearer ' + supabaseKey,
+      apikey:        supabaseKey,
+      'Content-Type': 'application/json',
+      Prefer:        'return=representation',
+    },
+  });
+
+  const text = await res.text();
+  return { status: res.status, ok: res.ok, body: text, url };
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -52,67 +73,43 @@ export async function onRequestPost(context) {
     return jsonResponse({ success: false, error: 'Server misconfiguration' });
   }
 
-  /* Build OR filter: current_did=eq.X,current_did=eq.Y,... */
   const formats = didFormats(did);
-  const orFilter = formats
-    .map(function (fmt) { return 'current_did.eq.' + encodeURIComponent(fmt); })
-    .join(',');
+  const attempts = [];
 
-  const url =
-    SUPABASE_URL +
-    '/rest/v1/subscriptions?or=(' + orFilter + ')' +
-    '&select=prison_name,prison_state,status&limit=1';
-
-  try {
-    const res = await fetch(url, {
-      headers: {
-        Authorization: 'Bearer ' + SUPABASE_KEY,
-        apikey: SUPABASE_KEY,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    const rawBody = await res.text();
-
-    const debug = {
-      formatsQueried: formats,
-      supabaseStatus: res.status,
-      supabaseBody: rawBody,
-    };
-
-    if (!res.ok) {
-      return jsonResponse({ success: false, error: 'Lookup failed', debug });
+  for (const fmt of formats) {
+    let result;
+    try {
+      result = await queryOneFmt(SUPABASE_URL, SUPABASE_KEY, fmt);
+    } catch (err) {
+      attempts.push({ fmt, status: null, body: String(err) });
+      continue;
     }
+
+    attempts.push({ fmt, status: result.status, body: result.body, url: result.url });
+
+    if (!result.ok) continue;
 
     let rows;
-    try { rows = JSON.parse(rawBody); } catch { rows = null; }
+    try { rows = JSON.parse(result.body); } catch { rows = null; }
 
-    if (!Array.isArray(rows) || rows.length === 0) {
-      return jsonResponse({ success: false, error: 'Not found or not active', debug });
+    if (Array.isArray(rows) && rows.length > 0) {
+      const row = rows[0];
+      if (row.status === 'ACTIVE') {
+        return jsonResponse({
+          success: true,
+          currentPrison: row.prison_name,
+          state: row.prison_state,
+          debug: { matchedFormat: fmt, attempts },
+        });
+      }
     }
-
-    const row = rows[0];
-    if (row.status !== 'ACTIVE') {
-      return jsonResponse({ success: false, error: 'Not found or not active', debug });
-    }
-
-    return jsonResponse({
-      success: true,
-      currentPrison: row.prison_name,
-      state: row.prison_state,
-      debug,
-    });
-  } catch (err) {
-    return jsonResponse({
-      success: false,
-      error: 'Lookup failed',
-      debug: {
-        formatsQueried: formats,
-        supabaseStatus: null,
-        supabaseBody: String(err),
-      },
-    });
   }
+
+  return jsonResponse({
+    success: false,
+    error: 'Not found or not active',
+    debug: { formatsQueried: formats, attempts },
+  });
 }
 
 export async function onRequest(context) {
