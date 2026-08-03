@@ -67,7 +67,7 @@ export async function onRequestPost(context) {
   }
 
   const SUPABASE_URL = env.SUPABASE_URL;
-  const SUPABASE_KEY = env.SUPABASE_ANON_KEY;
+  const SUPABASE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     return jsonResponse({ success: false, error: 'Server misconfiguration' });
