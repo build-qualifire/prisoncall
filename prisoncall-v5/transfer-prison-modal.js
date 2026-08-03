@@ -141,6 +141,22 @@
 
       '.tpm-input-sm{font-size:16px;letter-spacing:.03em;}',
 
+      /* Locked-prefix DID input (Step 1) */
+      '.tpm-did-wrap{display:flex;align-items:center;width:100%;padding:16px 18px;',
+        'border:2px solid #e5e5e5;border-radius:16px;background:#fff;box-sizing:border-box;',
+        'transition:border-color 150ms ease;cursor:text;}',
+      '.tpm-did-wrap:focus-within{border-color:#000;}',
+      '.tpm-did-wrap.tpm-has-error{border-color:#e53e3e;}',
+      '.tpm-did-wrap.tpm-did-no-state{background:#f9f9f9;}',
+      '.tpm-did-prefix{font-size:20px;font-weight:700;letter-spacing:.06em;color:#000;',
+        'user-select:none;white-space:nowrap;flex-shrink:0;line-height:1;}',
+      '.tpm-did-prefix.tpm-did-prefix-empty{color:#aaa;font-weight:400;}',
+      '.tpm-did-suffix{flex:1;min-width:0;border:none;outline:none;padding:0;margin:0;',
+        'font-size:20px;font-weight:700;letter-spacing:.06em;font-family:inherit;',
+        'background:transparent;color:#000;}',
+      '.tpm-did-suffix:disabled{cursor:not-allowed;}',
+      '.tpm-did-suffix::placeholder{color:#aaa;font-weight:400;letter-spacing:.03em;}',
+
       '.tpm-error-msg{color:#e53e3e;font-size:14px;margin-top:8px;display:none;}',
       '.tpm-error-msg.tpm-visible{display:block;}',
 
@@ -346,17 +362,38 @@
     toggle.appendChild(nswBtn);
     body.appendChild(toggle);
 
-    /* Number input */
-    var input = document.createElement('input');
-    input.className = 'tpm-input';
-    input.type = 'tel';
-    input.inputMode = 'numeric';
-    input.maxLength = 10;
-    input.placeholder = state.selectedState === 'vic' ? '03XXXXXXXX'
-      : state.selectedState === 'nsw' ? '02XXXXXXXX'
-      : 'Select a state first';
-    input.value = state.did || '';
-    body.appendChild(input);
+    /* Split prefix + suffix input */
+    var didWrap = document.createElement('div');
+    didWrap.className = 'tpm-did-wrap' + (!state.selectedState ? ' tpm-did-no-state' : '');
+
+    var prefixSpan = document.createElement('span');
+    prefixSpan.className = 'tpm-did-prefix' + (!state.selectedState ? ' tpm-did-prefix-empty' : '');
+    prefixSpan.textContent = state.selectedState === 'vic' ? '03'
+      : state.selectedState === 'nsw' ? '02'
+      : '0?';
+
+    var suffixInput = document.createElement('input');
+    suffixInput.type = 'tel';
+    suffixInput.inputMode = 'numeric';
+    suffixInput.className = 'tpm-did-suffix';
+    suffixInput.maxLength = 8;
+    suffixInput.disabled = !state.selectedState;
+    suffixInput.placeholder = state.selectedState ? 'XXXXXXXX' : 'Select a state first';
+
+    /* Restore suffix when navigating back */
+    if (state.did && state.selectedState) {
+      var savedPrefix = state.selectedState === 'vic' ? '03' : '02';
+      suffixInput.value = state.did.startsWith(savedPrefix)
+        ? state.did.slice(2)
+        : state.did.slice(2);
+    }
+
+    /* Click on the wrapper focuses the input */
+    didWrap.addEventListener('click', function () { suffixInput.focus(); });
+
+    didWrap.appendChild(prefixSpan);
+    didWrap.appendChild(suffixInput);
+    body.appendChild(didWrap);
 
     var errorEl = document.createElement('p');
     errorEl.className = 'tpm-error-msg';
@@ -372,61 +409,84 @@
       state.selectedState = st;
       vicBtn.className = 'tpm-state-btn' + (st === 'vic' ? ' tpm-active' : '');
       nswBtn.className = 'tpm-state-btn' + (st === 'nsw' ? ' tpm-active' : '');
-      input.placeholder = st === 'vic' ? '03XXXXXXXX' : '02XXXXXXXX';
-      clearError(input, errorEl);
+      prefixSpan.textContent = st === 'vic' ? '03' : '02';
+      prefixSpan.classList.remove('tpm-did-prefix-empty');
+      suffixInput.disabled = false;
+      suffixInput.placeholder = 'XXXXXXXX';
+      suffixInput.value = '';
+      didWrap.classList.remove('tpm-did-no-state', 'tpm-has-error');
+      errorEl.classList.remove('tpm-visible');
+      errorEl.textContent = '';
+      suffixInput.focus();
     }
 
     vicBtn.addEventListener('click', function () { setActiveState('vic'); });
     nswBtn.addEventListener('click', function () { setActiveState('nsw'); });
 
-    input.addEventListener('input', function () {
-      input.value = input.value.replace(/\D/g, '').slice(0, 10);
-      clearError(input, errorEl);
+    /* Digits only, max 8 */
+    suffixInput.addEventListener('input', function () {
+      suffixInput.value = suffixInput.value.replace(/\D/g, '').slice(0, 8);
+      didWrap.classList.remove('tpm-has-error');
+      errorEl.classList.remove('tpm-visible');
+      errorEl.textContent = '';
     });
 
     continueBtn.addEventListener('click', function () {
-      var val = input.value.replace(/\D/g, '');
-
       if (!state.selectedState) {
-        showError(input, errorEl, 'Please select a state first.');
+        didWrap.classList.add('tpm-has-error');
+        errorEl.textContent = 'Please select a state first.';
+        errorEl.classList.add('tpm-visible');
         return;
       }
+
       var prefix = state.selectedState === 'vic' ? '03' : '02';
       var stateLabel = state.selectedState === 'vic' ? 'VIC' : 'NSW';
-      if (val.length !== 10 || !val.startsWith(prefix)) {
-        showError(input, errorEl, 'Please enter a valid Prisoncall number for ' + stateLabel + '.');
+      var suffix = suffixInput.value.replace(/\D/g, '');
+
+      if (suffix.length !== 8) {
+        didWrap.classList.add('tpm-has-error');
+        errorEl.textContent = 'Please enter all 8 digits for your ' + stateLabel + ' Prisoncall number.';
+        errorEl.classList.add('tpm-visible');
+        suffixInput.focus();
         return;
       }
 
+      var fullNumber = prefix + suffix;
+
       setLoading(continueBtn, 'Checking...');
-      clearError(input, errorEl);
+      didWrap.classList.remove('tpm-has-error');
+      errorEl.classList.remove('tpm-visible');
 
       fetch('/api/check-did', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ did: val }),
+        body: JSON.stringify({ did: fullNumber }),
       })
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data.success) {
-            state.did = val;
+            state.did = fullNumber;
             state.currentPrison = data.currentPrison;
             if (data.state) state.selectedState = data.state.toLowerCase();
             renderStep(2);
           } else {
             restoreBtn(continueBtn, 'Continue');
-            showError(input, errorEl,
-              "We couldn't find an active Prisoncall number matching those details. Please check and try again.");
+            didWrap.classList.add('tpm-has-error');
+            errorEl.textContent =
+              "We couldn't find an active Prisoncall number matching those details. Please check and try again.";
+            errorEl.classList.add('tpm-visible');
           }
         })
         .catch(function () {
           restoreBtn(continueBtn, 'Continue');
-          showError(input, errorEl,
-            "We couldn't find an active Prisoncall number matching those details. Please check and try again.");
+          didWrap.classList.add('tpm-has-error');
+          errorEl.textContent =
+            "We couldn't find an active Prisoncall number matching those details. Please check and try again.";
+          errorEl.classList.add('tpm-visible');
         });
     });
 
-    input.addEventListener('keydown', function (e) {
+    suffixInput.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') { e.preventDefault(); continueBtn.click(); }
     });
   }
