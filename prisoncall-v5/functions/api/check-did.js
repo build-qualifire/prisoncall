@@ -1,6 +1,8 @@
 /* POST /api/check-did
    Body: { did: "0312345678" }
    Looks up subscriptions table by current_did.
+   Tries all common storage formats in a single OR query so the lookup
+   succeeds regardless of how the DID was originally saved.
    Returns { success, currentPrison, state } or { success: false, error }.
 */
 
@@ -9,6 +11,23 @@ function jsonResponse(body) {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   });
+}
+
+/* Build all plausible storage formats for a 10-digit Australian number.
+   e.g. "0361540567" produces:
+     "0361540567"   - as entered
+     "+61361540567" - E.164 with +
+     "61361540567"  - country code without +
+     "361540567"    - 9-digit without leading 0
+*/
+function didFormats(digits) {
+  const withoutLeadingZero = digits.startsWith('0') ? digits.slice(1) : digits;
+  return [
+    digits,
+    '+61' + withoutLeadingZero,
+    '61'  + withoutLeadingZero,
+    withoutLeadingZero,
+  ];
 }
 
 export async function onRequestPost(context) {
@@ -33,20 +52,24 @@ export async function onRequestPost(context) {
     return jsonResponse({ success: false, error: 'Server misconfiguration' });
   }
 
+  /* Build OR filter: current_did=eq.X,current_did=eq.Y,... */
+  const orFilter = didFormats(did)
+    .map(function (fmt) { return 'current_did.eq.' + encodeURIComponent(fmt); })
+    .join(',');
+
+  const url =
+    SUPABASE_URL +
+    '/rest/v1/subscriptions?or=(' + orFilter + ')' +
+    '&select=prison_name,prison_state,status&limit=1';
+
   try {
-    const res = await fetch(
-      SUPABASE_URL +
-        '/rest/v1/subscriptions?current_did=eq.' +
-        encodeURIComponent(did) +
-        '&select=prison_name,prison_state,status&limit=1',
-      {
-        headers: {
-          Authorization: 'Bearer ' + SUPABASE_KEY,
-          apikey: SUPABASE_KEY,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const res = await fetch(url, {
+      headers: {
+        Authorization: 'Bearer ' + SUPABASE_KEY,
+        apikey: SUPABASE_KEY,
+        'Content-Type': 'application/json',
+      },
+    });
 
     if (!res.ok) {
       return jsonResponse({ success: false, error: 'Lookup failed' });
