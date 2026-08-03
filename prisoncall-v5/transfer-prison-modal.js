@@ -999,6 +999,7 @@
           currentPrison: state.currentPrison,
           newPrison: state.selectedPrison,
           mobile: state.mobile,
+          currentState: state.selectedState,
         }),
       })
         .then(function (r) { return r.json(); })

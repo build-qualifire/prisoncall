@@ -1,6 +1,12 @@
 /* POST /api/submit-transfer
-   Body: { did, currentPrison, newPrison, mobile }
+   Body: { did, currentPrison, newPrison, mobile, currentState }
    Inserts a PENDING_SMS_CONFIRM row into the orders table.
+   Column mapping:
+     old_did_number  <- did
+     prison_name     <- currentPrison (the prison being transferred FROM)
+     prison_state    <- currentState ('vic' | 'nsw')
+     admin_notes     <- newPrison (stored here until WF3 in n8n processes the transfer)
+     customer_mobile <- mobile
    WF3 in n8n fires when the customer replies YES to the confirmation SMS.
    Returns { success: true } or { success: false, error }.
 */
@@ -26,26 +32,27 @@ export async function onRequestPost(context) {
   const currentPrison = (body.currentPrison || '').toString().trim();
   const newPrison     = (body.newPrison      || '').toString().trim();
   const mobile        = (body.mobile         || '').replace(/\D/g, '');
+  const currentState  = (body.currentState  || '').toString().trim();
 
   if (!did || !currentPrison || !newPrison || !mobile) {
     return jsonResponse({ success: false, error: 'Missing required fields' });
   }
 
-  const SUPABASE_URL      = env.SUPABASE_URL;
-  const SUPABASE_KEY      = env.SUPABASE_SERVICE_ROLE_KEY;
+  const SUPABASE_URL = env.SUPABASE_URL;
+  const SUPABASE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     return jsonResponse({ success: false, error: 'Server misconfiguration' });
   }
 
   const payload = {
-    order_type:       'TRANSFER',
-    current_did:      did,
-    prison_name:      currentPrison,
-    new_prison:       newPrison,
-    customer_mobile:  mobile,
-    status:           'PENDING_SMS_CONFIRM',
-    created_at:       new Date().toISOString(),
+    order_type:      'TRANSFER',
+    old_did_number:  did,
+    prison_name:     currentPrison,
+    prison_state:    currentState,
+    admin_notes:     newPrison,
+    customer_mobile: mobile,
+    status:          'PENDING_SMS_CONFIRM',
   };
 
   try {
@@ -67,7 +74,7 @@ export async function onRequestPost(context) {
     }
 
     return jsonResponse({ success: true });
-  } catch (err) {
+  } catch {
     return jsonResponse({ success: false, error: 'Insert failed' });
   }
 }
