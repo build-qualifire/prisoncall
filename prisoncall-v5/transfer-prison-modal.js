@@ -675,6 +675,13 @@
           return;
         }
 
+        /* DEV bypass: staging only — 111111 skips Twilio + mobile check */
+        if (window.location.hostname === 'prisoncall.pages.dev' && code === '111111') {
+          state.mobile = cleanMobile;
+          renderStep(4);
+          return;
+        }
+
         setLoading(verifyBtn, 'Verifying...');
 
         fetch('/verify-otp', {
