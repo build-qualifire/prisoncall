@@ -763,33 +763,8 @@
               showError(codeInput, codeError, otpData.error || 'Incorrect code. Please try again.');
               return;
             }
-            /* OTP passed - cross-check mobile against DID account */
-            fetch('/api/check-mobile', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ did: state.did, mobile: cleanMobile }),
-            })
-              .then(function (r) { return r.json(); })
-              .then(function (checkData) {
-                if (checkData.success) {
-                  state.mobile = cleanMobile;
-                  renderStep(4);
-                } else {
-                  restoreBtn(verifyBtn, 'Verify');
-                  restoreBtn(sendBtn, 'Send Code');
-                  /* Show mobile entry again so customer can retry with correct number */
-                  otpWrap.style.display = 'none';
-                  mobileWrap.style.display = 'block';
-                  mobileInput.value = '';
-                  showError(mobileInput, mobileError,
-                    'This mobile number does not match the account for this Prisoncall number.');
-                }
-              })
-              .catch(function () {
-                restoreBtn(verifyBtn, 'Verify');
-                restoreBtn(sendBtn, 'Send Code');
-                showError(codeInput, codeError, 'Something went wrong. Please try again.');
-              });
+            state.mobile = cleanMobile;
+            renderStep(4);
           })
           .catch(function () {
             restoreBtn(verifyBtn, 'Verify');
@@ -816,19 +791,39 @@
       setLoading(sendBtn, 'Sending...');
       clearError(mobileInput, mobileError);
 
-      fetch('/send-otp', {
+      /* Step 1: cross-check mobile against Supabase before sending any SMS */
+      fetch('/api/check-mobile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile: cleanMobile }),
+        body: JSON.stringify({ did: state.did, mobile: cleanMobile }),
       })
         .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data.success) {
-            showOtpPhase(cleanMobile);
-          } else {
+        .then(function (checkData) {
+          if (!checkData.success) {
             restoreBtn(sendBtn, 'Send Code');
-            showError(mobileInput, mobileError, 'Failed to send code. Please try again.');
+            showError(mobileInput, mobileError,
+              'This mobile number does not match the account for this Prisoncall number.');
+            return;
           }
+          /* Step 2: mobile verified — now trigger Twilio OTP */
+          fetch('/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mobile: cleanMobile }),
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+              if (data.success) {
+                showOtpPhase(cleanMobile);
+              } else {
+                restoreBtn(sendBtn, 'Send Code');
+                showError(mobileInput, mobileError, 'Failed to send code. Please try again.');
+              }
+            })
+            .catch(function () {
+              restoreBtn(sendBtn, 'Send Code');
+              showError(mobileInput, mobileError, 'Failed to send code. Please try again.');
+            });
         })
         .catch(function () {
           restoreBtn(sendBtn, 'Send Code');
