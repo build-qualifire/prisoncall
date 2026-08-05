@@ -619,7 +619,7 @@
   function buildStep3(body) {
     body.innerHTML =
       '<h2 class="tpm-heading">Verify your mobile number</h2>' +
-      '<p class="tpm-subtext">We\'ll send a code to confirm this is your account.</p>';
+      '<p class="tpm-subtext">Enter your mobile number. Don\'t enter your assigned mobile number as it may vary if you have multiple plans.</p>';
 
     /* -- Phase A: mobile entry + Send Code -- */
     var mobileWrap = document.createElement('div');
@@ -776,6 +776,7 @@
                   renderStep(4);
                 } else {
                   restoreBtn(verifyBtn, 'Verify');
+                  restoreBtn(sendBtn, 'Send Code');
                   /* Show mobile entry again so customer can retry with correct number */
                   otpWrap.style.display = 'none';
                   mobileWrap.style.display = 'block';
@@ -786,6 +787,7 @@
               })
               .catch(function () {
                 restoreBtn(verifyBtn, 'Verify');
+                restoreBtn(sendBtn, 'Send Code');
                 showError(codeInput, codeError, 'Something went wrong. Please try again.');
               });
           })

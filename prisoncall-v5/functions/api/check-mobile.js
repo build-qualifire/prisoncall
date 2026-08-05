@@ -21,7 +21,8 @@ export async function onRequestPost(context) {
     return jsonResponse({ success: false });
   }
 
-  const did    = (body.did    || '').replace(/\D/g, '');
+  const rawDid = (body.did    || '').replace(/\D/g, '');
+  const did    = rawDid.startsWith('0') ? '61' + rawDid.slice(1) : rawDid;
   const mobile = (body.mobile || '').replace(/\D/g, '');
 
   if (!did || !mobile) {
