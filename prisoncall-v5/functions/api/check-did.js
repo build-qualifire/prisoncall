@@ -48,7 +48,7 @@ async function queryOneFmt(supabaseUrl, supabaseKey, fmt) {
   });
 
   const text = await res.text();
-  return { status: res.status, ok: res.ok, body: text, url };
+  return { ok: res.ok, body: text };
 }
 
 export async function onRequestPost(context) {
@@ -74,18 +74,14 @@ export async function onRequestPost(context) {
   }
 
   const formats = didFormats(did);
-  const attempts = [];
 
   for (const fmt of formats) {
     let result;
     try {
       result = await queryOneFmt(SUPABASE_URL, SUPABASE_KEY, fmt);
-    } catch (err) {
-      attempts.push({ fmt, status: null, body: String(err) });
+    } catch {
       continue;
     }
-
-    attempts.push({ fmt, status: result.status, body: result.body, url: result.url });
 
     if (!result.ok) continue;
 
@@ -99,17 +95,12 @@ export async function onRequestPost(context) {
           success: true,
           currentPrison: row.prison_name,
           state: row.prison_state,
-          debug: { matchedFormat: fmt, attempts },
         });
       }
     }
   }
 
-  return jsonResponse({
-    success: false,
-    error: 'Not found or not active',
-    debug: { formatsQueried: formats, attempts },
-  });
+  return jsonResponse({ success: false });
 }
 
 export async function onRequest(context) {
