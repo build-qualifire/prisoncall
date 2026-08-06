@@ -451,6 +451,11 @@
     var suffixInput = document.createElement('input');
     suffixInput.type = 'tel';
     suffixInput.inputMode = 'numeric';
+    suffixInput.setAttribute('pattern', '[0-9]*');
+    suffixInput.setAttribute('autocomplete', 'off');
+    suffixInput.setAttribute('autocorrect', 'off');
+    suffixInput.setAttribute('autocapitalize', 'off');
+    suffixInput.setAttribute('spellcheck', 'false');
     suffixInput.className = 'tpm-did-suffix';
     suffixInput.maxLength = 8;
     suffixInput.disabled = !state.selectedState;
@@ -499,9 +504,15 @@
     vicBtn.addEventListener('click', function () { setActiveState('vic'); });
     nswBtn.addEventListener('click', function () { setActiveState('nsw'); });
 
-    /* Digits only, max 8 */
+    /* Digits only, max 8 — also handles full-number paste/autofill from mobile */
     suffixInput.addEventListener('input', function () {
-      suffixInput.value = suffixInput.value.replace(/\D/g, '').slice(0, 8);
+      var digits = suffixInput.value.replace(/\D/g, '');
+      /* If mobile autofilled/pasted the full 10-digit number, strip the state prefix */
+      if (digits.length > 8 && state.selectedState) {
+        var statePrefix = state.selectedState === 'vic' ? '03' : '02';
+        if (digits.startsWith(statePrefix)) digits = digits.slice(2);
+      }
+      suffixInput.value = digits.slice(0, 8);
       didWrap.classList.remove('tpm-has-error');
       errorEl.classList.remove('tpm-visible');
       errorEl.textContent = '';
@@ -518,6 +529,9 @@
       var prefix = state.selectedState === 'vic' ? '03' : '02';
       var stateLabel = state.selectedState === 'vic' ? 'VIC' : 'NSW';
       var suffix = suffixInput.value.replace(/\D/g, '');
+      /* Defensive: handle full-number paste that may have bypassed the input event */
+      if (suffix.length > 8 && suffix.startsWith(prefix)) suffix = suffix.slice(prefix.length);
+      suffix = suffix.slice(0, 8);
 
       if (suffix.length !== 8) {
         didWrap.classList.add('tpm-has-error');
@@ -528,6 +542,7 @@
       }
 
       var fullNumber = prefix + suffix;
+      console.log('[TPM] Sending DID:', fullNumber, '| raw suffix field:', JSON.stringify(suffixInput.value));
 
       setLoading(continueBtn, 'Checking...');
       didWrap.classList.remove('tpm-has-error');

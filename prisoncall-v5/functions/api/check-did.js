@@ -74,6 +74,7 @@ export async function onRequestPost(context) {
   }
 
   const formats = didFormats(did);
+  console.log('[check-did] received:', JSON.stringify(body.did), '| cleaned:', did, '| trying formats:', formats.join(', '));
 
   for (const fmt of formats) {
     let result;
