@@ -230,14 +230,13 @@
     .state-btn__name { display: block; font-size: 12px; font-weight: 400; opacity: 0.65; }
     .state-btn.is-active .state-btn__name { opacity: 0.7; }
 
-    /* ─── Prison pills (single-column stacked, same style as choose-plan.html) ─── */
+    /* ─── Prison pills (pixel-perfect copy from choose-plan.html) ─── */
+    .prison-grid { display: flex; flex-wrap: wrap; gap: 8px; }
     .prison-pill {
-      padding: 13px 18px; font-size: 14px; font-weight: 500;
-      border: 1.5px solid var(--color-border); border-radius: var(--radius-md);
+      padding: 9px 16px; font-size: 13px; font-weight: 500;
+      border: 1.5px solid var(--color-border); border-radius: var(--radius-pill);
       background: var(--color-white); color: var(--color-black);
-      cursor: pointer; font-family: inherit; text-align: left; width: 100%;
-      transition: border-color var(--tr), background var(--tr), color var(--tr);
-      display: block;
+      cursor: pointer; font-family: inherit; transition: border-color var(--tr), background var(--tr), color var(--tr);
     }
     .prison-pill:hover { border-color: #999; }
     .prison-pill.is-active { background: var(--color-black); color: var(--color-white); border-color: var(--color-black); }
@@ -353,8 +352,7 @@
     }
     .tp-info-box strong { color: var(--color-black); }
 
-    /* Prison list (stacked full-width) */
-    .tp-prison-list { display: flex; flex-direction: column; gap: 8px; }
+    /* Current prison pill — greyed, not selectable */
     .tp-pill-current {
       opacity: 0.38; cursor: not-allowed !important;
       pointer-events: none;
@@ -884,7 +882,9 @@
     }
 
     contBtn.addEventListener('click', doSubmit);
-    setTimeout(function(){ didInp.focus(); }, 100);
+    /* Delay focus until after snap scroll settles — prevents browser from
+       pulling viewport to the input before the step heading is visible */
+    setTimeout(function(){ didInp.focus(); }, 800);
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -1009,7 +1009,8 @@
     }
 
     cont.addEventListener('click', doValidate);
-    setTimeout(function(){ input.focus(); }, 100);
+    /* Delay focus until after snap scroll settles */
+    setTimeout(function(){ input.focus(); }, 800);
   }
 
   /* Send OTP then show verification UI */
@@ -1178,13 +1179,13 @@
           '<span class="state-btn__abbr">NSW</span><span class="state-btn__name">New South Wales</span>',
         '</button>',
       '</div>',
-      '<div class="tp-prison-list" id="s4PrisonList">'+buildPrisonListHtml(sv)+'</div>',
+      '<div class="prison-grid" id="s4PrisonList">'+buildPrisonListHtml(sv)+'</div>',
     ].join('');
     return el;
   }
 
   function wirePills(s4El){
-    s4El.querySelectorAll('.tp-prison-list .prison-pill:not([disabled])').forEach(function(pill){
+    s4El.querySelectorAll('.prison-grid .prison-pill:not([disabled])').forEach(function(pill){
       pill.addEventListener('click', function(){
         var prison = pill.textContent;
         state.newPrison = prison;
@@ -1218,7 +1219,7 @@
         el.querySelectorAll('.state-btn').forEach(function(b){ b.classList.remove('is-active'); });
         btn.classList.add('is-active');
         removeStepsFrom(5);
-        var list = el.querySelector('#s4PrisonList');
+          var list = el.querySelector('#s4PrisonList');
         list.innerHTML = buildPrisonListHtml(sv);
         wirePills(el);
       });
