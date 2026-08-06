@@ -1096,3 +1096,9 @@
   }
 
 })();
+
+window.addEventListener('DOMContentLoaded', function() {
+  if (window.location.hash === '#transfer-prison') {
+    document.querySelector('[data-transfer-prison]').click();
+  }
+});
