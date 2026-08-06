@@ -151,16 +151,19 @@
       '.tpm-close-btn:hover{color:#000;}',
       '.tpm-step-ind{font-size:11px;font-weight:600;color:#999;letter-spacing:.05em;text-transform:uppercase;}',
 
-      '.tpm-close-confirm{position:absolute;inset:0;border-radius:16px;z-index:2;',
-        'display:none;flex-direction:column;align-items:center;justify-content:center;',
-        'padding:32px;background:rgba(255,255,255,.95);',
-        'backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}',
+      '.tpm-close-confirm{position:absolute;inset:0;border-radius:inherit;z-index:2;',
+        'display:none;align-items:center;justify-content:center;',
+        'background:rgba(255,255,255,.92);',
+        'backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}',
       '.tpm-close-confirm.tpm-visible{display:flex;}',
-      '.tpm-close-confirm p{margin:0 0 20px;font-size:16px;font-weight:700;color:#000;text-align:center;max-width:260px;}',
-      '.tpm-close-confirm-btns{display:flex;gap:8px;width:100%;max-width:300px;}',
-      '.tpm-yes-close{flex:1;padding:12px;border-radius:80px;background:#000;color:#fff;border:none;',
+      '.tpm-cc-inner{background:#fff;border-radius:16px;padding:32px 24px;max-width:300px;width:100%;',
+        'display:flex;flex-direction:column;align-items:center;gap:24px;',
+        'box-shadow:0 4px 24px rgba(0,0,0,.14);border:1px solid rgba(0,0,0,.06);}',
+      '.tpm-close-confirm p{margin:0;font-size:16px;font-weight:700;color:#000;text-align:center;}',
+      '.tpm-close-confirm-btns{display:flex;flex-direction:column;gap:12px;width:100%;align-items:center;}',
+      '.tpm-yes-close{min-width:200px;width:100%;padding:14px;border-radius:80px;background:#000;color:#fff;border:none;',
         'font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}',
-      '.tpm-keep-going{flex:1;padding:12px;border-radius:80px;background:#fff;color:#000;',
+      '.tpm-keep-going{min-width:200px;width:100%;padding:14px;border-radius:80px;background:#fff;color:#000;',
         'border:2px solid #e5e5e5;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}',
 
       '.tpm-heading{font-size:20px;font-weight:700;margin:0 0 6px;line-height:1.2;color:#000;}',
@@ -290,7 +293,7 @@
 
       '@media(max-width:768px){',
         '#tpm-card{max-height:95vh;padding:24px;border-radius:12px;}',
-        '.tpm-close-confirm{border-radius:12px;padding:24px;}',
+        '.tpm-cc-inner{padding:28px 20px;max-width:280px;}',
         '.tpm-confirm-panel{padding-bottom:80px;}',
       '}',
     ].join('');
@@ -311,10 +314,12 @@
     closeConfirmPanel = document.createElement('div');
     closeConfirmPanel.className = 'tpm-close-confirm';
     closeConfirmPanel.innerHTML =
-      '<p>Are you sure? Your progress will be lost.</p>' +
-      '<div class="tpm-close-confirm-btns">' +
-        '<button class="tpm-yes-close" type="button">Yes, close</button>' +
-        '<button class="tpm-keep-going" type="button">Keep going</button>' +
+      '<div class="tpm-cc-inner">' +
+        '<p>Are you sure? Your progress will be lost.</p>' +
+        '<div class="tpm-close-confirm-btns">' +
+          '<button class="tpm-yes-close" type="button">Yes, close</button>' +
+          '<button class="tpm-keep-going" type="button">Keep going</button>' +
+        '</div>' +
       '</div>';
 
     stepContent = document.createElement('div');
