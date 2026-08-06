@@ -416,7 +416,7 @@
   /* ── Step 1 — Enter Prisoncall number ────────────────────────────────────── */
   function buildStep1(body) {
     body.innerHTML =
-      '<h2 class="tpm-heading">Enter your Prisoncall number</h2>' +
+      '<h2 class="tpm-heading">Enter your current Prisoncall number</h2>' +
       '<p class="tpm-subtext">This is the local number your loved one calls.</p>';
 
     /* State toggle */
