@@ -1097,8 +1097,12 @@
 
 })();
 
-window.addEventListener('DOMContentLoaded', function() {
+function checkHashAndOpenModal() {
   if (window.location.hash === '#transfer-prison') {
-    document.querySelector('[data-transfer-prison]').click();
+    var trigger = document.querySelector('[data-transfer-prison]');
+    if (trigger) trigger.click();
   }
-});
+}
+
+window.addEventListener('DOMContentLoaded', checkHashAndOpenModal);
+window.addEventListener('hashchange', checkHashAndOpenModal);
