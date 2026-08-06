@@ -137,10 +137,11 @@
       '#tpm-card{background:#fff;border-radius:16px;padding:32px;width:100%;max-width:560px;',
         'position:relative;box-sizing:border-box;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}',
 
-      '#tpm-step-content{flex:1;overflow-y:auto;min-height:0;}',
+      '#tpm-step-content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}',
+      '#tpm-step-content>div:not(.tpm-header):not(.tpm-s4-body){flex:1;overflow-y:auto;min-height:0;}',
 
       '.tpm-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;',
-        'position:sticky;top:0;background:#fff;z-index:1;padding-bottom:4px;}',
+        'flex-shrink:0;background:#fff;z-index:1;}',
       '.tpm-back{background:none;border:none;color:#888;font-size:14px;cursor:pointer;',
         "font-family:inherit;padding:0;line-height:1;transition:color 150ms ease;}",
       '.tpm-back:hover{color:#000;}',
@@ -218,16 +219,23 @@
         'background:#f9f9f9;border-radius:12px;border:1px solid #e5e5e5;}',
       '.tpm-current-prison-box strong{color:#000;}',
 
-      '.tpm-prison-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;}',
-      '.tpm-prison-pill{padding:9px 16px;font-size:13px;font-weight:500;border:1.5px solid #e5e5e5;',
+      '.tpm-prison-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:4px;}',
+      '.tpm-prison-pill{padding:9px 12px;font-size:13px;font-weight:500;border:1.5px solid #e5e5e5;',
         'border-radius:80px;background:#fff;color:#000;cursor:pointer;font-family:inherit;',
+        'text-align:center;width:100%;box-sizing:border-box;',
         'transition:border-color 150ms ease,background 150ms ease,color 150ms ease;}',
       '.tpm-prison-pill:hover{border-color:#999;}',
       '.tpm-prison-pill.tpm-active{background:#000;color:#fff;border-color:#000;}',
 
-      '.tpm-confirm-panel{position:sticky;bottom:0;z-index:1;margin-top:16px;',
+      '.tpm-confirm-panel{flex-shrink:0;margin-top:12px;',
         'padding:14px 0 0;background:#fff;border-top:1px solid #efefef;',
         'box-shadow:0 -20px 24px #fff;}',
+
+      /* Step 4 layout: sticky top + scrollable grid + sticky bottom */
+      '.tpm-s4-body{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}',
+      '.tpm-s4-top{flex-shrink:0;background:#fff;padding-bottom:8px;}',
+      '.tpm-s4-grid-wrap{flex:1;min-height:0;overflow-y:auto;padding-bottom:4px;}',
+
       '.tpm-confirm-panel-label{font-size:13px;color:#666;font-weight:600;margin:0 0 8px;}',
       '.tpm-transfer-row{font-size:15px;font-weight:700;color:#000;margin-bottom:14px;}',
       '.tpm-transfer-arrow{color:#666;font-weight:400;margin:0 6px;}',
@@ -283,6 +291,7 @@
       '@media(max-width:768px){',
         '#tpm-card{max-height:95vh;padding:24px;border-radius:12px;}',
         '.tpm-close-confirm{border-radius:12px;padding:24px;}',
+        '.tpm-confirm-panel{padding-bottom:80px;}',
       '}',
     ].join('');
     document.head.appendChild(style);
@@ -875,14 +884,20 @@
 
   /* ── Step 4 — Select new prison ──────────────────────────────────────────── */
   function buildStep4(body) {
-    body.innerHTML =
+    body.className = 'tpm-s4-body';
+
+    /* ── Sticky top: heading, current prison, state toggle ── */
+    var topSection = document.createElement('div');
+    topSection.className = 'tpm-s4-top';
+    topSection.innerHTML =
       '<h2 class="tpm-heading">Select your new prison</h2>' +
       '<p class="tpm-subtext">Choose the prison your loved one has moved to.</p>';
+    body.appendChild(topSection);
 
     var currentBox = document.createElement('div');
     currentBox.className = 'tpm-current-prison-box';
     currentBox.innerHTML = 'Current prison: <strong>' + esc(state.currentPrison) + '</strong>';
-    body.appendChild(currentBox);
+    topSection.appendChild(currentBox);
 
     /* State toggle - pre-select the DID's state */
     var activeState = state.selectedState || 'vic';
@@ -894,18 +909,23 @@
     var nswBtn = makeStateBtn('NSW', 'New South Wales', activeState === 'nsw');
     toggle.appendChild(vicBtn);
     toggle.appendChild(nswBtn);
-    body.appendChild(toggle);
+    topSection.appendChild(toggle);
+
+    /* ── Scrollable middle: prison pills ── */
+    var gridWrap = document.createElement('div');
+    gridWrap.className = 'tpm-s4-grid-wrap';
+    body.appendChild(gridWrap);
 
     /* Prison grid */
     var prisonGrid = document.createElement('div');
     prisonGrid.className = 'tpm-prison-grid';
-    body.appendChild(prisonGrid);
+    gridWrap.appendChild(prisonGrid);
 
     var prisonError = document.createElement('p');
     prisonError.className = 'tpm-error-msg';
-    body.appendChild(prisonError);
+    gridWrap.appendChild(prisonError);
 
-    /* Confirm panel (shown after pill click) */
+    /* ── Sticky bottom: confirm panel ── */
     var confirmPanel = document.createElement('div');
     confirmPanel.className = 'tpm-confirm-panel';
     confirmPanel.style.display = 'none';
