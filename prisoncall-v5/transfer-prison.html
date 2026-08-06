@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transfer Your Prison | Prisoncall Australia</title>
+  <meta name="description" content="Transfer your Prisoncall number to a new prison. Quick and easy online process.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Variables (identical to choose-plan.html) ─── */
+    :root {
+      --color-black: #000000;
+      --color-white: #ffffff;
+      --color-green: #00D258;
+      --color-green-mid: #E6FAF0;
+      --color-muted: #666666;
+      --color-border: #E5E5E5;
+      --color-surface: #F9F9F9;
+      --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 80px;
+      --tr: 150ms ease;
+      --container-max: 1312px;
+      --header-height: 72px;
+      --header-height-mobile: 48px;
+    }
+
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-family);
+      font-size: 16px; line-height: 1.5;
+      color: var(--color-black); background: var(--color-surface);
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ─── Container ─── */
+    .container { max-width: var(--container-max); margin: 0 auto; padding: 0 16px; }
+    @media (min-width: 768px) { .container { padding: 0 24px; } }
+    @media (min-width: 1024px) { .container { padding: 0 32px; } }
+
+    /* ─── Global button ─── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border-radius: var(--radius-pill); font-family: var(--font-family);
+      font-size: 16px; font-weight: 700; line-height: 1; padding: 15px 28px;
+      transition: background var(--tr), color var(--tr), border-color var(--tr), opacity var(--tr), transform var(--tr);
+      white-space: nowrap; cursor: pointer; text-decoration: none;
+    }
+    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); opacity: 1; }
+    .btn--green { background: var(--color-green); color: var(--color-black); border: 2px solid var(--color-green); }
+    .btn--black { background: var(--color-black); color: var(--color-white); border: 2px solid var(--color-black); }
+
+    /* ═══════════════════════════════════════════════════
+       HEADER (identical to choose-plan.html)
+    ═══════════════════════════════════════════════════ */
+    .header {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--color-white); height: var(--header-height-mobile);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .header__inner { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; height: 100%; }
+    .header__hamburger { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+    .header__hamburger img { width: 24px; height: 24px; }
+    .header__center { display: flex; align-items: center; justify-content: center; position: relative; height: 100%; overflow: hidden; }
+    .header__wordmark { display: flex; align-items: center; }
+    .header__wordmark img { height: 20px; width: auto; }
+    .header__mobile-cta {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      opacity: 0; pointer-events: none;
+      padding: 9px 20px; font-size: 13px; font-weight: 700; font-family: var(--font-family);
+      white-space: nowrap; border-radius: var(--radius-pill);
+      background: var(--color-green); color: var(--color-black);
+      border: 2px solid var(--color-green); line-height: 1;
+    }
+    .header__right { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+    .header__icon-link { display: flex; align-items: center; justify-content: center; }
+    .header__icon-img { width: 24px; height: 24px; }
+    .header__desktop-cta { display: none; }
+    @media (min-width: 768px) {
+      .header { height: var(--header-height); }
+      .header__inner { grid-template-columns: 1fr auto 1fr; }
+      .header__center { justify-self: center; position: static; overflow: visible; }
+      .header__wordmark img { height: 32px; }
+      .header__mobile-cta { display: none; }
+      .header__right { width: auto; justify-self: end; }
+      .header__icon-link { display: none; }
+      .header__desktop-cta { display: block; }
+      .header__desktop-cta .btn { padding: 12px 24px; font-size: 15px; background: var(--color-green); color: var(--color-black); border-color: var(--color-green); }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       MOBILE MENU (identical to choose-plan.html)
+    ═══════════════════════════════════════════════════ */
+    .mobile-menu { display: none; position: fixed; inset: 0; z-index: 300; background: var(--color-white); flex-direction: column; }
+    .mobile-menu.is-open { display: flex; }
+    .mobile-menu__top { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; height: var(--header-height-mobile); border-bottom: 1px solid var(--color-border); padding: 0 16px; flex-shrink: 0; }
+    .mobile-menu__close { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--color-black); justify-self: start; }
+    .mobile-menu__body { flex: 1; overflow-y: auto; padding: 0 24px 40px; }
+    .mobile-menu__links { display: flex; flex-direction: column; }
+    .mobile-menu__links a { font-size: 17px; font-weight: 600; padding: 18px 0; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: 10px; }
+    .mobile-menu__links a:hover { color: var(--color-muted); }
+    .mobile-menu__social { display: flex; flex-direction: column; }
+    .mobile-menu__social a { font-size: 15px; font-weight: 500; color: var(--color-muted); padding: 16px 0; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: 10px; }
+    .mobile-menu__cta { margin-top: 16px; }
+    .mobile-menu__cta .btn { width: 100%; font-size: 16px; padding: 17px 24px; }
+    @media (min-width: 768px) { .mobile-menu__cta { max-width: 400px; margin: 16px auto 0; } }
+
+    /* ═══════════════════════════════════════════════════
+       FOOTER (identical to choose-plan.html)
+    ═══════════════════════════════════════════════════ */
+    .footer { background: var(--color-black); color: var(--color-white); padding: 56px 0 48px; }
+    .footer__top { display: grid; grid-template-columns: 1fr; gap: 40px; padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    @media (min-width: 900px) { .footer__top { grid-template-columns: 210px 1fr; gap: 48px; } }
+    .footer__brand { display: flex; flex-direction: column; gap: 20px; }
+    .footer__logo img { height: 28px; width: auto; }
+    .footer__tagline { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; max-width: 200px; }
+    .footer__social { display: flex; gap: 10px; }
+    .footer__social-link { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; transition: background var(--tr); }
+    .footer__social-link:hover { background: rgba(255,255,255,0.18); }
+    .footer__social-link svg { width: 20px; height: 20px; }
+    .footer__links { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    @media (min-width: 640px) { .footer__links { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+    .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.38); margin-bottom: 16px; }
+    .footer__col ul { display: flex; flex-direction: column; gap: 10px; }
+    @media (max-width: 767px) { .footer__col { display: flex; flex-direction: column; } .footer__col ul { flex: 1; } .footer__col ul li:last-child { margin-top: auto !important; } }
+    .footer__col li a { font-size: 13px; color: rgba(255,255,255,0.62); transition: color var(--tr); }
+    .footer__col li a:hover { color: var(--color-white); }
+    .footer__bottom { padding: 28px 0 0; display: flex; flex-direction: column; gap: 20px; align-items: center; }
+    @media (min-width: 768px) { .footer__bottom { flex-direction: row; justify-content: space-between; flex-wrap: wrap; gap: 16px; } }
+    .footer__payments { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .footer__payment-icon { display: flex; align-items: center; justify-content: center; height: 40px; }
+    .footer__payment-icon img { height: 40px; width: auto; display: block; }
+    .footer__policies { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+    .footer__policies a { font-size: 12px; color: rgba(255,255,255,0.42); transition: color var(--tr); }
+    .footer__policies a:hover { color: rgba(255,255,255,0.75); }
+    .footer__copyright { font-size: 12px; color: rgba(255,255,255,0.32); text-align: center; }
+
+    /* ─── Desktop rounded-panel layout (same rule as choose-plan.html) ─── */
+    @media (min-width: 768px) {
+      main    { padding: 8px 12px 0; }
+      .footer { margin: 0 12px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden; }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       TRANSFER PRISON PAGE LAYOUT
+    ═══════════════════════════════════════════════════ */
+    @keyframes tpIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .tp-page {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 28px 16px 80px;
+    }
+    @media (min-width: 768px) { .tp-page { padding: 48px 0 96px; } }
+
+    /* ─── The step card ─── */
+    .tp-card {
+      background: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 2px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+      padding: 28px 24px 32px;
+    }
+    @media (min-width: 768px) { .tp-card { padding: 36px 40px 40px; } }
+
+    /* ─── Card top row: back btn + step indicator ─── */
+    .tp-card__hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .tp-back {
+      display: inline-flex; align-items: center; gap: 5px;
+      color: var(--color-muted); font-size: 12px; font-weight: 600;
+      cursor: pointer; background: none; padding: 0; font-family: inherit;
+      transition: color var(--tr); border: none; line-height: 1;
+    }
+    .tp-back:hover { color: var(--color-black); }
+    .tp-back svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .tp-back.is-hidden { visibility: hidden; pointer-events: none; }
+    .tp-step-ind {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--color-muted);
+    }
+
+    /* ─── Content animation ─── */
+    #tpContent { animation: tpIn 240ms ease both; }
+
+    /* ─── Headings + subtext ─── */
+    .tp-heading { font-size: 20px; font-weight: 700; margin-bottom: 6px; line-height: 1.2; color: var(--color-black); }
+    @media (min-width: 768px) { .tp-heading { font-size: 22px; } }
+    .tp-subtext { font-size: 13px; color: var(--color-muted); margin-bottom: 20px; line-height: 1.5; }
+
+    /* ─── State toggle (same as choose-plan.html) ─── */
+    .state-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .state-btn {
+      padding: 18px 12px; border: 2px solid var(--color-border); border-radius: var(--radius-md);
+      background: var(--color-white); color: var(--color-black);
+      cursor: pointer; font-family: inherit; text-align: center;
+      transition: border-color var(--tr), background var(--tr), color var(--tr);
+    }
+    .state-btn:hover { border-color: #aaa; }
+    .state-btn.is-active { background: var(--color-black); color: var(--color-white); border-color: var(--color-black); }
+    .state-btn__abbr { display: block; font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 5px; }
+    .state-btn__name { display: block; font-size: 12px; font-weight: 400; opacity: 0.65; }
+    .state-btn.is-active .state-btn__name { opacity: 0.7; }
+
+    /* ─── DID locked-prefix input ─── */
+    .tp-did-wrap {
+      display: flex; align-items: center; width: 100%; padding: 16px 18px;
+      border: 2px solid var(--color-border); border-radius: var(--radius-md);
+      background: var(--color-white); box-sizing: border-box;
+      transition: border-color var(--tr); cursor: text;
+    }
+    .tp-did-wrap:focus-within { border-color: var(--color-black); }
+    .tp-did-wrap.has-error { border-color: #e53e3e; }
+    .tp-did-wrap.no-state { background: var(--color-surface); }
+    .tp-did-prefix { font-size: 20px; font-weight: 700; letter-spacing: 0.06em; color: var(--color-black); user-select: none; white-space: nowrap; flex-shrink: 0; line-height: 1; }
+    .tp-did-prefix.empty { color: #aaa; font-weight: 400; }
+    .tp-did-suffix { flex: 1; min-width: 0; border: none; outline: none; padding: 0; margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 0.06em; font-family: inherit; background: transparent; color: var(--color-black); }
+    .tp-did-suffix:disabled { cursor: not-allowed; }
+    .tp-did-suffix::placeholder { color: #aaa; font-weight: 400; letter-spacing: 0.03em; }
+
+    /* ─── Generic large input ─── */
+    .tp-input {
+      display: block; width: 100%; padding: 16px 18px;
+      font-size: 20px; font-weight: 700; letter-spacing: 0.06em;
+      font-family: inherit; border: 2px solid var(--color-border);
+      border-radius: var(--radius-md); background: var(--color-white);
+      color: var(--color-black); outline: none;
+      transition: border-color var(--tr); box-sizing: border-box;
+    }
+    .tp-input:focus { border-color: var(--color-black); }
+    .tp-input.has-error { border-color: #e53e3e; }
+    .tp-input.sm { font-size: 16px; letter-spacing: 0.03em; }
+
+    /* ─── Error messages ─── */
+    .tp-error { font-size: 13px; color: #e53e3e; margin-top: 8px; display: none; }
+    .tp-error.is-visible { display: block; }
+
+    /* ─── Step action buttons ─── */
+    .tp-btn {
+      display: block; width: 100%; margin-top: 14px; padding: 0 15px; height: 52px;
+      font-size: 15px; font-weight: 700; font-family: inherit; border: none;
+      border-radius: var(--radius-pill); cursor: pointer;
+      transition: opacity var(--tr), transform var(--tr); text-align: center;
+    }
+    .tp-btn:hover:not(:disabled) { opacity: 0.86; transform: translateY(-1px); }
+    .tp-btn:active { transform: none; opacity: 1; }
+    .tp-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; pointer-events: none; }
+    .tp-btn--black { background: var(--color-black); color: var(--color-white); }
+    .tp-btn--green { background: var(--color-green); color: var(--color-black); }
+
+    /* ─── Current prison info box ─── */
+    .tp-current-box {
+      font-size: 13px; color: var(--color-muted); margin-bottom: 16px;
+      padding: 10px 14px; background: var(--color-surface);
+      border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+      line-height: 1.4;
+    }
+    .tp-current-box strong { color: var(--color-black); }
+
+    /* ─── Prison pills: 2-column grid (same style as choose-plan.html pills) ─── */
+    .prison-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 8px; }
+    .prison-pill {
+      padding: 9px 12px; font-size: 13px; font-weight: 500;
+      border: 1.5px solid var(--color-border); border-radius: var(--radius-pill);
+      background: var(--color-white); color: var(--color-black);
+      cursor: pointer; font-family: inherit;
+      text-align: center; width: 100%; box-sizing: border-box;
+      transition: border-color var(--tr), background var(--tr), color var(--tr);
+    }
+    .prison-pill:hover:not(:disabled) { border-color: #999; }
+    .prison-pill.is-active { background: var(--color-black); color: var(--color-white); border-color: var(--color-black); }
+    .prison-pill.is-current { opacity: 0.45; cursor: not-allowed; border-style: dashed; }
+
+    /* ─── Confirm selection box (Step 4) ─── */
+    .tp-confirm-box {
+      margin-top: 20px; padding: 16px 18px;
+      border: 1.5px solid var(--color-border); border-radius: var(--radius-md);
+      background: var(--color-surface); display: none;
+    }
+    .tp-confirm-box.is-visible { display: block; animation: tpIn 220ms ease both; }
+    .tp-confirm-box__label { font-size: 11px; font-weight: 700; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .tp-confirm-box__transfer { font-size: 15px; font-weight: 700; color: var(--color-black); margin-bottom: 4px; line-height: 1.4; }
+    .tp-confirm-box__arrow { color: var(--color-muted); font-weight: 400; margin: 0 6px; }
+    .tp-change-link { background: none; border: none; color: var(--color-muted); font-size: 13px; font-family: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; margin-top: 10px; display: block; padding: 0; transition: color var(--tr); }
+    .tp-change-link:hover { color: var(--color-black); }
+
+    /* ─── OTP flow ─── */
+    .tp-otp-sent { font-size: 13px; color: #1a7f4b; font-weight: 600; margin-bottom: 12px; }
+    .tp-resend { display: inline-block; margin-top: 10px; font-size: 12px; color: var(--color-muted); background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; transition: color var(--tr); }
+    .tp-resend span { text-decoration: underline; text-underline-offset: 2px; }
+    .tp-resend:hover { color: var(--color-black); }
+
+    /* ─── Success (Step 5) ─── */
+    .tp-success { text-align: center; padding: 16px 0 8px; }
+    .tp-success__icon { width: 72px; height: 72px; border-radius: 50%; background: var(--color-green); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; color: var(--color-white); line-height: 1; }
+    .tp-success__heading { font-size: 22px; font-weight: 800; margin-bottom: 10px; line-height: 1.2; }
+    .tp-success__body { font-size: 14px; color: var(--color-muted); margin-bottom: 8px; line-height: 1.65; max-width: 380px; margin-left: auto; margin-right: auto; }
+
+    /* ─── Loading / spinner ─── */
+    .tp-loading { text-align: center; padding: 40px 0; }
+    .tp-spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--color-border); border-top-color: var(--color-green); border-radius: 50%; animation: tpSpin 0.7s linear infinite; margin-bottom: 14px; }
+    @keyframes tpSpin { to { transform: rotate(360deg); } }
+    .tp-loading p { font-size: 14px; color: var(--color-muted); }
+
+    /* ─── DEV TOOLS panel (staging only — same as choose-plan.html) ─── */
+    .dev-panel { position: fixed; bottom: 16px; right: 16px; z-index: 9999; background: #1a1a1a; color: #fff; padding: 12px 14px; border-radius: 10px; font-family: var(--font-family); box-shadow: 0 4px 20px rgba(0,0,0,0.4); min-width: 148px; }
+    .dev-panel__title { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.38); margin-bottom: 10px; }
+    .dev-panel__row { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 8px; }
+    .dev-panel__row:last-child { margin-bottom: 0; }
+    .dev-panel__label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.82); }
+    .dev-toggle { position: relative; display: inline-block; width: 34px; height: 19px; flex-shrink: 0; }
+    .dev-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .dev-toggle__track { position: absolute; inset: 0; background: #444; border-radius: 10px; cursor: pointer; transition: background 150ms ease; }
+    .dev-toggle__track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 13px; height: 13px; background: #fff; border-radius: 50%; transition: transform 150ms ease; }
+    .dev-toggle input:checked + .dev-toggle__track { background: #00D258; }
+    .dev-toggle input:checked + .dev-toggle__track::after { transform: translateX(15px); }
+
+    /* ─── DEV skip button (inline, Step 3 only) ─── */
+    .tp-dev-skip {
+      display: none; width: 100%; margin-top: 14px; padding: 14px;
+      font-size: 13px; font-weight: 700; font-family: inherit;
+      background: #222; color: #00D258; border: none;
+      border-radius: var(--radius-pill); cursor: pointer; text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header header--scrolled" id="siteHeader">
+    <div class="container header__inner">
+      <button class="header__hamburger" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+        <img src="assets/icons/feature_icons/icon-hamburger.svg" alt="">
+      </button>
+      <div class="header__center">
+        <a href="index.html" class="header__wordmark" aria-label="Prisoncall Australia — home">
+          <img src="assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall Australia">
+        </a>
+        <a href="choose-plan.html" class="header__mobile-cta">Get Prisoncall now</a>
+      </div>
+      <div class="header__right">
+        <a href="index.html" class="header__icon-link" aria-label="Prisoncall Australia — home">
+          <img src="assets/brand_logos/Prisoncall_Icon_BLACK.svg" alt="" class="header__icon-img">
+        </a>
+        <div class="header__desktop-cta">
+          <a href="choose-plan.html" class="btn btn--green">Get Prisoncall now</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ MOBILE MENU ═══ -->
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <div class="mobile-menu__top">
+      <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">&#x2715;</button>
+      <div></div>
+    </div>
+    <div class="mobile-menu__body">
+      <nav class="mobile-menu__links">
+        <a href="choose-plan.html">Choose Prisoncall plan</a>
+        <a href="https://prisoncall.com.au/apps/subscriptions">Manage my plans</a>
+        <a href="contact.html">Contact us</a>
+      </nav>
+      <div class="mobile-menu__social">
+        <a href="https://www.facebook.com/prisoncallaustralia" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          Follow us on Facebook
+        </a>
+        <a href="https://www.instagram.com/prisoncallaustralia/" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          Follow us on Instagram
+        </a>
+      </div>
+      <div class="mobile-menu__cta"><a href="choose-plan.html" class="btn btn--green">Get started now</a></div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN ═══ -->
+  <main>
+    <div class="tp-page">
+      <div class="tp-card" id="tpCard">
+
+        <!-- Card top row: back + step indicator -->
+        <div class="tp-card__hdr">
+          <button class="tp-back" id="tpBack">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+          <span class="tp-step-ind" id="tpStepInd">STEP 1 OF 5</span>
+        </div>
+
+        <!-- Step content area — populated by JS -->
+        <div id="tpContent"></div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a href="index.html" class="footer__logo" aria-label="Prisoncall Australia — home">
+            <img src="assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall Australia">
+          </a>
+          <p class="footer__tagline">Providing cheap prison phone calls for inmates and families in Victoria and New South Wales since 2023.</p>
+          <div class="footer__social">
+            <a href="https://www.facebook.com/prisoncallaustralia" target="_blank" rel="noopener" class="footer__social-link" aria-label="Follow Prisoncall on Facebook">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/prisoncallaustralia/" target="_blank" rel="noopener" class="footer__social-link" aria-label="Follow Prisoncall on Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer__links">
+          <div class="footer__col">
+            <p class="footer__col-title">Victoria</p>
+            <ul>
+              <li><a href="barwon-prison.html">Barwon Prison</a></li>
+              <li><a href="melbourne-assessment-prison.html">Melbourne Assessment Prison</a></li>
+              <li><a href="metropolitan-remand-centre.html">Metropolitan Remand Centre</a></li>
+              <li><a href="port-phillip-prison.html">Port Phillip Prison</a></li>
+              <li><a href="ravenhall-cc.html">Ravenhall CC</a></li>
+              <li><a href="dame-phyllis-frost-centre.html">Dame Phyllis Frost Centre</a></li>
+              <li><a href="marngoneet-cc.html">Marngoneet CC</a></li>
+              <li><a href="western-plains-cc.html">Western Plains CC</a></li>
+              <li><a href="fulham-cc.html">Fulham CC</a></li>
+              <li><a href="hopkins-cc.html">Hopkins CC</a></li>
+              <li style="margin-top:8px; border-top:1px solid rgba(255,255,255,0.15); padding-top:8px;"><a href="choose-plan.html?state=vic">View all VIC prisons &rarr;</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <p class="footer__col-title">New South Wales</p>
+            <ul>
+              <li><a href="long-bay-complex.html">Long Bay Complex</a></li>
+              <li><a href="parklea-cc.html">Parklea CC</a></li>
+              <li><a href="mrrc-silverwater.html">MRRC Silverwater</a></li>
+              <li><a href="cessnock-cc.html">Cessnock CC</a></li>
+              <li><a href="goulburn-cc.html">Goulburn CC</a></li>
+              <li><a href="junee-cc.html">Junee CC</a></li>
+              <li><a href="bathurst-cc.html">Bathurst CC</a></li>
+              <li><a href="john-morony-cc.html">John Morony CC</a></li>
+              <li><a href="mid-north-coast-cc.html">Mid North Coast CC (Kempsey)</a></li>
+              <li><a href="south-coast-cc.html">South Coast CC</a></li>
+              <li style="margin-top:8px; border-top:1px solid rgba(255,255,255,0.15); padding-top:8px;"><a href="choose-plan.html?state=nsw">View all NSW prisons &rarr;</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <p class="footer__col-title">Help</p>
+            <ul>
+              <li><a href="choose-plan.html">Buy a Prisoncall plan</a></li>
+              <li><a href="https://prisoncall.com.au/apps/subscriptions">Manage my plans</a></li>
+              <li><a href="/transfer-prison.html">Transfer my prison</a></li>
+              <li><a href="contact.html">Contact support</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <p class="footer__col-title">Resources</p>
+            <ul>
+              <li><a href="cheap-prison-calls.html">Cheap Prison Calls</a></li>
+              <li><a href="engine-number-for-prison.html">Prison Engine Number</a></li>
+              <li><a href="jail-engine-number.html">Jail Engine Number</a></li>
+              <li><a href="vic-prisons.html">All VIC Prisons</a></li>
+              <li><a href="nsw-prisons.html">All NSW Prisons</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <div class="footer__payments" aria-label="Accepted payment methods">
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/Visa.svg" alt="Visa"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/Mastercard.svg" alt="Mastercard"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/Amex.svg" alt="American Express"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/ApplePay.svg" alt="Apple Pay"></div>
+          <div class="footer__payment-icon"><img src="assets/icons/payments_icons/GooglePay.svg" alt="Google Pay"></div>
+        </div>
+        <div class="footer__policies">
+          <a href="privacy-policy.html">Privacy Policy</a>
+          <a href="terms-of-service.html">Terms of Service</a>
+          <a href="refund-policy.html">Refund Policy</a>
+          <a href="cancellation-policy.html">Cancellation Policy</a>
+        </div>
+        <p class="footer__copyright">&copy; <span id="copyrightYear"></span> Prisoncall Australia by The Freebird &amp; Co Pty Ltd. All prices GST-inclusive.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  'use strict';
+
+  /* ══════════════════════════════════════════════════════════════════
+     PRISON DATA (mirrors choose-plan.html and transfer-prison-modal.js)
+  ══════════════════════════════════════════════════════════════════ */
+  var PRISONS = {
+    vic: [
+      'Barwon Prison', 'Beechworth Correctional Centre', 'Dame Phyllis Frost Centre',
+      'Fulham Correctional Centre', 'Hopkins Correctional Centre', 'Langi Kal Kal Prison',
+      'Loddon Prison / Middleton Prison', 'Marngoneet Correctional Centre',
+      'Melbourne Assessment Prison', 'Metropolitan Remand Centre', 'Port Phillip Prison',
+      'Ravenhall Correctional Centre', 'Tarrengower Prison', 'Western Plains Correctional Centre',
+    ],
+    nsw: [
+      'Amber Laurel CC', 'Balund-a', 'Bathurst CC', 'Broken Hill CC',
+      'Cessnock CC', 'Clarence CC', 'Cooma CC', 'Dawn de Loas CC',
+      'Dillwynia CC', 'Emu Plains CC', 'Geoffrey Pearce CC', 'Glen Innes CC',
+      'Goulburn CC', 'Hunter CC', 'John Morony CC', 'Junee CC',
+      'Kariong Intake & Transit', 'Kirkconnell CC', 'Lithgow CC', 'Long Bay Complex',
+      'Macquarie CC', 'Mannus CC', 'Mary Wade CC', 'Mid North Coast CC (Kempsey)',
+      'MRRC Silverwater', 'Oberon CC', 'Parklea CC', 'Shortland CC',
+      "Silverwater CC (Men's)", "Silverwater Women's CC", 'South Coast CC',
+      'St Heliers CC', 'Tamworth CC', 'Wellington CC',
+    ],
+  };
+
+  /* ══════════════════════════════════════════════════════════════════
+     STATE
+  ══════════════════════════════════════════════════════════════════ */
+  var state = {
+    step: 1,
+    selectedState: null,   /* 'vic' | 'nsw' */
+    did: null,             /* full 10-digit number confirmed in step 1 */
+    currentPrison: null,   /* from /api/check-did response */
+    confirmedDid: null,    /* re-entered in step 2 */
+    mobile: null,          /* clean 10-digit after OTP verify */
+    selectedPrison: null,  /* chosen in step 4 */
+  };
+
+  var devSkipStep3 = false;
+
+  /* ══════════════════════════════════════════════════════════════════
+     DOM REFS
+  ══════════════════════════════════════════════════════════════════ */
+  var tpContent = document.getElementById('tpContent');
+  var tpBack    = document.getElementById('tpBack');
+  var tpStepInd = document.getElementById('tpStepInd');
+
+  /* ══════════════════════════════════════════════════════════════════
+     HELPERS
+  ══════════════════════════════════════════════════════════════════ */
+  function esc(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function maskMobile(d) {
+    d = (d || '').replace(/\D/g, '');
+    return d.length < 10 ? d : d.slice(0, 4) + ' XXX ' + d.slice(7);
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     NAVIGATION
+  ══════════════════════════════════════════════════════════════════ */
+  function goTo(step) {
+    state.step = step;
+    tpStepInd.textContent = 'STEP ' + step + ' OF 5';
+
+    /* Back button behaviour */
+    if (step === 5) {
+      tpBack.classList.add('is-hidden');
+    } else {
+      tpBack.classList.remove('is-hidden');
+      if (step === 1) {
+        tpBack.onclick = function () { history.back(); };
+      } else {
+        (function (prevStep) {
+          tpBack.onclick = function () { goTo(prevStep); };
+        })(step - 1);
+      }
+    }
+
+    /* Re-trigger content animation */
+    tpContent.style.animation = 'none';
+    /* eslint-disable-next-line no-unused-expressions */
+    tpContent.offsetHeight;
+    tpContent.style.animation = '';
+
+    tpContent.innerHTML = '';
+    var builders = { 1: buildStep1, 2: buildStep2, 3: buildStep3, 4: buildStep4, 5: buildStep5 };
+    if (builders[step]) builders[step](tpContent);
+
+    /* Smooth-scroll the card into view */
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     STEP 1 — Enter current Prisoncall number
+  ══════════════════════════════════════════════════════════════════ */
+  function buildStep1(el) {
+    el.innerHTML =
+      '<h2 class="tp-heading">Enter your current Prisoncall number</h2>'
+      + '<p class="tp-subtext">This is the local number your loved one calls.</p>';
+
+    /* State toggle */
+    var toggle = document.createElement('div');
+    toggle.className = 'state-toggle';
+    var vicBtn = makeStateBtn('VIC', 'Victoria', state.selectedState === 'vic');
+    var nswBtn = makeStateBtn('NSW', 'New South Wales', state.selectedState === 'nsw');
+    toggle.appendChild(vicBtn);
+    toggle.appendChild(nswBtn);
+    el.appendChild(toggle);
+
+    /* DID input: locked prefix + editable suffix */
+    var didWrap = document.createElement('div');
+    didWrap.className = 'tp-did-wrap' + (!state.selectedState ? ' no-state' : '');
+    var prefixEl = document.createElement('span');
+    prefixEl.className = 'tp-did-prefix' + (!state.selectedState ? ' empty' : '');
+    prefixEl.textContent = state.selectedState ? (state.selectedState === 'vic' ? '03 ' : '02 ') : 'Select state ';
+    var suffixInput = document.createElement('input');
+    suffixInput.className = 'tp-did-suffix';
+    suffixInput.type = 'tel';
+    suffixInput.inputMode = 'numeric';
+    suffixInput.maxLength = 8;
+    suffixInput.setAttribute('pattern', '[0-9]*');
+    suffixInput.setAttribute('autocomplete', 'off');
+    suffixInput.setAttribute('autocorrect', 'off');
+    suffixInput.setAttribute('autocapitalize', 'off');
+    suffixInput.setAttribute('spellcheck', 'false');
+    suffixInput.placeholder = state.selectedState ? 'XXXXXXXX' : '';
+    suffixInput.disabled = !state.selectedState;
+    if (state.selectedState && state.did) {
+      var sp0 = state.selectedState === 'vic' ? '03' : '02';
+      suffixInput.value = state.did.startsWith(sp0) ? state.did.slice(2) : state.did;
+    }
+    didWrap.appendChild(prefixEl);
+    didWrap.appendChild(suffixInput);
+    el.appendChild(didWrap);
+
+    var didError = document.createElement('p');
+    didError.className = 'tp-error';
+    el.appendChild(didError);
+
+    var continueBtn = document.createElement('button');
+    continueBtn.className = 'tp-btn tp-btn--black';
+    continueBtn.type = 'button';
+    continueBtn.textContent = 'Continue';
+    el.appendChild(continueBtn);
+
+    /* State selection */
+    function selectState(st) {
+      state.selectedState = st;
+      vicBtn.className = 'state-btn' + (st === 'vic' ? ' is-active' : '');
+      nswBtn.className = 'state-btn' + (st === 'nsw' ? ' is-active' : '');
+      prefixEl.textContent = (st === 'vic' ? '03 ' : '02 ');
+      prefixEl.className = 'tp-did-prefix';
+      didWrap.classList.remove('no-state');
+      suffixInput.disabled = false;
+      suffixInput.placeholder = 'XXXXXXXX';
+      suffixInput.focus();
+    }
+    vicBtn.addEventListener('click', function () { selectState('vic'); });
+    nswBtn.addEventListener('click', function () { selectState('nsw'); });
+
+    /* Digits-only + mobile autofill guard */
+    suffixInput.addEventListener('input', function () {
+      var digits = suffixInput.value.replace(/\D/g, '');
+      if (digits.length > 8 && state.selectedState) {
+        var sp = state.selectedState === 'vic' ? '03' : '02';
+        if (digits.startsWith(sp)) digits = digits.slice(2);
+      }
+      suffixInput.value = digits.slice(0, 8);
+      didWrap.classList.remove('has-error');
+      didError.classList.remove('is-visible');
+      didError.textContent = '';
+    });
+
+    suffixInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); doSubmit(); }
+    });
+
+    didWrap.addEventListener('click', function () { suffixInput.focus(); });
+
+    function doSubmit() {
+      if (!state.selectedState) {
+        didError.textContent = 'Please select your state first.';
+        didError.classList.add('is-visible');
+        return;
+      }
+      var raw = suffixInput.value.replace(/\D/g, '');
+      var sp = state.selectedState === 'vic' ? '03' : '02';
+      if (raw.length > 8 && raw.startsWith(sp)) raw = raw.slice(sp.length);
+      raw = raw.slice(0, 8);
+      if (raw.length < 8) {
+        didWrap.classList.add('has-error');
+        didError.textContent = 'Please enter the full 8-digit number.';
+        didError.classList.add('is-visible');
+        return;
+      }
+      var fullNumber = sp + raw;
+      continueBtn.disabled = true;
+      continueBtn.textContent = 'Checking\u2026';
+
+      fetch('/api/check-did', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ did: fullNumber }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.success) {
+            state.did = fullNumber;
+            state.currentPrison = data.currentPrison;
+            if (data.state) state.selectedState = data.state.toLowerCase();
+            goTo(2);
+          } else {
+            continueBtn.disabled = false;
+            continueBtn.textContent = 'Continue';
+            didWrap.classList.add('has-error');
+            didError.textContent = 'We couldn\u2019t find a Prisoncall plan for that number. Please check and try again.';
+            didError.classList.add('is-visible');
+          }
+        })
+        .catch(function () {
+          continueBtn.disabled = false;
+          continueBtn.textContent = 'Continue';
+          didWrap.classList.add('has-error');
+          didError.textContent = 'Something went wrong. Please try again.';
+          didError.classList.add('is-visible');
+        });
+    }
+
+    continueBtn.addEventListener('click', doSubmit);
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     STEP 2 — Confirm Prisoncall number
+  ══════════════════════════════════════════════════════════════════ */
+  function buildStep2(el) {
+    el.innerHTML =
+      '<h2 class="tp-heading">Confirm your Prisoncall number</h2>'
+      + '<p class="tp-subtext">Please re-enter your number to confirm.</p>';
+
+    var statePrefix = state.selectedState === 'vic' ? '03' : '02';
+
+    var didWrap = document.createElement('div');
+    didWrap.className = 'tp-did-wrap';
+    var prefixEl = document.createElement('span');
+    prefixEl.className = 'tp-did-prefix';
+    prefixEl.textContent = statePrefix + ' ';
+    var suffixInput = document.createElement('input');
+    suffixInput.className = 'tp-did-suffix';
+    suffixInput.type = 'tel';
+    suffixInput.inputMode = 'numeric';
+    suffixInput.maxLength = 8;
+    suffixInput.setAttribute('pattern', '[0-9]*');
+    suffixInput.setAttribute('autocomplete', 'off');
+    suffixInput.setAttribute('autocorrect', 'off');
+    suffixInput.setAttribute('autocapitalize', 'off');
+    suffixInput.setAttribute('spellcheck', 'false');
+    suffixInput.placeholder = 'XXXXXXXX';
+    if (state.confirmedDid) {
+      suffixInput.value = state.confirmedDid.startsWith(statePrefix) ? state.confirmedDid.slice(2) : state.confirmedDid;
+    }
+    didWrap.appendChild(prefixEl);
+    didWrap.appendChild(suffixInput);
+    el.appendChild(didWrap);
+
+    var didError = document.createElement('p');
+    didError.className = 'tp-error';
+    el.appendChild(didError);
+
+    var continueBtn = document.createElement('button');
+    continueBtn.className = 'tp-btn tp-btn--black';
+    continueBtn.type = 'button';
+    continueBtn.textContent = 'Continue';
+    el.appendChild(continueBtn);
+
+    suffixInput.addEventListener('input', function () {
+      var digits = suffixInput.value.replace(/\D/g, '');
+      if (digits.length > 8 && digits.startsWith(statePrefix)) digits = digits.slice(statePrefix.length);
+      suffixInput.value = digits.slice(0, 8);
+      didWrap.classList.remove('has-error');
+      didError.classList.remove('is-visible');
+      didError.textContent = '';
+    });
+
+    suffixInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); doSubmit(); }
+    });
+
+    didWrap.addEventListener('click', function () { suffixInput.focus(); });
+
+    function doSubmit() {
+      var raw = suffixInput.value.replace(/\D/g, '');
+      if (raw.length > 8 && raw.startsWith(statePrefix)) raw = raw.slice(statePrefix.length);
+      raw = raw.slice(0, 8);
+      if (raw.length < 8) {
+        didWrap.classList.add('has-error');
+        didError.textContent = 'Please enter the full 8-digit number.';
+        didError.classList.add('is-visible');
+        return;
+      }
+      var fullNumber = statePrefix + raw;
+      if (fullNumber !== state.did) {
+        didWrap.classList.add('has-error');
+        didError.textContent = 'This number doesn\u2019t match the one you entered in Step 1.';
+        didError.classList.add('is-visible');
+        return;
+      }
+      state.confirmedDid = fullNumber;
+      goTo(3);
+    }
+
+    continueBtn.addEventListener('click', doSubmit);
+    suffixInput.focus();
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     STEP 3 — Verify mobile number
+  ══════════════════════════════════════════════════════════════════ */
+  function buildStep3(el) {
+    el.innerHTML =
+      '<h2 class="tp-heading">Verify your mobile number</h2>'
+      + '<p class="tp-subtext">Enter your mobile number. Don\u2019t enter your assigned mobile number as it may vary if you have multiple plans.</p>';
+
+    /* Phase A: mobile entry */
+    var phaseA = document.createElement('div');
+    phaseA.id = 'tp-phase-a';
+
+    var mobileInput = document.createElement('input');
+    mobileInput.className = 'tp-input';
+    mobileInput.type = 'tel';
+    mobileInput.placeholder = '04XX XXX XXX';
+    mobileInput.setAttribute('autocomplete', 'tel');
+    if (state.mobile) mobileInput.value = state.mobile;
+    phaseA.appendChild(mobileInput);
+
+    var mobileError = document.createElement('p');
+    mobileError.className = 'tp-error';
+    phaseA.appendChild(mobileError);
+
+    var sendBtn = document.createElement('button');
+    sendBtn.className = 'tp-btn tp-btn--black';
+    sendBtn.type = 'button';
+    sendBtn.textContent = 'Send Code';
+    phaseA.appendChild(sendBtn);
+
+    el.appendChild(phaseA);
+
+    /* Phase B: OTP entry (shown after SMS sent) */
+    var phaseB = document.createElement('div');
+    phaseB.id = 'tp-phase-b';
+    phaseB.style.display = 'none';
+    el.appendChild(phaseB);
+
+    /* DEV: Skip Step 3 button (staging only) */
+    if (window.location.hostname === 'prisoncall.pages.dev') {
+      var skipBtn = document.createElement('button');
+      skipBtn.className = 'tp-dev-skip';
+      skipBtn.id = 'tp-dev-skip3';
+      skipBtn.type = 'button';
+      skipBtn.textContent = 'Skip Step 3 (DEV)';
+      skipBtn.style.display = devSkipStep3 ? 'block' : 'none';
+      skipBtn.addEventListener('click', function () {
+        state.mobile = '0400000000';
+        goTo(4);
+      });
+      el.appendChild(skipBtn);
+    }
+
+    mobileInput.addEventListener('input', function () {
+      mobileInput.classList.remove('has-error');
+      mobileError.classList.remove('is-visible');
+      mobileError.textContent = '';
+    });
+
+    mobileInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); sendBtn.click(); }
+    });
+
+    function buildPhaseB(cleanMobile) {
+      phaseA.style.display = 'none';
+      phaseB.style.display = 'block';
+      phaseB.innerHTML = '';
+
+      var sentMsg = document.createElement('p');
+      sentMsg.className = 'tp-otp-sent';
+      sentMsg.innerHTML = '\u2713 Code sent to <strong>' + esc(maskMobile(cleanMobile)) + '</strong>';
+      phaseB.appendChild(sentMsg);
+
+      var codeInput = document.createElement('input');
+      codeInput.className = 'tp-input sm';
+      codeInput.type = 'tel';
+      codeInput.inputMode = 'numeric';
+      codeInput.placeholder = '000000';
+      codeInput.maxLength = 6;
+      codeInput.setAttribute('autocomplete', 'one-time-code');
+      phaseB.appendChild(codeInput);
+
+      var codeError = document.createElement('p');
+      codeError.className = 'tp-error';
+      phaseB.appendChild(codeError);
+
+      var verifyBtn = document.createElement('button');
+      verifyBtn.className = 'tp-btn tp-btn--green';
+      verifyBtn.type = 'button';
+      verifyBtn.textContent = 'Verify';
+      phaseB.appendChild(verifyBtn);
+
+      var resendLink = document.createElement('button');
+      resendLink.className = 'tp-resend';
+      resendLink.type = 'button';
+      resendLink.innerHTML = 'Didn\u2019t get a code? <span>Resend</span>';
+      phaseB.appendChild(resendLink);
+
+      codeInput.addEventListener('input', function () {
+        codeInput.value = codeInput.value.replace(/\D/g, '').slice(0, 6);
+        codeInput.classList.remove('has-error');
+        codeError.classList.remove('is-visible');
+        codeError.textContent = '';
+      });
+
+      resendLink.addEventListener('click', function () {
+        var origHTML = resendLink.innerHTML;
+        codeInput.value = '';
+        codeInput.classList.remove('has-error');
+        codeError.classList.remove('is-visible');
+        resendLink.disabled = true;
+        resendLink.textContent = 'Sending\u2026';
+        fetch('/send-otp', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile: cleanMobile }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            resendLink.disabled = false;
+            resendLink.innerHTML = d.success ? 'Code resent.' : origHTML;
+            if (d.success) setTimeout(function () { resendLink.innerHTML = origHTML; }, 2500);
+            codeInput.focus();
+          })
+          .catch(function () {
+            resendLink.disabled = false;
+            resendLink.innerHTML = origHTML;
+            codeInput.focus();
+          });
+      });
+
+      function doVerify() {
+        var code = codeInput.value.replace(/\D/g, '');
+        if (code.length < 6) {
+          codeInput.classList.add('has-error');
+          codeError.textContent = 'Please enter the full 6-digit code.';
+          codeError.classList.add('is-visible');
+          return;
+        }
+        /* DEV bypass: 111111 skips Twilio on staging */
+        if (window.location.hostname === 'prisoncall.pages.dev' && code === '111111') {
+          state.mobile = cleanMobile;
+          goTo(4);
+          return;
+        }
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = 'Verifying\u2026';
+        fetch('/verify-otp', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile: cleanMobile, code: code }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (!d.success) {
+              verifyBtn.disabled = false;
+              verifyBtn.textContent = 'Verify';
+              codeInput.classList.add('has-error');
+              codeError.textContent = d.error || 'Incorrect code. Please try again.';
+              codeError.classList.add('is-visible');
+              return;
+            }
+            state.mobile = cleanMobile;
+            goTo(4);
+          })
+          .catch(function () {
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = 'Verify';
+            codeInput.classList.add('has-error');
+            codeError.textContent = 'Incorrect code. Please try again.';
+            codeError.classList.add('is-visible');
+          });
+      }
+
+      verifyBtn.addEventListener('click', doVerify);
+      codeInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); doVerify(); } });
+      codeInput.focus();
+    }
+
+    sendBtn.addEventListener('click', function () {
+      var cleanMobile = mobileInput.value.replace(/\D/g, '');
+      if (!/^04\d{8}$/.test(cleanMobile)) {
+        mobileInput.classList.add('has-error');
+        mobileError.textContent = 'Please enter a valid Australian mobile number (e.g. 0412 345 678).';
+        mobileError.classList.add('is-visible');
+        return;
+      }
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending\u2026';
+      mobileInput.classList.remove('has-error');
+      mobileError.classList.remove('is-visible');
+
+      /* Step 1: cross-check mobile against Supabase before sending any SMS */
+      fetch('/api/check-mobile', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ did: state.did, mobile: cleanMobile }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (checkData) {
+          if (!checkData.success) {
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'Send Code';
+            mobileInput.classList.add('has-error');
+            mobileError.textContent = 'This mobile number does not match the account for this Prisoncall number.';
+            mobileError.classList.add('is-visible');
+            return;
+          }
+          /* Step 2: mobile verified — trigger Twilio OTP */
+          fetch('/send-otp', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mobile: cleanMobile }),
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d.success) {
+                buildPhaseB(cleanMobile);
+              } else {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Send Code';
+                mobileError.textContent = 'Failed to send code. Please try again.';
+                mobileError.classList.add('is-visible');
+              }
+            })
+            .catch(function () {
+              sendBtn.disabled = false;
+              sendBtn.textContent = 'Send Code';
+              mobileError.textContent = 'Failed to send code. Please try again.';
+              mobileError.classList.add('is-visible');
+            });
+        })
+        .catch(function () {
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'Send Code';
+          mobileError.textContent = 'Something went wrong. Please try again.';
+          mobileError.classList.add('is-visible');
+        });
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     STEP 4 — Select new prison
+  ══════════════════════════════════════════════════════════════════ */
+  function buildStep4(el) {
+    /* Top section */
+    var top = document.createElement('div');
+    top.className = 'tp-s4-top';
+    top.innerHTML =
+      '<h2 class="tp-heading">Select your new prison</h2>'
+      + '<p class="tp-subtext">Choose the prison your loved one has moved to.</p>';
+
+    var currentBox = document.createElement('div');
+    currentBox.className = 'tp-current-box';
+    currentBox.innerHTML = 'Current prison: <strong>' + esc(state.currentPrison) + '</strong>';
+    top.appendChild(currentBox);
+
+    var activeState = state.selectedState || 'vic';
+    var toggle = document.createElement('div');
+    toggle.className = 'state-toggle';
+    var vicBtn = makeStateBtn('VIC', 'Victoria', activeState === 'vic');
+    var nswBtn = makeStateBtn('NSW', 'New South Wales', activeState === 'nsw');
+    toggle.appendChild(vicBtn);
+    toggle.appendChild(nswBtn);
+    top.appendChild(toggle);
+    el.appendChild(top);
+
+    /* Prison pills grid */
+    var prisonGrid = document.createElement('div');
+    prisonGrid.className = 'prison-grid';
+    el.appendChild(prisonGrid);
+
+    var prisonError = document.createElement('p');
+    prisonError.className = 'tp-error';
+    el.appendChild(prisonError);
+
+    /* Confirm selection box */
+    var confirmBox = document.createElement('div');
+    confirmBox.className = 'tp-confirm-box';
+    el.appendChild(confirmBox);
+
+    function buildPills(stateVal) {
+      prisonGrid.innerHTML = '';
+      prisonError.classList.remove('is-visible');
+      (PRISONS[stateVal] || []).forEach(function (p) {
+        var pill = document.createElement('button');
+        pill.type = 'button';
+        var isCurrent = (p === state.currentPrison);
+        pill.className = 'prison-pill'
+          + (isCurrent ? ' is-current' : '')
+          + (p === state.selectedPrison ? ' is-active' : '');
+        pill.textContent = p;
+        pill.disabled = isCurrent;
+        prisonGrid.appendChild(pill);
+
+        if (!isCurrent) {
+          pill.addEventListener('click', function () {
+            prisonError.classList.remove('is-visible');
+            prisonGrid.querySelectorAll('.prison-pill').forEach(function (pp) { pp.classList.remove('is-active'); });
+            pill.classList.add('is-active');
+            state.selectedPrison = p;
+            showConfirm(p);
+          });
+        }
+      });
+    }
+
+    function showConfirm(newPrison) {
+      confirmBox.className = 'tp-confirm-box is-visible';
+      confirmBox.innerHTML =
+        '<p class="tp-confirm-box__label">Confirm your transfer:</p>'
+        + '<p class="tp-confirm-box__transfer">'
+        + esc(state.currentPrison)
+        + '<span class="tp-confirm-box__arrow"> &rarr; </span>'
+        + esc(newPrison)
+        + '</p>';
+
+      var continueBtn = document.createElement('button');
+      continueBtn.className = 'tp-btn tp-btn--green';
+      continueBtn.type = 'button';
+      continueBtn.style.marginTop = '4px';
+      continueBtn.textContent = 'Continue';
+      continueBtn.addEventListener('click', function () { goTo(5); });
+      confirmBox.appendChild(continueBtn);
+
+      var changeLink = document.createElement('button');
+      changeLink.className = 'tp-change-link';
+      changeLink.type = 'button';
+      changeLink.textContent = 'Change selection';
+      changeLink.addEventListener('click', function () {
+        state.selectedPrison = null;
+        confirmBox.className = 'tp-confirm-box';
+        prisonGrid.querySelectorAll('.prison-pill').forEach(function (pp) { pp.classList.remove('is-active'); });
+      });
+      confirmBox.appendChild(changeLink);
+    }
+
+    function setActiveState(st) {
+      activeState = st;
+      vicBtn.className = 'state-btn' + (st === 'vic' ? ' is-active' : '');
+      nswBtn.className = 'state-btn' + (st === 'nsw' ? ' is-active' : '');
+      state.selectedPrison = null;
+      confirmBox.className = 'tp-confirm-box';
+      buildPills(st);
+    }
+
+    vicBtn.addEventListener('click', function () { setActiveState('vic'); });
+    nswBtn.addEventListener('click', function () { setActiveState('nsw'); });
+    buildPills(activeState);
+
+    /* Restore selection if navigating back */
+    if (state.selectedPrison) {
+      var activeEl = prisonGrid.querySelector('.prison-pill.is-active');
+      if (activeEl) showConfirm(state.selectedPrison);
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     STEP 5 — Submit & confirmation
+  ══════════════════════════════════════════════════════════════════ */
+  function buildStep5(el) {
+    el.innerHTML =
+      '<div class="tp-loading"><div class="tp-spinner"></div><p>Submitting your request\u2026</p></div>';
+
+    function doSubmit() {
+      fetch('/api/submit-transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          did:           state.did,
+          currentPrison: state.currentPrison,
+          newPrison:     state.selectedPrison,
+          mobile:        state.mobile,
+          currentState:  state.selectedState,
+        }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d.success) { showSuccess(el); }
+          else { showRetry(el, doSubmit); }
+        })
+        .catch(function () { showRetry(el, doSubmit); });
+    }
+
+    doSubmit();
+  }
+
+  function showSuccess(el) {
+    el.innerHTML =
+      '<div class="tp-success">'
+      + '<div class="tp-success__icon">\u2713</div>'
+      + '<h2 class="tp-success__heading">Transfer request submitted</h2>'
+      + '<p class="tp-success__body">We\u2019ve sent you an SMS to confirm your transfer request. Please reply YES to proceed or NO to cancel. This request expires in 24 hours.</p>'
+      + '</div>';
+    var doneBtn = document.createElement('button');
+    doneBtn.className = 'tp-btn tp-btn--green';
+    doneBtn.type = 'button';
+    doneBtn.textContent = 'Done';
+    doneBtn.addEventListener('click', function () {
+      window.location.href = 'https://prisoncall.com.au';
+    });
+    el.querySelector('.tp-success').appendChild(doneBtn);
+  }
+
+  function showRetry(el, retryFn) {
+    el.innerHTML =
+      '<h2 class="tp-heading">Something went wrong</h2>'
+      + '<p class="tp-subtext">Your request could not be submitted.</p>'
+      + '<p class="tp-error is-visible" style="margin-bottom:14px;">Please try again.</p>';
+    var retryBtn = document.createElement('button');
+    retryBtn.className = 'tp-btn tp-btn--green';
+    retryBtn.type = 'button';
+    retryBtn.textContent = 'Retry';
+    retryBtn.addEventListener('click', function () {
+      el.innerHTML = '<div class="tp-loading"><div class="tp-spinner"></div><p>Submitting your request\u2026</p></div>';
+      retryFn();
+    });
+    el.appendChild(retryBtn);
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     SHARED HELPERS
+  ══════════════════════════════════════════════════════════════════ */
+  function makeStateBtn(abbr, name, isActive) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'state-btn' + (isActive ? ' is-active' : '');
+    btn.innerHTML =
+      '<span class="state-btn__abbr">' + abbr + '</span>'
+      + '<span class="state-btn__name">' + name + '</span>';
+    return btn;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     DEV TOOLS PANEL (staging only — prisoncall.pages.dev)
+  ══════════════════════════════════════════════════════════════════ */
+  if (window.location.hostname === 'prisoncall.pages.dev') {
+    var devPanel = document.createElement('div');
+    devPanel.className = 'dev-panel';
+    devPanel.innerHTML = [
+      '<p class="dev-panel__title">Dev Tools</p>',
+      '<div class="dev-panel__row">',
+        '<span class="dev-panel__label">Skip Step 3</span>',
+        '<label class="dev-toggle" aria-label="Toggle Skip Step 3">',
+          '<input type="checkbox" id="devSkip3Toggle">',
+          '<span class="dev-toggle__track"></span>',
+        '</label>',
+      '</div>',
+    ].join('');
+    document.body.appendChild(devPanel);
+    devPanel.querySelector('#devSkip3Toggle').addEventListener('change', function () {
+      devSkipStep3 = this.checked;
+      var btn = document.getElementById('tp-dev-skip3');
+      if (btn) btn.style.display = devSkipStep3 ? 'block' : 'none';
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     HEADER / MOBILE MENU
+  ══════════════════════════════════════════════════════════════════ */
+  document.getElementById('menuToggle').addEventListener('click', function () {
+    document.getElementById('mobileMenu').classList.add('is-open');
+    this.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  });
+  document.getElementById('menuClose').addEventListener('click', function () {
+    document.getElementById('mobileMenu').classList.remove('is-open');
+    document.getElementById('menuToggle').setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  });
+
+  /* ══════════════════════════════════════════════════════════════════
+     BOOT
+  ══════════════════════════════════════════════════════════════════ */
+  document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+  goTo(1);
+
+  </script>
+</body>
+</html>
