@@ -1087,6 +1087,10 @@
     injectCSS();
     injectHTML();
     wireTriggers();
+    window.tpmOpenModal = openModal;
+    if (window.location.hash === '#transfer-prison') {
+      openModal();
+    }
   }
 
   if (document.readyState === 'loading') {
@@ -1097,12 +1101,8 @@
 
 })();
 
-function checkHashAndOpenModal() {
-  if (window.location.hash === '#transfer-prison') {
-    var trigger = document.querySelector('[data-transfer-prison]');
-    if (trigger) trigger.click();
+window.addEventListener('hashchange', function () {
+  if (window.location.hash === '#transfer-prison' && typeof window.tpmOpenModal === 'function') {
+    window.tpmOpenModal();
   }
-}
-
-window.addEventListener('DOMContentLoaded', checkHashAndOpenModal);
-window.addEventListener('hashchange', checkHashAndOpenModal);
+});
