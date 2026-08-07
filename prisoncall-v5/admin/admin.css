@@ -201,6 +201,25 @@ input, select, textarea { font-family: inherit; }
   width: 100%;
 }
 
+/* -- Fixed search bar (subscribers + transfers pages) ----------- */
+/* position:fixed removes it from flow; table wrapper adds padding-top to compensate */
+.admin-search-bar {
+  position: fixed;
+  top: 56px;                      /* sits immediately below the 56px topbar */
+  left: var(--sidebar-width);     /* clears the fixed sidebar (240px) */
+  right: 0;
+  z-index: 100;
+  background: #ffffff;
+  padding: 16px 24px;
+  border-bottom: 1px solid #E5E5E5;
+}
+
+/* Table wrapper classes — padding-top pushes content clear of the fixed bar.
+   Subscribers bar height ≈ 122px (search + filter tabs + padding); minus 24px admin-content top padding = 98px needed.
+   Transfers bar height ≈ 76px (search only + padding); minus 24px = 52px needed. Added buffer for safety. */
+.sub-table-wrap { padding-top: 110px; overflow-x: auto; }
+.tx-table-wrap  { padding-top: 60px;  overflow-x: auto; }
+
 /* -- Bottom Tab Bar (mobile only) ------------------------------- */
 .admin-bottom-bar {
   display: none;
@@ -1331,6 +1350,19 @@ input, select, textarea { font-family: inherit; }
   background: var(--color-surface);
 }
 
+/* -- Mobile logout button (hidden on desktop) ------------------- */
+.mobile-logout-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--color-muted);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+.mobile-logout-btn:hover { color: var(--color-hero); background: var(--color-surface); }
+
 /* ══════════════════════════════════════════════════════════════════════════
    MOBILE OPTIMISATION — 390px iPhone, Shopify mobile admin standards
    ══════════════════════════════════════════════════════════════════════════ */
@@ -1357,10 +1389,27 @@ input, select, textarea { font-family: inherit; }
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: calc(100vw - 110px);
+    max-width: calc(100vw - 130px);
   }
   .admin-topbar-right { flex-shrink: 0; }
   .mobile-settings-btn { display: flex; }
+  /* Mobile logout button: visible on mobile, sign-out icon in topbar */
+  .mobile-logout-btn { display: flex; }
+
+  /* ── FIXED SEARCH BAR: mobile overrides ─────────────────────────────── */
+  /* Sidebar hidden on mobile, so bar starts at left:0 */
+  .admin-search-bar {
+    left: 0;
+    padding: 12px 16px;
+  }
+  /* Table wrappers: smaller padding (admin-content top = 16px, bar heights differ) */
+  .sub-table-wrap { padding-top: 120px; }  /* search 44px + 12px gap + filter 44px + 24px bar padding - 16px content pad = 108px; +12 buffer */
+  .tx-table-wrap  { padding-top: 70px; }   /* search 44px + 24px bar padding - 16px content pad = 52px; +18 buffer */
+
+  /* ── NO HORIZONTAL SCROLL ON MOBILE ─────────────────────────────────── */
+  /* Reset min-widths so table block layout doesn't overflow the viewport */
+  .sub-table   { min-width: 0 !important; }
+  .transfer-table { min-width: 0 !important; }
 
   /* ── CONTENT PADDING ─────────────────────────────────────────────────── */
   .admin-content { padding: 16px; }
