@@ -1395,6 +1395,8 @@ input, select, textarea { font-family: inherit; }
   .mobile-settings-btn { display: flex; }
   /* Mobile logout button: visible on mobile, sign-out icon in topbar */
   .mobile-logout-btn { display: flex; }
+  /* Dashboard date: hide on mobile for consistency with other pages */
+  .dashboard-topbar-date { display: none; }
 
   /* ── FIXED SEARCH BAR: mobile overrides ─────────────────────────────── */
   /* Sidebar hidden on mobile, so bar starts at left:0 */
