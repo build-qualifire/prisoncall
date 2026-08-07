@@ -2,40 +2,43 @@
  * Prisoncall Admin - Shared Auth + API Client
  * All Supabase data calls routed through /api/admin-supabase (CF Pages Function)
  *
- * Roles (read from Supabase user_metadata.role):
- *   super_admin - full access: Dashboard, Orders, Customers, Products, Settings
- *   admin       - Dashboard, Orders, Customers
- *   staff       - Dashboard, Orders only
+ * Roles (derived from email):
+ *   super_admin - guness@prisoncall.com.au - full access
+ *   admin       - all others - Dashboard, Orders, Customers only
  */
 
 const ADMIN_API = '/api/admin-supabase';
 const SESSION_KEY = 'pc_admin_session';
 
-// Role hierarchy: higher index = more access
-const ROLE_LEVELS = { staff: 0, admin: 1, super_admin: 2 };
-
-// ── Session helpers ────────────────────────────────────────────
+// -- Session helpers --
 
 export function getSession() {
   try {
-    const raw = localStorage.getItem(SESSION_KEY);
+    const raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
 }
 
-export function saveSession(session) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+export function saveSession(session, persistent = true) {
+  const str = JSON.stringify(session);
+  if (persistent) {
+    localStorage.setItem(SESSION_KEY, str);
+  } else {
+    sessionStorage.setItem(SESSION_KEY, str);
+  }
 }
 
 export function clearSession() {
   localStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem('pc_admin_email');
+  localStorage.removeItem('pc_admin_role');
 }
 
 function isSessionValid(session) {
   if (!session || !session.access_token) return false;
-  // Only check expiry when expires_at is present (Unix seconds timestamp)
   if (session.expires_at) {
     const nowSec = Date.now() / 1000;
     if (nowSec > session.expires_at - 60) return false;
@@ -54,11 +57,8 @@ async function tryRefresh(session) {
     const data = await res.json();
     if (data.success) {
       const refreshed = { ...session, ...data.data };
-      // Preserve role from old session if refresh response didn't include it
-      if (!refreshed.user?.role && session.user?.role) {
-        refreshed.user = { ...(refreshed.user || {}), role: session.user.role };
-      }
-      saveSession(refreshed);
+      const isPersistent = !!localStorage.getItem(SESSION_KEY);
+      saveSession(refreshed, isPersistent);
       return refreshed;
     }
   } catch {
@@ -67,93 +67,51 @@ async function tryRefresh(session) {
   return null;
 }
 
-// ── Role helpers ───────────────────────────────────────────────
+// -- Role helpers --
 
 export function getUserRole() {
   return getSession()?.user?.role || null;
 }
 
-function roleLevel(role) {
-  return ROLE_LEVELS[role] ?? -1;
+export function isSuperAdmin() {
+  return getUserRole() === 'super_admin';
 }
 
-function hasRole(userRole, requiredRole) {
-  if (!requiredRole) return roleLevel(userRole) >= 0;
-  return roleLevel(userRole) >= roleLevel(requiredRole);
-}
-
-/**
- * Fetch the authenticated user's role directly from the server.
- * Used when the stored session is missing the role field.
- * The CF function reads from user_metadata, raw_user_meta_data, and app_metadata.
- */
-async function fetchRoleFromServer(accessToken) {
-  try {
-    const res = await fetch(ADMIN_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'getRole', token: accessToken }),
-    });
-    const body = await res.json();
-    console.log('[AdminAuth] fetchRoleFromServer response:', body);
-    if (body.success && body.data?.role) return body.data.role;
-  } catch (err) {
-    console.warn('[AdminAuth] fetchRoleFromServer error:', err);
-  }
-  return null;
-}
-
-// ── Page initialisation ────────────────────────────────────────
+// -- Page initialisation --
 
 /**
  * Call at the top of every protected page.
- * Checks authentication only — redirects to login if no valid session exists.
- * Does NOT redirect based on role. Role-based UI is handled per-page.
- * Returns the session (including session.user.role) or null if unauthenticated.
+ * Redirects to login if no valid session.
+ * Returns session or null.
  */
-export async function initAdminPage() {
+export async function initAdminPage(requiredRole = null) {
   let session = getSession();
 
   if (!session) {
-    console.log('[AdminAuth] No session — redirecting to login');
     redirectToLogin();
     return null;
   }
 
   if (!isSessionValid(session)) {
-    console.log('[AdminAuth] Session expired — attempting refresh');
     session = await tryRefresh(session);
     if (!session) {
-      console.log('[AdminAuth] Refresh failed — redirecting to login');
       clearSession();
       redirectToLogin();
       return null;
     }
   }
 
-  let role = session.user?.role || null;
-  console.log('[AdminAuth] Cached role:', role);
+  const role = session.user?.role || null;
 
-  // Always verify the live role from the server so a stale cached role
-  // (e.g. from before an admin updated it in Supabase) is corrected automatically.
-  if (session.access_token) {
-    const liveRole = await fetchRoleFromServer(session.access_token);
-    console.log('[AdminAuth] Live role from server:', liveRole);
-    if (liveRole) {
-      if (liveRole !== role) {
-        session = { ...session, user: { ...(session.user || {}), role: liveRole } };
-        saveSession(session);
-      }
-      role = liveRole;
-    }
-  }
-
-  console.log('[AdminAuth] Final role:', role);
-
-  if (!role || roleLevel(role) < 0) {
-    console.warn('[AdminAuth] No valid role — clearing session, redirecting to login');
+  if (!role) {
     clearSession();
     redirectToLogin();
+    return null;
+  }
+
+  // Role-based page guard
+  if (requiredRole === 'super_admin' && role !== 'super_admin') {
+    window.location.href = '/admin/dashboard.html';
     return null;
   }
 
@@ -162,9 +120,11 @@ export async function initAdminPage() {
     el.textContent = session.user?.email || '';
   });
 
-  // Hide nav items the current role cannot access
+  // Hide nav items requiring higher role
   document.querySelectorAll('[data-role-min]').forEach(el => {
-    if (!hasRole(role, el.dataset.roleMin)) el.remove();
+    if (el.dataset.roleMin === 'super_admin' && role !== 'super_admin') {
+      el.remove();
+    }
   });
 
   return session;
@@ -179,7 +139,7 @@ export function logout() {
   window.location.href = '/admin/login.html';
 }
 
-// ── API client ──────────────────────────────────────────────────
+// -- API client --
 
 export async function api(action, params = {}) {
   const session = getSession();
@@ -213,7 +173,7 @@ export async function api(action, params = {}) {
   return body.data;
 }
 
-// ── Login ───────────────────────────────────────────────────────
+// -- Login --
 
 export async function login(email, password, remember) {
   const res = await fetch(ADMIN_API, {
@@ -227,16 +187,11 @@ export async function login(email, password, remember) {
     throw new Error(body.error || 'Login failed');
   }
 
-  saveSession(body.data);
-
-  if (!remember) {
-    sessionStorage.setItem('pc_session_only', '1');
-  }
-
+  saveSession(body.data, !!remember);
   return body.data;
 }
 
-// ── Formatting helpers ──────────────────────────────────────────
+// -- Formatting helpers --
 
 export function fmtDate(iso) {
   if (!iso) return '-';
@@ -253,41 +208,68 @@ export function fmtDatetime(iso) {
     + ' ' + d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
 }
 
-export function fmtMobile(mobile) {
+export function fmtTimeAgo(iso) {
+  if (!iso) return '-';
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+
+/** Format 0XXXXXXXXX mobile -> 04XX XXX XXX */
+export function formatMobile(mobile) {
   if (!mobile) return '-';
-  const m = mobile.replace(/\D/g, '');
-  if (m.length === 10) return `${m.slice(0,4)} ${m.slice(4,7)} ${m.slice(7)}`;
+  const m = String(mobile).replace(/\D/g, '');
+  if (m.length === 10 && m.startsWith('0')) {
+    return `${m.slice(0, 4)} ${m.slice(4, 7)} ${m.slice(7)}`;
+  }
   return mobile;
 }
 
-export function maskMobile(mobile) {
-  if (!mobile) return '-';
-  const m = mobile.replace(/\D/g, '');
-  if (m.length === 10) return `${m.slice(0,2)}xx xxx ${m.slice(7)}`;
-  return mobile;
-}
+// Alias for older code
+export const fmtMobile = formatMobile;
 
 export function fmtCurrency(val) {
   if (val == null || val === '') return '-';
-  return '$' + parseFloat(val).toFixed(2);
+  const n = parseFloat(val);
+  if (isNaN(n)) return '-';
+  return '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+/** Status badge HTML - solid color, white text per spec */
 export function statusBadge(status) {
   const map = {
-    PENDING:           ['badge--pending',   'Pending'],
-    DID_ORDERED:       ['badge--blue',      'DID Ordered'],
-    SOURCING:          ['badge--blue',      'Sourcing'],
-    ACTIVATING:        ['badge--blue',      'Activating'],
-    FULFILLED:         ['badge--fulfilled', 'Fulfilled'],
-    ACTIVATION_FAILED: ['badge--red',       'Activation Failed'],
-    OVERDUE:           ['badge--red',       'Overdue'],
-    CANCELLED:         ['badge--grey',      'Cancelled'],
-    PENDING_REFUND:    ['badge--orange',    'Pending Refund'],
-    REFUNDED:          ['badge--grey',      'Refunded'],
-    ACTIVE:            ['badge--active',    'Active'],
-    SUSPENDED:         ['badge--orange',    'Suspended'],
+    PENDING:           'badge--pending',
+    DID_ORDERED:       'badge--blue',
+    SOURCING:          'badge--blue',
+    ACTIVATING:        'badge--purple',
+    FULFILLED:         'badge--fulfilled',
+    ACTIVATION_FAILED: 'badge--red',
+    OVERDUE:           'badge--red',
+    SUSPENDED:         'badge--orange',
+    CANCELLED:         'badge--grey',
+    TRANSFER:          'badge--indigo',
+    ACTIVE:            'badge--active',
   };
-  const [cls, label] = map[status] || ['badge--grey', status || 'Unknown'];
+  const labels = {
+    PENDING:           'Pending',
+    DID_ORDERED:       'DID Ordered',
+    SOURCING:          'Sourcing',
+    ACTIVATING:        'Activating',
+    FULFILLED:         'Fulfilled',
+    ACTIVATION_FAILED: 'Activation Failed',
+    OVERDUE:           'Overdue',
+    SUSPENDED:         'Suspended',
+    CANCELLED:         'Cancelled',
+    TRANSFER:          'Transfer',
+    ACTIVE:            'Active',
+  };
+  const cls = map[status] || 'badge--grey';
+  const label = labels[status] || (status || 'Unknown');
   return `<span class="badge ${cls}">${label}</span>`;
 }
 
@@ -296,13 +278,27 @@ export function orderTypeBadge(type) {
   return '<span class="badge badge--new">NEW</span>';
 }
 
-export function addonsLabel(order) {
+/** Add-on badges for subscriptions table columns */
+export function addonBadges(sub) {
+  if (!sub) return '';
   const parts = [];
-  if (order.addon_48hr_cancel) parts.push('48hr Cancel');
-  if (order.addon_transfers)   parts.push('Transfers');
-  if (order.addon_post_renewal)parts.push('Post Renewal');
-  if (order.addon_combo23)     parts.push('Bundle 2+3');
-  if (order.addon_lifetime)    parts.push('Lifetime');
+  if (sub.addon_transfer_guarantee)     parts.push('TG');
+  if (sub.addon_renewal_guarantee)      parts.push('RG');
+  if (sub.addon_combo)                  parts.push('Combo');
+  if (sub.addon_cancellation_guarantee) parts.push('CG');
+  if (sub.addon_lifetime_protection)    parts.push('LP');
+  return parts.map(p => `<span class="badge badge--addon">${p}</span>`).join(' ');
+}
+
+/** Add-on text list for subscriptions table columns */
+export function addonsList(sub) {
+  if (!sub) return '-';
+  const parts = [];
+  if (sub.addon_transfer_guarantee)     parts.push('Transfer Guarantee');
+  if (sub.addon_renewal_guarantee)      parts.push('Renewal Guarantee');
+  if (sub.addon_combo)                  parts.push('Transfer + Renewal Combo');
+  if (sub.addon_cancellation_guarantee) parts.push('Cancellation Guarantee');
+  if (sub.addon_lifetime_protection)    parts.push('Lifetime Protection');
   return parts.length ? parts.join(', ') : '-';
 }
 
@@ -315,38 +311,79 @@ export function copyToClipboard(text, el) {
       el.textContent = orig;
       el.style.color = '';
     }, 1500);
-  });
+  }).catch(() => {});
 }
 
-// ── Notification toast ──────────────────────────────────────────
+// -- Toast system (bottom right, slides in) --
 
-let toastTimeout;
+let toastContainer = null;
 
-export function showToast(message, type = 'success') {
-  let toast = document.getElementById('admin-toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'admin-toast';
-    toast.style.cssText = `
-      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-      padding: 12px 20px; border-radius: 80px; font-family: var(--font-family);
-      font-size: 14px; font-weight: 700; z-index: 9999;
-      transition: opacity 0.2s ease; pointer-events: none;
-      white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    `;
-    document.body.appendChild(toast);
+function getToastContainer() {
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.className = 'toast-container';
+    document.body.appendChild(toastContainer);
   }
+  return toastContainer;
+}
 
-  const styles = {
-    success: 'background:#00D258;color:#000;',
-    error:   'background:#EF4444;color:#fff;',
-    info:    'background:#3B82F6;color:#fff;',
-  };
-
-  toast.style.cssText += styles[type] || styles.success;
+export function showToast(message, type = 'success', duration = 4000) {
+  const container = getToastContainer();
+  const toast = document.createElement('div');
+  toast.className = `toast toast--${type}`;
   toast.textContent = message;
-  toast.style.opacity = '1';
+  container.appendChild(toast);
 
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+  // Trigger animation
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { toast.classList.add('show'); });
+  });
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 350);
+  }, duration);
+}
+
+export function showSmsToast(recipient, message) {
+  console.log('[SMS STUB]', recipient, message);
+  const container = getToastContainer();
+  const toast = document.createElement('div');
+  toast.className = 'toast toast--sms';
+  toast.innerHTML = `<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#666;margin-bottom:6px">SMS STUB - ${recipient}</div>${escapeHtml(message)}`;
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { toast.classList.add('show'); });
+  });
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 350);
+  }, 8000);
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br>');
+}
+
+/** Check if progressive SMS button is unlocked (7am the day after last send) */
+export function isSmsUnlocked(lastSmsSentAt) {
+  if (!lastSmsSentAt) return false;
+  const lastSent = new Date(lastSmsSentAt);
+  const now = new Date();
+
+  // Must be a different calendar day
+  const lastDay = new Date(lastSent);
+  lastDay.setHours(0, 0, 0, 0);
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  if (lastDay >= today) return false;
+
+  // And current time must be >= 7am local
+  return now.getHours() >= 7;
 }

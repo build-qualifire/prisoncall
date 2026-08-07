@@ -12,27 +12,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/admin/admin.css">
-  <style>
-    .action-section { margin-top: 20px; }
-    .fulfil-form { display: none; margin-top: 12px; }
-    .fulfil-form.visible { display: block; }
-    .manual-form { display: none; margin-top: 12px; }
-    .manual-form.visible { display: block; }
-    .activating-state {
-      display: flex; flex-direction: column; align-items: center;
-      padding: 28px; gap: 12px; text-align: center;
-    }
-    .spinner--lg {
-      width: 36px; height: 36px;
-      border: 3px solid var(--color-border);
-      border-top-color: var(--color-green);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .activating-text { font-size: 15px; font-weight: 600; color: var(--color-hero); }
-    .activating-sub { font-size: 13px; color: var(--color-muted); }
-  </style>
 </head>
 <body>
 
@@ -40,7 +19,9 @@
 
   <!-- Sidebar -->
   <aside class="admin-sidebar">
-    <div class="sidebar-brand"><img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall" class="sidebar-logo"></div>
+    <div class="sidebar-brand">
+      <img src="/assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall" class="sidebar-logo">
+    </div>
     <nav class="sidebar-nav">
       <a href="/admin/dashboard.html" class="sidebar-nav-item">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -50,7 +31,7 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         Orders
       </a>
-      <a href="/admin/customers.html" class="sidebar-nav-item" data-role-min="admin">
+      <a href="/admin/customers.html" class="sidebar-nav-item">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
         Customers
       </a>
@@ -103,17 +84,9 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         <span>Orders</span>
       </a>
-      <a href="/admin/customers.html" class="bottom-bar-item" data-role-min="admin">
+      <a href="/admin/customers.html" class="bottom-bar-item">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
         <span>Customers</span>
-      </a>
-      <a href="/admin/products.html" class="bottom-bar-item" data-role-min="super_admin">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-        <span>Products</span>
-      </a>
-      <a href="/admin/settings.html" class="bottom-bar-item" data-role-min="super_admin">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-        <span>Settings</span>
       </a>
     </div>
   </nav>
@@ -121,23 +94,51 @@
 </div>
 
 <script type="module">
-  import { initAdminPage, api, logout, fmtDate, fmtDatetime, fmtMobile, fmtCurrency, statusBadge, orderTypeBadge, addonsLabel, copyToClipboard, showToast } from '/admin/admin-auth.js';
+  import {
+    initAdminPage, api, logout, fmtDate, fmtDatetime, fmtCurrency,
+    formatMobile, statusBadge, orderTypeBadge, addonBadges, addonsList,
+    copyToClipboard, showToast, showSmsToast, isSmsUnlocked
+  } from '/admin/admin-auth.js';
 
-  const params = new URLSearchParams(window.location.search);
-  const orderId = params.get('id');
+  let orderId = null;
   let order = null;
-  let prisonData = null;
+  let sub = null;
+  let prisonLookup = null;
 
   async function init() {
     const session = await initAdminPage();
     if (!session) return;
 
+    const params = new URLSearchParams(window.location.search);
+    orderId = params.get('id');
     if (!orderId) {
-      showError('No order ID specified');
+      showError('No order ID provided.');
       return;
     }
 
     loadOrder();
+  }
+
+  async function loadOrder() {
+    try {
+      const data = await api('getOrder', { id: orderId });
+      order = data.order;
+      prisonLookup = data.prisonLookup;
+
+      if (!order) {
+        showError('Order not found.');
+        return;
+      }
+
+      sub = order.subscriptions || null;
+
+      document.getElementById('pageTitle').textContent = `Order #${orderId.slice(0, 8)}`;
+      document.getElementById('topbarBadge').innerHTML = statusBadge(order.status);
+
+      renderPage();
+    } catch (err) {
+      showError(err.message);
+    }
   }
 
   function showError(msg) {
@@ -145,508 +146,594 @@
       <div class="alert alert--error">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg>
         ${msg}
+      </div>`;
+  }
+
+  function renderPage() {
+    const isTransfer = order.order_type === 'TRANSFER';
+    const mobile = formatMobile(order.customer_mobile);
+    const assignedMobile = formatMobile(order.assigned_mobile);
+    const subName = sub?.customer_name || '-';
+    const subEmail = sub?.customer_email || '-';
+    const plan = sub?.plan_interval ? `${cap(sub.plan_interval)} / ${fmtCurrency(sub.plan_price)}` : '-';
+    const addons = addonsList(sub);
+    const shopifyOrderId = sub?.shopify_order_id || order.shopify_order_id || '-';
+    const appstleId = sub?.appstle_subscription_id || '-';
+
+    const transferBanner = isTransfer ? `
+      <div class="transfer-banner">
+        <div class="transfer-banner-label">Transfer Order</div>
+        <div class="transfer-banner-info">
+          Old Prison: ${order.old_prison_name || '-'} (${order.old_prison_state || '-'})
+          ${order.old_did_number ? ` - Old DID: ${order.old_did_number}` : ''}
+        </div>
+      </div>` : '';
+
+    const didSection = ['FULFILLED', 'ACTIVE'].includes(order.status) && order.did_number ? `
+      <div class="detail-row">
+        <span class="detail-key">DID</span>
+        <span class="detail-val did">${order.did_number}</span>
       </div>
-    `;
-  }
+      <div class="detail-row">
+        <span class="detail-key">3CX Extension</span>
+        <span class="detail-val font-mono">${order.extension_numb || '-'}</span>
+      </div>` : '';
 
-  async function loadOrder() {
-    try {
-      order = await api('getOrder', { id: orderId });
-      if (!order) { showError('Order not found'); return; }
+    const exchangeHtml = buildExchangeHtml();
 
-      document.getElementById('pageTitle').textContent = `Order #${order.id.slice(-8).toUpperCase()}`;
-      document.getElementById('topbarBadge').innerHTML = statusBadge(order.status);
-
-      // Load prison lookup data
-      if (order.prison_name && order.prison_state) {
-        try {
-          prisonData = await api('getPrisonLookup', { prison_name: order.prison_name, prison_state: order.prison_state });
-        } catch {
-          prisonData = null;
-        }
-      }
-
-      renderOrder();
-    } catch (err) {
-      showError(err.message);
-    }
-  }
-
-  function renderOrder() {
-    const o = order;
-    const addonsList = [];
-    if (o.addon_48hr_cancel) addonsList.push({ name: '48 Hours Cancellation Guarantee', price: null });
-    if (o.addon_transfers)   addonsList.push({ name: 'Unlimited Prison Transfers', price: null });
-    if (o.addon_post_renewal)addonsList.push({ name: '96 Hours Post Renewal Cancellation', price: null });
-    if (o.addon_combo23)     addonsList.push({ name: 'Unlimited Transfers + 96hr Bundle', price: null });
-    if (o.addon_lifetime)    addonsList.push({ name: 'Lifetime Protection Bundle', price: null });
-
-    const addonsHtml = addonsList.length
-      ? addonsList.map(a => `<div style="font-size:13px;padding:2px 0">+ ${a.name}</div>`).join('')
-      : '<div style="font-size:13px;color:var(--color-muted)">None</div>';
-
-    const mainContent = document.getElementById('mainContent');
-
-    mainContent.innerHTML = `
-      ${o.status === 'FULFILLED' ? `
-        <div class="alert alert--success mb-16">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          This order has been fulfilled. Customer's DID number is active.
-        </div>
-      ` : ''}
-      ${o.status === 'OVERDUE' ? `
-        <div class="alert alert--error mb-16">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-          This order is overdue. Action required immediately.
-        </div>
-      ` : ''}
+    document.getElementById('mainContent').innerHTML = `
+      ${transferBanner}
 
       <div class="detail-grid">
 
-        <!-- Left: Order information -->
+        <!-- Left: Order info -->
         <div>
           <div class="card mb-16">
             <div class="card-header">
-              <div class="card-title">Order Information</div>
-              ${orderTypeBadge(o.order_type)}
+              <div class="card-title">${orderTypeBadge(order.order_type)} Order Info</div>
+              ${sub?.id ? `<a href="/admin/customer-detail.html?id=${sub.id}" class="btn btn--outline btn--sm">View Subscriber</a>` : ''}
             </div>
             <div class="card-body">
-
-              ${o.order_type === 'TRANSFER' ? `
-                <div class="alert alert--info mb-16">
-                  <img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16">
-                  <div>
-                    <div style="font-weight:700;margin-bottom:2px">Prison Transfer</div>
-                    <div>Previous prison: <strong>${o.old_prison_name || 'N/A'}</strong></div>
-                    ${o.old_did_number ? `<div>Previous DID: <strong class="font-mono">${o.old_did_number}</strong></div>` : ''}
-                  </div>
-                </div>
-              ` : ''}
-
               <div class="detail-row">
-                <div class="detail-key">Customer name</div>
-                <div class="detail-val">${o.customer_name || '-'}</div>
+                <span class="detail-key">Customer</span>
+                <span class="detail-val">${subName}</span>
               </div>
               <div class="detail-row">
-                <div class="detail-key">Mobile</div>
-                <div class="detail-val">${fmtMobile(o.customer_mobile)}</div>
+                <span class="detail-key">Mobile</span>
+                <span class="detail-val">${mobile}</span>
               </div>
               <div class="detail-row">
-                <div class="detail-key">Email</div>
-                <div class="detail-val" style="word-break:break-all">${o.customer_email || '-'}</div>
+                <span class="detail-key">Email</span>
+                <span class="detail-val">${subEmail}</span>
               </div>
               <div class="detail-row">
-                <div class="detail-key">Prison</div>
-                <div class="detail-val">${o.prison_name || '-'}</div>
+                <span class="detail-key">Prison</span>
+                <span class="detail-val">${order.prison_name || '-'}, ${order.prison_state || '-'}</span>
               </div>
               <div class="detail-row">
-                <div class="detail-key">State</div>
-                <div class="detail-val">${o.prison_state || '-'}</div>
+                <span class="detail-key">Plan</span>
+                <span class="detail-val">${plan}</span>
               </div>
               <div class="detail-row">
-                <div class="detail-key">Plan</div>
-                <div class="detail-val" style="text-transform:capitalize">${o.plan_interval || '-'} - ${fmtCurrency(o.plan_price)}</div>
+                <span class="detail-key">Add-ons</span>
+                <span class="detail-val">${addons}</span>
               </div>
               <div class="detail-row">
-                <div class="detail-key">Add-ons</div>
-                <div class="detail-val" style="text-align:right">${addonsHtml}</div>
-              </div>
-              ${o.addon_total ? `
-                <div class="detail-row">
-                  <div class="detail-key">Add-on total</div>
-                  <div class="detail-val">${fmtCurrency(o.addon_total)}</div>
-                </div>
-              ` : ''}
-              <div class="detail-row">
-                <div class="detail-key">Order date</div>
-                <div class="detail-val">${fmtDatetime(o.order_date)}</div>
+                <span class="detail-key">Date</span>
+                <span class="detail-val">${fmtDate(order.created_at)}</span>
               </div>
               <div class="detail-row">
-                <div class="detail-key">Last updated</div>
-                <div class="detail-val">${fmtDatetime(o.updated_at)}</div>
+                <span class="detail-key">Shopify Order</span>
+                <span class="detail-val mono copyable" onclick="copyText('${shopifyOrderId}', this)" title="Click to copy">${shopifyOrderId}</span>
               </div>
               <div class="detail-row">
-                <div class="detail-key">Stripe Sub ID</div>
-                <div class="detail-val mono font-mono copyable" onclick="doCopy(this,'${o.stripe_subscription_id || ''}')" title="Click to copy">${o.stripe_subscription_id || '-'}</div>
+                <span class="detail-key">Appstle Sub</span>
+                <span class="detail-val mono copyable" onclick="copyText('${appstleId}', this)" title="Click to copy">${appstleId}</span>
               </div>
-              <div class="detail-row">
-                <div class="detail-key">Stripe Cust ID</div>
-                <div class="detail-val mono font-mono copyable" onclick="doCopy(this,'${o.stripe_customer_id || ''}')" title="Click to copy">${o.stripe_customer_id || '-'}</div>
-              </div>
-
-              ${(o.status === 'FULFILLED' || o.did_number) ? `
-                <div class="detail-row">
-                  <div class="detail-key">DID number</div>
-                  <div class="detail-val font-mono copyable" onclick="doCopy(this,'${o.did_number || ''}')" title="Click to copy" style="color:var(--color-green);font-weight:700;font-size:16px">${o.did_number || '-'}</div>
-                </div>
-              ` : ''}
-              ${o.extension_number ? `
-                <div class="detail-row">
-                  <div class="detail-key">3CX Extension</div>
-                  <div class="detail-val font-mono">${o.extension_number}</div>
-                </div>
-              ` : ''}
-              ${o.extension_created_at ? `
-                <div class="detail-row">
-                  <div class="detail-key">Ext. created</div>
-                  <div class="detail-val">${fmtDatetime(o.extension_created_at)}</div>
-                </div>
-              ` : ''}
-            </div>
-          </div>
-
-          <!-- Action section -->
-          <div class="card action-section" id="actionCard">
-            <div class="card-header"><div class="card-title">Actions</div></div>
-            <div class="card-body" id="actionBody">
-              ${renderActions(o)}
+              ${didSection}
             </div>
           </div>
 
           <!-- Timeline -->
-          <div class="card mt-16">
+          <div class="card">
             <div class="card-header"><div class="card-title">Order Timeline</div></div>
             <div class="card-body">
-              ${renderTimeline(o)}
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Exchange guidance -->
-        <div>
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">Exchange Guidance</div>
-              <a href="https://portal.voipline.net.au" target="_blank" rel="noopener" class="btn btn--outline btn--sm">
-                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
-                VoipLine
-              </a>
-            </div>
-            <div class="card-body">
-              ${renderExchanges()}
-            </div>
-          </div>
-
-          <!-- SMS preview area (shown after DID Ordered action) -->
-          <div id="smsPreviewCard" class="card mt-16 hidden">
-            <div class="card-header"><div class="card-title">SMS Notification (Stub)</div></div>
-            <div class="card-body">
-              <div class="sms-preview">
-                <div class="sms-preview-label">MESSAGE TO CUSTOMER</div>
-                <div class="sms-bubble" id="smsContent"></div>
-                <div class="sms-stub-note">SMS sending via n8n - wired in next session</div>
+              <div class="timeline" id="timeline">
+                ${buildTimeline()}
               </div>
             </div>
           </div>
         </div>
 
-      </div>
-    `;
+        <!-- Right: Exchange guidance + Actions -->
+        <div>
+          ${exchangeHtml}
+          <div class="card" id="actionsCard">
+            <div class="card-header"><div class="card-title">Actions</div></div>
+            <div class="card-body" id="actionsBody">
+              <!-- Rendered by renderActions() -->
+            </div>
+          </div>
+        </div>
 
-    // Attach action button handlers
-    attachActionHandlers();
+      </div>`;
+
+    renderActions();
   }
 
-  function renderExchanges() {
-    if (!prisonData) {
-      return `
-        <div style="padding:12px 0;text-align:center;color:var(--color-muted);font-size:14px">
-          <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin:0 auto 8px;opacity:0.4"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <div>No exchange data found for this prison</div>
-        </div>
-      `;
+  function buildExchangeHtml() {
+    if (!prisonLookup) {
+      return `<div class="card mb-16">
+        <div class="card-header"><div class="card-title">Exchange Guidance</div></div>
+        <div class="card-body"><p style="font-size:14px;color:var(--color-muted)">No lookup data for this prison.</p></div>
+      </div>`;
     }
 
-    const p = prisonData;
-    return `
+    const primary = prisonLookup.primary_exchange_code ? `
       <div class="exchange-card exchange-card--primary">
         <div class="exchange-label">Primary Exchange</div>
-        <div class="exchange-name">${p.primary_area || 'N/A'}</div>
-        <div class="exchange-code">Code: ${p.primary_exchange_code || '-'}</div>
+        <div class="exchange-name">${prisonLookup.primary_area || '-'}</div>
+        <div class="exchange-code">${prisonLookup.primary_exchange_code}</div>
+      </div>` : '';
+
+    const fb1 = prisonLookup.fallback_1 ? `
+      <div class="exchange-card exchange-card--fallback1">
+        <div class="exchange-label">Fallback 1</div>
+        <div class="exchange-name">${prisonLookup.fallback_1_area || '-'}</div>
+        <div class="exchange-code">${prisonLookup.fallback_1}</div>
+      </div>` : '';
+
+    const fb2 = prisonLookup.fallback_2 ? `
+      <div class="exchange-card exchange-card--fallback">
+        <div class="exchange-label">Fallback 2</div>
+        <div class="exchange-name">${prisonLookup.fallback_2_area || '-'}</div>
+        <div class="exchange-code">${prisonLookup.fallback_2}</div>
+      </div>` : '';
+
+    const fb3 = prisonLookup.fallback_3 ? `
+      <div class="exchange-card exchange-card--fallback">
+        <div class="exchange-label">Fallback 3</div>
+        <div class="exchange-name">${prisonLookup.fallback_3_area || '-'}</div>
+        <div class="exchange-code">${prisonLookup.fallback_3}</div>
+      </div>` : '';
+
+    return `<div class="card mb-16">
+      <div class="card-header">
+        <div class="card-title">Exchange Guidance</div>
+        <a href="https://portal.voipline.com.au" target="_blank" rel="noopener" class="btn btn--outline btn--sm">
+          Open VoipLine
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
       </div>
-      ${p.fallback_1 ? `
-        <div class="exchange-card exchange-card--fallback1">
-          <div class="exchange-label">Fallback 1</div>
-          <div class="exchange-name">${p.fallback_1_area || 'N/A'}</div>
-          <div class="exchange-code">Code: ${p.fallback_1 || '-'}</div>
-        </div>
-      ` : ''}
-      ${p.fallback_2 ? `
-        <div class="exchange-card exchange-card--fallback">
-          <div class="exchange-label">Fallback 2</div>
-          <div class="exchange-name">${p.fallback_2_area || 'N/A'}</div>
-          <div class="exchange-code">Code: ${p.fallback_2 || '-'}</div>
-        </div>
-      ` : ''}
-      ${p.fallback_3 ? `
-        <div class="exchange-card exchange-card--fallback">
-          <div class="exchange-label">Fallback 3</div>
-          <div class="exchange-name">${p.fallback_3_area || 'N/A'}</div>
-          <div class="exchange-code">Code: ${p.fallback_3 || '-'}</div>
-        </div>
-      ` : ''}
-      ${p.location ? `<div style="font-size:12px;color:var(--color-muted);margin-top:8px">Location: ${p.location}</div>` : ''}
-      ${p.notes ? `<div style="font-size:12px;color:var(--color-muted);margin-top:4px">Notes: ${p.notes}</div>` : ''}
-    `;
+      <div class="card-body" style="padding-bottom:12px">
+        ${primary}${fb1}${fb2}${fb3}
+        ${prisonLookup.notes ? `<p style="font-size:12px;color:var(--color-muted);margin-top:8px">${prisonLookup.notes}</p>` : ''}
+      </div>
+    </div>`;
   }
 
-  function renderActions(o) {
-    const s = o.status;
+  function buildTimeline() {
+    const statusOrder = ['PENDING','DID_ORDERED','SOURCING','ACTIVATING','FULFILLED','OVERDUE','SUSPENDED','CANCELLED','ACTIVATION_FAILED'];
+    const currentIdx = statusOrder.indexOf(order.status);
 
-    if (s === 'ACTIVATING') {
-      return `
+    // Build status labels
+    const items = [];
+    const statusLabels = {
+      PENDING: 'Order created',
+      DID_ORDERED: 'DID ordered from VoipLine',
+      SOURCING: 'Sourcing DID',
+      ACTIVATING: '3CX activation in progress',
+      FULFILLED: 'Order fulfilled - DID active',
+      OVERDUE: 'Payment overdue',
+      SUSPENDED: 'Service suspended',
+      CANCELLED: 'Subscription cancelled',
+      ACTIVATION_FAILED: 'Activation failed',
+    };
+
+    items.push(`
+      <div class="timeline-item">
+        <div class="timeline-dot active"></div>
+        <div class="timeline-title">${statusLabels[order.status] || order.status}</div>
+        <div class="timeline-date">Current status - ${fmtDatetime(order.updated_at || order.created_at)}</div>
+      </div>`);
+
+    items.push(`
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-title">Order created</div>
+        <div class="timeline-date">${fmtDatetime(order.created_at)}</div>
+      </div>`);
+
+    if (order.sms_day_count > 0) {
+      items.push(`
+        <div class="timeline-item">
+          <div class="timeline-dot error"></div>
+          <div class="timeline-title">Day ${order.sms_day_count} payment SMS sent</div>
+          <div class="timeline-date">${fmtDatetime(order.last_sms_sent_at)}</div>
+        </div>`);
+    }
+
+    return items.join('');
+  }
+
+  function renderActions() {
+    const body = document.getElementById('actionsBody');
+    const status = order.status;
+
+    if (status === 'PENDING') {
+      body.innerHTML = `
+        <div class="action-section">
+          <div class="action-row">
+            <button class="btn btn--outline" id="btnMarkOrdered" onclick="markDIDOrdered()">Mark DID Ordered</button>
+            <button class="btn btn--green" id="btnShowFulfil" onclick="showFulfilForm()">Fulfil Order</button>
+          </div>
+          <div id="fulfilForm" style="display:none;margin-top:12px">
+            <div class="form-group">
+              <label class="form-label">Enter DID number</label>
+              <input class="form-input form-input--mono" type="text" id="didInput" placeholder="61XXXXXXXXX" maxlength="11">
+              <div class="form-error" id="didError" style="display:none"></div>
+              <div class="form-hint">11 digits starting with 61, e.g. 61370489727</div>
+            </div>
+            <button class="btn btn--green btn--full" id="btnConfirmFulfil" onclick="confirmFulfil()">Confirm Fulfil</button>
+          </div>
+        </div>`;
+
+    } else if (status === 'DID_ORDERED' || status === 'SOURCING') {
+      body.innerHTML = `
+        <div class="action-section">
+          <button class="btn btn--green" onclick="showFulfilForm()">Fulfil Order</button>
+          <div id="fulfilForm" style="display:none;margin-top:12px">
+            <div class="form-group">
+              <label class="form-label">Enter DID number</label>
+              <input class="form-input form-input--mono" type="text" id="didInput" placeholder="61XXXXXXXXX" maxlength="11">
+              <div class="form-error" id="didError" style="display:none"></div>
+              <div class="form-hint">11 digits starting with 61, e.g. 61370489727</div>
+            </div>
+            <button class="btn btn--green btn--full" id="btnConfirmFulfil" onclick="confirmFulfil()">Confirm Fulfil</button>
+          </div>
+        </div>`;
+
+    } else if (status === 'ACTIVATING') {
+      body.innerHTML = `
         <div class="activating-state">
-          <div class="spinner--lg"></div>
-          <div class="activating-text">Setting up your customer's number.</div>
-          <div class="activating-sub">This usually takes under 2 minutes. 3CX setup stub - will be wired to n8n in a later session.</div>
-        </div>
-      `;
-    }
+          <div class="spinner spinner--lg"></div>
+          <div class="activating-text">3CX setup in progress...</div>
+          <div class="activating-sub">n8n WF1 will be wired at B14. Waiting for activation confirmation.</div>
+        </div>`;
 
-    if (s === 'FULFILLED') {
-      return `
-        <div class="alert alert--success">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          Order fulfilled. No further actions required.
-        </div>
-      `;
-    }
-
-    if (s === 'ACTIVATION_FAILED') {
-      return `
+    } else if (status === 'ACTIVATION_FAILED') {
+      const did = order.did_number || '-';
+      body.innerHTML = `
         <div class="alert alert--error mb-16">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <div>
-            <div style="font-weight:700;margin-bottom:4px">Activation Failed</div>
-            <div style="font-size:13px">${o.error_details || 'No error details recorded'}</div>
-          </div>
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          3CX activation failed for DID ${did}. Manual fix required.
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:10px">
-          <button class="btn btn--danger" onclick="doRetry()">
-            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-            Retry
-          </button>
-          <button class="btn btn--outline" onclick="toggleManualForm()">Mark Manually Fulfilled</button>
+        <div class="action-section">
+          <button class="btn btn--green" onclick="retryActivation()">Retry Activation</button>
+          <p style="font-size:13px;color:var(--color-muted);margin-top:8px">Check 3CX and VoipLine manually, then click Retry.</p>
+        </div>`;
+
+    } else if (status === 'FULFILLED' || status === 'ACTIVE') {
+      body.innerHTML = `
+        <div class="alert alert--success">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Order fulfilled. DID is active.
         </div>
-        <div class="manual-form" id="manualForm">
-          <div style="margin-top:16px;padding:16px;background:var(--color-surface);border-radius:var(--radius-sm);border:1px solid var(--color-border)">
-            <div class="form-group">
-              <label class="form-label" for="manualDid">DID Number</label>
-              <input class="form-input font-mono" type="text" id="manualDid" placeholder="02XXXXXXXX" value="${o.did_number || ''}">
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="manualExt">3CX Extension Number</label>
-              <input class="form-input font-mono" type="text" id="manualExt" placeholder="1001" value="${o.extension_number || ''}">
-            </div>
-            <button class="btn btn--green" onclick="doManualFulfil()">Confirm Manual Fulfil</button>
-          </div>
+        <div class="detail-row" style="padding-top:0">
+          <span class="detail-key">DID</span>
+          <span class="detail-val did">${order.did_number || '-'}</span>
         </div>
-      `;
+        <div class="detail-row">
+          <span class="detail-key">Extension</span>
+          <span class="detail-val font-mono">${order.extension_numb || '-'}</span>
+        </div>`;
+
+    } else if (status === 'OVERDUE' || status === 'SUSPENDED') {
+      renderSuspendedActions(body);
+
+    } else if (status === 'CANCELLED') {
+      body.innerHTML = `
+        <div class="alert alert--error">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          This subscription has been cancelled.
+        </div>`;
+
+    } else {
+      body.innerHTML = `<p style="font-size:14px;color:var(--color-muted)">No actions available for status: ${status}</p>`;
     }
-
-    if (s === 'CANCELLED' || s === 'REFUNDED') {
-      return `<div style="font-size:14px;color:var(--color-muted);padding:8px 0">This order is ${s.toLowerCase()}. No actions available.</div>`;
-    }
-
-    // PENDING, DID_ORDERED, SOURCING, OVERDUE
-    const showDidOrdered = (s === 'PENDING' || s === 'OVERDUE');
-    const showFulfil = true;
-
-    return `
-      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px">
-        ${showDidOrdered ? `
-          <button class="btn btn--ghost" id="btnDidOrdered" onclick="doMarkDidOrdered()">
-            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Mark DID Ordered
-          </button>
-        ` : ''}
-        <button class="btn btn--green" id="btnFulfil" onclick="toggleFulfilForm()">
-          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          Fulfil Order
-        </button>
-      </div>
-
-      <div class="fulfil-form" id="fulfilForm">
-        <div style="padding:16px;background:var(--color-surface);border-radius:var(--radius-sm);border:1px solid var(--color-border)">
-          <div class="form-group">
-            <label class="form-label" for="didInput">Enter DID number provisioned in VoipLine</label>
-            <input class="form-input font-mono" type="text" id="didInput" placeholder="02XXXXXXXX" autocomplete="off">
-            <div class="form-hint">Enter the exact DID number from VoipLine portal</div>
-          </div>
-          <div id="fulfilError" class="form-error hidden">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
-            <span id="fulfilErrorText"></span>
-          </div>
-          <button class="btn btn--green" onclick="doFulfil()" id="confirmFulfilBtn">Confirm - Set DID and Activate</button>
-        </div>
-      </div>
-    `;
   }
 
-  function renderTimeline(o) {
-    const events = [];
+  function renderSuspendedActions(body) {
+    const smsDayCount = parseInt(order.sms_day_count) || 0;
+    const lastSent = order.last_sms_sent_at;
+    const unlocked = smsDayCount > 0 && isSmsUnlocked(lastSent);
+    const adminNotes = parseAdminNotes();
+    const voiplDone = adminNotes.voipline_did_released || false;
+    const appstleDone = adminNotes.appstle_cancelled || false;
 
-    if (o.order_date) events.push({ label: 'Order Created', status: 'PENDING', date: o.order_date, dot: '' });
+    let html = '';
 
-    const intermediateStatuses = ['DID_ORDERED', 'SOURCING', 'ACTIVATING', 'ACTIVATION_FAILED'];
-    const currentStatus = o.status;
+    // Always show Resume button
+    html += `<div class="action-row mb-16">
+      <button class="btn btn--orange" id="btnPause" onclick="pauseNumber()" ${smsDayCount > 0 ? 'style="display:none"' : ''}>
+        I have removed DID from VoipLine - Pause Number
+      </button>
+      <button class="btn btn--green" id="btnResume" onclick="resumeNumber()">
+        I have re-added DID to VoipLine - Resume Number
+      </button>
+    </div>`;
 
-    if (['DID_ORDERED','SOURCING','ACTIVATING','ACTIVATION_FAILED','FULFILLED','OVERDUE','CANCELLED','PENDING_REFUND','REFUNDED'].includes(currentStatus)) {
-      if (currentStatus !== 'PENDING') {
-        events.push({ label: 'Status: ' + currentStatus.replace(/_/g,' '), status: currentStatus, date: o.updated_at, dot: currentStatus === 'ACTIVATION_FAILED' ? 'error' : currentStatus === 'FULFILLED' ? 'active' : '' });
+    // Progressive SMS
+    if (smsDayCount === 0) {
+      // No SMS sent yet - Pause button is visible
+    } else if (smsDayCount >= 1 && smsDayCount < 4) {
+      const nextDay = smsDayCount + 1;
+      const btnLabel = unlocked ? `Send Day ${nextDay} SMS` : `Day ${nextDay} SMS - available at 7am tomorrow`;
+      html += `
+        <div style="margin-bottom:16px">
+          <button class="btn ${unlocked ? 'btn--green' : 'btn--outline'}" id="btnProgressiveSms"
+            ${unlocked ? '' : 'disabled'}
+            onclick="sendProgressiveSms(${smsDayCount})">
+            ${btnLabel}
+          </button>
+        </div>`;
+    } else if (smsDayCount === 4) {
+      html += `
+        <div style="margin-bottom:16px">
+          <button class="btn btn--outline" disabled>Day 4 SMS sent</button>
+        </div>`;
+    }
+
+    // After Day 4: show cancellation buttons
+    if (smsDayCount >= 4) {
+      if (!voiplDone || !appstleDone) {
+        html += `
+          <div class="alert alert--warning mb-16">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Action required: Cancel Appstle subscription and release VoipLine DID. Reminders at 2hr, 4hr, 12hr, 24hr intervals. (Wired at B14)
+          </div>`;
       }
+
+      html += `<div class="action-row">`;
+
+      if (!voiplDone) {
+        html += `<button class="btn btn--outline" onclick="markVoiplineDone()">VoipLine DID Released</button>`;
+      } else {
+        html += `<button class="btn btn--green" disabled>
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          VoipLine DID Released - Done
+        </button>`;
+      }
+
+      if (!appstleDone) {
+        html += `<button class="btn btn--outline" onclick="markAppstleDone()">Appstle Cancelled</button>`;
+      } else {
+        html += `<button class="btn btn--green" disabled>
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          Appstle Cancelled - Done
+        </button>`;
+      }
+
+      html += `</div>`;
     }
 
-    if (events.length === 0) {
-      return '<div style="font-size:14px;color:var(--color-muted)">No timeline events recorded.</div>';
-    }
-
-    return `
-      <div class="timeline">
-        ${events.map((ev, i) => `
-          <div class="timeline-item">
-            <div class="timeline-dot ${i === events.length - 1 ? (ev.dot || 'active') : ''}"></div>
-            <div class="timeline-title">${ev.label}</div>
-            <div class="timeline-date">${fmtDatetime(ev.date)}</div>
-          </div>
-        `).join('')}
-      </div>
-    `;
+    body.innerHTML = html;
   }
 
-  function attachActionHandlers() {
-    // Handled via global functions below
-  }
+  // ---- Action handlers ----
 
-  window.doCopy = function(el, text) {
-    if (!text) return;
-    copyToClipboard(text, el);
-  };
-
-  window.toggleFulfilForm = function() {
+  window.showFulfilForm = function () {
     const form = document.getElementById('fulfilForm');
-    if (form) form.classList.toggle('visible');
+    if (form) form.style.display = 'block';
   };
 
-  window.toggleManualForm = function() {
-    const form = document.getElementById('manualForm');
-    if (form) form.classList.toggle('visible');
-  };
-
-  window.doMarkDidOrdered = async function() {
-    const btn = document.getElementById('btnDidOrdered');
-    if (btn) { btn.disabled = true; btn.textContent = 'Updating...'; }
-
+  window.markDIDOrdered = async function () {
+    const btn = document.getElementById('btnMarkOrdered');
+    btn.disabled = true;
+    btn.textContent = 'Updating...';
     try {
-      await api('updateOrder', {
-        id: orderId,
-        fields: { status: 'DID_ORDERED' },
-      });
-
-      // Show SMS stub
-      const prison = order.prison_name || 'your loved one\'s prison';
-      const smsText = `Your Prisoncall number for ${prison} is being sourced directly from Telstra. Due to high demand in your area this may take a little longer than usual. We will notify you the moment it is ready.`;
-
-      console.log('[SMS STUB - NOT SENT]', smsText);
-
-      const smsCard = document.getElementById('smsPreviewCard');
-      if (smsCard) {
-        document.getElementById('smsContent').textContent = smsText;
-        smsCard.classList.remove('hidden');
-      }
-
-      showToast('Status updated to DID Ordered');
+      await api('updateOrder', { id: orderId, fields: { status: 'DID_ORDERED' } });
       order.status = 'DID_ORDERED';
+      const subName = sub?.customer_name || 'Customer';
+      const prison = order.prison_name || 'prison';
+      showSmsToast('Admin team', `New order sourcing for ${subName} at ${prison}`);
+      showToast('Status updated to DID Ordered');
       document.getElementById('topbarBadge').innerHTML = statusBadge('DID_ORDERED');
-      document.getElementById('actionBody').innerHTML = renderActions(order);
-      attachActionHandlers();
+      renderActions();
     } catch (err) {
-      if (btn) { btn.disabled = false; btn.textContent = 'Mark DID Ordered'; }
       showToast(err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Mark DID Ordered';
     }
   };
 
-  window.doFulfil = async function() {
-    const didInput = document.getElementById('didInput');
-    const errorEl = document.getElementById('fulfilError');
-    const errorTextEl = document.getElementById('fulfilErrorText');
-    const confirmBtn = document.getElementById('confirmFulfilBtn');
+  window.confirmFulfil = async function () {
+    const input = document.getElementById('didInput');
+    const errorEl = document.getElementById('didError');
+    const btn = document.getElementById('btnConfirmFulfil');
+    const did = (input?.value || '').trim();
 
-    const did = (didInput?.value || '').trim();
-
-    if (!did) {
-      errorTextEl.textContent = 'Please enter the DID number';
-      errorEl.classList.remove('hidden');
+    // Validate DID
+    errorEl.style.display = 'none';
+    if (!/^\d{11}$/.test(did) || !did.startsWith('61')) {
+      errorEl.textContent = 'DID must be 11 digits starting with 61 (e.g. 61370489727)';
+      errorEl.style.display = 'flex';
       return;
     }
 
-    errorEl.classList.add('hidden');
-    if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'Processing...'; }
+    btn.disabled = true;
+    btn.textContent = 'Setting up...';
 
     try {
-      // Write DID and set status to ACTIVATING (n8n WF1 stub)
       await api('updateOrder', {
         id: orderId,
-        fields: { did_number: did, status: 'ACTIVATING' },
+        fields: { did_number: did, status: 'ACTIVATING' }
       });
-
-      console.log('[n8n WF1 STUB - NOT TRIGGERED] Order activating. DID:', did, 'Order ID:', orderId);
-
-      showToast('Order activating. 3CX setup will begin shortly.');
+      order.did_number = did;
       order.status = 'ACTIVATING';
-      order.did_number = did;
+      showToast('DID set. 3CX activation in progress...');
       document.getElementById('topbarBadge').innerHTML = statusBadge('ACTIVATING');
-      document.getElementById('actionBody').innerHTML = renderActions(order);
+      renderActions();
     } catch (err) {
-      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Confirm - Set DID and Activate'; }
-      errorTextEl.textContent = err.message;
-      errorEl.classList.remove('hidden');
+      showToast(err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Confirm Fulfil';
     }
   };
 
-  window.doRetry = async function() {
+  window.retryActivation = async function () {
     try {
-      await api('updateOrder', { id: orderId, fields: { status: 'PENDING', error_details: null } });
-      showToast('Order reset to Pending');
+      await api('updateOrder', { id: orderId, fields: { status: 'PENDING' } });
       order.status = 'PENDING';
-      order.error_details = null;
+      showToast('Status reset to Pending');
       document.getElementById('topbarBadge').innerHTML = statusBadge('PENDING');
-      document.getElementById('actionBody').innerHTML = renderActions(order);
+      renderActions();
     } catch (err) {
       showToast(err.message, 'error');
     }
   };
 
-  window.doManualFulfil = async function() {
-    const did = (document.getElementById('manualDid')?.value || '').trim();
-    const ext = (document.getElementById('manualExt')?.value || '').trim();
+  window.pauseNumber = async function () {
+    try {
+      // Update subscription status to SUSPENDED
+      if (sub?.id) {
+        await api('updateSubscription', { id: sub.id, fields: { status: 'SUSPENDED' } });
+      }
+      await api('updateOrder', { id: orderId, fields: { status: 'SUSPENDED', sms_day_count: 1, last_sms_sent_at: new Date().toISOString() } });
+      order.status = 'SUSPENDED';
+      order.sms_day_count = 1;
+      order.last_sms_sent_at = new Date().toISOString();
 
-    if (!did) { showToast('DID number is required', 'error'); return; }
+      const customerMobile = formatMobile(order.customer_mobile);
+      const smsMsg = `Hi, Your Prisoncall plan payment failed. Your number has been paused.\nPlease update your payment account balance, and reply YES.\nThank you. Regards, Prisoncall.`;
+      showSmsToast(customerMobile, smsMsg);
+      showToast('Number paused. Day 1 SMS sent.');
+      document.getElementById('topbarBadge').innerHTML = statusBadge('SUSPENDED');
+      renderActions();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  window.resumeNumber = async function () {
+    try {
+      if (sub?.id) {
+        await api('updateSubscription', { id: sub.id, fields: { status: 'ACTIVE' } });
+      }
+      await api('updateOrder', { id: orderId, fields: { status: 'FULFILLED' } });
+      order.status = 'FULFILLED';
+
+      const customerMobile = formatMobile(order.customer_mobile);
+      const smsMsg = `Hi, Your payment has cleared, and we have restored your Prisoncall number.\nTo avoid future disruptions, please ensure your payment method is updated before each renewal. Thank you for using Prisoncall.`;
+      showSmsToast(customerMobile, smsMsg);
+      showToast('Number resumed. Resume SMS sent.');
+      document.getElementById('topbarBadge').innerHTML = statusBadge('FULFILLED');
+      renderActions();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  window.sendProgressiveSms = async function (currentDayCount) {
+    const nextDay = currentDayCount + 1;
+    const customerMobile = formatMobile(order.customer_mobile);
+
+    const smsTemplates = {
+      2: `Hi, Your Prisoncall number is still paused due to a failed payment.\nPlease update your payment account balance and reply YES to restore your service.\nRegards, Prisoncall.`,
+      3: `Hi, Reminder: Your Prisoncall number remains paused. Please update your payment today to avoid cancellation. Reply YES once updated. Regards, Prisoncall.`,
+      4: `Hi, Final notice: Your Prisoncall plan will be cancelled today due to unsuccessful payment. Please update your payment immediately and reply YES. Regards, Prisoncall.`,
+    };
+
+    const smsMsg = smsTemplates[nextDay];
+    if (!smsMsg) return;
 
     try {
+      const newCount = nextDay;
       await api('updateOrder', {
         id: orderId,
-        fields: {
-          status: 'FULFILLED',
-          did_number: did,
-          extension_number: ext || null,
-          extension_created_at: ext ? new Date().toISOString() : null,
-          error_details: null,
-        },
+        fields: { sms_day_count: newCount, last_sms_sent_at: new Date().toISOString() }
       });
-      showToast('Order marked as fulfilled');
-      order.status = 'FULFILLED';
-      order.did_number = did;
-      order.extension_number = ext;
-      order.extension_created_at = ext ? new Date().toISOString() : null;
-      document.getElementById('topbarBadge').innerHTML = statusBadge('FULFILLED');
-      renderOrder();
+      order.sms_day_count = newCount;
+      order.last_sms_sent_at = new Date().toISOString();
+
+      showSmsToast(customerMobile, smsMsg);
+
+      // After Day 4, also SMS admins
+      if (newCount === 4) {
+        const did = order.did_number || '-';
+        const adminSms = `DAY 4 SMS SENT - ${sub?.customer_name || 'Customer'} DID ${did}.\nACTION REQUIRED: Cancel subscription in Appstle AND release DID in VoipLine.\nhttps://portal.voipline.com.au`;
+        showSmsToast('Admin team', adminSms);
+      }
+
+      showToast(`Day ${nextDay} SMS sent`);
+      renderActions();
     } catch (err) {
       showToast(err.message, 'error');
     }
   };
 
-  window.doLogout = function() {
+  window.markVoiplineDone = async function () {
+    try {
+      const notes = parseAdminNotes();
+      notes.voipline_did_released = true;
+      await api('updateOrder', { id: orderId, fields: { admin_notes: JSON.stringify(notes) } });
+      order.admin_notes = JSON.stringify(notes);
+
+      const customerMobile = formatMobile(order.customer_mobile);
+      const smsMsg = `Hi, Your Prisoncall plan has been cancelled due to unsuccessful payments.\nYour number has been permanently deleted. To get a new Prisoncall number, please visit prisoncall.com.au. Regards, Prisoncall.`;
+      showSmsToast(customerMobile, smsMsg);
+      showToast('VoipLine DID released.');
+      await checkBothCancelDone(notes);
+      renderActions();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  window.markAppstleDone = async function () {
+    try {
+      const notes = parseAdminNotes();
+      notes.appstle_cancelled = true;
+      await api('updateOrder', { id: orderId, fields: { admin_notes: JSON.stringify(notes) } });
+      order.admin_notes = JSON.stringify(notes);
+      showToast('Appstle cancellation marked.');
+      await checkBothCancelDone(notes);
+      renderActions();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  async function checkBothCancelDone(notes) {
+    if (notes.voipline_did_released && notes.appstle_cancelled) {
+      if (sub?.id) {
+        await api('updateSubscription', { id: sub.id, fields: { status: 'CANCELLED' } });
+      }
+      await api('updateOrder', { id: orderId, fields: { status: 'CANCELLED' } });
+      order.status = 'CANCELLED';
+      document.getElementById('topbarBadge').innerHTML = statusBadge('CANCELLED');
+      showToast('Subscription cancelled.');
+    }
+  }
+
+  function parseAdminNotes() {
+    try {
+      return JSON.parse(order.admin_notes || '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  window.copyText = function (text, el) {
+    copyToClipboard(text, el);
+  };
+
+  function cap(s) {
+    if (!s) return '';
+    return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+  }
+
+  window.doLogout = function () {
     import('/admin/admin-auth.js').then(m => m.logout());
   };
 

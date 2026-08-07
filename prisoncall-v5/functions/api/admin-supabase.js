@@ -1,3 +1,9 @@
+/**
+ * Prisoncall Admin - Cloudflare Pages Function
+ * All Supabase operations via SUPABASE_SERVICE_ROLE_KEY
+ * POST { action, token, params } -> JSON
+ */
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -43,7 +49,7 @@ export async function onRequest(context) {
     return json({ success: false, error: 'Missing action' });
   }
 
-  // ── Auth actions (no token required) ──────────────────────────────────────
+  // -- Auth actions (no token required) --
 
   if (action === 'login') {
     const { email, password } = params;
@@ -61,15 +67,9 @@ export async function onRequest(context) {
       return json({ success: false, error: msg });
     }
 
-    const role =
-      data.user?.user_metadata?.role ||
-      data.user?.raw_user_meta_data?.role ||
-      data.user?.app_metadata?.role ||
-      null;
-    const VALID_ROLES = ['super_admin', 'admin', 'staff'];
-    if (!role || !VALID_ROLES.includes(role)) {
-      return json({ success: false, error: 'Access denied: no admin role assigned to this account.' });
-    }
+    // Role is determined by email - guness@prisoncall.com.au = super_admin, else admin
+    const userEmail = data.user?.email || '';
+    const role = userEmail.toLowerCase() === 'guness@prisoncall.com.au' ? 'super_admin' : 'admin';
 
     return json({
       success: true,
@@ -77,7 +77,7 @@ export async function onRequest(context) {
         access_token: data.access_token,
         refresh_token: data.refresh_token,
         expires_at: data.expires_at || (data.expires_in ? Math.floor(Date.now() / 1000) + Number(data.expires_in) : null),
-        user: { email: data.user.email, id: data.user.id, role },
+        user: { email: userEmail, id: data.user.id, role },
       },
     });
   }
@@ -97,26 +97,21 @@ export async function onRequest(context) {
       return json({ success: false, error: 'Session expired. Please log in again.', code: 'UNAUTHORIZED' }, 401);
     }
 
+    const userEmail = data.user?.email || '';
+    const role = userEmail.toLowerCase() === 'guness@prisoncall.com.au' ? 'super_admin' : 'admin';
+
     return json({
       success: true,
       data: {
         access_token: data.access_token,
         refresh_token: data.refresh_token,
         expires_at: data.expires_at || (data.expires_in ? Math.floor(Date.now() / 1000) + Number(data.expires_in) : null),
-        user: {
-          email: data.user.email,
-          id: data.user.id,
-          role:
-            data.user?.user_metadata?.role ||
-            data.user?.raw_user_meta_data?.role ||
-            data.user?.app_metadata?.role ||
-            null,
-        },
+        user: { email: userEmail, id: data.user.id, role },
       },
     });
   }
 
-  // ── Verify token for all data actions ─────────────────────────────────────
+  // -- Verify token for all data actions --
 
   if (!token) {
     return json({ success: false, error: 'Unauthorized', code: 'UNAUTHORIZED' }, 401);
@@ -131,42 +126,27 @@ export async function onRequest(context) {
   }
 
   const userInfo = await userRes.json();
-  // Supabase can return the role under user_metadata, raw_user_meta_data, or app_metadata
-  // depending on the GoTrue version and how the metadata was originally set.
-  const userRole =
-    userInfo.user_metadata?.role ||
-    userInfo.raw_user_meta_data?.role ||
-    userInfo.app_metadata?.role ||
-    null;
+  const userEmail = userInfo.email || '';
+  const userRole = userEmail.toLowerCase() === 'guness@prisoncall.com.au' ? 'super_admin' : 'admin';
 
-  const VALID_ROLES = ['super_admin', 'admin', 'staff'];
-  const SUPER_ADMIN_ONLY = ['getProducts', 'updateProduct', 'replacePrisonLookup', 'getPrisonLookupAll', 'replaceScalingTables', 'getTableStatus', 'runMigration'];
-  const ADMIN_PLUS = ['getSubscriptions', 'getSubscription', 'getOrdersBySubscription'];
-
-  if (!VALID_ROLES.includes(userRole)) {
-    return json({ success: false, error: 'Access denied: no valid admin role assigned', code: 'FORBIDDEN' }, 403);
-  }
+  const SUPER_ADMIN_ONLY = ['getProducts', 'updateProduct', 'replacePrisonLookup', 'getPrisonLookupAll',
+    'replaceScalingTables', 'getTableStatus', 'runMigration', 'upload_pdp', 'upload_pev', 'get_products'];
 
   if (SUPER_ADMIN_ONLY.includes(action) && userRole !== 'super_admin') {
     return json({ success: false, error: 'Access denied: super_admin role required', code: 'FORBIDDEN' }, 403);
   }
 
-  if (ADMIN_PLUS.includes(action) && userRole === 'staff') {
-    return json({ success: false, error: 'Access denied: admin role required', code: 'FORBIDDEN' }, 403);
-  }
-
-  // ── Supabase REST helper ───────────────────────────────────────────────────
+  // -- Supabase REST helper --
 
   async function sb(path, opts = {}) {
     const url = `${SUPABASE_URL}/rest/v1/${path}`;
-    const preferHeader = opts.prefer || 'return=representation';
     const res = await fetch(url, {
       method: opts.method || 'GET',
       headers: {
         'Authorization': `Bearer ${SERVICE_KEY}`,
         'apikey': SERVICE_KEY,
         'Content-Type': 'application/json',
-        'Prefer': preferHeader,
+        'Prefer': opts.prefer || 'return=representation',
         ...(opts.headers || {}),
       },
       body: opts.body,
@@ -174,65 +154,43 @@ export async function onRequest(context) {
     return res;
   }
 
-  // ── Route actions ──────────────────────────────────────────────────────────
+  // -- Route actions --
 
   try {
     switch (action) {
 
-      // Return the current user's role (used by client to recover missing role from stored session)
+      // Return current user role
       case 'getRole': {
-        return json({ success: true, data: { role: userRole, email: userInfo.email } });
+        return json({ success: true, data: { role: userRole, email: userEmail } });
       }
 
-      // Row count + most recent timestamp for a settings table (super_admin only)
-      case 'getTableStatus': {
-        const { table } = params;
-        if (!['prison_did_lookup', 'scaling_model_new'].includes(table)) {
-          return json({ success: false, error: 'Invalid table name' });
-        }
+      // -- DASHBOARD --
 
-        // Fetch one row with count=exact — PostgREST returns total in Content-Range header
-        const countRes = await sb(`${table}?select=*&limit=1`, { prefer: 'count=exact' });
-        const cr = countRes.headers.get('content-range'); // e.g. "0-0/48" or "*/48"
-        const count = (cr && cr.includes('/')) ? (parseInt(cr.split('/')[1]) || 0) : 0;
-
-        // Try updated_at then created_at for the most recent row timestamp
-        let lastUpdated = null;
-        for (const col of ['updated_at', 'created_at']) {
-          const tsRes = await sb(`${table}?select=${col}&order=${col}.desc&limit=1`);
-          if (tsRes.ok) {
-            const rows = await tsRes.json();
-            if (Array.isArray(rows) && rows.length > 0 && rows[0][col]) {
-              lastUpdated = rows[0][col];
-              break;
-            }
-          }
-        }
-
-        return json({ success: true, data: { count, lastUpdated } });
-      }
-
-      // Dashboard metrics
-      case 'getDashboardMetrics': {
+      case 'getDashboardMetrics':
+      case 'get_dashboard': {
         const [activeRes, pendingRes, overdueRes] = await Promise.all([
-          sb('subscriptions?status=eq.ACTIVE&select=id,plan_interval,plan_price'),
-          sb('orders?status=eq.PENDING&select=id'),
+          sb('subscriptions?status=eq.ACTIVE&select=id,plan_price,plan_interval'),
+          sb('orders?select=id&or=(status.eq.PENDING,status.eq.DID_ORDERED,status.eq.SOURCING)'),
           sb('orders?status=eq.OVERDUE&select=id'),
         ]);
+
         const active = await activeRes.json();
         const pending = await pendingRes.json();
         const overdue = await overdueRes.json();
 
-        let monthlyRevenue = 0;
+        // MRR = sum of plan_price for active subs (per spec: direct sum)
+        let mrr = 0;
         if (Array.isArray(active)) {
           for (const sub of active) {
-            const price = parseFloat(sub.plan_price) || 0;
-            if (sub.plan_interval === 'weekly') monthlyRevenue += price * 4.33;
-            else if (sub.plan_interval === 'fortnightly') monthlyRevenue += price * 2.17;
-            else if (sub.plan_interval === 'monthly') monthlyRevenue += price;
-            else if (sub.plan_interval === 'annual') monthlyRevenue += price / 12;
+            mrr += parseFloat(sub.plan_price) || 0;
           }
         }
+
+        // Recent orders - join subscriptions for customer name
+        const recentRes = await sb(
+          'orders?select=id,order_type,customer_mobile,prison_name,prison_state,status,created_at,subscription_id,subscriptions(customer_name,plan_interval,plan_price)&order=created_at.desc&limit=10'
+        );
+        const recent = await recentRes.json();
 
         return json({
           success: true,
@@ -240,44 +198,64 @@ export async function onRequest(context) {
             activeSubscribers: Array.isArray(active) ? active.length : 0,
             pendingOrders: Array.isArray(pending) ? pending.length : 0,
             overdueOrders: Array.isArray(overdue) ? overdue.length : 0,
-            monthlyRevenue: Math.round(monthlyRevenue * 100) / 100,
+            monthlyRevenue: Math.round(mrr * 100) / 100,
+            recentOrders: Array.isArray(recent) ? recent : [],
           },
         });
       }
 
-      // Recent activity (last 10 orders)
       case 'getRecentActivity': {
-        const res = await sb('orders?order=order_date.desc&limit=10&select=id,order_type,customer_name,customer_mobile,prison_name,prison_state,plan_interval,plan_price,addon_total,status,order_date');
+        const res = await sb(
+          'orders?select=id,order_type,customer_mobile,prison_name,prison_state,status,created_at,subscription_id,subscriptions(customer_name,plan_interval,plan_price)&order=created_at.desc&limit=10'
+        );
         const data = await res.json();
         return json({ success: true, data: Array.isArray(data) ? data : [] });
       }
 
-      // Orders list with optional status filter and search
-      case 'getOrders': {
-        let qs = 'orders?order=order_date.desc&select=*';
+      // -- ORDERS --
+
+      case 'getOrders':
+      case 'get_orders': {
+        let qs = 'orders?select=*,subscriptions(customer_name,customer_email,plan_interval,plan_price,appstle_subscription_id,addon_transfer_guarantee,addon_renewal_guarantee,addon_combo,addon_cancellation_guarantee,addon_lifetime_protection)&order=created_at.desc';
         if (params.status) qs += `&status=eq.${encodeURIComponent(params.status)}`;
         if (params.search) {
           const s = encodeURIComponent(`*${params.search}*`);
-          qs += `&or=(customer_name.ilike.${s},customer_mobile.ilike.${s})`;
+          qs += `&or=(customer_mobile.ilike.${s},prison_name.ilike.${s},did_number.ilike.${s})`;
         }
         const res = await sb(qs);
         const data = await res.json();
         return json({ success: true, data: Array.isArray(data) ? data : [] });
       }
 
-      // Single order
-      case 'getOrder': {
+      case 'getOrder':
+      case 'get_order': {
         if (!params.id) return json({ success: false, error: 'Missing id' });
-        const res = await sb(`orders?id=eq.${encodeURIComponent(params.id)}&select=*`);
-        const data = await res.json();
-        return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : null });
+        const [orderRes] = await Promise.all([
+          sb(`orders?id=eq.${encodeURIComponent(params.id)}&select=*,subscriptions(*)`)
+        ]);
+        const orders = await orderRes.json();
+        const order = Array.isArray(orders) ? (orders[0] || null) : null;
+
+        // Fetch prison DID lookup if we have prison info
+        let prisonLookup = null;
+        if (order && order.prison_name && order.prison_state) {
+          const plRes = await sb(
+            `prison_did_lookup?prison_name=eq.${encodeURIComponent(order.prison_name)}&prison_state=eq.${encodeURIComponent(order.prison_state)}&select=*`
+          );
+          const pl = await plRes.json();
+          prisonLookup = Array.isArray(pl) ? (pl[0] || null) : null;
+        }
+
+        return json({ success: true, data: { order, prisonLookup } });
       }
 
-      // Update order fields
-      case 'updateOrder': {
+      case 'updateOrder':
+      case 'update_order_status':
+      case 'update_order_did':
+      case 'update_order_sms_day':
+      case 'update_order_notes': {
         const { id, fields } = params;
         if (!id || !fields) return json({ success: false, error: 'Missing id or fields' });
-        fields.updated_at = new Date().toISOString();
         const res = await sb(`orders?id=eq.${encodeURIComponent(id)}`, {
           method: 'PATCH',
           body: JSON.stringify(fields),
@@ -290,80 +268,100 @@ export async function onRequest(context) {
         return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : data });
       }
 
-      // Subscriptions list with optional status filter and search
-      case 'getSubscriptions': {
+      // -- CUSTOMERS (SUBSCRIPTIONS) --
+
+      case 'getSubscriptions':
+      case 'get_customers': {
         let qs = 'subscriptions?order=created_at.desc&select=*';
-        if (params.status) qs += `&status=eq.${encodeURIComponent(params.status)}`;
+        // For customers view: only non-cancelled by default unless explicitly requested
+        if (action === 'get_customers' && !params.status) {
+          qs += '&status=neq.CANCELLED';
+        } else if (params.status) {
+          qs += `&status=eq.${encodeURIComponent(params.status)}`;
+        }
         if (params.search) {
           const s = encodeURIComponent(`*${params.search}*`);
-          qs += `&or=(customer_name.ilike.${s},customer_mobile.ilike.${s})`;
+          qs += `&or=(customer_name.ilike.${s},customer_mobile.ilike.${s},current_did.ilike.${s},prison_name.ilike.${s})`;
         }
         const res = await sb(qs);
         const data = await res.json();
         return json({ success: true, data: Array.isArray(data) ? data : [] });
       }
 
-      // Single subscription
-      case 'getSubscription': {
+      case 'getSubscription':
+      case 'get_customer': {
         if (!params.id) return json({ success: false, error: 'Missing id' });
-        const res = await sb(`subscriptions?id=eq.${encodeURIComponent(params.id)}&select=*`);
+        const [subRes, ordersRes] = await Promise.all([
+          sb(`subscriptions?id=eq.${encodeURIComponent(params.id)}&select=*`),
+          sb(`orders?subscription_id=eq.${encodeURIComponent(params.id)}&select=*&order=created_at.desc`),
+        ]);
+        const subs = await subRes.json();
+        const orders = await ordersRes.json();
+        return json({
+          success: true,
+          data: {
+            subscription: Array.isArray(subs) ? (subs[0] || null) : null,
+            orders: Array.isArray(orders) ? orders : [],
+          },
+        });
+      }
+
+      case 'updateSubscription':
+      case 'update_customer_status': {
+        const { id, fields } = params;
+        if (!id || !fields) return json({ success: false, error: 'Missing id or fields' });
+        const updateFields = { ...fields, updated_at: new Date().toISOString() };
+        const res = await sb(`subscriptions?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updateFields),
+        });
+        if (!res.ok) {
+          const err = await res.text();
+          return json({ success: false, error: `Update failed: ${err}` });
+        }
         const data = await res.json();
-        return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : null });
+        return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : data });
       }
 
       // Orders for a subscription
       case 'getOrdersBySubscription': {
-        if (!params.stripe_subscription_id) return json({ success: false, error: 'Missing stripe_subscription_id' });
-        const res = await sb(`orders?stripe_subscription_id=eq.${encodeURIComponent(params.stripe_subscription_id)}&order=order_date.desc&select=*`);
+        if (!params.subscription_id) return json({ success: false, error: 'Missing subscription_id' });
+        const res = await sb(`orders?subscription_id=eq.${encodeURIComponent(params.subscription_id)}&order=created_at.desc&select=*`);
         const data = await res.json();
         return json({ success: true, data: Array.isArray(data) ? data : [] });
       }
 
-      // Prison DID lookup for a specific prison
-      case 'getPrisonLookup': {
+      // -- PRISON LOOKUP --
+
+      case 'getPrisonLookup':
+      case 'get_prison_lookup': {
         if (!params.prison_name || !params.prison_state) return json({ success: false, error: 'Missing prison_name or prison_state' });
         const res = await sb(`prison_did_lookup?prison_name=eq.${encodeURIComponent(params.prison_name)}&prison_state=eq.${encodeURIComponent(params.prison_state)}&select=*`);
         const data = await res.json();
         return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : null });
       }
 
-      // All prison DID lookup rows (super_admin only)
       case 'getPrisonLookupAll': {
         const res = await sb('prison_did_lookup?select=*&order=prison_state.asc,prison_name.asc');
         const data = await res.json();
         return json({ success: true, data: Array.isArray(data) ? data : [] });
       }
 
-      // Run pending database migrations (super_admin only)
-      // If stripe_price_id_test column is missing, returns the SQL to run manually
-      // in the Supabase SQL Editor: https://supabase.com/dashboard/project/_/sql
-      case 'runMigration': {
-        const MIGRATION_SQL = 'ALTER TABLE products ADD COLUMN IF NOT EXISTS stripe_price_id_test text;';
-        // Probe the column — PostgREST returns 400 if it doesn't exist yet
-        const probeRes = await sb('products?select=stripe_price_id_test&limit=1');
-        if (probeRes.ok) {
-          return json({ success: true, data: { alreadyApplied: true, message: 'stripe_price_id_test column already exists.' } });
-        }
-        // Column missing — return SQL for the admin to run manually
-        return json({
-          success: true,
-          data: {
-            alreadyApplied: false,
-            sql: MIGRATION_SQL,
-            message: 'Column stripe_price_id_test does not exist yet. Run the SQL in the Supabase SQL Editor, then click Run Migration again to verify.',
-          },
-        });
-      }
+      // -- PRODUCTS (super_admin only) --
 
-      // Products list
-      case 'getProducts': {
-        const res = await sb('products?select=*&order=product_type.asc,interval.asc');
-        const data = await res.json();
+      case 'getProducts':
+      case 'get_products': {
+        const res = await sb('products?select=*&order=plan_interval.asc,product_name.asc');
+        let data = await res.json();
+        // Filter out weekly plans per spec
+        if (Array.isArray(data)) {
+          data = data.filter(p => (p.plan_interval || '').toLowerCase() !== 'weekly');
+        }
         return json({ success: true, data: Array.isArray(data) ? data : [] });
       }
 
-      // Update a product row (super_admin only)
-      case 'updateProduct': {
+      case 'updateProduct':
+      case 'update_product': {
         const { id, fields } = params;
         if (!id || !fields) return json({ success: false, error: 'Missing id or fields' });
         const res = await sb(`products?id=eq.${encodeURIComponent(id)}`, {
@@ -378,16 +376,19 @@ export async function onRequest(context) {
         return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : data });
       }
 
-      // Replace entire prison_did_lookup table (super_admin only)
-      case 'replacePrisonLookup': {
+      // -- SETTINGS: Prison DID Lookup (PDP) upload --
+
+      case 'replacePrisonLookup':
+      case 'upload_pdp': {
         const { rows } = params;
         if (!Array.isArray(rows) || rows.length === 0) return json({ success: false, error: 'No rows provided' });
 
-        // Map Excel column names → Supabase column names
-        // Excel uses 'primary'; Supabase table uses 'primary_exchange_code'
-        // 'popular' is an extra Excel column not in Supabase — stripped below
         const EXCEL_TO_DB = { primary: 'primary_exchange_code' };
-        const SUPABASE_COLS = ['prison_name', 'prison_state', 'primary_exchange_code', 'primary_area', 'fallback_1', 'fallback_1_area', 'fallback_2', 'fallback_2_area', 'fallback_3', 'fallback_3_area', 'location', 'notes'];
+        const SUPABASE_COLS = [
+          'prison_name', 'prison_state', 'primary_exchange_code', 'primary_area',
+          'fallback_1', 'fallback_1_area', 'fallback_2', 'fallback_2_area',
+          'fallback_3', 'fallback_3_area', 'location', 'notes'
+        ];
 
         const mappedRows = rows.map(row => {
           const r = {};
@@ -403,20 +404,18 @@ export async function onRequest(context) {
           return json({ success: false, error: `Missing columns: ${missing.join(', ')}` });
         }
 
-        // Strip to Supabase columns only (drops 'popular' and any other extras)
         const cleanRows = mappedRows.map(row => {
           const r = {};
           SUPABASE_COLS.forEach(col => { r[col] = row[col] !== undefined ? row[col] : ''; });
           return r;
         });
 
-        // Delete all existing rows using a filter that matches all
+        // Delete all existing rows
         const delRes = await sb('prison_did_lookup?prison_name=not.is.null', {
           method: 'DELETE',
           prefer: 'return=minimal',
           headers: { 'Prefer': 'return=minimal' },
         });
-        // 204 or 200 both acceptable
         if (!delRes.ok && delRes.status !== 204 && delRes.status !== 200) {
           return json({ success: false, error: `Failed to clear existing data (status ${delRes.status})` });
         }
@@ -440,29 +439,23 @@ export async function onRequest(context) {
         return json({ success: true, data: { rowsInserted: cleanRows.length } });
       }
 
-      // Replace all scaling tables atomically (super_admin only)
-      case 'replaceScalingTables': {
+      // -- SETTINGS: Channel Scaling (PEV) upload --
+
+      case 'replaceScalingTables':
+      case 'upload_pev': {
         const { scaling_model_new, scaling_model_old_fallback, scaling_assumptions } = params;
         if (!Array.isArray(scaling_model_new)) return json({ success: false, error: 'Missing scaling_model_new data' });
         if (!Array.isArray(scaling_model_old_fallback)) return json({ success: false, error: 'Missing scaling_model_old_fallback data' });
         if (!Array.isArray(scaling_assumptions)) return json({ success: false, error: 'Missing scaling_assumptions data' });
 
-        // ── Column mapping: Excel (13 cols) → Supabase (8 data cols) ───────────
-        // Supabase schema (from DDL):
-        //   scaling_model_new / scaling_model_old_fallback:
-        //     subscribers, sip_channels, sc_licence, monthly_revenue,
-        //     monthly_cost, monthly_margin, margin_percent, notes
-        //   (id uuid pk and created_at are auto-generated — not inserted)
-        // Dropped Excel cols: subscribers_max, sip_cost_per_month, 3cx_tier,
-        //   3cx_cost_per_month, did_cost_per_month, stripe_per_month
         const SCALING_EXCEL_TO_DB = {
-          subscribers_min:       'subscribers',
-          sip_channels:          'sip_channels',
-          sc_needed:             'sc_licence',
-          total_cost_per_month:  'monthly_cost',
-          revenue_per_month:     'monthly_revenue',
-          profit_per_month:      'monthly_margin',
-          margin_pct:            'margin_percent',
+          subscribers_min: 'subscribers',
+          sip_channels: 'sip_channels',
+          sc_needed: 'sc_licence',
+          total_cost_per_month: 'monthly_cost',
+          revenue_per_month: 'monthly_revenue',
+          profit_per_month: 'monthly_margin',
+          margin_pct: 'margin_percent',
         };
         const SCALING_SUPABASE_COLS = ['subscribers', 'sip_channels', 'sc_licence', 'monthly_revenue', 'monthly_cost', 'monthly_margin', 'margin_percent', 'notes'];
 
@@ -478,25 +471,18 @@ export async function onRequest(context) {
 
         const mappedNew = scaling_model_new.map(mapScalingRow);
         const mappedOld = scaling_model_old_fallback.map(mapScalingRow);
-
-        // Supabase scaling_assumptions schema:
-        //   assumption_key text unique not null, assumption_value text not null, description text
-        //   (id uuid pk and updated_at are auto-generated — not inserted)
-        // Excel assumptions sheet cols: item, value
         const mappedAssumptions = scaling_assumptions.map(row => ({
-          assumption_key:   String(row.item ?? ''),
+          assumption_key: String(row.item ?? ''),
           assumption_value: String(row.value ?? ''),
-          description:      null,
+          description: null,
         })).filter(r => r.assumption_key !== '');
 
-        // ── Delete all rows using verified Supabase column names ────────────────
-        // scaling_model tables: filter on 'subscribers' (integer, always present)
-        // scaling_assumptions: 'assumption_key' is NOT NULL so all rows match
         const tableDeleteFilters = {
-          scaling_model_new:          'or=(subscribers.not.is.null,subscribers.is.null)',
-          scaling_model_old_fallback:  'or=(subscribers.not.is.null,subscribers.is.null)',
-          scaling_assumptions:         'assumption_key=not.is.null',
+          scaling_model_new: 'or=(subscribers.not.is.null,subscribers.is.null)',
+          scaling_model_old_fallback: 'or=(subscribers.not.is.null,subscribers.is.null)',
+          scaling_assumptions: 'assumption_key=not.is.null',
         };
+
         for (const table of ['scaling_model_new', 'scaling_model_old_fallback', 'scaling_assumptions']) {
           const delRes = await sb(`${table}?${tableDeleteFilters[table]}`, {
             method: 'DELETE',
@@ -508,11 +494,10 @@ export async function onRequest(context) {
           }
         }
 
-        // ── Insert mapped rows in batches ────────────────────────────────────────
         const inserts = [
-          { table: 'scaling_model_new',          rows: mappedNew },
-          { table: 'scaling_model_old_fallback',  rows: mappedOld },
-          { table: 'scaling_assumptions',         rows: mappedAssumptions },
+          { table: 'scaling_model_new', rows: mappedNew },
+          { table: 'scaling_model_old_fallback', rows: mappedOld },
+          { table: 'scaling_assumptions', rows: mappedAssumptions },
         ];
 
         for (const { table, rows } of inserts) {
@@ -541,6 +526,31 @@ export async function onRequest(context) {
             scaling_assumptions: mappedAssumptions.length,
           },
         });
+      }
+
+      // Table row count + last updated (for settings panels)
+      case 'getTableStatus': {
+        const { table } = params;
+        if (!['prison_did_lookup', 'scaling_model_new'].includes(table)) {
+          return json({ success: false, error: 'Invalid table name' });
+        }
+        const countRes = await sb(`${table}?select=*&limit=1`, { prefer: 'count=exact' });
+        const cr = countRes.headers.get('content-range');
+        const count = (cr && cr.includes('/')) ? (parseInt(cr.split('/')[1]) || 0) : 0;
+
+        let lastUpdated = null;
+        for (const col of ['updated_at', 'created_at']) {
+          const tsRes = await sb(`${table}?select=${col}&order=${col}.desc&limit=1`);
+          if (tsRes.ok) {
+            const rows = await tsRes.json();
+            if (Array.isArray(rows) && rows.length > 0 && rows[0][col]) {
+              lastUpdated = rows[0][col];
+              break;
+            }
+          }
+        }
+
+        return json({ success: true, data: { count, lastUpdated } });
       }
 
       default:

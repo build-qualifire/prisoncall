@@ -7,24 +7,23 @@
   <meta name="robots" content="noindex, nofollow">
 </head>
 <body>
-  <script>
-    (function () {
-      var SESSION_KEY = 'pc_admin_session';
-      try {
-        var raw = localStorage.getItem(SESSION_KEY);
-        if (raw) {
-          var s = JSON.parse(raw);
-          if (s && s.access_token) {
-            var expiresAt = s.expires_at;
-            if (!expiresAt || Date.now() / 1000 < expiresAt - 60) {
-              window.location.replace('/admin/dashboard.html');
-              return;
-            }
+<script>
+  (function () {
+    try {
+      const raw = localStorage.getItem('pc_admin_session') || sessionStorage.getItem('pc_admin_session');
+      if (raw) {
+        const session = JSON.parse(raw);
+        if (session && session.access_token) {
+          const exp = session.expires_at;
+          if (!exp || (Date.now() / 1000) < (exp - 60)) {
+            window.location.replace('/admin/dashboard.html');
+            return;
           }
         }
-      } catch (e) {}
-      window.location.replace('/admin/login.html');
-    })();
-  </script>
+      }
+    } catch (e) {}
+    window.location.replace('/admin/login.html');
+  })();
+</script>
 </body>
 </html>

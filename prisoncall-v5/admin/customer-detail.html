@@ -19,7 +19,9 @@
 
   <!-- Sidebar -->
   <aside class="admin-sidebar">
-    <div class="sidebar-brand"><img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall" class="sidebar-logo"></div>
+    <div class="sidebar-brand">
+      <img src="/assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall" class="sidebar-logo">
+    </div>
     <nav class="sidebar-nav">
       <a href="/admin/dashboard.html" class="sidebar-nav-item">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -29,7 +31,7 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         Orders
       </a>
-      <a href="/admin/customers.html" class="sidebar-nav-item active" data-role-min="admin">
+      <a href="/admin/customers.html" class="sidebar-nav-item active">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
         Customers
       </a>
@@ -82,40 +84,71 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         <span>Orders</span>
       </a>
-      <a href="/admin/customers.html" class="bottom-bar-item active" data-role-min="admin">
+      <a href="/admin/customers.html" class="bottom-bar-item active">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
         <span>Customers</span>
-      </a>
-      <a href="/admin/products.html" class="bottom-bar-item" data-role-min="super_admin">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-        <span>Products</span>
-      </a>
-      <a href="/admin/settings.html" class="bottom-bar-item" data-role-min="super_admin">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-        <span>Settings</span>
       </a>
     </div>
   </nav>
 
 </div>
 
-<script type="module">
-  import { initAdminPage, api, logout, fmtDate, fmtDatetime, fmtMobile, fmtCurrency, statusBadge, orderTypeBadge, copyToClipboard } from '/admin/admin-auth.js';
+<!-- Cancel confirmation dialog -->
+<div class="dialog-overlay" id="cancelDialog" style="display:none">
+  <div class="dialog-box">
+    <div class="dialog-title">Cancel Subscription?</div>
+    <div class="dialog-text" id="cancelDialogText">This action requires manual steps in Appstle and VoipLine.</div>
+    <div class="dialog-actions">
+      <button class="btn btn--outline" onclick="hideCancelDialog()">Back</button>
+      <button class="btn btn--danger" onclick="confirmCancel()">Yes, Cancel Subscription</button>
+    </div>
+  </div>
+</div>
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const subId = urlParams.get('id');
+<script type="module">
+  import {
+    initAdminPage, api, logout, fmtDate, fmtDatetime, fmtCurrency,
+    formatMobile, statusBadge, orderTypeBadge, addonBadges, addonsList,
+    copyToClipboard, showToast, showSmsToast
+  } from '/admin/admin-auth.js';
+
+  let subId = null;
+  let sub = null;
+  let orders = [];
+  let cancelState = { voiplDone: false, threeexDone: false, confirmShown: false };
 
   async function init() {
     const session = await initAdminPage();
     if (!session) return;
-    const role = session.user?.role;
-    if (role !== 'admin' && role !== 'super_admin') {
-      document.getElementById('mainContent').innerHTML =
-        '<div class="alert alert--error" style="margin:24px">Access denied. This page requires admin access.</div>';
+
+    const params = new URLSearchParams(window.location.search);
+    subId = params.get('id');
+    if (!subId) {
+      showError('No subscription ID provided.');
       return;
     }
-    if (!subId) { showError('No customer ID specified'); return; }
+
     loadCustomer();
+  }
+
+  async function loadCustomer() {
+    try {
+      const data = await api('getSubscription', { id: subId });
+      sub = data.subscription;
+      orders = data.orders || [];
+
+      if (!sub) {
+        showError('Customer not found.');
+        return;
+      }
+
+      document.getElementById('pageTitle').textContent = sub.customer_name || 'Customer';
+      document.getElementById('topbarBadge').innerHTML = statusBadge(sub.status);
+
+      renderPage();
+    } catch (err) {
+      showError(err.message);
+    }
   }
 
   function showError(msg) {
@@ -123,178 +156,259 @@
       <div class="alert alert--error">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg>
         ${msg}
-      </div>
-    `;
+      </div>`;
   }
 
-  async function loadCustomer() {
-    try {
-      const [sub, orders] = await Promise.all([
-        api('getSubscription', { id: subId }),
-        api('getSubscription', { id: subId }).then(s =>
-          s?.stripe_subscription_id ? api('getOrdersBySubscription', { stripe_subscription_id: s.stripe_subscription_id }) : []
-        ),
-      ]);
+  function renderPage() {
+    const mobile = formatMobile(sub.customer_mobile);
+    const assignedMobile = formatMobile(sub.assigned_mobile);
+    const plan = sub.plan_interval ? `${cap(sub.plan_interval)} / ${fmtCurrency(sub.plan_price)}` : '-';
+    const addons = addonsList(sub);
+    const appstleId = sub.appstle_subscription_id || '-';
 
-      if (!sub) { showError('Customer not found'); return; }
+    const ordersHtml = buildOrderHistory();
 
-      // Reload orders using the subscription
-      let customerOrders = [];
-      if (sub.stripe_subscription_id) {
-        try {
-          customerOrders = await api('getOrdersBySubscription', { stripe_subscription_id: sub.stripe_subscription_id });
-        } catch {
-          customerOrders = [];
-        }
-      }
-
-      document.getElementById('pageTitle').textContent = sub.customer_name || 'Customer';
-      document.getElementById('topbarBadge').innerHTML = statusBadge(sub.status);
-
-      const addonsList = [];
-      if (sub.addon_48hr_cancel) addonsList.push('48hr Cancel');
-      if (sub.addon_transfers)   addonsList.push('Unlimited Transfers');
-      if (sub.addon_post_renewal)addonsList.push('96hr Post Renewal');
-      if (sub.addon_combo23)     addonsList.push('Bundle 2+3');
-      if (sub.addon_lifetime)    addonsList.push('Lifetime Protection');
-
-      const addonsHtml = addonsList.length
-        ? addonsList.map(a => `<span class="badge badge--blue" style="margin:2px">${a}</span>`).join(' ')
-        : '<span style="color:var(--color-muted);font-size:13px">None</span>';
-
-      const ordersHtml = customerOrders.length === 0
-        ? '<div class="empty-state" style="padding:32px"><h3>No orders found</h3><p>No orders linked to this subscription</p></div>'
-        : `
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Type</th><th>Prison</th><th>Status</th><th>Date</th></tr></thead>
-              <tbody>
-                ${customerOrders.map(o => `
-                  <tr onclick="window.location='/admin/order-detail.html?id=${o.id}'" style="cursor:pointer">
-                    <td>${orderTypeBadge(o.order_type)}</td>
-                    <td>
-                      <div style="font-weight:600;font-size:14px">${o.prison_name || '-'}</div>
-                      <div class="col-sub">${o.prison_state || ''}</div>
-                    </td>
-                    <td>${statusBadge(o.status)}</td>
-                    <td style="font-size:13px;color:var(--color-muted)">${fmtDate(o.order_date)}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-
-      document.getElementById('mainContent').innerHTML = `
-        <div class="detail-grid">
+    document.getElementById('mainContent').innerHTML = `
+      <!-- Customer header -->
+      <div class="card mb-16" style="padding:20px 24px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
           <div>
-            <div class="card mb-16">
-              <div class="card-header">
-                <div class="card-title">Subscriber Details</div>
-                ${statusBadge(sub.status)}
-              </div>
-              <div class="card-body">
-                <div class="detail-row">
-                  <div class="detail-key">Name</div>
-                  <div class="detail-val">${sub.customer_name || '-'}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">Login mobile</div>
-                  <div class="detail-val">${fmtMobile(sub.customer_mobile)}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">Email</div>
-                  <div class="detail-val" style="word-break:break-all">${sub.customer_email || '-'}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">Prison</div>
-                  <div class="detail-val">${sub.prison_name || '-'}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">State</div>
-                  <div class="detail-val">${sub.prison_state || '-'}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">Current DID</div>
-                  <div class="detail-val font-mono copyable" onclick="doCopy(this,'${sub.current_did||''}')" title="Click to copy" style="color:var(--color-green);font-weight:700">${sub.current_did || '-'}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">Assigned mobile</div>
-                  <div class="detail-val">${fmtMobile(sub.assigned_mobile) || '-'}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">3CX Extension</div>
-                  <div class="detail-val font-mono">${sub.current_extension || '-'}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">Plan</div>
-                  <div class="detail-val" style="text-transform:capitalize">${sub.plan_interval || '-'} - ${fmtCurrency(sub.plan_price)}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">Add-ons</div>
-                  <div class="detail-val" style="text-align:right;flex-wrap:wrap">${addonsHtml}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">Next billing</div>
-                  <div class="detail-val">${fmtDate(sub.next_billing_date)}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">Member since</div>
-                  <div class="detail-val">${fmtDate(sub.created_at)}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">Stripe Sub ID</div>
-                  <div class="detail-val mono font-mono copyable" onclick="doCopy(this,'${sub.stripe_subscription_id||''}')" title="Click to copy">${sub.stripe_subscription_id || '-'}</div>
-                </div>
-                <div class="detail-row">
-                  <div class="detail-key">Stripe Cust ID</div>
-                  <div class="detail-val mono font-mono copyable" onclick="doCopy(this,'${sub.stripe_customer_id||''}')" title="Click to copy">${sub.stripe_customer_id || '-'}</div>
-                </div>
-              </div>
+            <div style="font-size:22px;font-weight:800;color:var(--color-hero);margin-bottom:6px">${sub.customer_name || '-'}</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              ${statusBadge(sub.status)}
+              <span style="font-size:13px;color:var(--color-muted)">${sub.customer_email || ''}</span>
+            </div>
+            <div style="font-size:14px;color:var(--color-muted);margin-top:4px">${mobile}</div>
+            <div style="margin-top:8px">
+              <span style="font-size:12px;color:var(--color-muted)">Appstle Sub ID: </span>
+              <span class="font-mono text-sm copyable" onclick="copyText('${appstleId}', this)">${appstleId}</span>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div>
-            <div class="card">
-              <div class="card-header"><div class="card-title">Quick Info</div></div>
-              <div class="card-body">
-                <div style="display:grid;gap:12px">
-                  <div style="padding:12px;background:var(--color-green-mid);border-radius:var(--radius-sm);text-align:center">
-                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-muted);margin-bottom:4px">Total Orders</div>
-                    <div style="font-size:28px;font-weight:800;color:var(--color-hero)">${customerOrders.length}</div>
-                  </div>
-                  ${sub.current_did ? `
-                    <div style="padding:12px;background:var(--color-surface);border-radius:var(--radius-sm);text-align:center">
-                      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-muted);margin-bottom:4px">Active DID</div>
-                      <div style="font-size:20px;font-weight:800;color:var(--color-green);font-family:'Courier New',monospace">${sub.current_did}</div>
-                    </div>
-                  ` : ''}
-                </div>
+      <div class="detail-grid">
+
+        <!-- Left: Subscription details -->
+        <div>
+          <div class="card mb-16">
+            <div class="card-header"><div class="card-title">Subscription Details</div></div>
+            <div class="card-body">
+              <div class="detail-row" style="padding-top:0">
+                <span class="detail-key">Current DID</span>
+                <span class="detail-val did">${sub.current_did || '-'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Prison</span>
+                <span class="detail-val">${sub.prison_name || '-'}, ${sub.prison_state || '-'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Plan</span>
+                <span class="detail-val">${plan}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Next Billing</span>
+                <span class="detail-val">${fmtDate(sub.next_billing_date)}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">3CX Extension</span>
+                <span class="detail-val font-mono">${sub.current_extension || '-'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Assigned Mobile</span>
+                <span class="detail-val">${assignedMobile}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Add-ons</span>
+                <span class="detail-val">${addons}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Member since</span>
+                <span class="detail-val">${fmtDate(sub.created_at)}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Order history -->
-        <div class="card mt-16">
-          <div class="card-header">
-            <div class="card-title">Order History</div>
-            <span class="badge badge--grey">${customerOrders.length} order${customerOrders.length !== 1 ? 's' : ''}</span>
+        <!-- Right: Actions -->
+        <div>
+          <div class="card" id="actionsCard">
+            <div class="card-header"><div class="card-title">Actions</div></div>
+            <div class="card-body" id="actionsBody">
+              <!-- Rendered dynamically -->
+            </div>
           </div>
-          ${ordersHtml}
         </div>
-      `;
-    } catch (err) {
-      showError(err.message);
+
+      </div>
+
+      <!-- Order History -->
+      <div class="card mt-16">
+        <div class="card-header">
+          <div class="card-title">Order History</div>
+        </div>
+        ${ordersHtml}
+      </div>`;
+
+    renderActions();
+  }
+
+  function buildOrderHistory() {
+    if (!orders || orders.length === 0) {
+      return `<div class="empty-state" style="padding:32px">
+        <h3>No orders yet</h3>
+        <p>Orders will appear here once created.</p>
+      </div>`;
+    }
+
+    const rows = orders.map(o => `
+      <tr onclick="window.location='/admin/order-detail.html?id=${o.id}'" style="cursor:pointer">
+        <td style="font-size:13px;color:var(--color-muted)">${fmtDate(o.created_at)}</td>
+        <td>${orderTypeBadge(o.order_type)}</td>
+        <td><span class="col-mono">${o.did_number || '-'}</span></td>
+        <td>${statusBadge(o.status)}</td>
+      </tr>`).join('');
+
+    return `<div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>DID</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }
+
+  function renderActions() {
+    const body = document.getElementById('actionsBody');
+    if (!sub) return;
+
+    if (sub.status === 'CANCELLED') {
+      body.innerHTML = `
+        <div class="alert alert--error">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg>
+          This subscription has been cancelled.
+        </div>`;
+      return;
+    }
+
+    if (!cancelState.confirmShown) {
+      body.innerHTML = `
+        <button class="btn btn--danger btn--full" onclick="showCancelDialog()">
+          Cancel Subscription
+        </button>
+        <p style="font-size:12px;color:var(--color-muted);margin-top:10px">
+          You must also cancel in Appstle and release the DID in VoipLine.
+        </p>`;
+    } else {
+      renderCancelFlow(body);
     }
   }
 
-  window.doCopy = function(el, text) {
-    if (!text) return;
+  function renderCancelFlow(body) {
+    const voiplDone = cancelState.voiplDone;
+    const threeexDone = cancelState.threeexDone;
+
+    let html = '';
+
+    if (!voiplDone || !threeexDone) {
+      html += `
+        <div class="alert alert--warning mb-16">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Action required. Reminders at 2hr, 4hr, 12hr, 24hr. (Wired at B14)
+        </div>`;
+    }
+
+    html += `<div class="action-section">`;
+
+    if (!voiplDone) {
+      html += `<button class="btn btn--outline btn--full" onclick="markVoiplineDone()">VoipLine DID Released</button>`;
+    } else {
+      html += `<button class="btn btn--green btn--full" disabled>
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        VoipLine DID Released - Done
+      </button>`;
+    }
+
+    if (!threeexDone) {
+      html += `<button class="btn btn--outline btn--full" onclick="mark3cxDone()">3CX Extension Deleted</button>`;
+    } else {
+      html += `<button class="btn btn--green btn--full" disabled>
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        3CX Extension Deleted - Done
+      </button>`;
+    }
+
+    html += `</div>`;
+    body.innerHTML = html;
+  }
+
+  window.showCancelDialog = function () {
+    const dlg = document.getElementById('cancelDialog');
+    document.getElementById('cancelDialogText').textContent =
+      `Cancel ${sub?.customer_name || 'this customer'}'s subscription? You must also cancel in Appstle and release the DID in VoipLine.`;
+    dlg.style.display = 'flex';
+  };
+
+  window.hideCancelDialog = function () {
+    document.getElementById('cancelDialog').style.display = 'none';
+  };
+
+  window.confirmCancel = function () {
+    hideCancelDialog();
+    cancelState.confirmShown = true;
+    renderActions();
+  };
+
+  window.markVoiplineDone = async function () {
+    try {
+      cancelState.voiplDone = true;
+      const customerMobile = formatMobile(sub.customer_mobile);
+      const smsMsg = `Hi, Your Prisoncall plan has been cancelled as requested. Your number has been permanently deleted. To get a new Prisoncall number, please visit prisoncall.com.au. Regards, Prisoncall.`;
+      showSmsToast(customerMobile, smsMsg);
+      showToast('VoipLine DID released.');
+      await checkBothDone();
+      renderActions();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  window.mark3cxDone = async function () {
+    try {
+      cancelState.threeexDone = true;
+      showToast('3CX extension deletion confirmed.');
+      await checkBothDone();
+      renderActions();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  async function checkBothDone() {
+    if (cancelState.voiplDone && cancelState.threeexDone) {
+      await api('updateSubscription', { id: subId, fields: { status: 'CANCELLED' } });
+      sub.status = 'CANCELLED';
+      document.getElementById('topbarBadge').innerHTML = statusBadge('CANCELLED');
+      showToast('Subscription cancelled.');
+    }
+  }
+
+  window.copyText = function (text, el) {
     copyToClipboard(text, el);
   };
 
-  window.doLogout = function() {
+  function cap(s) {
+    if (!s) return '';
+    return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+  }
+
+  window.doLogout = function () {
     import('/admin/admin-auth.js').then(m => m.logout());
   };
 
