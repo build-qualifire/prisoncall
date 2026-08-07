@@ -80,8 +80,18 @@
         </div>
       </div>
 
+      <!-- Desktop column headers -->
+      <div class="sub-list-header">
+        <div>Customer</div>
+        <div>DID</div>
+        <div>Prison</div>
+        <div>Plan</div>
+        <div>Status</div>
+        <div></div>
+      </div>
+
       <!-- Subscriber list -->
-      <div id="subsContent" class="mt-16">
+      <div id="subsContent">
         <div class="loading-state"><div class="spinner"></div>Loading subscribers...</div>
       </div>
 
@@ -192,7 +202,9 @@
           <div>
             <div class="sub-name">${name}</div>
             <div class="sub-mobile">${mobile}</div>
-            ${did ? `<div class="sub-did">${did}</div>` : ''}
+          </div>
+          <div>
+            ${did ? `<div class="sub-did">${did}</div>` : '<span style="font-size:13px;color:var(--color-muted)">-</span>'}
           </div>
           <div>
             <div class="sub-location">${prison}</div>
@@ -200,9 +212,7 @@
           </div>
           <div class="sub-plan">${plan}</div>
           <div class="sub-status-col">${statusBadge(status)}</div>
-          <div class="sub-actions-col">
-            ${actionsHtml.topRight}
-          </div>
+          <div class="sub-actions-col">${actionsHtml.topRight}</div>
         </div>
         ${actionsHtml.inline ? `<div class="sub-inline">${actionsHtml.inline}</div>` : ''}
       </div>`;
