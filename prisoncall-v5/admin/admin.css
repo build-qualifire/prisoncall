@@ -1212,3 +1212,110 @@ input, select, textarea { font-family: inherit; }
   gap: 10px;
   justify-content: flex-end;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MOBILE OPTIMISATION — 390 px viewport, Shopify mobile admin patterns
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  /* Prevent horizontal scroll */
+  body { overflow-x: hidden; }
+  .admin-content { overflow-x: hidden; }
+
+  /* Topbar: truncate long titles gracefully */
+  .admin-topbar-title {
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100vw - 130px);
+  }
+  .admin-topbar-right { flex-shrink: 0; }
+
+  /* Buttons: 44 px minimum touch target */
+  .btn { min-height: 44px; }
+  .btn--sm { min-height: 36px; }
+
+  /* Action rows: stack vertically, full-width buttons */
+  .action-row { flex-direction: column; }
+  .action-row .btn { width: 100%; }
+
+  /* Card headers: allow title + button to wrap */
+  .card-header { flex-wrap: wrap; gap: 8px; }
+
+  /* Metric grid: explicit 2×2 */
+  .metric-grid { grid-template-columns: repeat(2, 1fr); }
+  .metric-value { font-size: 22px; }
+
+  /* Detail pages: force single column */
+  .detail-grid { grid-template-columns: 1fr !important; }
+
+  /* Dialogs: stack actions, comfortable padding */
+  .dialog-box { padding: 20px; }
+  .dialog-actions { flex-direction: column-reverse; }
+  .dialog-actions .btn { width: 100%; }
+
+  /* Product rows: single column */
+  .product-row { grid-template-columns: 1fr !important; }
+
+  /* Settings panels: single column */
+  .panels-grid { grid-template-columns: 1fr !important; }
+
+  /* ── List pages: table → card-per-row ─────────────────────────────────
+     Scoped to #customersContent / #ordersContent so the dashboard
+     "Recent Activity" table keeps its normal horizontal scroll.
+     ─────────────────────────────────────────────────────────────────── */
+  #customersContent .table-wrap,
+  #ordersContent .table-wrap { overflow: visible; }
+
+  #customersContent .data-table,
+  #ordersContent .data-table { display: block; }
+
+  #customersContent .data-table thead,
+  #ordersContent .data-table thead { display: none; }
+
+  #customersContent .data-table tbody,
+  #ordersContent .data-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  #customersContent .data-table tbody tr,
+  #ordersContent .data-table tbody tr {
+    display: block;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    padding-right: 100px;   /* room for absolute status badge */
+    background: var(--color-white);
+    position: relative;
+  }
+
+  #customersContent .data-table tbody tr:hover,
+  #ordersContent .data-table tbody tr:hover { background: var(--color-surface); }
+
+  #customersContent .data-table td,
+  #ordersContent .data-table td {
+    display: block;
+    padding: 2px 0;
+    border-bottom: none;
+    white-space: normal;
+  }
+
+  /* Status badge: pinned top-right of each card */
+  #customersContent .data-table td:last-child,
+  #ordersContent .data-table td:last-child {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    padding: 0;
+  }
+
+  /* Row-count footer: keep readable */
+  #customersContent > div:last-child,
+  #ordersContent > div:last-child {
+    padding: 10px 16px;
+  }
+}
