@@ -1263,16 +1263,19 @@ input, select, textarea { font-family: inherit; }
    Uses <table> for guaranteed column layout on all browsers.
    ══════════════════════════════════════════════════════════════════════════ */
 
-.transfer-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.transfer-table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 900px; }
 
-/* Column widths via <colgroup> */
-.transfer-table col.c-customer  { width: 18%; }
-.transfer-table col.c-from      { width: 15%; }
-.transfer-table col.c-to        { width: 15%; }
-.transfer-table col.c-submitted { width: 10%; }
-.transfer-table col.c-updated   { width: 10%; }
-.transfer-table col.c-status    { width: 12%; }
-.transfer-table col.c-action    { width: 20%; }
+/* Column widths via <colgroup>
+   Status needs enough space for "PENDING_SMS_CONFIRM" badge (~160px min).
+   Action needs enough space for "Enter New DID + Fulfil" button (~180px min).
+   At min-width 900px: status=144px, action=198px; at 1200px: 192px / 264px. */
+.transfer-table col.c-customer  { width: 16%; }
+.transfer-table col.c-from      { width: 13%; }
+.transfer-table col.c-to        { width: 13%; }
+.transfer-table col.c-submitted { width: 9%; }
+.transfer-table col.c-updated   { width: 9%; }
+.transfer-table col.c-status    { width: 16%; }
+.transfer-table col.c-action    { width: 24%; }
 
 /* Row hover */
 .transfer-table .transfer-row:hover { background: var(--color-surface); }
@@ -1333,8 +1336,10 @@ input, select, textarea { font-family: inherit; }
    ══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 767px) {
 
-  /* ── GLOBAL: prevent horizontal scroll ─────────────────────────────── */
-  body, .admin-content { overflow-x: hidden; }
+  /* ── GLOBAL ──────────────────────────────────────────────────────────── */
+  /* NOTE: overflow-x:hidden on body/admin-content is intentionally omitted.
+     It creates a scroll container that breaks position:sticky completely.
+     Individual wide elements (tables) use overflow-x:auto on their wrapper. */
   * { -webkit-tap-highlight-color: transparent; }
 
   /* ── LAYOUT ──────────────────────────────────────────────────────────── */
