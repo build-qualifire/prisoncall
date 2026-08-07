@@ -259,6 +259,7 @@
       </div>`;
 
     renderActions();
+    appendDevTools();
   }
 
   function buildExchangeHtml() {
@@ -446,7 +447,8 @@
   function renderSuspendedActions(body) {
     const smsDayCount = parseInt(order.sms_day_count) || 0;
     const lastSent = order.last_sms_sent_at;
-    const unlocked = smsDayCount > 0 && isSmsUnlocked(lastSent);
+    const bypassGating = localStorage.getItem('dev_bypass_sms_gating') === 'true';
+    const unlocked = smsDayCount > 0 && (bypassGating || isSmsUnlocked(lastSent));
     const adminNotes = parseAdminNotes();
     const voiplDone = adminNotes.voipline_did_released || false;
     const appstleDone = adminNotes.appstle_cancelled || false;
@@ -732,6 +734,123 @@
     if (!s) return '';
     return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
   }
+
+  // ── DEV TOOLS (staging only: prisoncall.pages.dev) ──────────────────────
+
+  function appendDevTools() {
+    if (window.location.hostname !== 'prisoncall.pages.dev') return;
+
+    const mc = document.getElementById('mainContent');
+    if (!mc) return;
+
+    // Remove any previous panel (re-render after status changes)
+    const existing = document.getElementById('devToolsPanel');
+    if (existing) existing.remove();
+
+    const bypass = localStorage.getItem('dev_bypass_sms_gating') === 'true';
+    const isActivating = order && order.status === 'ACTIVATING';
+
+    const panel = document.createElement('div');
+    panel.id = 'devToolsPanel';
+    panel.style.cssText = 'margin-top:24px;border:2px solid #F97316;border-radius:12px;background:#fff7ed;padding:20px';
+    panel.innerHTML = `
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#F97316;margin-bottom:16px">
+        DEV TOOLS - Remove at go-live
+      </div>
+
+      <!-- 1. Toggle: Bypass SMS day gating -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #fed7aa">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#101010;margin-bottom:3px">Bypass SMS day gating</div>
+          <div style="font-size:12px;color:#666;line-height:1.5">When ON, Day 2/3/4 SMS buttons unlock immediately - no 7am check or date check. sms_day_count still increments correctly.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-top:2px">
+          <label class="toggle-wrap" style="cursor:pointer">
+            <div class="toggle">
+              <input type="checkbox" id="devBypassGating" ${bypass ? 'checked' : ''}>
+              <span class="toggle-slider"></span>
+            </div>
+          </label>
+          <span id="devBypassLabel" style="font-size:13px;font-weight:700;min-width:28px;color:${bypass ? '#00D258' : '#6B7280'}">${bypass ? 'ON' : 'OFF'}</span>
+        </div>
+      </div>
+
+      <!-- 2 & 3. Force state buttons (ACTIVATING only) -->
+      ${isActivating ? `
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Force WF1 outcome (ACTIVATING orders only)</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn--green btn--sm" id="devBtnFulfilled" onclick="devForceFulfilled()">Force FULFILLED</button>
+          <button class="btn btn--danger btn--sm" id="devBtnFailed" onclick="devForceActivationFailed()">Force ACTIVATION_FAILED</button>
+        </div>
+      </div>` : `
+      <div style="font-size:13px;color:#92400e">Force FULFILLED / ACTIVATION_FAILED buttons only appear when order status is <strong>ACTIVATING</strong>.</div>`}
+    `;
+
+    mc.appendChild(panel);
+
+    // Wire toggle
+    document.getElementById('devBypassGating').addEventListener('change', function () {
+      const on = this.checked;
+      localStorage.setItem('dev_bypass_sms_gating', on ? 'true' : 'false');
+      const label = document.getElementById('devBypassLabel');
+      if (label) {
+        label.textContent = on ? 'ON' : 'OFF';
+        label.style.color = on ? '#00D258' : '#6B7280';
+      }
+      // Re-render actions so buttons reflect new gating state immediately
+      renderActions();
+    });
+  }
+
+  window.devForceFulfilled = async function () {
+    if (!order || order.status !== 'ACTIVATING') return;
+    const btn = document.getElementById('devBtnFulfilled');
+    if (btn) { btn.disabled = true; btn.textContent = 'Updating...'; }
+
+    try {
+      await api('updateOrder', { id: orderId, fields: { status: 'FULFILLED' } });
+
+      const prisonName = order.prison_name || '-';
+      const did = order.did_number || '-';
+      const assignedMobile = formatMobile(order.assigned_mobile || sub?.assigned_mobile || '');
+      const welcomeSms = `Your new Prisoncall number is ready.\nPrison: ${prisonName}\nPrisoncall No: ${did}\nAssigned Mobile: ${assignedMobile}\nGive this number to your loved one and start receiving Prisoncalls soon.\nFor your reference.`;
+      showSmsToast(formatMobile(order.customer_mobile), welcomeSms);
+      showToast('[DEV] Forced FULFILLED - reloading...');
+
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err) {
+      showToast(err.message, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Force FULFILLED'; }
+    }
+  };
+
+  window.devForceActivationFailed = async function () {
+    if (!order || order.status !== 'ACTIVATING') return;
+    const btn = document.getElementById('devBtnFailed');
+    if (btn) { btn.disabled = true; btn.textContent = 'Updating...'; }
+
+    try {
+      await api('updateOrder', {
+        id: orderId,
+        fields: {
+          status: 'ACTIVATION_FAILED',
+          admin_notes: JSON.stringify({ dev_simulated_failure: 'DEV TOOLS simulated failure' }),
+        },
+      });
+
+      const customerName = sub?.customer_name || 'Customer';
+      const did = order.did_number || '-';
+      const adminSms = `3CX activation failed for ${customerName} DID ${did}.\nManual fix required. https://portal.voipline.com.au`;
+      showSmsToast('Admin team', adminSms);
+      showToast('[DEV] Forced ACTIVATION_FAILED - reloading...');
+
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err) {
+      showToast(err.message, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Force ACTIVATION_FAILED'; }
+    }
+  };
 
   window.doLogout = function () {
     import('/admin/admin-auth.js').then(m => m.logout());
