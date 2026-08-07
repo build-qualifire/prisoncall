@@ -76,19 +76,33 @@
         </div>
       </div>
 
-      <!-- Desktop column headers -->
-      <div class="transfer-list-header">
-        <div>Customer</div>
-        <div>From Prison</div>
-        <div>To Prison</div>
-        <div>Dates</div>
-        <div>Status</div>
-        <div></div>
-      </div>
-
-      <!-- Transfer list -->
-      <div id="txContent">
-        <div class="loading-state"><div class="spinner"></div>Loading transfers...</div>
+      <!-- Transfer table (table layout guarantees columns regardless of CSS) -->
+      <div style="margin-top:12px;overflow-x:auto">
+        <table class="transfer-table data-table">
+          <colgroup>
+            <col class="c-customer">
+            <col class="c-from">
+            <col class="c-to">
+            <col class="c-submitted">
+            <col class="c-updated">
+            <col class="c-status">
+            <col class="c-action">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>From Prison</th>
+              <th>To Prison</th>
+              <th>Submitted</th>
+              <th>Updated</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="txContent">
+            <tr><td colspan="7"><div class="loading-state"><div class="spinner"></div>Loading transfers...</div></td></tr>
+          </tbody>
+        </table>
       </div>
 
     </div>
@@ -132,7 +146,7 @@
 
   async function loadTransfers() {
     const container = document.getElementById('txContent');
-    container.innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading...</div>';
+    container.innerHTML = '<tr><td colspan="7"><div class="loading-state"><div class="spinner"></div>Loading...</div></td></tr>';
     try {
       const params = {};
       if (searchTerm) params.search = searchTerm;
@@ -148,7 +162,7 @@
 
       renderTransfers();
     } catch (err) {
-      container.innerHTML = `<div class="alert alert--error">${esc(err.message)}</div>`;
+      container.innerHTML = `<tr><td colspan="7"><div class="alert alert--error">${esc(err.message)}</div></td></tr>`;
     }
   }
 
@@ -156,11 +170,13 @@
     const container = document.getElementById('txContent');
     if (!allTx || allTx.length === 0) {
       container.innerHTML = `
-        <div class="empty-state">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
-          <h3>No transfer requests yet</h3>
-          <p>Transfer requests will appear here when customers change prisons</p>
-        </div>`;
+        <tr><td colspan="7">
+          <div class="empty-state">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
+            <h3>No transfer requests yet</h3>
+            <p>Transfer requests will appear here when customers change prisons</p>
+          </div>
+        </td></tr>`;
       return;
     }
     container.innerHTML = allTx.map(t => renderTransferRow(t)).join('');
@@ -180,13 +196,13 @@
     const status = tx.status;
     const did = tx.did_number || '';
 
-    let actionsHtml = '';
+    let actionCell = '';
     let inlineHtml = '';
 
     if (status === 'PENDING_SMS_CONFIRM') {
-      actionsHtml = `<button class="btn btn--green btn--sm" onclick="showTxDidForm('${id}')">Enter New DID + Fulfil</button>`;
+      actionCell = `<button class="btn btn--green btn--sm" onclick="showTxDidForm('${id}')">Enter New DID + Fulfil</button>`;
       inlineHtml = `
-        <div id="txDidFormWrap-${id}" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--color-border)">
+        <div id="txDidFormWrap-${id}" style="display:none">
           <div style="font-size:13px;font-weight:600;color:var(--color-muted);margin-bottom:8px">Enter new DID for the destination prison</div>
           <div class="tx-did-input-row" style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
             <div style="flex:1;min-width:180px">
@@ -199,45 +215,44 @@
         </div>`;
 
     } else if (status === 'ACTIVATING') {
-      actionsHtml = `<div style="display:flex;align-items:center;gap:8px;color:var(--color-muted)"><div class="spinner"></div><span style="font-size:13px">Setting up new extension...</span></div>`;
+      actionCell = `<div style="display:flex;align-items:center;gap:8px;color:var(--color-muted)"><div class="spinner"></div><span style="font-size:13px">Setting up...</span></div>`;
 
     } else if (status === 'ACTIVATION_FAILED') {
-      actionsHtml = `<button class="btn btn--outline btn--sm" onclick="retryTx('${id}')">Retry</button>`;
-      inlineHtml = `<div class="alert alert--error" style="margin-top:10px">Activation failed. Check 3CX and VoipLine then retry.</div>`;
+      actionCell = `<button class="btn btn--outline btn--sm" onclick="retryTx('${id}')">Retry</button>`;
+      inlineHtml = `<div class="alert alert--error">Activation failed. Check 3CX and VoipLine then retry.</div>`;
 
     } else if (status === 'FULFILLED') {
-      actionsHtml = did ? `<div class="col-mono" style="font-size:13px">${did}</div>` : '';
+      actionCell = did ? `<span class="sub-did">${did}</span>` : '';
     }
-    // CANCELLED: badge only, no action
 
-    return `
-      <div class="transfer-row" id="tx-${id}">
-        <div class="transfer-row-main">
-          <div>
-            <div class="sub-name">${customerName}</div>
-            <div class="sub-mobile">${mobile}</div>
-          </div>
-          <div>
-            <div class="transfer-from-label">From</div>
-            <div class="transfer-prison">${oldPrison}</div>
-            <div class="transfer-state">${oldState}</div>
-          </div>
-          <div>
-            <div class="transfer-to-label">To</div>
-            <div class="transfer-prison">${newPrison}</div>
-            <div class="transfer-state">${newState}</div>
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-muted);margin-bottom:2px">Submitted</div>
-            <div style="font-size:13px">${submitted}</div>
-            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-muted);margin-top:6px;margin-bottom:2px">Updated</div>
-            <div style="font-size:13px">${updated}</div>
-          </div>
-          <div>${statusBadge(status)}</div>
-          <div>${actionsHtml}</div>
-        </div>
-        ${inlineHtml}
-      </div>`;
+    const mainRow = `
+      <tr class="transfer-row" id="tx-${id}">
+        <td>
+          <div class="sub-name">${customerName}</div>
+          <div class="sub-mobile">${mobile}</div>
+        </td>
+        <td>
+          <div class="transfer-from-label">From</div>
+          <div class="transfer-prison">${oldPrison}</div>
+          ${oldState ? `<div class="transfer-state">${oldState}</div>` : ''}
+        </td>
+        <td>
+          <div class="transfer-to-label">To</div>
+          <div class="transfer-prison">${newPrison}</div>
+          ${newState ? `<div class="transfer-state">${newState}</div>` : ''}
+        </td>
+        <td style="font-size:13px">${submitted}</td>
+        <td style="font-size:13px">${updated}</td>
+        <td>${statusBadge(status)}</td>
+        <td>${actionCell}</td>
+      </tr>`;
+
+    const expandedRow = inlineHtml ? `
+      <tr id="tx-exp-${id}" class="transfer-expanded-row">
+        <td colspan="7" class="transfer-inline">${inlineHtml}</td>
+      </tr>` : '';
+
+    return mainRow + expandedRow;
   }
 
   // ── DID Form ───────────────────────────────────────────────────────────
@@ -314,11 +329,13 @@
   }
 
   function reRenderTx(id) {
-    const tx = getTxById(id);
-    if (!tx) return;
     const el = document.getElementById('tx-' + id);
     if (!el) return;
-    el.outerHTML = renderTransferRow(tx);
+    // Remove stale expanded row first
+    const expEl = document.getElementById('tx-exp-' + id);
+    if (expEl) expEl.remove();
+    const tx = getTxById(id);
+    if (tx) el.outerHTML = renderTransferRow(tx);
   }
 
   function esc(str) {

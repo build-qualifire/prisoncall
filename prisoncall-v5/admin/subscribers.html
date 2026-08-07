@@ -80,19 +80,31 @@
         </div>
       </div>
 
-      <!-- Desktop column headers -->
-      <div class="sub-list-header">
-        <div>Customer</div>
-        <div>DID</div>
-        <div>Prison</div>
-        <div>Plan</div>
-        <div>Status</div>
-        <div></div>
-      </div>
-
-      <!-- Subscriber list -->
-      <div id="subsContent">
-        <div class="loading-state"><div class="spinner"></div>Loading subscribers...</div>
+      <!-- Subscriber table (table layout guarantees columns regardless of CSS) -->
+      <div style="margin-top:12px;overflow-x:auto">
+        <table class="sub-table data-table">
+          <colgroup>
+            <col class="c-customer">
+            <col class="c-did">
+            <col class="c-prison">
+            <col class="c-plan">
+            <col class="c-status">
+            <col class="c-actions">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>DID</th>
+              <th>Prison</th>
+              <th>Plan</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="subsContent">
+            <tr><td colspan="6"><div class="loading-state"><div class="spinner"></div>Loading subscribers...</div></td></tr>
+          </tbody>
+        </table>
       </div>
 
     </div>
@@ -142,7 +154,7 @@
 
   async function loadSubs() {
     const container = document.getElementById('subsContent');
-    container.innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading...</div>';
+    container.innerHTML = '<tr><td colspan="6"><div class="loading-state"><div class="spinner"></div>Loading...</div></td></tr>';
     try {
       const params = {};
       if (filterStatus) params.status = filterStatus;
@@ -159,7 +171,7 @@
 
       renderSubs();
     } catch (err) {
-      container.innerHTML = `<div class="alert alert--error">${esc(err.message)}</div>`;
+      container.innerHTML = `<tr><td colspan="6"><div class="alert alert--error">${esc(err.message)}</div></td></tr>`;
     }
   }
 
@@ -167,11 +179,13 @@
     const container = document.getElementById('subsContent');
     if (!allSubs || allSubs.length === 0) {
       container.innerHTML = `
-        <div class="empty-state">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <h3>No subscribers found</h3>
-          <p>Try adjusting your search or filter</p>
-        </div>`;
+        <tr><td colspan="6">
+          <div class="empty-state">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <h3>No subscribers found</h3>
+            <p>Try adjusting your search or filter</p>
+          </div>
+        </td></tr>`;
       return;
     }
     container.innerHTML = allSubs.map(s => renderSubRow(s)).join('');
@@ -194,28 +208,31 @@
     const state = esc(sub.prison_state || '');
     const plan = capPlan(sub.plan_interval);
 
-    let actionsHtml = buildActionsHtml(sub, flags, smsDayCount, smsUnlocked);
+    const actions = buildActionsHtml(sub, flags, smsDayCount, smsUnlocked);
+    const suspClass = isSuspended ? ' sub-row--suspended' : '';
 
-    return `
-      <div class="sub-row${isSuspended ? ' sub-row--suspended' : ''}" id="sub-${id}">
-        <div class="sub-row-main">
-          <div>
-            <div class="sub-name">${name}</div>
-            <div class="sub-mobile">${mobile}</div>
-          </div>
-          <div>
-            ${did ? `<div class="sub-did">${did}</div>` : '<span style="font-size:13px;color:var(--color-muted)">-</span>'}
-          </div>
-          <div>
-            <div class="sub-location">${prison}</div>
-            <div class="sub-location-state">${state}</div>
-          </div>
-          <div class="sub-plan">${plan}</div>
-          <div class="sub-status-col">${statusBadge(status)}</div>
-          <div class="sub-actions-col">${actionsHtml.topRight}</div>
-        </div>
-        ${actionsHtml.inline ? `<div class="sub-inline">${actionsHtml.inline}</div>` : ''}
-      </div>`;
+    const mainRow = `
+      <tr class="sub-row${suspClass}" id="sub-${id}">
+        <td>
+          <div class="sub-name">${name}</div>
+          <div class="sub-mobile">${mobile}</div>
+        </td>
+        <td>${did ? `<span class="sub-did">${did}</span>` : '<span style="color:var(--color-muted);font-size:13px">-</span>'}</td>
+        <td>
+          <div class="sub-location">${prison}</div>
+          ${state ? `<div class="sub-location-state">${state}</div>` : ''}
+        </td>
+        <td><span class="sub-plan">${plan}</span></td>
+        <td>${statusBadge(status)}</td>
+        <td>${actions.topRight}</td>
+      </tr>`;
+
+    const expandedRow = actions.inline ? `
+      <tr id="sub-exp-${id}" class="sub-expanded-row${suspClass}">
+        <td colspan="6" class="sub-inline">${actions.inline}</td>
+      </tr>` : '';
+
+    return mainRow + expandedRow;
   }
 
   function buildActionsHtml(sub, flags, smsDayCount, smsUnlocked) {
@@ -337,11 +354,13 @@
   }
 
   function reRenderRow(id) {
-    const sub = getSubById(id);
-    if (!sub) return;
     const el = document.getElementById('sub-' + id);
     if (!el) return;
-    el.outerHTML = renderSubRow(sub);
+    // Remove stale expanded row first
+    const expEl = document.getElementById('sub-exp-' + id);
+    if (expEl) expEl.remove();
+    const sub = getSubById(id);
+    if (sub) el.outerHTML = renderSubRow(sub);
   }
 
   function esc(str) {
@@ -453,6 +472,8 @@
       // Remove from list if filtering by SUSPENDED
       if (filterStatus === 'SUSPENDED') {
         allSubs = allSubs.filter(s => s.id !== id);
+        const expEl = document.getElementById('sub-exp-' + id);
+        if (expEl) expEl.remove();
         const el = document.getElementById('sub-' + id);
         if (el) el.remove();
       } else {
@@ -546,6 +567,8 @@
         showToast('Subscription cancelled');
         // Remove from list (CANCELLED never shown)
         allSubs = allSubs.filter(s => s.id !== id);
+        const expEl2 = document.getElementById('sub-exp-' + id);
+        if (expEl2) expEl2.remove();
         const el = document.getElementById('sub-' + id);
         if (el) el.remove();
         document.getElementById('subCount').textContent = allSubs.length;

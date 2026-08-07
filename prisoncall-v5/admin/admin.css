@@ -1214,86 +1214,40 @@ input, select, textarea { font-family: inherit; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   SUBSCRIBER ROWS (subscribers.html)
+   SUBSCRIBER TABLE (subscribers.html)
+   Uses <table> for guaranteed column layout on all browsers.
    ══════════════════════════════════════════════════════════════════════════ */
 
-.sub-row {
-  background: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 16px 20px;
-  margin-bottom: 8px;
-  position: relative;
-  transition: box-shadow var(--transition-fast);
-}
+.sub-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 
-.sub-row:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+/* Column widths via <colgroup> */
+.sub-table col.c-customer { width: 22%; }
+.sub-table col.c-did      { width: 14%; }
+.sub-table col.c-prison   { width: 21%; }
+.sub-table col.c-plan     { width: 11%; }
+.sub-table col.c-status   { width: 12%; }
+.sub-table col.c-actions  { width: 20%; }
 
-.sub-row--suspended {
-  border-left: 4px solid #F97316;
-  padding-left: 16px;
-}
+/* Row hover + suspended */
+.sub-table .sub-row:hover { background: var(--color-surface); }
+.sub-table .sub-row--suspended { background: #FFF7ED; }
+.sub-table .sub-row--suspended:hover { background: #FEF3C7; }
+.sub-table .sub-row--suspended td:first-child { box-shadow: inset 4px 0 0 #F97316; }
 
-.sub-row-main {
-  display: grid;
-  /* 6 columns: Name+Mobile | DID | Prison | Plan | Status | Actions */
-  grid-template-columns: 2fr 1.5fr 2fr 1fr auto auto;
-  gap: 10px 16px;
-  align-items: center;
-  min-height: 52px;
-}
+/* Expanded content row (2nd <tr> per subscriber) */
+.sub-expanded-row > td { padding: 0 16px 14px !important; background: var(--color-surface); }
 
-.sub-name { font-size: 15px; font-weight: 700; color: var(--color-hero); line-height: 1.3; }
-.sub-mobile { font-size: 13px; color: var(--color-muted); margin-top: 2px; }
-.sub-did { font-family: 'Courier New', monospace; font-size: 13px; color: var(--color-green); font-weight: 700; letter-spacing: 0.01em; }
+/* Cell text styles */
+.sub-name { font-size: 14px; font-weight: 700; color: var(--color-hero); line-height: 1.3; }
+.sub-mobile { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
+.sub-did { font-family: 'Courier New', monospace; font-size: 13px; color: var(--color-green); font-weight: 700; }
 .sub-location { font-size: 13px; font-weight: 600; color: var(--color-hero); }
 .sub-location-state { font-size: 12px; color: var(--color-muted); margin-top: 1px; }
 .sub-plan { font-size: 13px; color: var(--color-muted); }
 
-.sub-status-col { text-align: right; white-space: nowrap; }
-.sub-actions-col { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-
-/* Column header row (desktop only - hidden on mobile) */
-.sub-list-header {
-  display: grid;
-  grid-template-columns: 2fr 1.5fr 2fr 1fr auto auto;
-  gap: 10px 16px;
-  padding: 0 20px 10px;
-  margin-bottom: 4px;
-  border-bottom: 2px solid var(--color-border);
-}
-
-.sub-list-header > div,
-.transfer-list-header > div {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--color-muted);
-}
-
-.transfer-list-header {
-  display: grid;
-  grid-template-columns: 2fr 1.5fr 1.5fr 130px auto auto;
-  gap: 10px 16px;
-  padding: 0 20px 10px;
-  margin-bottom: 4px;
-  border-bottom: 2px solid var(--color-border);
-}
-
-.sub-inline {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--color-border);
-}
-
-.sub-sms-btns {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
+/* Inline expanded section */
+.sub-inline { padding: 12px 0 0; border-top: 1px solid var(--color-border); }
+.sub-sms-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .sub-cancel-flow {
   background: #FEF2F2;
   border: 1px solid #fca5a5;
@@ -1301,65 +1255,40 @@ input, select, textarea { font-family: inherit; }
   padding: 14px 16px;
   margin-top: 14px;
 }
-
-.sub-cancel-warning {
-  font-size: 13px;
-  color: #991b1b;
-  margin-bottom: 12px;
-  line-height: 1.5;
-}
-
-.sub-cancel-btns {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+.sub-cancel-warning { font-size: 13px; color: #991b1b; margin-bottom: 12px; line-height: 1.5; }
+.sub-cancel-btns { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   TRANSFER ROWS (transfers.html)
+   TRANSFER TABLE (transfers.html)
+   Uses <table> for guaranteed column layout on all browsers.
    ══════════════════════════════════════════════════════════════════════════ */
 
-.transfer-row {
-  background: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 16px 20px;
-  margin-bottom: 8px;
-  position: relative;
-  transition: box-shadow var(--transition-fast);
+.transfer-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+
+/* Column widths via <colgroup> */
+.transfer-table col.c-customer  { width: 18%; }
+.transfer-table col.c-from      { width: 15%; }
+.transfer-table col.c-to        { width: 15%; }
+.transfer-table col.c-submitted { width: 10%; }
+.transfer-table col.c-updated   { width: 10%; }
+.transfer-table col.c-status    { width: 12%; }
+.transfer-table col.c-action    { width: 20%; }
+
+/* Row hover */
+.transfer-table .transfer-row:hover { background: var(--color-surface); }
+
+/* Expanded content row */
+.transfer-expanded-row > td { padding: 0 16px 14px !important; background: var(--color-surface); }
+
+/* Cell text styles */
+.transfer-from-label, .transfer-to-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--color-muted); margin-bottom: 3px;
 }
-
-.transfer-row:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
-
-.transfer-row-main {
-  display: grid;
-  /* 6 columns: Name+Mobile | From Prison | To Prison | Dates | Status | Actions */
-  grid-template-columns: 2fr 1.5fr 1.5fr 130px auto auto;
-  gap: 10px 16px;
-  align-items: center;
-  min-height: 52px;
-}
-
-.transfer-from-label,
-.transfer-to-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--color-muted);
-  margin-bottom: 3px;
-}
-
 .transfer-to-label { color: #1e40af; }
-
-.transfer-prison { font-size: 14px; font-weight: 600; color: var(--color-hero); }
+.transfer-prison { font-size: 13px; font-weight: 600; color: var(--color-hero); }
 .transfer-state  { font-size: 12px; color: var(--color-muted); margin-top: 1px; }
-
-.transfer-inline {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--color-border);
-}
+.transfer-inline { padding: 12px 0 0; border-top: 1px solid var(--color-border); }
 
 /* ══════════════════════════════════════════════════════════════════════════
    USER MANAGEMENT TABLE (settings.html)
@@ -1513,113 +1442,117 @@ input, select, textarea { font-family: inherit; }
     margin-top: 2px;
   }
 
-  /* ── SUBSCRIBER ROWS: card layout ────────────────────────────────────── */
-  .sub-list-header { display: none; }
-  .sub-row { margin-bottom: 12px; }
+  /* ── SUBSCRIBER TABLE: collapse to mobile cards ──────────────────────── */
+  .sub-table, .sub-table thead, .sub-table tbody,
+  .sub-table tr, .sub-table td { display: block !important; width: 100% !important; }
+  .sub-table colgroup { display: none; }
+  .sub-table thead { display: none !important; }
 
-  /* Collapse grid to stacked block on mobile */
-  .sub-row-main {
-    display: block;
+  .sub-table .sub-row {
+    background: #fff !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius-md) !important;
+    margin-bottom: 12px !important;
+    padding: 16px !important;
+    position: relative !important;
+    box-shadow: none !important;
   }
-
-  /* Each grid child becomes a block row - add spacing */
-  .sub-row-main > div { margin-bottom: 5px; }
-  .sub-row-main > div:last-child { margin-bottom: 0; }
-
-  /* Name/mobile: pad right so badge doesn't overlap */
-  .sub-row-main > div:first-child { padding-right: 90px; margin-bottom: 2px; }
-
-  /* DID (2nd child): prominent green on mobile */
-  .sub-did { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
-
-  /* Plan (4th child): lighter, smaller */
-  .sub-plan { font-size: 12px; color: var(--color-muted); }
-
-  /* Status badge (5th child): pinned to card top-right */
-  .sub-status-col {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    margin-bottom: 0;
+  .sub-table .sub-row--suspended {
+    border-left: 4px solid #F97316 !important;
+    background: #FFF7ED !important;
   }
+  .sub-table .sub-row--suspended td:first-child { box-shadow: none !important; }
+  .sub-table .sub-row td {
+    padding: 2px 0 !important;
+    border: none !important;
+    background: transparent !important;
+  }
+  /* Customer (col 1): pad right so badge doesn't overlap */
+  .sub-table .sub-row td:nth-child(1) { padding-right: 90px !important; margin-bottom: 4px; }
+  /* DID (col 2): add bottom spacing */
+  .sub-table .sub-row td:nth-child(2) { margin-bottom: 4px; }
+  /* Status badge (col 5): absolute top-right */
+  .sub-table .sub-row td:nth-child(5) {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    width: auto !important;
+    padding: 0 !important;
+  }
+  /* Actions (col 6): full width */
+  .sub-table .sub-row td:nth-child(6) { margin-top: 10px !important; }
+  .sub-table .sub-row td:nth-child(6) .btn {
+    width: 100% !important;
+    min-height: 44px !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+  /* Expanded row: transparent, no extra padding */
+  .sub-table .sub-expanded-row { background: transparent !important; }
+  .sub-table .sub-expanded-row > td { background: transparent !important; padding: 0 !important; }
+  .sub-table .sub-expanded-row .sub-inline { margin: 0 !important; padding: 12px 0 0 !important; }
+  .sub-table .sub-expanded-row .btn { min-height: 44px !important; width: 100% !important; justify-content: center !important; }
 
-  /* Actions (6th child): full width, stacked, top margin */
-  .sub-actions-col {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    min-width: 0;
-    align-items: stretch;
-    margin-top: 10px;
-    margin-bottom: 0;
-  }
-  .sub-actions-col .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  /* DID input form inside inline section: stack on mobile */
-  .sub-did-input-row {
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
+  /* DID input form in expanded row: stack vertically */
+  .sub-did-input-row { flex-direction: column !important; align-items: stretch !important; }
   .sub-did-input-row > div { min-width: 0 !important; }
   .sub-did-input-row .btn { width: 100%; height: auto; min-height: 44px; }
-
-  /* Cancel flow buttons: full width */
   .sub-cancel-btns { flex-direction: column; }
   .sub-cancel-btns .btn { width: 100%; }
+  .sub-inline .btn { min-height: 44px; width: 100%; justify-content: center; }
 
-  /* All buttons inside inline sections: full width, 44px */
-  .sub-inline .btn {
-    min-height: 44px;
-    width: 100%;
-    justify-content: center;
+  /* ── TRANSFER TABLE: collapse to mobile cards ─────────────────────────── */
+  .transfer-table, .transfer-table thead, .transfer-table tbody,
+  .transfer-table tr, .transfer-table td { display: block !important; width: 100% !important; }
+  .transfer-table colgroup { display: none; }
+  .transfer-table thead { display: none !important; }
+
+  .transfer-table .transfer-row {
+    background: #fff !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius-md) !important;
+    margin-bottom: 12px !important;
+    padding: 16px !important;
+    position: relative !important;
+    box-shadow: none !important;
   }
-
-  /* ── TRANSFER ROWS: card layout ──────────────────────────────────────── */
-  .transfer-list-header { display: none; }
-  .transfer-row { margin-bottom: 12px; }
-
-  .transfer-row-main {
-    display: block;
+  .transfer-table .transfer-row td {
+    padding: 2px 0 !important;
+    border: none !important;
+    background: transparent !important;
   }
-
-  /* Each grid child becomes a block row */
-  .transfer-row-main > div { margin-bottom: 6px; }
-  .transfer-row-main > div:last-child { margin-bottom: 0; }
-
-  /* Name/mobile: pad right for badge */
-  .transfer-row-main > div:first-child {
-    padding-right: 90px;
-    margin-bottom: 10px;
+  /* Customer (col 1): pad right for badge */
+  .transfer-table .transfer-row td:nth-child(1) { padding-right: 90px !important; margin-bottom: 6px; }
+  /* From/To (cols 2-3): spacing */
+  .transfer-table .transfer-row td:nth-child(2),
+  .transfer-table .transfer-row td:nth-child(3) { margin-bottom: 6px; }
+  /* Submitted/Updated (cols 4-5): muted small */
+  .transfer-table .transfer-row td:nth-child(4),
+  .transfer-table .transfer-row td:nth-child(5) { font-size: 12px; color: var(--color-muted); }
+  /* Status (col 6): absolute top-right */
+  .transfer-table .transfer-row td:nth-child(6) {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    width: auto !important;
+    padding: 0 !important;
   }
-
-  /* From / To prison cols: spacing */
-  .transfer-row-main > div:nth-child(2),
-  .transfer-row-main > div:nth-child(3) { margin-bottom: 8px; }
-
-  /* Dates */
-  .transfer-row-main > div:nth-child(4) { margin-bottom: 10px; font-size: 13px; }
-
-  /* Status badge (5th child): absolute top-right */
-  .transfer-row-main > div:nth-child(5) {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    margin-bottom: 0;
+  /* Action (col 7): full width */
+  .transfer-table .transfer-row td:nth-child(7) { margin-top: 10px !important; }
+  .transfer-table .transfer-row td:nth-child(7) .btn {
+    width: 100% !important;
+    min-height: 44px !important;
+    display: flex !important;
+    justify-content: center !important;
   }
+  /* Expanded row: transparent */
+  .transfer-table .transfer-expanded-row { background: transparent !important; }
+  .transfer-table .transfer-expanded-row > td { background: transparent !important; padding: 0 !important; }
+  .transfer-table .transfer-expanded-row .transfer-inline { margin: 0 !important; padding: 12px 0 0 !important; }
+  .transfer-table .transfer-expanded-row .btn { min-height: 44px !important; width: 100% !important; justify-content: center !important; }
 
-  /* Action button (6th child): full width */
-  .transfer-row-main > div:nth-child(6) { width: 100%; margin-bottom: 0; }
-  .transfer-row-main > div:nth-child(6) .btn { width: 100%; }
-
-  /* DID input form inside transfer inline: stack */
-  .tx-did-input-row {
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
+  /* Transfer DID input form: stack vertically */
+  .tx-did-input-row { flex-direction: column !important; align-items: stretch !important; }
   .tx-did-input-row > div { min-width: 0 !important; }
   .tx-did-input-row .btn { width: 100%; min-height: 44px; }
   .transfer-inline .btn { min-height: 44px; width: 100%; justify-content: center; }
