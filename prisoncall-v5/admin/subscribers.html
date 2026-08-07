@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Subscribers | Prisoncall Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="../assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="manifest" href="/admin/manifest.json">
+  <meta name="theme-color" content="#00D258">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <img src="/assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall" class="sidebar-logo">
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin/dashboard.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="/admin/subscribers.html" class="sidebar-nav-item active">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Subscribers
+      </a>
+      <a href="/admin/transfers.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
+        Transfers
+      </a>
+      <a href="/admin/settings.html" class="sidebar-nav-item" data-role-min="super_admin">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user-email" data-user-email></div>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="admin-main">
+    <header class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="admin-topbar-title">Subscribers</div>
+        <span class="badge badge--grey" id="subCount" style="display:none"></span>
+      </div>
+    </header>
+
+    <div class="admin-content">
+
+      <!-- Sticky search + filter -->
+      <div class="card mb-16" style="position:sticky;top:56px;z-index:40;box-shadow:0 4px 12px rgba(0,0,0,0.07)">
+        <div class="card-body" style="padding-bottom:12px">
+          <div class="search-wrap mb-12">
+            <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input class="form-input search-input" type="text" id="searchInput"
+              placeholder="Search by name, mobile, DID or prison..." autocomplete="off">
+          </div>
+          <div class="filter-tabs" id="filterTabs">
+            <button class="filter-tab active" data-status="">All</button>
+            <button class="filter-tab" data-status="SUSPENDED">Suspended</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscriber list -->
+      <div id="subsContent" class="mt-16">
+        <div class="loading-state"><div class="spinner"></div>Loading subscribers...</div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Bottom tab bar -->
+  <nav class="admin-bottom-bar">
+    <div class="bottom-bar-inner">
+      <a href="/admin/dashboard.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/subscribers.html" class="bottom-bar-item active">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Subscribers</span>
+      </a>
+      <a href="/admin/transfers.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
+        <span>Transfers</span>
+      </a>
+    </div>
+  </nav>
+
+</div>
+
+<script type="module">
+  import {
+    initAdminPage, api, fmtDate, fmtCurrency,
+    formatMobile, statusBadge, isSmsUnlocked, showToast, showSmsToast
+  } from '/admin/admin-auth.js';
+
+  // ── State ──────────────────────────────────────────────────────────────
+  let allSubs = [];
+  let filterStatus = '';
+  let searchTerm = '';
+  let searchTimeout;
+  // Local flag overlay per subscriber id (persists in memory, backed to DB)
+  let localFlags = {};
+
+  // ── Init ───────────────────────────────────────────────────────────────
+  async function init() {
+    const session = await initAdminPage();
+    if (!session) return;
+    await loadSubs();
+    appendDevTools();
+  }
+
+  async function loadSubs() {
+    const container = document.getElementById('subsContent');
+    container.innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading...</div>';
+    try {
+      const params = {};
+      if (filterStatus) params.status = filterStatus;
+      if (searchTerm) params.search = searchTerm;
+      allSubs = await api('get_subscribers', params);
+
+      const countEl = document.getElementById('subCount');
+      if (allSubs && allSubs.length > 0) {
+        countEl.textContent = allSubs.length;
+        countEl.style.display = '';
+      } else {
+        countEl.style.display = 'none';
+      }
+
+      renderSubs();
+    } catch (err) {
+      container.innerHTML = `<div class="alert alert--error">${esc(err.message)}</div>`;
+    }
+  }
+
+  function renderSubs() {
+    const container = document.getElementById('subsContent');
+    if (!allSubs || allSubs.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <h3>No subscribers found</h3>
+          <p>Try adjusting your search or filter</p>
+        </div>`;
+      return;
+    }
+    container.innerHTML = allSubs.map(s => renderSubRow(s)).join('');
+  }
+
+  function renderSubRow(sub) {
+    const id = sub.id;
+    const flags = getFlags(sub);
+    const status = sub.status;
+    const isSuspended = status === 'SUSPENDED';
+    const smsDayCount = parseInt(sub.sms_day_count) || 0;
+    const bypassGating = localStorage.getItem('dev_bypass_sms_gating') === 'true' &&
+                         window.location.hostname === 'prisoncall.pages.dev';
+    const smsUnlocked = bypassGating ? (smsDayCount > 0) : isSmsUnlocked(sub.last_sms_sent_at);
+
+    const name = esc(sub.customer_name || '-');
+    const mobile = formatMobile(sub.customer_mobile);
+    const did = sub.current_did || '';
+    const prison = esc(sub.prison_name || '-');
+    const state = esc(sub.prison_state || '');
+    const plan = capPlan(sub.plan_interval);
+
+    let actionsHtml = buildActionsHtml(sub, flags, smsDayCount, smsUnlocked);
+
+    return `
+      <div class="sub-row${isSuspended ? ' sub-row--suspended' : ''}" id="sub-${id}">
+        <div class="sub-row-main">
+          <div>
+            <div class="sub-name">${name}</div>
+            <div class="sub-mobile">${mobile}</div>
+            ${did ? `<div class="sub-did">${did}</div>` : ''}
+          </div>
+          <div>
+            <div class="sub-location">${prison}</div>
+            <div class="sub-location-state">${state}</div>
+          </div>
+          <div class="sub-plan">${plan}</div>
+          <div class="sub-status-col">${statusBadge(status)}</div>
+          <div class="sub-actions-col">
+            ${actionsHtml.topRight}
+          </div>
+        </div>
+        ${actionsHtml.inline ? `<div class="sub-inline">${actionsHtml.inline}</div>` : ''}
+      </div>`;
+  }
+
+  function buildActionsHtml(sub, flags, smsDayCount, smsUnlocked) {
+    const id = sub.id;
+    const status = sub.status;
+    let topRight = '';
+    let inline = '';
+
+    if (status === 'PENDING') {
+      topRight = `<button class="btn btn--green btn--sm" onclick="showDidForm('${id}')">Enter DID + Fulfil</button>`;
+      inline = `
+        <div id="didFormWrap-${id}" style="display:none">
+          <div style="font-size:13px;font-weight:600;color:var(--color-muted);margin-bottom:8px">Enter subscriber DID number</div>
+          <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px">
+              <input class="form-input form-input--mono" id="didInput-${id}" placeholder="61XXXXXXXXX" maxlength="11" oninput="validateDid('${id}')">
+              <div class="form-error" id="didErr-${id}" style="display:none">Must be 11 digits starting with 61</div>
+            </div>
+            <button class="btn btn--green btn--sm" style="height:44px" onclick="confirmDid('${id}')">Confirm + Fulfil</button>
+            <button class="btn btn--outline btn--sm" style="height:44px" onclick="hideDidForm('${id}')">Cancel</button>
+          </div>
+        </div>`;
+
+    } else if (status === 'ACTIVATING') {
+      topRight = `<div style="display:flex;align-items:center;gap:8px;color:var(--color-muted)"><div class="spinner"></div><span style="font-size:13px;white-space:nowrap">Setting up 3CX...</span></div>`;
+
+    } else if (status === 'ACTIVATION_FAILED') {
+      inline = `
+        <div class="alert alert--error" style="margin-bottom:10px">Activation failed. Check 3CX and VoipLine then retry.</div>
+        <button class="btn btn--outline btn--sm" onclick="retryActivation('${id}')">Retry</button>`;
+
+    } else if (status === 'ACTIVE') {
+      if (flags.cancel_flow_started) {
+        inline = cancelFlowHtml(id, sub, flags, false);
+      } else {
+        topRight = `<button class="btn btn--danger btn--sm" onclick="showCancelFlow('${id}')">Cancel</button>`;
+      }
+
+    } else if (status === 'SUSPENDED') {
+      // Pause + Resume buttons
+      const pauseBtn = smsDayCount === 0
+        ? `<button class="btn btn--orange btn--sm" onclick="pauseNumber('${id}')">Paused VoipLine - Confirm Pause</button>`
+        : '';
+      const resumeBtn = `<button class="btn btn--green btn--sm" onclick="resumeNumber('${id}')">Restored VoipLine - Confirm Resume</button>`;
+
+      topRight = resumeBtn;
+      inline = pauseBtn ? `<div class="mb-8">${pauseBtn}</div>` : '';
+
+      // Progressive SMS
+      if (smsDayCount === 1) {
+        const label = smsUnlocked ? 'Send Day 2 SMS' : 'Day 2 SMS - available at 7am tomorrow';
+        inline += `<button class="btn ${smsUnlocked ? 'btn--green' : 'btn--outline'} btn--sm" ${smsUnlocked ? '' : 'disabled'} onclick="sendProgressiveSms('${id}', 2)">
+          ${label}
+        </button>`;
+      } else if (smsDayCount === 2) {
+        const label = smsUnlocked ? 'Send Day 3 SMS' : 'Day 3 SMS - available at 7am tomorrow';
+        inline += `<button class="btn ${smsUnlocked ? 'btn--green' : 'btn--outline'} btn--sm" ${smsUnlocked ? '' : 'disabled'} onclick="sendProgressiveSms('${id}', 3)">
+          ${label}
+        </button>`;
+      } else if (smsDayCount === 3) {
+        const label = smsUnlocked ? 'Send Day 4 SMS' : 'Day 4 SMS - available at 7am tomorrow';
+        inline += `<button class="btn ${smsUnlocked ? 'btn--green' : 'btn--outline'} btn--sm" ${smsUnlocked ? '' : 'disabled'} onclick="sendProgressiveSms('${id}', 4)">
+          ${label}
+        </button>`;
+      } else if (smsDayCount >= 4) {
+        inline += cancelFlowHtml(id, sub, flags, true);
+      }
+    }
+
+    return { topRight, inline };
+  }
+
+  function cancelFlowHtml(id, sub, flags, isPaymentFailure) {
+    const voiplDone = flags.cancel_voipline_done || false;
+    const otherDone = flags.cancel_other_done || false;
+    const warningText = isPaymentFailure
+      ? 'Day 4 SMS sent. Cancel in Appstle and release DID in VoipLine. Reminders at 2hr, 4hr, 12hr, 24hr. (Wired at B14)'
+      : 'Cancel in VoipLine and delete 3CX extension before confirming. Reminders at 2hr, 4hr, 12hr, 24hr. (Wired at B14)';
+    const otherLabel = isPaymentFailure ? 'Appstle Cancelled' : '3CX Extension Deleted';
+
+    return `
+      <div class="sub-cancel-flow">
+        <div class="sub-cancel-warning">${warningText}</div>
+        <div class="sub-cancel-btns">
+          ${voiplDone
+            ? `<button class="btn btn--green btn--sm" disabled><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> VoipLine DID Released</button>`
+            : `<button class="btn btn--outline btn--sm" onclick="markCancelVoipline('${id}', ${isPaymentFailure})">VoipLine DID Released</button>`}
+          ${otherDone
+            ? `<button class="btn btn--green btn--sm" disabled><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> ${otherLabel}</button>`
+            : `<button class="btn btn--outline btn--sm" onclick="markCancelOther('${id}', ${isPaymentFailure})">${otherLabel}</button>`}
+        </div>
+      </div>`;
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────
+
+  function getFlags(sub) {
+    const base = localFlags[sub.id] || {};
+    let fromDb = {};
+    try {
+      const raw = sub.subscription_attributes;
+      fromDb = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : {};
+    } catch { fromDb = {}; }
+    return { ...fromDb, ...base };
+  }
+
+  function setLocalFlag(id, flagKey, value) {
+    if (!localFlags[id]) localFlags[id] = {};
+    localFlags[id][flagKey] = value;
+  }
+
+  function getSubById(id) {
+    return allSubs.find(s => s.id === id) || null;
+  }
+
+  function updateSubInList(id, fields) {
+    const idx = allSubs.findIndex(s => s.id === id);
+    if (idx >= 0) allSubs[idx] = { ...allSubs[idx], ...fields };
+  }
+
+  function reRenderRow(id) {
+    const sub = getSubById(id);
+    if (!sub) return;
+    const el = document.getElementById('sub-' + id);
+    if (!el) return;
+    el.outerHTML = renderSubRow(sub);
+  }
+
+  function esc(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function capPlan(interval) {
+    if (!interval) return '-';
+    const map = { fortnightly: 'Fortnightly', monthly: 'Monthly', half_yearly: 'Half-Yearly', halfyearly: 'Half-Yearly', 'half-yearly': 'Half-Yearly' };
+    return map[interval.toLowerCase()] || interval;
+  }
+
+  // ── DID Form ───────────────────────────────────────────────────────────
+
+  window.showDidForm = function(id) {
+    const wrap = document.getElementById('didFormWrap-' + id);
+    if (wrap) { wrap.style.display = ''; wrap.querySelector('input')?.focus(); }
+  };
+
+  window.hideDidForm = function(id) {
+    const wrap = document.getElementById('didFormWrap-' + id);
+    if (wrap) wrap.style.display = 'none';
+  };
+
+  window.validateDid = function(id) {
+    const input = document.getElementById('didInput-' + id);
+    const errEl = document.getElementById('didErr-' + id);
+    if (!input || !errEl) return;
+    const v = input.value.replace(/\D/g, '');
+    const valid = v.length === 11 && v.startsWith('61');
+    errEl.style.display = (!v || valid) ? 'none' : '';
+  };
+
+  window.confirmDid = async function(id) {
+    const input = document.getElementById('didInput-' + id);
+    const errEl = document.getElementById('didErr-' + id);
+    if (!input) return;
+    const did = input.value.replace(/\D/g, '');
+    if (did.length !== 11 || !did.startsWith('61')) {
+      if (errEl) errEl.style.display = '';
+      return;
+    }
+
+    const sub = getSubById(id);
+    if (!sub) return;
+    const btn = document.querySelector(`#sub-${id} button[onclick="confirmDid('${id}')"]`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+    try {
+      await api('update_subscriber_did', { id, current_did: did, status: 'ACTIVATING' });
+      updateSubInList(id, { current_did: did, status: 'ACTIVATING' });
+
+      const welSms = `Your new Prisoncall number is being set up. Prison: ${sub.prison_name || '-'}. DID: ${did}. Details coming shortly. Regards, Prisoncall.`;
+      showSmsToast(formatMobile(sub.customer_mobile), welSms);
+      showToast('DID saved - subscriber set to Activating');
+      reRenderRow(id);
+    } catch (err) {
+      showToast(err.message, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Confirm + Fulfil'; }
+    }
+  };
+
+  // ── Activation ─────────────────────────────────────────────────────────
+
+  window.retryActivation = async function(id) {
+    try {
+      await api('update_subscriber_status', { id, status: 'PENDING' });
+      updateSubInList(id, { status: 'PENDING' });
+      showToast('Status reset to Pending');
+      reRenderRow(id);
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  // ── SUSPENDED: Pause / Resume ──────────────────────────────────────────
+
+  window.pauseNumber = async function(id) {
+    const sub = getSubById(id);
+    if (!sub) return;
+    try {
+      const now = new Date().toISOString();
+      await api('update_subscriber_sms', { id, sms_day_count: 1, last_sms_sent_at: now });
+      updateSubInList(id, { sms_day_count: 1, last_sms_sent_at: now });
+
+      const pauseSms = 'Hi, Your Prisoncall plan payment failed. Your number has been paused. Please update your payment account balance, and reply YES. Thank you. Regards, Prisoncall.';
+      showSmsToast(formatMobile(sub.customer_mobile), pauseSms);
+      showToast('Pause confirmed - Day 1 SMS sent');
+      reRenderRow(id);
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  window.resumeNumber = async function(id) {
+    const sub = getSubById(id);
+    if (!sub) return;
+    try {
+      await api('update_subscriber_status', { id, status: 'ACTIVE' });
+      await api('update_subscriber_sms', { id, sms_day_count: 0, last_sms_sent_at: null });
+      updateSubInList(id, { status: 'ACTIVE', sms_day_count: 0, last_sms_sent_at: null });
+
+      const resumeSms = 'Hi, Your payment has cleared, and we have restored your Prisoncall number. To avoid future disruptions, please ensure your payment method is updated before each renewal. Thank you for using Prisoncall.';
+      showSmsToast(formatMobile(sub.customer_mobile), resumeSms);
+      showToast('Number resumed - subscriber now Active');
+
+      // Remove from list if filtering by SUSPENDED
+      if (filterStatus === 'SUSPENDED') {
+        allSubs = allSubs.filter(s => s.id !== id);
+        const el = document.getElementById('sub-' + id);
+        if (el) el.remove();
+      } else {
+        reRenderRow(id);
+      }
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  // ── Progressive SMS ────────────────────────────────────────────────────
+
+  const SMS_TEMPLATES = {
+    2: 'Hi, Your Prisoncall number is still paused due to a failed payment. Please update your payment account balance and reply YES to restore your service. Regards, Prisoncall.',
+    3: 'Hi, Reminder: Your Prisoncall number remains paused. Please update your payment today to avoid cancellation. Reply YES once updated. Regards, Prisoncall.',
+    4: 'Hi, Final notice: Your Prisoncall plan will be cancelled today due to unsuccessful payment. Please update your payment immediately and reply YES. Regards, Prisoncall.',
+  };
+
+  window.sendProgressiveSms = async function(id, day) {
+    const sub = getSubById(id);
+    if (!sub) return;
+    const btn = document.querySelector(`#sub-${id} button[onclick="sendProgressiveSms('${id}', ${day})"]`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+    try {
+      const now = new Date().toISOString();
+      await api('update_subscriber_sms', { id, sms_day_count: day, last_sms_sent_at: now });
+      updateSubInList(id, { sms_day_count: day, last_sms_sent_at: now });
+
+      showSmsToast(formatMobile(sub.customer_mobile), SMS_TEMPLATES[day]);
+      showToast(`Day ${day} SMS sent`);
+
+      if (day === 4) {
+        const adminSms = `DAY 4 SMS SENT - ${sub.customer_name || 'Customer'} DID ${sub.current_did || '-'}. ACTION REQUIRED: Cancel in Appstle AND release DID in VoipLine.`;
+        showSmsToast('Admin team', adminSms);
+      }
+
+      reRenderRow(id);
+    } catch (err) {
+      showToast(err.message, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = `Send Day ${day} SMS`; }
+    }
+  };
+
+  // ── ACTIVE: Voluntary Cancellation ────────────────────────────────────
+
+  window.showCancelFlow = function(id) {
+    setLocalFlag(id, 'cancel_flow_started', true);
+    reRenderRow(id);
+  };
+
+  window.markCancelVoipline = async function(id, isPaymentFailure) {
+    const sub = getSubById(id);
+    if (!sub) return;
+    try {
+      await api('update_subscriber_flags', { id, flags: { cancel_voipline_done: true } });
+      setLocalFlag(id, 'cancel_voipline_done', true);
+
+      // Voluntary cancellation SMS to customer
+      if (!isPaymentFailure) {
+        const cancelSms = 'Hi, Your Prisoncall plan has been cancelled as requested. Your number has been permanently deleted. To get a new Prisoncall number, please visit prisoncall.com.au. Regards, Prisoncall.';
+        showSmsToast(formatMobile(sub.customer_mobile), cancelSms);
+      } else {
+        const cancelSms = 'Hi, Your Prisoncall plan has been cancelled due to unsuccessful payments. Your number has been permanently deleted. To get a new Prisoncall number, please visit prisoncall.com.au. Regards, Prisoncall.';
+        showSmsToast(formatMobile(sub.customer_mobile), cancelSms);
+      }
+
+      showToast('VoipLine DID Released confirmed');
+      await checkBothCancelDone(id);
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  window.markCancelOther = async function(id, isPaymentFailure) {
+    try {
+      await api('update_subscriber_flags', { id, flags: { cancel_other_done: true } });
+      setLocalFlag(id, 'cancel_other_done', true);
+      showToast(isPaymentFailure ? 'Appstle Cancelled confirmed' : '3CX Extension Deleted confirmed');
+      await checkBothCancelDone(id);
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  async function checkBothCancelDone(id) {
+    const flags = localFlags[id] || {};
+    if (flags.cancel_voipline_done && flags.cancel_other_done) {
+      try {
+        await api('update_subscriber_status', { id, status: 'CANCELLED' });
+        showToast('Subscription cancelled');
+        // Remove from list (CANCELLED never shown)
+        allSubs = allSubs.filter(s => s.id !== id);
+        const el = document.getElementById('sub-' + id);
+        if (el) el.remove();
+        document.getElementById('subCount').textContent = allSubs.length;
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    } else {
+      reRenderRow(id);
+    }
+  }
+
+  // ── Filter + Search ────────────────────────────────────────────────────
+
+  document.getElementById('filterTabs').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-tab');
+    if (!btn) return;
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterStatus = btn.dataset.status;
+    loadSubs();
+  });
+
+  document.getElementById('searchInput').addEventListener('input', e => {
+    clearTimeout(searchTimeout);
+    searchTerm = e.target.value.trim();
+    searchTimeout = setTimeout(loadSubs, 350);
+  });
+
+  // ── DEV TOOLS (staging only) ───────────────────────────────────────────
+
+  function appendDevTools() {
+    if (window.location.hostname !== 'prisoncall.pages.dev') return;
+    const mc = document.getElementById('subsContent');
+    if (!mc) return;
+
+    const existing = document.getElementById('devToolsPanel');
+    if (existing) existing.remove();
+
+    const bypass = localStorage.getItem('dev_bypass_sms_gating') === 'true';
+    const panel = document.createElement('div');
+    panel.id = 'devToolsPanel';
+    panel.style.cssText = 'margin-top:24px;border:2px solid #F97316;border-radius:12px;background:#fff7ed;padding:20px';
+    panel.innerHTML = `
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#F97316;margin-bottom:16px">
+        DEV TOOLS - Remove at go-live
+      </div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#101010;margin-bottom:3px">Bypass SMS day gating</div>
+          <div style="font-size:12px;color:#666;line-height:1.5">When ON, Day 2/3/4 buttons unlock immediately.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <div class="toggle">
+            <input type="checkbox" id="devBypassGating" ${bypass ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </div>
+          <span id="devBypassLabel" style="font-size:13px;font-weight:700;color:${bypass ? '#00D258' : '#6B7280'}">${bypass ? 'ON' : 'OFF'}</span>
+        </div>
+      </div>`;
+
+    mc.after(panel);
+
+    document.getElementById('devBypassGating').addEventListener('change', function() {
+      const on = this.checked;
+      localStorage.setItem('dev_bypass_sms_gating', on ? 'true' : 'false');
+      const label = document.getElementById('devBypassLabel');
+      if (label) { label.textContent = on ? 'ON' : 'OFF'; label.style.color = on ? '#00D258' : '#6B7280'; }
+      renderSubs();
+    });
+  }
+
+  window.doLogout = function () {
+    import('/admin/admin-auth.js').then(m => m.logout());
+  };
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/admin/sw.js').catch(() => {});
+  }
+
+  init();
+</script>
+
+</body>
+</html>

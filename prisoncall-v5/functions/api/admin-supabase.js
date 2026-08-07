@@ -2,6 +2,10 @@
  * Prisoncall Admin - Cloudflare Pages Function
  * All Supabase operations via SUPABASE_SERVICE_ROLE_KEY
  * POST { action, token, params } -> JSON
+ *
+ * Roles (derived from email at login):
+ *   super_admin - guness@prisoncall.com.au
+ *   admin       - all other users
  */
 
 const CORS = {
@@ -67,7 +71,6 @@ export async function onRequest(context) {
       return json({ success: false, error: msg });
     }
 
-    // Role is determined by email - guness@prisoncall.com.au = super_admin, else admin
     const userEmail = data.user?.email || '';
     const role = userEmail.toLowerCase() === 'guness@prisoncall.com.au' ? 'super_admin' : 'admin';
 
@@ -129,8 +132,11 @@ export async function onRequest(context) {
   const userEmail = userInfo.email || '';
   const userRole = userEmail.toLowerCase() === 'guness@prisoncall.com.au' ? 'super_admin' : 'admin';
 
-  const SUPER_ADMIN_ONLY = ['getProducts', 'updateProduct', 'replacePrisonLookup', 'getPrisonLookupAll',
-    'replaceScalingTables', 'getTableStatus', 'runMigration', 'upload_pdp', 'upload_pev', 'get_products'];
+  const SUPER_ADMIN_ONLY = [
+    'replacePrisonLookup', 'getPrisonLookupAll', 'upload_pdp',
+    'replaceScalingTables', 'upload_pev', 'getTableStatus',
+    'get_users', 'create_user', 'update_user_role', 'delete_user',
+  ];
 
   if (SUPER_ADMIN_ONLY.includes(action) && userRole !== 'super_admin') {
     return json({ success: false, error: 'Access denied: super_admin role required', code: 'FORBIDDEN' }, 403);
@@ -154,6 +160,23 @@ export async function onRequest(context) {
     return res;
   }
 
+  // -- Supabase Admin API helper (Auth Admin) --
+
+  async function sbAdmin(path, opts = {}) {
+    const url = `${SUPABASE_URL}/auth/v1/admin/${path}`;
+    const res = await fetch(url, {
+      method: opts.method || 'GET',
+      headers: {
+        'Authorization': `Bearer ${SERVICE_KEY}`,
+        'apikey': SERVICE_KEY,
+        'Content-Type': 'application/json',
+        ...(opts.headers || {}),
+      },
+      body: opts.body,
+    });
+    return res;
+  }
+
   // -- Route actions --
 
   try {
@@ -164,29 +187,38 @@ export async function onRequest(context) {
         return json({ success: true, data: { role: userRole, email: userEmail } });
       }
 
-      // -- DASHBOARD --
+      // ── DASHBOARD ────────────────────────────────────────────────────────
 
       case 'getDashboardMetrics':
       case 'get_dashboard': {
-        const [activeRes, pendingRes, overdueRes] = await Promise.all([
+        const [activeRes, pendingTransfersRes, suspendedRes] = await Promise.all([
           sb('subscriptions?status=eq.ACTIVE&select=id,plan_price,plan_interval'),
-          sb('orders?select=id&or=(status.eq.PENDING,status.eq.DID_ORDERED,status.eq.SOURCING)'),
-          sb('orders?status=eq.OVERDUE&select=id'),
+          sb('orders?order_type=eq.TRANSFER&status=eq.PENDING_SMS_CONFIRM&select=id'),
+          sb('subscriptions?status=eq.SUSPENDED&select=id'),
         ]);
 
         const active = await activeRes.json();
-        const pending = await pendingRes.json();
-        const overdue = await overdueRes.json();
+        const pendingTransfers = await pendingTransfersRes.json();
+        const suspended = await suspendedRes.json();
 
-        // MRR = sum of plan_price for active subs (per spec: direct sum)
-        let mrr = 0;
+        // Avg MRR: normalise all active plans to monthly equivalent
+        let mrrSum = 0;
         if (Array.isArray(active)) {
           for (const sub of active) {
-            mrr += parseFloat(sub.plan_price) || 0;
+            const price = parseFloat(sub.plan_price) || 0;
+            const interval = (sub.plan_interval || '').toLowerCase();
+            if (interval === 'fortnightly') {
+              mrrSum += price * 2.1725;
+            } else if (interval === 'half_yearly' || interval === 'half-yearly' || interval === 'halfyearly') {
+              mrrSum += price / 6;
+            } else {
+              // monthly (default)
+              mrrSum += price;
+            }
           }
         }
 
-        // Recent orders - join subscriptions for customer name
+        // Recent orders (last 10) with subscription info
         const recentRes = await sb(
           'orders?select=id,order_type,customer_mobile,prison_name,prison_state,status,created_at,subscription_id,subscriptions(customer_name,plan_interval,plan_price)&order=created_at.desc&limit=10'
         );
@@ -196,91 +228,25 @@ export async function onRequest(context) {
           success: true,
           data: {
             activeSubscribers: Array.isArray(active) ? active.length : 0,
-            pendingOrders: Array.isArray(pending) ? pending.length : 0,
-            overdueOrders: Array.isArray(overdue) ? overdue.length : 0,
-            monthlyRevenue: Math.round(mrr * 100) / 100,
+            avgMrr: Math.round(mrrSum * 100) / 100,
+            pendingTransfers: Array.isArray(pendingTransfers) ? pendingTransfers.length : 0,
+            suspendedCount: Array.isArray(suspended) ? suspended.length : 0,
             recentOrders: Array.isArray(recent) ? recent : [],
           },
         });
       }
 
-      case 'getRecentActivity': {
-        const res = await sb(
-          'orders?select=id,order_type,customer_mobile,prison_name,prison_state,status,created_at,subscription_id,subscriptions(customer_name,plan_interval,plan_price)&order=created_at.desc&limit=10'
-        );
-        const data = await res.json();
-        return json({ success: true, data: Array.isArray(data) ? data : [] });
-      }
+      // ── SUBSCRIBERS ──────────────────────────────────────────────────────
 
-      // -- ORDERS --
-
-      case 'getOrders':
-      case 'get_orders': {
-        let qs = 'orders?select=*,subscriptions(customer_name,customer_email,plan_interval,plan_price,appstle_subscription_id,addon_transfer_guarantee,addon_renewal_guarantee,addon_combo,addon_cancellation_guarantee,addon_lifetime_protection)&order=created_at.desc';
-        if (params.status) qs += `&status=eq.${encodeURIComponent(params.status)}`;
-        if (params.search) {
-          const s = encodeURIComponent(`*${params.search}*`);
-          qs += `&or=(customer_mobile.ilike.${s},prison_name.ilike.${s},did_number.ilike.${s})`;
-        }
-        const res = await sb(qs);
-        const data = await res.json();
-        return json({ success: true, data: Array.isArray(data) ? data : [] });
-      }
-
-      case 'getOrder':
-      case 'get_order': {
-        if (!params.id) return json({ success: false, error: 'Missing id' });
-        const [orderRes] = await Promise.all([
-          sb(`orders?id=eq.${encodeURIComponent(params.id)}&select=*,subscriptions(*)`)
-        ]);
-        const orders = await orderRes.json();
-        const order = Array.isArray(orders) ? (orders[0] || null) : null;
-
-        // Fetch prison DID lookup if we have prison info
-        let prisonLookup = null;
-        if (order && order.prison_name && order.prison_state) {
-          const plRes = await sb(
-            `prison_did_lookup?prison_name=eq.${encodeURIComponent(order.prison_name)}&prison_state=eq.${encodeURIComponent(order.prison_state)}&select=*`
-          );
-          const pl = await plRes.json();
-          prisonLookup = Array.isArray(pl) ? (pl[0] || null) : null;
-        }
-
-        return json({ success: true, data: { order, prisonLookup } });
-      }
-
-      case 'updateOrder':
-      case 'update_order_status':
-      case 'update_order_did':
-      case 'update_order_sms_day':
-      case 'update_order_notes': {
-        const { id, fields } = params;
-        if (!id || !fields) return json({ success: false, error: 'Missing id or fields' });
-        const res = await sb(`orders?id=eq.${encodeURIComponent(id)}`, {
-          method: 'PATCH',
-          body: JSON.stringify(fields),
-        });
-        if (!res.ok) {
-          const err = await res.text();
-          return json({ success: false, error: `Update failed: ${err}` });
-        }
-        const data = await res.json();
-        return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : data });
-      }
-
-      // -- CUSTOMERS (SUBSCRIPTIONS) --
-
-      case 'getSubscriptions':
-      case 'get_customers': {
-        let qs = 'subscriptions?order=created_at.desc&select=*';
-        // For customers view: only non-cancelled by default unless explicitly requested
-        if (action === 'get_customers' && !params.status) {
-          qs += '&status=neq.CANCELLED';
-        } else if (params.status) {
-          qs += `&status=eq.${encodeURIComponent(params.status)}`;
+      case 'get_subscribers': {
+        // ACTIVE + SUSPENDED only; SUSPENDED first (status desc = S > A)
+        let qs = 'subscriptions?status=in.(ACTIVE,SUSPENDED,PENDING,ACTIVATING,ACTIVATION_FAILED)&order=status.desc,customer_name.asc&select=*';
+        if (params.status === 'SUSPENDED') {
+          qs = 'subscriptions?status=eq.SUSPENDED&order=customer_name.asc&select=*';
         }
         if (params.search) {
           const s = encodeURIComponent(`*${params.search}*`);
+          // append search filter
           qs += `&or=(customer_name.ilike.${s},customer_mobile.ilike.${s},current_did.ilike.${s},prison_name.ilike.${s})`;
         }
         const res = await sb(qs);
@@ -288,50 +254,174 @@ export async function onRequest(context) {
         return json({ success: true, data: Array.isArray(data) ? data : [] });
       }
 
-      case 'getSubscription':
-      case 'get_customer': {
+      case 'get_subscriber': {
         if (!params.id) return json({ success: false, error: 'Missing id' });
-        const [subRes, ordersRes] = await Promise.all([
-          sb(`subscriptions?id=eq.${encodeURIComponent(params.id)}&select=*`),
-          sb(`orders?subscription_id=eq.${encodeURIComponent(params.id)}&select=*&order=created_at.desc`),
-        ]);
-        const subs = await subRes.json();
-        const orders = await ordersRes.json();
-        return json({
-          success: true,
-          data: {
-            subscription: Array.isArray(subs) ? (subs[0] || null) : null,
-            orders: Array.isArray(orders) ? orders : [],
-          },
-        });
+        const res = await sb(`subscriptions?id=eq.${encodeURIComponent(params.id)}&select=*`);
+        const data = await res.json();
+        return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : null });
       }
 
-      case 'updateSubscription':
-      case 'update_customer_status': {
-        const { id, fields } = params;
-        if (!id || !fields) return json({ success: false, error: 'Missing id or fields' });
-        const updateFields = { ...fields, updated_at: new Date().toISOString() };
+      case 'update_subscriber_status': {
+        const { id, status } = params;
+        if (!id || !status) return json({ success: false, error: 'Missing id or status' });
         const res = await sb(`subscriptions?id=eq.${encodeURIComponent(id)}`, {
           method: 'PATCH',
-          body: JSON.stringify(updateFields),
+          body: JSON.stringify({ status, updated_at: new Date().toISOString() }),
         });
-        if (!res.ok) {
-          const err = await res.text();
-          return json({ success: false, error: `Update failed: ${err}` });
-        }
+        if (!res.ok) return json({ success: false, error: `Update failed: ${await res.text()}` });
         const data = await res.json();
         return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : data });
       }
 
-      // Orders for a subscription
-      case 'getOrdersBySubscription': {
-        if (!params.subscription_id) return json({ success: false, error: 'Missing subscription_id' });
-        const res = await sb(`orders?subscription_id=eq.${encodeURIComponent(params.subscription_id)}&order=created_at.desc&select=*`);
+      case 'update_subscriber_did': {
+        const { id, current_did, status } = params;
+        if (!id || !current_did) return json({ success: false, error: 'Missing id or current_did' });
+        const fields = { current_did, updated_at: new Date().toISOString() };
+        if (status) fields.status = status;
+        const res = await sb(`subscriptions?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify(fields),
+        });
+        if (!res.ok) return json({ success: false, error: `Update failed: ${await res.text()}` });
+        const data = await res.json();
+        return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : data });
+      }
+
+      case 'update_subscriber_sms': {
+        const { id, sms_day_count, last_sms_sent_at } = params;
+        if (!id) return json({ success: false, error: 'Missing id' });
+        const fields = { updated_at: new Date().toISOString() };
+        if (sms_day_count !== undefined) fields.sms_day_count = sms_day_count;
+        if (last_sms_sent_at !== undefined) fields.last_sms_sent_at = last_sms_sent_at;
+        const res = await sb(`subscriptions?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify(fields),
+        });
+        if (!res.ok) return json({ success: false, error: `Update failed: ${await res.text()}` });
+        const data = await res.json();
+        return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : data });
+      }
+
+      case 'update_subscriber_flags': {
+        // Merges flags into subscription_attributes JSON column
+        const { id, flags } = params;
+        if (!id || !flags) return json({ success: false, error: 'Missing id or flags' });
+
+        // Fetch current attrs
+        const fetchRes = await sb(`subscriptions?id=eq.${encodeURIComponent(id)}&select=subscription_attributes`);
+        const rows = await fetchRes.json();
+        let existing = {};
+        try {
+          const raw = Array.isArray(rows) && rows[0] ? rows[0].subscription_attributes : null;
+          existing = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : {};
+        } catch { existing = {}; }
+
+        const merged = { ...existing, ...flags };
+        const res = await sb(`subscriptions?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ subscription_attributes: merged, updated_at: new Date().toISOString() }),
+        });
+        if (!res.ok) return json({ success: false, error: `Update failed: ${await res.text()}` });
+        return json({ success: true, data: merged });
+      }
+
+      // ── TRANSFERS ────────────────────────────────────────────────────────
+
+      case 'get_transfers': {
+        let qs = 'orders?order_type=eq.TRANSFER&order=created_at.desc&select=*,subscriptions(customer_name,customer_mobile,customer_email)';
+        if (params.search) {
+          const s = encodeURIComponent(`*${params.search}*`);
+          qs += `&or=(prison_name.ilike.${s},customer_mobile.ilike.${s})`;
+          // Note: customer_name is in subscriptions join - approximate search on orders columns only
+        }
+        const res = await sb(qs);
         const data = await res.json();
         return json({ success: true, data: Array.isArray(data) ? data : [] });
       }
 
-      // -- PRISON LOOKUP --
+      case 'update_transfer_did': {
+        const { id, did_number, status } = params;
+        if (!id || !did_number) return json({ success: false, error: 'Missing id or did_number' });
+        const fields = { did_number, updated_at: new Date().toISOString() };
+        if (status) fields.status = status;
+        const res = await sb(`orders?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify(fields),
+        });
+        if (!res.ok) return json({ success: false, error: `Update failed: ${await res.text()}` });
+        const data = await res.json();
+        return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : data });
+      }
+
+      case 'update_transfer_status': {
+        const { id, status } = params;
+        if (!id || !status) return json({ success: false, error: 'Missing id or status' });
+        const res = await sb(`orders?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status, updated_at: new Date().toISOString() }),
+        });
+        if (!res.ok) return json({ success: false, error: `Update failed: ${await res.text()}` });
+        const data = await res.json();
+        return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : data });
+      }
+
+      // ── USER MANAGEMENT (super_admin only) ───────────────────────────────
+
+      case 'get_users': {
+        const res = await sbAdmin('users?per_page=100');
+        if (!res.ok) return json({ success: false, error: `Failed to list users: ${await res.text()}` });
+        const data = await res.json();
+        const users = (data.users || []).map(u => ({
+          id: u.id,
+          email: u.email,
+          role: (u.user_metadata && u.user_metadata.role) || 'admin',
+          created_at: u.created_at,
+          last_sign_in_at: u.last_sign_in_at,
+        }));
+        return json({ success: true, data: users });
+      }
+
+      case 'create_user': {
+        const { email, password, role } = params;
+        if (!email || !password) return json({ success: false, error: 'Email and password required' });
+        const allowedRoles = ['admin', 'staff'];
+        const assignedRole = allowedRoles.includes(role) ? role : 'admin';
+        const res = await sbAdmin('users', {
+          method: 'POST',
+          body: JSON.stringify({
+            email,
+            password,
+            email_confirm: true,
+            user_metadata: { role: assignedRole },
+          }),
+        });
+        if (!res.ok) return json({ success: false, error: `Failed to create user: ${await res.text()}` });
+        const data = await res.json();
+        return json({ success: true, data: { id: data.id, email: data.email, role: assignedRole } });
+      }
+
+      case 'update_user_role': {
+        const { id, role } = params;
+        if (!id || !role) return json({ success: false, error: 'Missing id or role' });
+        const allowedRoles = ['admin', 'staff'];
+        if (!allowedRoles.includes(role)) return json({ success: false, error: 'Invalid role - admin or staff only' });
+        const res = await sbAdmin(`users/${encodeURIComponent(id)}`, {
+          method: 'PUT',
+          body: JSON.stringify({ user_metadata: { role } }),
+        });
+        if (!res.ok) return json({ success: false, error: `Failed to update role: ${await res.text()}` });
+        return json({ success: true, data: { id, role } });
+      }
+
+      case 'delete_user': {
+        const { id } = params;
+        if (!id) return json({ success: false, error: 'Missing id' });
+        const res = await sbAdmin(`users/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        if (!res.ok && res.status !== 204) return json({ success: false, error: `Failed to delete user: ${await res.text()}` });
+        return json({ success: true, data: { deleted: true } });
+      }
+
+      // ── PRISON LOOKUP ─────────────────────────────────────────────────────
 
       case 'getPrisonLookup':
       case 'get_prison_lookup': {
@@ -347,36 +437,7 @@ export async function onRequest(context) {
         return json({ success: true, data: Array.isArray(data) ? data : [] });
       }
 
-      // -- PRODUCTS (super_admin only) --
-
-      case 'getProducts':
-      case 'get_products': {
-        const res = await sb('products?select=*&order=plan_interval.asc,product_name.asc');
-        let data = await res.json();
-        // Filter out weekly plans per spec
-        if (Array.isArray(data)) {
-          data = data.filter(p => (p.plan_interval || '').toLowerCase() !== 'weekly');
-        }
-        return json({ success: true, data: Array.isArray(data) ? data : [] });
-      }
-
-      case 'updateProduct':
-      case 'update_product': {
-        const { id, fields } = params;
-        if (!id || !fields) return json({ success: false, error: 'Missing id or fields' });
-        const res = await sb(`products?id=eq.${encodeURIComponent(id)}`, {
-          method: 'PATCH',
-          body: JSON.stringify(fields),
-        });
-        if (!res.ok) {
-          const err = await res.text();
-          return json({ success: false, error: `Update failed: ${err}` });
-        }
-        const data = await res.json();
-        return json({ success: true, data: Array.isArray(data) ? (data[0] || null) : data });
-      }
-
-      // -- SETTINGS: Prison DID Lookup (PDP) upload --
+      // ── SETTINGS: Prison DID Lookup (PDP) upload ──────────────────────────
 
       case 'replacePrisonLookup':
       case 'upload_pdp': {
@@ -400,9 +461,7 @@ export async function onRequest(context) {
 
         const rowCols = Object.keys(mappedRows[0]);
         const missing = SUPABASE_COLS.filter(c => !rowCols.includes(c));
-        if (missing.length > 0) {
-          return json({ success: false, error: `Missing columns: ${missing.join(', ')}` });
-        }
+        if (missing.length > 0) return json({ success: false, error: `Missing columns: ${missing.join(', ')}` });
 
         const cleanRows = mappedRows.map(row => {
           const r = {};
@@ -410,7 +469,6 @@ export async function onRequest(context) {
           return r;
         });
 
-        // Delete all existing rows
         const delRes = await sb('prison_did_lookup?prison_name=not.is.null', {
           method: 'DELETE',
           prefer: 'return=minimal',
@@ -420,7 +478,6 @@ export async function onRequest(context) {
           return json({ success: false, error: `Failed to clear existing data (status ${delRes.status})` });
         }
 
-        // Insert in batches of 200
         const BATCH = 200;
         for (let i = 0; i < cleanRows.length; i += BATCH) {
           const batch = cleanRows.slice(i, i + BATCH);
@@ -430,16 +487,13 @@ export async function onRequest(context) {
             prefer: 'return=minimal',
             headers: { 'Prefer': 'return=minimal' },
           });
-          if (!insRes.ok) {
-            const err = await insRes.text();
-            return json({ success: false, error: `Insert failed at row ${i + 1}: ${err}` });
-          }
+          if (!insRes.ok) return json({ success: false, error: `Insert failed at row ${i + 1}: ${await insRes.text()}` });
         }
 
         return json({ success: true, data: { rowsInserted: cleanRows.length } });
       }
 
-      // -- SETTINGS: Channel Scaling (PEV) upload --
+      // ── SETTINGS: Channel Scaling (PEV) upload ────────────────────────────
 
       case 'replaceScalingTables':
       case 'upload_pev': {
@@ -511,10 +565,7 @@ export async function onRequest(context) {
               prefer: 'return=minimal',
               headers: { 'Prefer': 'return=minimal' },
             });
-            if (!insRes.ok) {
-              const err = await insRes.text();
-              return json({ success: false, error: `Insert into ${table} failed: ${err}` });
-            }
+            if (!insRes.ok) return json({ success: false, error: `Insert into ${table} failed: ${await insRes.text()}` });
           }
         }
 
@@ -528,7 +579,6 @@ export async function onRequest(context) {
         });
       }
 
-      // Table row count + last updated (for settings panels)
       case 'getTableStatus': {
         const { table } = params;
         if (!['prison_did_lookup', 'scaling_model_new'].includes(table)) {

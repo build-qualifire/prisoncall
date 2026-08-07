@@ -27,17 +27,13 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Dashboard
       </a>
-      <a href="/admin/orders.html" class="sidebar-nav-item">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        Orders
+      <a href="/admin/subscribers.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Subscribers
       </a>
-      <a href="/admin/customers.html" class="sidebar-nav-item">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-        Customers
-      </a>
-      <a href="/admin/products.html" class="sidebar-nav-item" data-role-min="super_admin">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-        Products
+      <a href="/admin/transfers.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
+        Transfers
       </a>
       <a href="/admin/settings.html" class="sidebar-nav-item" data-role-min="super_admin">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -70,19 +66,19 @@
           <div class="metric-sub">Current active plans</div>
         </div>
         <div class="metric-card" id="cardMrr">
-          <div class="metric-label">MRR</div>
+          <div class="metric-label">Avg MRR</div>
           <div class="metric-value green" id="mMrr">-</div>
-          <div class="metric-sub">Active plan revenue</div>
+          <div class="metric-sub">Normalised monthly revenue</div>
         </div>
-        <div class="metric-card" id="cardPending">
-          <div class="metric-label">Pending Orders</div>
-          <div class="metric-value" id="mPending">-</div>
-          <div class="metric-sub">Awaiting fulfilment</div>
+        <div class="metric-card" id="cardTransfers">
+          <div class="metric-label">Pending Transfers</div>
+          <div class="metric-value" id="mTransfers">-</div>
+          <div class="metric-sub">Awaiting DID entry</div>
         </div>
-        <div class="metric-card" id="cardOverdue">
-          <div class="metric-label">Overdue</div>
-          <div class="metric-value" id="mOverdue">-</div>
-          <div class="metric-sub" id="mOverdueSub">Payment overdue</div>
+        <div class="metric-card" id="cardSuspended">
+          <div class="metric-label">Suspended</div>
+          <div class="metric-value" id="mSuspended">-</div>
+          <div class="metric-sub" id="mSuspendedSub">Payment overdue</div>
         </div>
       </div>
 
@@ -90,7 +86,7 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title">Recent Activity</div>
-          <a href="/admin/orders.html" class="btn btn--outline btn--sm">View all orders</a>
+          <a href="/admin/subscribers.html" class="btn btn--outline btn--sm">View subscribers</a>
         </div>
         <div id="activityContent">
           <div class="loading-state">
@@ -103,28 +99,20 @@
     </div>
   </main>
 
-  <!-- Bottom tab bar (mobile) -->
+  <!-- Bottom tab bar -->
   <nav class="admin-bottom-bar">
     <div class="bottom-bar-inner">
       <a href="/admin/dashboard.html" class="bottom-bar-item active">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         <span>Dashboard</span>
       </a>
-      <a href="/admin/orders.html" class="bottom-bar-item">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        <span>Orders</span>
+      <a href="/admin/subscribers.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Subscribers</span>
       </a>
-      <a href="/admin/customers.html" class="bottom-bar-item">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-        <span>Customers</span>
-      </a>
-      <a href="/admin/products.html" class="bottom-bar-item" data-role-min="super_admin">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-        <span>Products</span>
-      </a>
-      <a href="/admin/settings.html" class="bottom-bar-item" data-role-min="super_admin">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-        <span>Settings</span>
+      <a href="/admin/transfers.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
+        <span>Transfers</span>
       </a>
     </div>
   </nav>
@@ -149,23 +137,23 @@
 
   async function loadDashboard() {
     try {
-      const data = await api('getDashboardMetrics');
+      const data = await api('get_dashboard');
 
       document.getElementById('mActive').textContent = data.activeSubscribers ?? '-';
-      document.getElementById('mMrr').textContent = fmtCurrency(data.monthlyRevenue);
+      document.getElementById('mMrr').textContent = fmtCurrency(data.avgMrr);
 
-      const pending = data.pendingOrders ?? 0;
-      document.getElementById('mPending').textContent = pending;
-      if (pending > 0) {
-        document.getElementById('cardPending').classList.add('warning');
-        document.getElementById('mPending').classList.add('amber');
+      const transfers = data.pendingTransfers ?? 0;
+      document.getElementById('mTransfers').textContent = transfers;
+      if (transfers > 0) {
+        document.getElementById('cardTransfers').classList.add('warning');
+        document.getElementById('mTransfers').classList.add('amber');
       }
 
-      const overdue = data.overdueOrders ?? 0;
-      document.getElementById('mOverdue').textContent = overdue;
-      if (overdue > 0) {
-        document.getElementById('cardOverdue').classList.add('danger');
-        document.getElementById('mOverdueSub').textContent = 'Needs action';
+      const suspended = data.suspendedCount ?? 0;
+      document.getElementById('mSuspended').textContent = suspended;
+      if (suspended > 0) {
+        document.getElementById('cardSuspended').classList.add('danger');
+        document.getElementById('mSuspendedSub').textContent = 'Needs action';
       }
 
       renderActivity(data.recentOrders || []);
@@ -186,7 +174,7 @@
         <div class="empty-state">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/></svg>
           <h3>No orders yet</h3>
-          <p>Orders will appear here when customers sign up</p>
+          <p>Activity will appear here when subscribers are created</p>
         </div>`;
       return;
     }
@@ -196,7 +184,7 @@
       const customerName = sub.customer_name || '-';
       const mobile = formatMobile(o.customer_mobile);
       return `
-        <tr onclick="window.location='/admin/order-detail.html?id=${o.id}'" style="cursor:pointer">
+        <tr onclick="window.location='/admin/subscribers.html'" style="cursor:pointer">
           <td>
             <div style="margin-bottom:4px">${orderTypeBadge(o.order_type)}</div>
             <div class="col-name">${customerName}</div>

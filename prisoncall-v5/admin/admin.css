@@ -1214,6 +1214,137 @@ input, select, textarea { font-family: inherit; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   SUBSCRIBER ROWS (subscribers.html)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.sub-row {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 8px;
+  transition: box-shadow var(--transition-fast);
+}
+
+.sub-row:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+
+.sub-row--suspended {
+  border-left: 4px solid #F97316;
+  padding-left: 16px;
+}
+
+.sub-row-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto auto;
+  gap: 12px 20px;
+  align-items: center;
+}
+
+.sub-name { font-size: 15px; font-weight: 700; color: var(--color-hero); }
+.sub-mobile { font-size: 13px; color: var(--color-muted); margin-top: 2px; }
+.sub-did { font-family: 'Courier New', monospace; font-size: 14px; color: var(--color-green); font-weight: 600; }
+.sub-location { font-size: 13px; font-weight: 600; color: var(--color-hero); }
+.sub-location-state { font-size: 12px; color: var(--color-muted); margin-top: 1px; }
+.sub-plan { font-size: 13px; color: var(--color-muted); }
+
+.sub-status-col { text-align: right; white-space: nowrap; }
+.sub-actions-col { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; min-width: 160px; }
+
+.sub-inline {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.sub-sms-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.sub-cancel-flow {
+  background: #FEF2F2;
+  border: 1px solid #fca5a5;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-top: 14px;
+}
+
+.sub-cancel-warning {
+  font-size: 13px;
+  color: #991b1b;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.sub-cancel-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TRANSFER ROWS (transfers.html)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.transfer-row {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 8px;
+  transition: box-shadow var(--transition-fast);
+}
+
+.transfer-row:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+
+.transfer-row-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr 120px 120px auto auto;
+  gap: 12px 20px;
+  align-items: center;
+}
+
+.transfer-from-label,
+.transfer-to-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--color-muted);
+  margin-bottom: 3px;
+}
+
+.transfer-to-label { color: #1e40af; }
+
+.transfer-prison { font-size: 14px; font-weight: 600; color: var(--color-hero); }
+.transfer-state  { font-size: 12px; color: var(--color-muted); margin-top: 1px; }
+
+.transfer-inline {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   USER MANAGEMENT TABLE (settings.html)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.user-row:last-child { border-bottom: none; }
+
+.user-email { flex: 1; font-size: 14px; font-weight: 600; color: var(--color-hero); }
+.user-role-select { padding: 6px 10px; border: 1.5px solid var(--color-border); border-radius: var(--radius-sm); font-family: var(--font-family); font-size: 13px; cursor: pointer; }
+
+/* ══════════════════════════════════════════════════════════════════════════
    MOBILE OPTIMISATION — 390 px viewport, Shopify mobile admin patterns
    ══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 767px) {
@@ -1318,4 +1449,28 @@ input, select, textarea { font-family: inherit; }
   #ordersContent > div:last-child {
     padding: 10px 16px;
   }
+
+  /* Subscriber rows: stack on mobile */
+  .sub-row-main {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .sub-actions-col {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    min-width: 0;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .sub-status-col { text-align: left; }
+
+  /* Transfer rows: stack on mobile */
+  .transfer-row-main {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* User rows: stack on mobile */
+  .user-row { flex-wrap: wrap; gap: 8px; }
 }

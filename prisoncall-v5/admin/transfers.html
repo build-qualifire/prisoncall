@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Transfers | Prisoncall Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="../assets/brand_logos/Prisoncall_Icon_BLACK.svg">
+  <link rel="manifest" href="/admin/manifest.json">
+  <meta name="theme-color" content="#00D258">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <img src="/assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall" class="sidebar-logo">
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin/dashboard.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="/admin/subscribers.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Subscribers
+      </a>
+      <a href="/admin/transfers.html" class="sidebar-nav-item active">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
+        Transfers
+      </a>
+      <a href="/admin/settings.html" class="sidebar-nav-item" data-role-min="super_admin">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user-email" data-user-email></div>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="admin-main">
+    <header class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="admin-topbar-title">Transfers</div>
+        <span class="badge badge--grey" id="txCount" style="display:none"></span>
+      </div>
+    </header>
+
+    <div class="admin-content">
+
+      <!-- Sticky search -->
+      <div class="card mb-16" style="position:sticky;top:56px;z-index:40;box-shadow:0 4px 12px rgba(0,0,0,0.07)">
+        <div class="card-body" style="padding-bottom:12px">
+          <div class="search-wrap">
+            <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input class="form-input search-input" type="text" id="searchInput"
+              placeholder="Search by customer name, mobile or prison..." autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <!-- Transfer list -->
+      <div id="txContent" class="mt-16">
+        <div class="loading-state"><div class="spinner"></div>Loading transfers...</div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Bottom tab bar -->
+  <nav class="admin-bottom-bar">
+    <div class="bottom-bar-inner">
+      <a href="/admin/dashboard.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/subscribers.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Subscribers</span>
+      </a>
+      <a href="/admin/transfers.html" class="bottom-bar-item active">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
+        <span>Transfers</span>
+      </a>
+    </div>
+  </nav>
+
+</div>
+
+<script type="module">
+  import {
+    initAdminPage, api, fmtDate,
+    formatMobile, statusBadge, showToast, showSmsToast
+  } from '/admin/admin-auth.js';
+
+  let allTx = [];
+  let searchTerm = '';
+  let searchTimeout;
+
+  async function init() {
+    const session = await initAdminPage();
+    if (!session) return;
+    loadTransfers();
+  }
+
+  async function loadTransfers() {
+    const container = document.getElementById('txContent');
+    container.innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading...</div>';
+    try {
+      const params = {};
+      if (searchTerm) params.search = searchTerm;
+      allTx = await api('get_transfers', params);
+
+      const countEl = document.getElementById('txCount');
+      if (allTx && allTx.length > 0) {
+        countEl.textContent = allTx.length;
+        countEl.style.display = '';
+      } else {
+        countEl.style.display = 'none';
+      }
+
+      renderTransfers();
+    } catch (err) {
+      container.innerHTML = `<div class="alert alert--error">${esc(err.message)}</div>`;
+    }
+  }
+
+  function renderTransfers() {
+    const container = document.getElementById('txContent');
+    if (!allTx || allTx.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
+          <h3>No transfer requests yet</h3>
+          <p>Transfer requests will appear here when customers change prisons</p>
+        </div>`;
+      return;
+    }
+    container.innerHTML = allTx.map(t => renderTransferRow(t)).join('');
+  }
+
+  function renderTransferRow(tx) {
+    const id = tx.id;
+    const sub = tx.subscriptions || {};
+    const customerName = esc(sub.customer_name || tx.customer_name || '-');
+    const mobile = formatMobile(sub.customer_mobile || tx.customer_mobile);
+    const oldPrison = esc(tx.old_prison_name || '-');
+    const oldState = esc(tx.old_prison_state || '');
+    const newPrison = esc(tx.prison_name || '-');
+    const newState = esc(tx.prison_state || '');
+    const submitted = fmtDate(tx.created_at);
+    const updated = fmtDate(tx.updated_at);
+    const status = tx.status;
+    const did = tx.did_number || '';
+
+    let actionsHtml = '';
+    let inlineHtml = '';
+
+    if (status === 'PENDING_SMS_CONFIRM') {
+      actionsHtml = `<button class="btn btn--green btn--sm" onclick="showTxDidForm('${id}')">Enter New DID + Fulfil</button>`;
+      inlineHtml = `
+        <div id="txDidFormWrap-${id}" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--color-border)">
+          <div style="font-size:13px;font-weight:600;color:var(--color-muted);margin-bottom:8px">Enter new DID for the destination prison</div>
+          <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px">
+              <input class="form-input form-input--mono" id="txDidInput-${id}" placeholder="61XXXXXXXXX" maxlength="11" oninput="validateTxDid('${id}')">
+              <div class="form-error" id="txDidErr-${id}" style="display:none">Must be 11 digits starting with 61</div>
+            </div>
+            <button class="btn btn--green btn--sm" style="height:44px" onclick="confirmTxDid('${id}')">Confirm + Fulfil</button>
+            <button class="btn btn--outline btn--sm" style="height:44px" onclick="hideTxDidForm('${id}')">Cancel</button>
+          </div>
+        </div>`;
+
+    } else if (status === 'ACTIVATING') {
+      actionsHtml = `<div style="display:flex;align-items:center;gap:8px;color:var(--color-muted)"><div class="spinner"></div><span style="font-size:13px">Setting up new extension...</span></div>`;
+
+    } else if (status === 'ACTIVATION_FAILED') {
+      actionsHtml = `<button class="btn btn--outline btn--sm" onclick="retryTx('${id}')">Retry</button>`;
+      inlineHtml = `<div class="alert alert--error" style="margin-top:10px">Activation failed. Check 3CX and VoipLine then retry.</div>`;
+
+    } else if (status === 'FULFILLED') {
+      actionsHtml = did ? `<div class="col-mono" style="font-size:13px">${did}</div>` : '';
+    }
+    // CANCELLED: badge only, no action
+
+    return `
+      <div class="transfer-row" id="tx-${id}">
+        <div class="transfer-row-main">
+          <div>
+            <div class="sub-name">${customerName}</div>
+            <div class="sub-mobile">${mobile}</div>
+          </div>
+          <div>
+            <div class="transfer-from-label">From</div>
+            <div class="transfer-prison">${oldPrison}</div>
+            <div class="transfer-state">${oldState}</div>
+          </div>
+          <div>
+            <div class="transfer-to-label">To</div>
+            <div class="transfer-prison">${newPrison}</div>
+            <div class="transfer-state">${newState}</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-muted);margin-bottom:2px">Submitted</div>
+            <div style="font-size:13px">${submitted}</div>
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-muted);margin-top:6px;margin-bottom:2px">Updated</div>
+            <div style="font-size:13px">${updated}</div>
+          </div>
+          <div>${statusBadge(status)}</div>
+          <div>${actionsHtml}</div>
+        </div>
+        ${inlineHtml}
+      </div>`;
+  }
+
+  // ── DID Form ───────────────────────────────────────────────────────────
+
+  window.showTxDidForm = function(id) {
+    const wrap = document.getElementById('txDidFormWrap-' + id);
+    if (wrap) { wrap.style.display = ''; wrap.querySelector('input')?.focus(); }
+  };
+
+  window.hideTxDidForm = function(id) {
+    const wrap = document.getElementById('txDidFormWrap-' + id);
+    if (wrap) wrap.style.display = 'none';
+  };
+
+  window.validateTxDid = function(id) {
+    const input = document.getElementById('txDidInput-' + id);
+    const errEl = document.getElementById('txDidErr-' + id);
+    if (!input || !errEl) return;
+    const v = input.value.replace(/\D/g, '');
+    const valid = v.length === 11 && v.startsWith('61');
+    errEl.style.display = (!v || valid) ? 'none' : '';
+  };
+
+  window.confirmTxDid = async function(id) {
+    const input = document.getElementById('txDidInput-' + id);
+    const errEl = document.getElementById('txDidErr-' + id);
+    if (!input) return;
+    const did = input.value.replace(/\D/g, '');
+    if (did.length !== 11 || !did.startsWith('61')) {
+      if (errEl) errEl.style.display = '';
+      return;
+    }
+
+    const tx = getTxById(id);
+    if (!tx) return;
+    const btn = document.querySelector(`#tx-${id} button[onclick="confirmTxDid('${id}')"]`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+    try {
+      await api('update_transfer_did', { id, did_number: did, status: 'ACTIVATING' });
+      updateTxInList(id, { did_number: did, status: 'ACTIVATING' });
+
+      const sub = tx.subscriptions || {};
+      const mobile = sub.customer_mobile || tx.customer_mobile;
+      showSmsToast(formatMobile(mobile), 'Your new Prisoncall number is being set up. Details coming shortly.');
+      showToast('DID saved - transfer set to Activating');
+      reRenderTx(id);
+    } catch (err) {
+      showToast(err.message, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Confirm + Fulfil'; }
+    }
+  };
+
+  // ── Retry ──────────────────────────────────────────────────────────────
+
+  window.retryTx = async function(id) {
+    try {
+      await api('update_transfer_status', { id, status: 'PENDING_SMS_CONFIRM' });
+      updateTxInList(id, { status: 'PENDING_SMS_CONFIRM' });
+      showToast('Status reset to Pending SMS Confirm');
+      reRenderTx(id);
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  // ── Helpers ────────────────────────────────────────────────────────────
+
+  function getTxById(id) { return allTx.find(t => t.id === id) || null; }
+
+  function updateTxInList(id, fields) {
+    const idx = allTx.findIndex(t => t.id === id);
+    if (idx >= 0) allTx[idx] = { ...allTx[idx], ...fields };
+  }
+
+  function reRenderTx(id) {
+    const tx = getTxById(id);
+    if (!tx) return;
+    const el = document.getElementById('tx-' + id);
+    if (!el) return;
+    el.outerHTML = renderTransferRow(tx);
+  }
+
+  function esc(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ── Search ─────────────────────────────────────────────────────────────
+
+  document.getElementById('searchInput').addEventListener('input', e => {
+    clearTimeout(searchTimeout);
+    searchTerm = e.target.value.trim();
+    searchTimeout = setTimeout(loadTransfers, 350);
+  });
+
+  window.doLogout = function () {
+    import('/admin/admin-auth.js').then(m => m.logout());
+  };
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/admin/sw.js').catch(() => {});
+  }
+
+  init();
+</script>
+
+</body>
+</html>

@@ -29,17 +29,13 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Dashboard
       </a>
-      <a href="/admin/orders.html" class="sidebar-nav-item">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        Orders
+      <a href="/admin/subscribers.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Subscribers
       </a>
-      <a href="/admin/customers.html" class="sidebar-nav-item">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-        Customers
-      </a>
-      <a href="/admin/products.html" class="sidebar-nav-item">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-        Products
+      <a href="/admin/transfers.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
+        Transfers
       </a>
       <a href="/admin/settings.html" class="sidebar-nav-item active">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -150,8 +146,61 @@
 
       </div>
 
+      <!-- User Management -->
+      <div class="card mt-16">
+        <div class="card-header">
+          <div class="card-title">User Management</div>
+          <button class="btn btn--green btn--sm" onclick="showAddUserForm()">Add User</button>
+        </div>
+        <div id="addUserForm" style="display:none;padding:16px 20px;border-bottom:1px solid var(--color-border);background:var(--color-surface)">
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">
+            <div class="form-group" style="margin:0;flex:1;min-width:180px">
+              <label class="form-label">Email</label>
+              <input class="form-input" type="email" id="newUserEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-group" style="margin:0;flex:1;min-width:180px">
+              <label class="form-label">Temporary password</label>
+              <input class="form-input" type="password" id="newUserPassword" placeholder="Min 8 characters">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Role</label>
+              <select class="form-select user-role-select" id="newUserRole">
+                <option value="admin">Admin</option>
+                <option value="staff">Staff</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn--green btn--sm" style="min-height:44px" onclick="createUser()">Save</button>
+              <button class="btn btn--outline btn--sm" style="min-height:44px" onclick="hideAddUserForm()">Cancel</button>
+            </div>
+          </div>
+          <div class="alert alert--error mt-16" id="addUserError" style="display:none"></div>
+        </div>
+        <div id="userListContent">
+          <div class="loading-state"><div class="spinner"></div>Loading users...</div>
+        </div>
+      </div>
+
     </div>
   </main>
+
+  <!-- Bottom tab bar (Settings hidden here per spec) -->
+  <nav class="admin-bottom-bar">
+    <div class="bottom-bar-inner">
+      <a href="/admin/dashboard.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/subscribers.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Subscribers</span>
+      </a>
+      <a href="/admin/transfers.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
+        <span>Transfers</span>
+      </a>
+    </div>
+  </nav>
 
 </div>
 
@@ -167,6 +216,7 @@
 
     loadStatuses();
     loadCurrentPDP();
+    loadUsers();
   }
 
   async function loadStatuses() {
@@ -404,6 +454,119 @@
       <thead><tr>${headerCells}</tr></thead>
       <tbody>${bodyRows}</tbody>
     </table>`;
+  }
+
+  // ── User Management ────────────────────────────────────────────────────
+
+  let allUsers = [];
+  const myEmail = localStorage.getItem('pc_admin_email') || '';
+
+  async function loadUsers() {
+    const container = document.getElementById('userListContent');
+    try {
+      allUsers = await api('get_users');
+      renderUsers();
+    } catch (err) {
+      container.innerHTML = `<div class="alert alert--error" style="margin:16px">${esc(err.message)}</div>`;
+    }
+  }
+
+  function renderUsers() {
+    const container = document.getElementById('userListContent');
+    if (!allUsers || allUsers.length === 0) {
+      container.innerHTML = '<div style="padding:20px;color:var(--color-muted);font-size:14px">No users found.</div>';
+      return;
+    }
+
+    const roleBadge = role => {
+      if (role === 'super_admin') return '<span class="badge badge--active">super_admin</span>';
+      if (role === 'staff') return '<span class="badge badge--blue">staff</span>';
+      return '<span class="badge badge--grey">admin</span>';
+    };
+
+    container.innerHTML = allUsers.map(u => {
+      const isMe = u.email === myEmail;
+      const isSuperAdmin = u.role === 'super_admin';
+      return `
+        <div class="user-row">
+          <div class="user-email">${esc(u.email)}</div>
+          <div>${roleBadge(u.role)}</div>
+          ${!isMe && !isSuperAdmin ? `
+            <select class="user-role-select" id="roleSelect-${u.id}" onchange="changeRole('${u.id}', this.value)">
+              <option value="admin"${u.role === 'admin' ? ' selected' : ''}>Admin</option>
+              <option value="staff"${u.role === 'staff' ? ' selected' : ''}>Staff</option>
+            </select>
+            <button class="btn btn--danger btn--sm" onclick="deleteUser('${u.id}', '${esc(u.email)}')">Delete</button>
+          ` : `<span style="font-size:13px;color:var(--color-muted)">${isMe ? 'You' : 'Protected'}</span>`}
+        </div>`;
+    }).join('');
+  }
+
+  window.showAddUserForm = function() {
+    document.getElementById('addUserForm').style.display = '';
+    document.getElementById('addUserError').style.display = 'none';
+    document.getElementById('newUserEmail').focus();
+  };
+
+  window.hideAddUserForm = function() {
+    document.getElementById('addUserForm').style.display = 'none';
+    document.getElementById('newUserEmail').value = '';
+    document.getElementById('newUserPassword').value = '';
+  };
+
+  window.createUser = async function() {
+    const email = document.getElementById('newUserEmail').value.trim();
+    const password = document.getElementById('newUserPassword').value;
+    const role = document.getElementById('newUserRole').value;
+    const errEl = document.getElementById('addUserError');
+
+    if (!email || !password) {
+      errEl.textContent = 'Email and password are required.';
+      errEl.style.display = '';
+      return;
+    }
+    if (password.length < 8) {
+      errEl.textContent = 'Password must be at least 8 characters.';
+      errEl.style.display = '';
+      return;
+    }
+
+    try {
+      errEl.style.display = 'none';
+      await api('create_user', { email, password, role });
+      showToast('User created successfully');
+      hideAddUserForm();
+      loadUsers();
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.style.display = '';
+    }
+  };
+
+  window.changeRole = async function(id, role) {
+    try {
+      await api('update_user_role', { id, role });
+      showToast('Role updated');
+      loadUsers();
+    } catch (err) {
+      showToast(err.message, 'error');
+      loadUsers();
+    }
+  };
+
+  window.deleteUser = async function(id, email) {
+    if (!confirm(`Delete user ${email}? This cannot be undone.`)) return;
+    try {
+      await api('delete_user', { id });
+      showToast('User deleted');
+      loadUsers();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  function esc(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   window.doLogout = function () {

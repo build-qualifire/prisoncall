@@ -4,7 +4,7 @@
  *
  * Roles (derived from email):
  *   super_admin - guness@prisoncall.com.au - full access
- *   admin       - all others - Dashboard, Orders, Customers only
+ *   admin       - all others - Dashboard, Subscribers, Transfers
  */
 
 const ADMIN_API = '/api/admin-supabase';
@@ -243,30 +243,33 @@ export function fmtCurrency(val) {
 /** Status badge HTML - solid color, white text per spec */
 export function statusBadge(status) {
   const map = {
-    PENDING:           'badge--pending',
-    DID_ORDERED:       'badge--blue',
-    SOURCING:          'badge--blue',
-    ACTIVATING:        'badge--purple',
-    FULFILLED:         'badge--fulfilled',
-    ACTIVATION_FAILED: 'badge--red',
-    OVERDUE:           'badge--red',
-    SUSPENDED:         'badge--orange',
-    CANCELLED:         'badge--grey',
-    TRANSFER:          'badge--indigo',
-    ACTIVE:            'badge--active',
+    PENDING:              'badge--pending',
+    PENDING_SMS_CONFIRM:  'badge--purple',
+    ACTIVATING:           'badge--purple',
+    ACTIVATION_FAILED:    'badge--red',
+    ACTIVE:               'badge--active',
+    FULFILLED:            'badge--fulfilled',
+    SUSPENDED:            'badge--orange',
+    CANCELLED:            'badge--grey',
+    // legacy statuses kept for dashboard recent activity
+    DID_ORDERED:          'badge--blue',
+    SOURCING:             'badge--blue',
+    OVERDUE:              'badge--red',
+    TRANSFER:             'badge--indigo',
   };
   const labels = {
-    PENDING:           'Pending',
-    DID_ORDERED:       'DID Ordered',
-    SOURCING:          'Sourcing',
-    ACTIVATING:        'Activating',
-    FULFILLED:         'Fulfilled',
-    ACTIVATION_FAILED: 'Activation Failed',
-    OVERDUE:           'Overdue',
-    SUSPENDED:         'Suspended',
-    CANCELLED:         'Cancelled',
-    TRANSFER:          'Transfer',
-    ACTIVE:            'Active',
+    PENDING:              'Pending',
+    PENDING_SMS_CONFIRM:  'Pending SMS Confirm',
+    ACTIVATING:           'Activating',
+    ACTIVATION_FAILED:    'Activation Failed',
+    ACTIVE:               'Active',
+    FULFILLED:            'Fulfilled',
+    SUSPENDED:            'Suspended',
+    CANCELLED:            'Cancelled',
+    DID_ORDERED:          'DID Ordered',
+    SOURCING:             'Sourcing',
+    OVERDUE:              'Overdue',
+    TRANSFER:             'Transfer',
   };
   const cls = map[status] || 'badge--grey';
   const label = labels[status] || (status || 'Unknown');
