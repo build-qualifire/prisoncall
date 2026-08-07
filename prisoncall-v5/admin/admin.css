@@ -1223,6 +1223,7 @@ input, select, textarea { font-family: inherit; }
   border-radius: var(--radius-md);
   padding: 16px 20px;
   margin-bottom: 8px;
+  position: relative;
   transition: box-shadow var(--transition-fast);
 }
 
@@ -1294,6 +1295,7 @@ input, select, textarea { font-family: inherit; }
   border-radius: var(--radius-md);
   padding: 16px 20px;
   margin-bottom: 8px;
+  position: relative;
   transition: box-shadow var(--transition-fast);
 }
 
@@ -1345,132 +1347,286 @@ input, select, textarea { font-family: inherit; }
 .user-role-select { padding: 6px 10px; border: 1.5px solid var(--color-border); border-radius: var(--radius-sm); font-family: var(--font-family); font-size: 13px; cursor: pointer; }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   MOBILE OPTIMISATION — 390 px viewport, Shopify mobile admin patterns
+   MOBILE SETTINGS GEAR ICON (hidden on desktop, shown on mobile)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.mobile-settings-btn {
+  display: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted);
+  flex-shrink: 0;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.mobile-settings-btn:hover {
+  color: var(--color-hero);
+  background: var(--color-surface);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MOBILE OPTIMISATION — 390px iPhone, Shopify mobile admin standards
    ══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 767px) {
 
-  /* Prevent horizontal scroll */
-  body { overflow-x: hidden; }
-  .admin-content { overflow-x: hidden; }
+  /* ── GLOBAL: prevent horizontal scroll ─────────────────────────────── */
+  body, .admin-content { overflow-x: hidden; }
+  * { -webkit-tap-highlight-color: transparent; }
 
-  /* Topbar: truncate long titles gracefully */
+  /* ── LAYOUT ──────────────────────────────────────────────────────────── */
+  .admin-sidebar { display: none; }
+  .admin-main {
+    margin-left: 0;
+    padding-bottom: calc(var(--bottom-bar-height) + env(safe-area-inset-bottom, 0px) + 16px);
+  }
+  .admin-bottom-bar { display: block; }
+
+  /* ── TOPBAR ──────────────────────────────────────────────────────────── */
+  .admin-topbar { padding: 0 16px; }
   .admin-topbar-title {
-    font-size: 15px;
+    font-size: 16px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: calc(100vw - 130px);
+    max-width: calc(100vw - 110px);
   }
   .admin-topbar-right { flex-shrink: 0; }
+  .mobile-settings-btn { display: flex; }
 
-  /* Buttons: 44 px minimum touch target */
-  .btn { min-height: 44px; }
-  .btn--sm { min-height: 36px; }
+  /* ── CONTENT PADDING ─────────────────────────────────────────────────── */
+  .admin-content { padding: 16px; }
 
-  /* Action rows: stack vertically, full-width buttons */
+  /* ── BUTTONS: 44px minimum touch target ──────────────────────────────── */
+  .btn { min-height: 44px; font-size: 14px; }
+  .btn--sm { min-height: 40px; }
   .action-row { flex-direction: column; }
   .action-row .btn { width: 100%; }
 
-  /* Card headers: allow title + button to wrap */
+  /* ── CARDS ────────────────────────────────────────────────────────────── */
   .card-header { flex-wrap: wrap; gap: 8px; }
 
-  /* Metric grid: explicit 2×2 */
-  .metric-grid { grid-template-columns: repeat(2, 1fr); }
+  /* ── METRIC GRID: always 2x2 on mobile ─────────────────────────────── */
+  .metric-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; }
   .metric-value { font-size: 22px; }
+  .metric-card { padding: 14px; }
+  .metric-label { font-size: 11px; }
 
-  /* Detail pages: force single column */
-  .detail-grid { grid-template-columns: 1fr !important; }
+  /* ── FILTER TABS: full-width equal split, 44px height ───────────────── */
+  .filter-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding-bottom: 0;
+    overflow: visible;
+  }
+  .filter-tab {
+    border-radius: 0;
+    min-height: 44px;
+    text-align: center;
+    white-space: normal;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  .filter-tab:first-child { border-radius: var(--radius-pill) 0 0 var(--radius-pill); }
+  .filter-tab:last-child  { border-radius: 0 var(--radius-pill) var(--radius-pill) 0; }
 
-  /* Dialogs: stack actions, comfortable padding */
-  .dialog-box { padding: 20px; }
-  .dialog-actions { flex-direction: column-reverse; }
-  .dialog-actions .btn { width: 100%; }
+  /* ── FORMS: 16px font prevents iOS auto-zoom ─────────────────────────── */
+  .form-input, .form-select, .form-textarea {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .form-input--mono { font-size: 15px; }
 
-  /* Product rows: single column */
-  .product-row { grid-template-columns: 1fr !important; }
-
-  /* Settings panels: single column */
-  .panels-grid { grid-template-columns: 1fr !important; }
-
-  /* ── List pages: table → card-per-row ─────────────────────────────────
-     Scoped to #customersContent / #ordersContent so the dashboard
-     "Recent Activity" table keeps its normal horizontal scroll.
-     ─────────────────────────────────────────────────────────────────── */
-  #customersContent .table-wrap,
-  #ordersContent .table-wrap { overflow: visible; }
-
-  #customersContent .data-table,
-  #ordersContent .data-table { display: block; }
-
-  #customersContent .data-table thead,
-  #ordersContent .data-table thead { display: none; }
-
-  #customersContent .data-table tbody,
-  #ordersContent .data-table tbody {
+  /* ── DASHBOARD: recent activity table -> stacked cards ──────────────── */
+  #activityContent .table-wrap { overflow: visible; }
+  #activityContent .data-table { display: block; }
+  #activityContent .data-table thead { display: none; }
+  #activityContent .data-table tbody {
     display: flex;
     flex-direction: column;
     gap: 8px;
     padding: 8px;
   }
-
-  #customersContent .data-table tbody tr,
-  #ordersContent .data-table tbody tr {
+  #activityContent .data-table tbody tr {
     display: block;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     padding: 14px 16px;
-    padding-right: 100px;   /* room for absolute status badge */
-    background: var(--color-white);
+    padding-right: 88px;
     position: relative;
+    background: var(--color-white);
+    cursor: pointer;
   }
-
-  #customersContent .data-table tbody tr:hover,
-  #ordersContent .data-table tbody tr:hover { background: var(--color-surface); }
-
-  #customersContent .data-table td,
-  #ordersContent .data-table td {
+  #activityContent .data-table td {
     display: block;
     padding: 2px 0;
     border-bottom: none;
     white-space: normal;
+    font-size: 14px;
   }
-
-  /* Status badge: pinned top-right of each card */
-  #customersContent .data-table td:last-child,
-  #ordersContent .data-table td:last-child {
+  /* Status badge (3rd column): pin to top-right */
+  #activityContent .data-table td:nth-child(3) {
     position: absolute;
     top: 14px;
     right: 16px;
     padding: 0;
   }
-
-  /* Row-count footer: keep readable */
-  #customersContent > div:last-child,
-  #ordersContent > div:last-child {
-    padding: 10px 16px;
+  /* "When" (4th column): compact muted */
+  #activityContent .data-table td:nth-child(4) {
+    font-size: 12px;
+    color: var(--color-muted);
+    margin-top: 2px;
   }
 
-  /* Subscriber rows: stack on mobile */
+  /* ── SUBSCRIBER ROWS: card layout ────────────────────────────────────── */
+  .sub-row { margin-bottom: 12px; }
+
   .sub-row-main {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 6px;
   }
+
+  /* Name/mobile/DID: pad right so badge doesn't overlap */
+  .sub-row-main > div:first-child { padding-right: 88px; }
+
+  /* DID: prominent green on mobile */
+  .sub-did { font-size: 15px; font-weight: 700; margin-top: 3px; }
+
+  /* Status badge: pinned to card top-right */
+  .sub-status-col {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    text-align: right;
+  }
+
+  /* Actions column: full width, stacked */
   .sub-actions-col {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     width: 100%;
-    justify-content: flex-start;
+    min-width: 0;
+    align-items: stretch;
+    margin-top: 8px;
   }
-  .sub-status-col { text-align: left; }
+  .sub-actions-col .btn {
+    width: 100%;
+    justify-content: center;
+  }
 
-  /* Transfer rows: stack on mobile */
+  /* DID input form inside inline section: stack on mobile */
+  .sub-did-input-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .sub-did-input-row > div { min-width: 0 !important; }
+  .sub-did-input-row .btn { width: 100%; height: auto; min-height: 44px; }
+
+  /* Cancel flow buttons: full width */
+  .sub-cancel-btns { flex-direction: column; }
+  .sub-cancel-btns .btn { width: 100%; }
+
+  /* All buttons inside inline sections: full width, 44px */
+  .sub-inline .btn {
+    min-height: 44px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* ── TRANSFER ROWS: card layout ──────────────────────────────────────── */
+  .transfer-row { margin-bottom: 12px; }
+
   .transfer-row-main {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    display: block;
   }
 
-  /* User rows: stack on mobile */
+  /* Name/mobile: pad right for badge */
+  .transfer-row-main > div:first-child {
+    padding-right: 88px;
+    margin-bottom: 10px;
+  }
+
+  /* From / To prison cols: spacing */
+  .transfer-row-main > div:nth-child(2),
+  .transfer-row-main > div:nth-child(3) { margin-bottom: 8px; }
+
+  /* Dates */
+  .transfer-row-main > div:nth-child(4) { margin-bottom: 10px; font-size: 13px; }
+
+  /* Status badge (5th child): absolute top-right */
+  .transfer-row-main > div:nth-child(5) {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+
+  /* Action button (6th child): full width */
+  .transfer-row-main > div:nth-child(6) { width: 100%; }
+  .transfer-row-main > div:nth-child(6) .btn { width: 100%; }
+
+  /* DID input form inside transfer inline: stack */
+  .tx-did-input-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .tx-did-input-row > div { min-width: 0 !important; }
+  .tx-did-input-row .btn { width: 100%; min-height: 44px; }
+  .transfer-inline .btn { min-height: 44px; width: 100%; justify-content: center; }
+
+  /* ── SETTINGS: single column ─────────────────────────────────────────── */
+  .panels-grid { grid-template-columns: 1fr !important; }
+  .detail-grid { grid-template-columns: 1fr !important; }
+  .product-row { grid-template-columns: 1fr !important; }
+
+  /* User management list */
   .user-row { flex-wrap: wrap; gap: 8px; }
+  .user-row .user-email { flex: 1 1 100%; word-break: break-all; }
+  .user-row .user-role-select { width: 100%; }
+
+  /* Add user form: single column on mobile */
+  #addUserForm > div:first-child {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #addUserForm .form-input,
+  #addUserForm .form-select { width: 100%; }
+
+  /* ── DIALOGS ─────────────────────────────────────────────────────────── */
+  .dialog-box { padding: 20px; max-width: calc(100vw - 32px); }
+  .dialog-actions { flex-direction: column-reverse; }
+  .dialog-actions .btn { width: 100%; }
+
+  /* ── TOASTS: full width, slide up from bottom ────────────────────────── */
+  .toast-container {
+    bottom: calc(var(--bottom-bar-height) + env(safe-area-inset-bottom, 0px) + 12px);
+    left: 12px;
+    right: 12px;
+    align-items: stretch;
+  }
+  .toast {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* ── EMPTY + LOADING STATES: compact ────────────────────────────────── */
+  .empty-state { padding: 32px 16px; }
+  .loading-state { padding: 32px 16px; }
+
+  /* ── DEV TOOLS panel ────────────────────────────────────────────────── */
+  #devToolsPanel > div:last-child {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 }

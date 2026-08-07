@@ -52,9 +52,14 @@
   <!-- Main -->
   <main class="admin-main">
     <header class="admin-topbar">
-      <div style="display:flex;align-items:center;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden">
         <div class="admin-topbar-title">Subscribers</div>
-        <span class="badge badge--grey" id="subCount" style="display:none"></span>
+        <span class="badge badge--grey" id="subCount" style="display:none;flex-shrink:0"></span>
+      </div>
+      <div class="admin-topbar-right">
+        <a href="/admin/settings.html" class="mobile-settings-btn" data-role-min="super_admin" aria-label="Settings">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </a>
       </div>
     </header>
 
@@ -214,7 +219,7 @@
       inline = `
         <div id="didFormWrap-${id}" style="display:none">
           <div style="font-size:13px;font-weight:600;color:var(--color-muted);margin-bottom:8px">Enter subscriber DID number</div>
-          <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
+          <div class="sub-did-input-row" style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
             <div style="flex:1;min-width:180px">
               <input class="form-input form-input--mono" id="didInput-${id}" placeholder="61XXXXXXXXX" maxlength="11" oninput="validateDid('${id}')">
               <div class="form-error" id="didErr-${id}" style="display:none">Must be 11 digits starting with 61</div>
