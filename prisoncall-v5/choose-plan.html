@@ -2362,7 +2362,6 @@
                 '<span class="addon-row__price" data-dynamic="combo-price">$' + comboDelta.toFixed(2) + '/' + intv + '</span>',
                 '<span class="addon-row__payment-type">Recurring with your plan</span>',
               '</div>',
-              '<p class="addon-combo-savings">Save vs buying separately</p>',
             '</div>',
           '</div>',
 
@@ -2451,8 +2450,9 @@
           ? '<button type="button" class="plan-card__change" data-change-plan>&larr; Choose different plan</button>'
           : '';
 
-        var bodyInner = '<ul class="plan-card__features">'+featHtml+'</ul>' +
-          (isExpanded ? buildInCardProtectHtml(p.key) : '');
+        var bodyInner = isExpanded
+          ? buildInCardProtectHtml(p.key)
+          : '<ul class="plan-card__features">'+featHtml+'</ul>';
 
         var selectLabel = isFeatured ? 'Choose Plan' : 'Select plan';
         var footerInner = isExpanded
@@ -2999,10 +2999,22 @@
           if (comboRow) setRow(comboRow, 'combo23', false);
         }
 
-        /* TP + RG both ticked → auto-upgrade to combo */
+        /* TP + RG both ticked → auto-upgrade to combo (or LP if CG also on) */
         if (!selectedAddons.lifetimeAll && !selectedAddons.combo23 &&
             selectedAddons.addon2 && selectedAddons.addon3) {
+          if (selectedAddons.addon1) {
+            selectLifetime(true);
+            showUpgradeToast('We have upgraded you to the Lifetime Deal - better value');
+            return;
+          }
           autoUpgradeToCombo();
+        }
+
+        /* Bundle Deal + CG both selected → auto-upgrade to Lifetime Protection */
+        if (!selectedAddons.lifetimeAll && selectedAddons.combo23 && selectedAddons.addon1) {
+          selectLifetime(true);
+          showUpgradeToast('We have upgraded you to the Lifetime Deal - better value');
+          return;
         }
 
         applyAddonGreyState(protectEl);
