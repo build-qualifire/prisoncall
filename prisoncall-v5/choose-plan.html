@@ -353,18 +353,36 @@
       .plan-card { flex: 1; min-width: 0; }
     }
 
-    /* Phase A — Monthly suggested (not selected) */
+    /* Phase A — Monthly suggested (black card, no scale) */
     .plan-card.is-suggested {
-      transform: scale(1.02);
-      box-shadow: 0 8px 28px rgba(0,0,0,0.10);
-      border-color: #ccc;
+      background: #101010;
+      border-color: #101010;
       z-index: 2;
+      transform: none;
+      box-shadow: none;
     }
-    @media (min-width: 768px) {
-      .plan-card.is-suggested { transform: scale(1.03); }
+    .plan-card.is-suggested .plan-card__header {
+      background: #101010;
+      border-bottom-color: rgba(255,255,255,0.12);
     }
+    .plan-card.is-suggested .plan-card__plan-name { color: rgba(255,255,255,0.55); }
+    .plan-card.is-suggested .plan-card__amount { color: #ffffff; }
+    .plan-card.is-suggested .plan-card__period { color: rgba(255,255,255,0.55); }
+    .plan-card.is-suggested .plan-card__feature { color: #ffffff; }
+    .plan-card.is-suggested .plan-card__body { background: #101010; }
+    .plan-card.is-suggested .plan-card__footer { background: #101010; }
+    .plan-card.is-suggested .plan-card__select {
+      background: #ffffff;
+      color: #101010;
+      border-color: #ffffff;
+    }
+    .plan-card.is-suggested .plan-card__badge--black {
+      background: #00D258;
+      color: #101010;
+    }
+    .plan-card.is-suggested:hover { border-color: #101010; }
 
-    .plan-card:not(.is-expanded):hover { border-color: #bbb; }
+    .plan-card:not(.is-expanded):not(.is-suggested):hover { border-color: #bbb; }
 
     /* Phase B — blurred siblings (desktop) */
     .plans-grid.is-expanded-mode .plan-card.is-blurred {
@@ -386,7 +404,7 @@
     @media (min-width: 768px) {
       .plans-grid.is-expanded-mode .plan-card.is-expanded {
         flex: 0 0 100%;
-        max-width: 720px;
+        max-width: 860px;
         margin: 0 auto;
         position: relative;
         z-index: 5;
@@ -2226,7 +2244,7 @@
             '<div class="addon-checkbox">'+TICK_SVG+'</div>',
             '<div class="addon-row__content">',
               '<span class="addon-lp-badge' + (lpSelected ? '' : ' is-pulsing') + '">LIFETIME DEAL</span>',
-              '<p class="addon-row__name">Lifetime Protection + free CG</p>',
+              '<p class="addon-row__name">Lifetime Protection + free Cancellation Guarantee (CG)</p>',
               '<div class="addon-lp-hero">',
                 '<p class="addon-lp-hero__heading" data-lp-hero-heading>' + hero.heading + '</p>',
                 '<p class="addon-lp-hero__body" data-lp-hero-body>' + hero.body + '</p>',
@@ -2343,8 +2361,11 @@
         var planNameHtml = p.key === 'half_yearly'
           ? p.name+'<span class="plan-name__save-pill">Save 17%</span>'
           : p.name;
+        var checkIcon = isSuggested
+          ? '/assets/icons/feature_icons/icon_check_white.svg'
+          : '/assets/icons/feature_icons/icon_check_black.svg';
         var featHtml = FEATURES.map(function(f){
-          return '<li class="plan-card__feature"><img src="/assets/icons/feature_icons/icon_check_black.svg" alt="" width="20" height="20" class="plan-card__check" aria-hidden="true">'+f+'</li>';
+          return '<li class="plan-card__feature"><img src="'+checkIcon+'" alt="" width="20" height="20" class="plan-card__check" aria-hidden="true">'+f+'</li>';
         }).join('');
 
         var displayAmount = isExpanded
@@ -2368,7 +2389,7 @@
         if (isSuggested) cardClasses += ' is-suggested';
 
         var changeLink = isExpanded
-          ? '<button type="button" class="plan-card__change" data-change-plan>&larr; Change plan</button>'
+          ? '<button type="button" class="plan-card__change" data-change-plan>&larr; Choose different plan</button>'
           : '';
 
         var bodyInner = '<ul class="plan-card__features">'+featHtml+'</ul>' +
@@ -2654,25 +2675,16 @@
       completePlan(step4ExpandedKey);
     }
 
-    /* Phase A: Choose Plan / card click expands */
+    /* Phase A: only "Choose Plan" expands. Blurred cards collapse to Phase A. */
     el.querySelectorAll('.plan-card').forEach(function(card){
       var planKey = card.dataset.planKey;
-
-      function onChoose() {
-        if (card.classList.contains('is-expanded')) return;
-        if (card.classList.contains('is-blurred')) {
-          /* Switch expanded card */
-          expandPlan(planKey);
-          return;
-        }
-        expandPlan(planKey);
-      }
 
       var chooseBtn = card.querySelector('.plan-card__select');
       if (chooseBtn) {
         chooseBtn.addEventListener('click', function(e){
           e.stopPropagation();
-          onChoose();
+          if (card.classList.contains('is-expanded')) return;
+          expandPlan(planKey);
         });
       }
 
@@ -2682,7 +2694,12 @@
         if (e.target.closest('[data-plan-continue]')) return;
         if (e.target.closest('.plan-card__select')) return;
         if (card.classList.contains('is-expanded')) return;
-        onChoose();
+        /* Blurred background card → return to Phase A (do not expand) */
+        if (card.classList.contains('is-blurred')) {
+          collapseToPhaseA();
+          return;
+        }
+        /* Phase A: card body clicks do nothing — only Choose Plan expands */
       });
 
       card.addEventListener('keydown', function(e){
@@ -2690,7 +2707,11 @@
           if (e.target.closest('.plan-card__protect') || e.target.closest('.addon-row')) return;
           if (card.classList.contains('is-expanded')) return;
           e.preventDefault();
-          onChoose();
+          if (card.classList.contains('is-blurred')) {
+            collapseToPhaseA();
+            return;
+          }
+          /* Phase A keyboard: only Choose Plan button expands */
         }
       });
     });
