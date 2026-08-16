@@ -1015,25 +1015,14 @@
     .addon-row__price { font-size: 11px; font-weight: 800; }
     .addon-row__payment-type { font-size: 10px; color: var(--color-muted); }
     .addon-combo-savings { font-size: 10px; color: var(--color-green); font-weight: 700; margin-top: 2px; }
-
-    .addon-lp-hero {
-      margin-top: 4px; padding: 6px 8px;
-      background: #f4f4f2; border-radius: 8px;
-    }
-    .addon-lp-hero__heading {
-      font-size: 11px; font-weight: 800; line-height: 1.25; margin-bottom: 2px; color: var(--color-black);
-    }
-    .addon-lp-hero__body {
-      font-size: 10px; color: var(--color-muted); line-height: 1.35;
-      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    .addon-lp-desc {
+      font-size: 10px; font-weight: 400; color: var(--color-muted); line-height: 1.35;
     }
     @media (max-height: 740px) {
-      .addon-lp-hero__body { -webkit-line-clamp: 2; }
       .plan-card.is-expanded .plan-card__amount { font-size: 24px; }
       .plan-card.is-expanded .plan-card__features { display: none; }
     }
     @media (max-height: 640px) {
-      .addon-lp-hero { display: none; }
       .plan-card.is-expanded .plan-card__status { display: none; }
     }
 
@@ -2233,19 +2222,6 @@
       ' — pays for itself in ' + cycles + ' ' + intervalUnitPlural(planKey, cycles) +
       '. 48hr cancellation guarantee included free.';
   }
-  function buildLpHeroCopy(planKey) {
-    var base = getBasePlanPrice(planKey);
-    var save = getComboAddonPrice(planKey);
-    var lp = getLpPrice();
-    var cycles = Math.ceil(lp / save);
-    var iv = intervalWord(planKey);
-    var heading = 'Pay once. Save every ' + iv + '. Covered for life.';
-    var body = 'Lifetime Protection drops your plan to $' + base.toFixed(2) + '/' + iv +
-      ' — saving $' + save.toFixed(2) + ' every ' + iv +
-      '. Pays for itself in ' + cycles + ' ' + intervalUnitPlural(planKey, cycles) +
-      '. Unlimited prison transfers, 96hr post-renewal cancellation, and 48hr cancellation guarantee included free. Forever.';
-    return { heading: heading, body: body };
-  }
   function buildProtectStatusHtml(planKey) {
     var a = selectedAddons;
     var icon, msg, cls;
@@ -2277,13 +2253,14 @@
     var cg   = getCgPrice();
     var lp   = getLpPrice();
     var comboDelta = getComboAddonPrice(pk);
-    var hero = buildLpHeroCopy(pk);
     var lpSelected = !!selectedAddons.lifetimeAll;
-    var comboSelected = !!selectedAddons.combo23;
-    var cgSelected = !!selectedAddons.addon1;
-    var tpSelected = !!selectedAddons.addon2;
-    var rgSelected = !!selectedAddons.addon3;
-    var tpRgGreyed = comboSelected || lpSelected;
+    var comboOn = !!selectedAddons.combo23;
+    /* When LP is on: other rows look selected (included) but selectedAddons stay false for pricing */
+    var cgSelected = lpSelected || !!selectedAddons.addon1;
+    var tpSelected = lpSelected || !!selectedAddons.addon2;
+    var rgSelected = lpSelected || !!selectedAddons.addon3;
+    var comboSelected = lpSelected || comboOn;
+    var tpRgGreyed = comboOn || lpSelected;
     var cgGreyed = lpSelected;
     var comboGreyed = lpSelected;
 
@@ -2305,13 +2282,9 @@
             '<div class="addon-row__content">',
               '<span class="addon-lp-badge' + (lpSelected ? '' : ' is-pulsing') + '">LIFETIME DEAL</span>',
               '<p class="addon-row__name">Lifetime Protection + free Cancellation Guarantee (CG)</p>',
-              '<div class="addon-lp-hero">',
-                '<p class="addon-lp-hero__heading" data-lp-hero-heading>' + hero.heading + '</p>',
-                '<p class="addon-lp-hero__body" data-lp-hero-body>' + hero.body + '</p>',
-              '</div>',
               '<div class="addon-row__price-line">',
                 '<span class="addon-row__price">$' + lp.toFixed(2) + ' once</span>',
-                '<span class="addon-row__payment-type">One-time — never pay again</span>',
+                '<span class="addon-lp-desc">Pay once. Covered for life. Pay lower monthly.</span>',
               '</div>',
             '</div>',
           '</div>',
@@ -2847,12 +2820,28 @@
     var comboOn = !!selectedAddons.combo23;
     protectEl.querySelectorAll('.addon-row').forEach(function(row) {
       var key = row.dataset.addon;
+      if (key === 'lifetimeAll') {
+        row.classList.remove('is-greyed');
+        return;
+      }
+      if (lpOn) {
+        /* Visual only: greyed + ticked means included in LP; selectedAddons stay false */
+        row.classList.add('is-greyed');
+        row.classList.add('is-selected');
+        row.setAttribute('aria-checked', 'true');
+        return;
+      }
       var grey = false;
-      if (key === 'addon2' || key === 'addon3') grey = comboOn || lpOn;
-      if (key === 'addon1') grey = lpOn;
-      if (key === 'combo23') grey = lpOn;
+      if (key === 'addon2' || key === 'addon3') grey = comboOn;
       if (grey) row.classList.add('is-greyed');
       else row.classList.remove('is-greyed');
+      if (selectedAddons[key]) {
+        row.classList.add('is-selected');
+        row.setAttribute('aria-checked', 'true');
+      } else {
+        row.classList.remove('is-selected');
+        row.setAttribute('aria-checked', 'false');
+      }
     });
     var lpBadge = protectEl.querySelector('.addon-lp-badge');
     if (lpBadge) {
