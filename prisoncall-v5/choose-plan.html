@@ -328,18 +328,25 @@
       position: relative;
       width: 100%;
     }
+    /* Mobile Phase A: Monthly → Half-Yearly → Fortnightly (desktop DOM order unchanged) */
+    @media (max-width: 767px) {
+      .plans-grid:not(.is-expanded-mode) .plan-card--monthly { order: 1; }
+      .plans-grid:not(.is-expanded-mode) .plan-card--half-yearly { order: 2; }
+      .plans-grid:not(.is-expanded-mode) .plan-card--fortnightly { order: 3; }
+    }
     @media (min-width: 768px) {
       .plans-grid {
         flex-direction: row; align-items: center; gap: 12px;
         padding: 28px 0 16px;
       }
       .plans-grid.is-expanded-mode {
-        display: grid;
-        grid-template-columns: 1fr;
-        justify-items: center;
-        align-items: stretch;
-        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100dvh - var(--header-height) - 24px);
         padding: 0;
+        position: relative;
       }
     }
 
@@ -508,7 +515,7 @@
         margin: 0 auto;
         position: relative;
         z-index: 5;
-        max-height: calc(100dvh - 120px);
+        max-height: calc(100dvh - var(--header-height) - 48px);
         display: flex;
         flex-direction: column;
       }
@@ -535,35 +542,41 @@
 
     .plan-card__change {
       display: none; align-items: center; gap: 4px;
-      font-size: 12px; font-weight: 600; color: var(--color-muted);
+      font-size: 13px; font-weight: 600; color: var(--color-muted);
       font-family: inherit; background: none; border: none;
-      padding: 8px 14px; min-height: 36px; cursor: pointer; text-align: left;
+      padding: 10px 16px; min-height: 40px; cursor: pointer; text-align: left;
       width: 100%; flex-shrink: 0;
     }
     .plan-card.is-expanded .plan-card__change { display: flex; }
 
     .plan-card.is-expanded .plan-card__header {
       background: var(--color-black); border-bottom-color: transparent;
-      padding: 10px 14px 10px; flex-shrink: 0;
+      padding: 14px 16px 12px; flex-shrink: 0;
     }
-    .plan-card.is-expanded .plan-card__plan-name { color: rgba(255,255,255,0.5); }
-    .plan-card.is-expanded .plan-card__amount { color: var(--color-white); font-size: 28px; }
-    .plan-card.is-expanded .plan-card__period { color: rgba(255,255,255,0.48); }
+    .plan-card.is-expanded .plan-card__plan-name {
+      color: rgba(255,255,255,0.5); font-size: 10px; letter-spacing: 0.1em; line-height: 1.4;
+    }
+    .plan-card.is-expanded .plan-card__amount {
+      color: var(--color-white); font-size: 32px; line-height: 1.1; font-weight: 800;
+    }
+    .plan-card.is-expanded .plan-card__period {
+      color: rgba(255,255,255,0.48); font-size: 13px; line-height: 1.4;
+    }
     .plan-card.is-expanded .plan-name__save-pill { border-color: #00D258; color: #00D258; }
     .plan-card.is-expanded .plan-card__badge--dark { background: #101010; color: #fff; }
 
-    .plan-card__live-price { margin-top: 4px; }
+    .plan-card__live-price { margin-top: 6px; }
     .plan-card__onetime {
-      display: none; font-size: 11px; font-weight: 600; margin-top: 2px;
+      display: none; font-size: 12px; font-weight: 600; margin-top: 2px; line-height: 1.4;
       color: rgba(255,255,255,0.72);
     }
     .plan-card__onetime.is-visible { display: block; }
     .plan-card__status {
-      display: flex; align-items: flex-start; gap: 5px;
-      font-size: 10px; line-height: 1.35; margin-top: 4px;
+      display: flex; align-items: flex-start; gap: 6px;
+      font-size: 12px; line-height: 1.5; margin-top: 6px;
       color: rgba(255,255,255,0.78);
     }
-    .plan-card__status-icon { flex-shrink: 0; font-size: 11px; line-height: 1.35; }
+    .plan-card__status-icon { flex-shrink: 0; font-size: 12px; line-height: 1.5; }
     .plan-card__status.is-ok .plan-card__status-icon { color: #00D258; }
     .plan-card__status.is-warn { color: #F5C542; }
     .plan-card__status.is-warn .plan-card__status-icon { color: #F5C542; }
@@ -577,7 +590,7 @@
       flex-direction: column;
     }
     .plan-card.is-expanded .plan-card__body {
-      padding: 8px 12px;
+      padding: 12px 16px;
       flex: 1 1 auto;
       min-height: 0;
       overflow: hidden;
@@ -588,20 +601,20 @@
       gap: 4px; flex-shrink: 0;
     }
     .plan-card.is-expanded .plan-card__feature {
-      font-size: 11px; gap: 6px;
+      font-size: 12px; gap: 6px; line-height: 1.4;
     }
     .plan-card.is-expanded .plan-card__feature img {
       width: 14px; height: 14px;
     }
 
     .plan-card.is-expanded .plan-card__footer {
-      padding: 6px 12px 10px; flex-shrink: 0;
+      padding: 10px 16px 12px; flex-shrink: 0;
     }
 
     .plan-card__continue {
-      display: none; width: 100%; padding: 11px; min-height: 42px;
-      font-size: 14px; font-weight: 700; font-family: inherit; text-align: center;
-      border-radius: var(--radius-pill); cursor: pointer;
+      display: none; width: 100%; padding: 14px; min-height: 48px;
+      font-size: 15px; font-weight: 700; font-family: inherit; text-align: center;
+      line-height: 1.2; border-radius: var(--radius-pill); cursor: pointer;
       background: var(--color-black); color: var(--color-white);
       border: 2px solid var(--color-black);
     }
@@ -622,9 +635,35 @@
     @media (min-width: 768px) {
       .step-section[data-step="4"]:has(.plans-grid.is-expanded-mode) {
         margin-top: 0; padding-top: 0;
+        min-height: calc(100dvh - var(--header-height));
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
       }
       .plans-grid.is-expanded-mode .plan-card.is-expanded {
-        max-height: calc(100dvh - 32px);
+        max-height: calc(100dvh - var(--header-height) - 48px);
+      }
+    }
+
+    /* Mobile: Continue flush to viewport bottom; addon rows fill space so no empty gap */
+    @media (max-width: 767px) {
+      .plan-card.is-expanded .plan-card__footer {
+        margin-top: auto;
+        padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+      }
+      .plan-card.is-expanded .plan-card__protect {
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+      .plan-card.is-expanded .addon-table {
+        flex: 1 1 auto;
+        justify-content: space-between;
+        gap: 6px;
+        min-height: 0;
+      }
+      .plan-card.is-expanded .addon-row {
+        flex: 1 1 auto;
+        min-height: 0;
       }
     }
 
@@ -962,8 +1001,8 @@
       flex-direction: column;
     }
     .plan-card__protect-heading {
-      font-size: 12px; font-weight: 800; margin-bottom: 6px; color: var(--color-black);
-      flex-shrink: 0;
+      font-size: 13px; font-weight: 800; margin-bottom: 8px; color: var(--color-black);
+      line-height: 1.3; flex-shrink: 0;
     }
 
     .addon-table {
@@ -998,7 +1037,7 @@
     .addon-row.is-selected .addon-checkbox__tick { display: block; }
 
     .addon-row__content { flex: 1; min-width: 0; }
-    .addon-row__name { font-size: 11px; font-weight: 700; margin-bottom: 0; line-height: 1.25; }
+    .addon-row__name { font-size: 12px; font-weight: 700; margin-bottom: 0; line-height: 1.4; }
     .addon-combo-label,
     .addon-lp-badge {
       display: inline-flex; align-items: center; font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
@@ -2216,10 +2255,7 @@
   }
   function buildLpStatusMessage(planKey) {
     var save = getComboAddonPrice(planKey);
-    var lp = getLpPrice();
-    var cycles = Math.ceil(lp / save);
     return 'Fully protected for life. Saves ' + savePhrase(planKey, save) +
-      ' — pays for itself in ' + cycles + ' ' + intervalUnitPlural(planKey, cycles) +
       '. 48hr cancellation guarantee included free.';
   }
   function buildProtectStatusHtml(planKey) {
@@ -2255,11 +2291,11 @@
     var comboDelta = getComboAddonPrice(pk);
     var lpSelected = !!selectedAddons.lifetimeAll;
     var comboOn = !!selectedAddons.combo23;
-    /* When LP is on: other rows look selected (included) but selectedAddons stay false for pricing */
+    /* When LP is on: CG/TP/RG look ticked (included); Bundle greyed + unticked (redundant) */
     var cgSelected = lpSelected || !!selectedAddons.addon1;
     var tpSelected = lpSelected || !!selectedAddons.addon2;
     var rgSelected = lpSelected || !!selectedAddons.addon3;
-    var comboSelected = lpSelected || comboOn;
+    var comboSelected = lpSelected ? false : comboOn;
     var tpRgGreyed = comboOn || lpSelected;
     var cgGreyed = lpSelected;
     var comboGreyed = lpSelected;
@@ -2825,10 +2861,16 @@
         return;
       }
       if (lpOn) {
-        /* Visual only: greyed + ticked means included in LP; selectedAddons stay false */
+        /* Visual only — selectedAddons stay false for pricing */
         row.classList.add('is-greyed');
-        row.classList.add('is-selected');
-        row.setAttribute('aria-checked', 'true');
+        if (key === 'combo23') {
+          /* Bundle redundant when CG/TP/RG shown as included */
+          row.classList.remove('is-selected');
+          row.setAttribute('aria-checked', 'false');
+        } else {
+          row.classList.add('is-selected');
+          row.setAttribute('aria-checked', 'true');
+        }
         return;
       }
       var grey = false;
