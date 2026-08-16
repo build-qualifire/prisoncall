@@ -330,19 +330,20 @@
     }
     @media (min-width: 768px) {
       .plans-grid {
-        flex-direction: row; align-items: stretch; gap: 12px;
+        flex-direction: row; align-items: center; gap: 12px;
         padding: 28px 0 16px;
       }
       .plans-grid.is-expanded-mode {
         display: grid;
         grid-template-columns: 1fr;
         justify-items: center;
+        align-items: stretch;
         min-height: 0;
         padding: 0;
       }
     }
 
-    /* ── Phase A base card (restored from pre-redesign) ── */
+    /* ── Phase A base card (exact original unselected styles) ── */
     .plan-card {
       border: 2px solid var(--color-border); border-radius: var(--radius-md);
       overflow: hidden; cursor: pointer; background: var(--color-white);
@@ -352,10 +353,10 @@
       position: relative; z-index: 1;
     }
     @media (min-width: 768px) {
-      .plans-grid:not(.is-expanded-mode) .plan-card { flex: 1; min-width: 0; }
+      .plans-grid:not(.is-expanded-mode) .plan-card { flex: 1; min-width: 0; scroll-snap-align: none; }
     }
 
-    .plan-card:not(.is-expanded):not(.is-blurred):hover { border-color: #bbb; }
+    .plan-card:not(.is-expanded):not(.is-blurred):not(.is-featured):hover { border-color: #bbb; }
 
     .plan-card__header {
       position: relative;
@@ -371,7 +372,9 @@
       padding: 3px 9px; border-radius: var(--radius-pill);
     }
     .plan-card__badge-spacer { height: 21px; margin-bottom: 8px; display: block; }
+    /* Black badge variant (Most Popular) — green bg, black text */
     .plan-card__badge--black { background: var(--color-green); color: var(--color-black); }
+    /* Dark badge variant (Short Term) — black background, white text */
     .plan-card__badge--dark { background: #101010; color: #fff; }
 
     .plan-card__plan-name {
@@ -416,7 +419,7 @@
     .plan-card__features { display: flex; flex-direction: column; gap: 9px; }
     .plan-card__feature { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; }
     .plan-card__check {
-      flex-shrink: 0;
+      flex-shrink: 0; display: block;
       display: flex; align-items: center; justify-content: center;
       font-size: 9px; font-weight: 900; color: var(--color-black); line-height: 1;
     }
@@ -430,6 +433,50 @@
       transition: background var(--tr), color var(--tr), border-color var(--tr);
       min-height: 44px;
     }
+
+    /* ── Phase A Monthly featured — original selected taller sizing + full black card ── */
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured {
+      border-color: var(--color-black);
+      transform: translateY(-4px);
+      background: #101010;
+      z-index: 2;
+    }
+    @media (max-width: 767px) {
+      .plans-grid:not(.is-expanded-mode) .plan-card.is-featured { flex: 0 0 auto; }
+    }
+    @media (min-width: 768px) {
+      .plans-grid:not(.is-expanded-mode) .plan-card.is-featured { flex: 1.5; }
+    }
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__header {
+      background: #101010; border-bottom-color: transparent;
+      padding-top: 26px; padding-bottom: 18px;
+    }
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__body {
+      padding-top: 18px; padding-bottom: 18px; background: #101010;
+    }
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__footer {
+      padding-bottom: 22px; background: #101010;
+    }
+    @media (min-width: 768px) {
+      .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__header { padding-top: 42px; padding-bottom: 22px; }
+      .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__body { padding-top: 20px; padding-bottom: 20px; }
+      .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__footer { padding-bottom: 26px; }
+      .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__amount { font-size: 46px; }
+    }
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__amount { font-size: 42px; color: var(--color-white); }
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__plan-name { color: rgba(255,255,255,0.5); }
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__period { color: rgba(255,255,255,0.48); }
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__feature { color: #ffffff; }
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__badge--black {
+      background: var(--color-green); color: var(--color-black);
+    }
+    /* Original selected-card button override: white/black — never green */
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__select {
+      background: var(--color-white); color: var(--color-black); border-color: var(--color-black);
+    }
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured:hover { border-color: var(--color-black); }
+    /* No selected checkmark indicator in Phase A */
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__selected-indicator { opacity: 0; }
 
     /* ── Phase B — blurred siblings (desktop) ── */
     .plans-grid.is-expanded-mode .plan-card.is-blurred {
@@ -2384,9 +2431,13 @@
         var planNameHtml = p.key === 'half_yearly'
           ? p.name+'<span class="plan-name__save-pill">Save 17%</span>'
           : p.name;
-        /* Phase A feature checklist — original black checkmarks */
+        /* Phase A: Monthly featured uses white checks; others + Phase B use black */
+        var isFeatured = !isExpandedMode && p.key === 'monthly';
+        var checkIcon = isFeatured
+          ? '/assets/icons/feature_icons/icon_check_white.svg'
+          : '/assets/icons/feature_icons/icon_check_black.svg';
         var featHtml = FEATURES.map(function(f){
-          return '<li class="plan-card__feature"><img src="/assets/icons/feature_icons/icon_check_black.svg" alt="" width="20" height="20" class="plan-card__check" aria-hidden="true">'+f+'</li>';
+          return '<li class="plan-card__feature"><img src="'+checkIcon+'" alt="" width="20" height="20" class="plan-card__check" aria-hidden="true">'+f+'</li>';
         }).join('');
 
         var displayAmount = isExpanded
@@ -2405,6 +2456,7 @@
         }
 
         var cardClasses = 'plan-card ' + p.cls;
+        if (isFeatured) cardClasses += ' is-featured';
         if (isExpanded) cardClasses += ' is-expanded is-selected';
         if (isBlurred) cardClasses += ' is-blurred' + blurSide;
 
@@ -2415,9 +2467,10 @@
         var bodyInner = '<ul class="plan-card__features">'+featHtml+'</ul>' +
           (isExpanded ? buildInCardProtectHtml(p.key) : '');
 
+        var selectLabel = isFeatured ? 'Choose Plan' : 'Select plan';
         var footerInner = isExpanded
           ? '<button class="plan-card__continue" type="button" data-plan-continue>Continue &rarr;</button>'
-          : '<button class="plan-card__select" type="button">Choose Plan</button>';
+          : '<button class="plan-card__select" type="button">'+selectLabel+'</button>';
 
         var scrollOpen = isExpanded ? '<div class="plan-card__scroll">' : '';
         var scrollClose = isExpanded ? '</div>' : '';
