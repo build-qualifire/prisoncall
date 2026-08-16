@@ -79,12 +79,13 @@ function buildPricing(priceById) {
   const halfYearlyBase   = p('54535956005143');
   const halfYearlyCombo  = p('54535957119255');
 
-  const tpFortnightly = p('54535954891031');
-  const rgFortnightly = p('54535954956567');
-  const tpMonthly     = p('54535955546391');
-  const rgMonthly     = p('54535955710231');
-  const tpHalfYearly  = p('54535957020951');
-  const rgHalfYearly  = p('54535957086487');
+  /* TP/RG Shopify variants are plan+addon combined prices — store add-on delta only */
+  const tpFortnightly = +(p('54535954891031') - fortnightlyBase).toFixed(2);
+  const rgFortnightly = +(p('54535954956567') - fortnightlyBase).toFixed(2);
+  const tpMonthly     = +(p('54535955546391') - monthlyBase).toFixed(2);
+  const rgMonthly     = +(p('54535955710231') - monthlyBase).toFixed(2);
+  const tpHalfYearly  = +(p('54535957020951') - halfYearlyBase).toFixed(2);
+  const rgHalfYearly  = +(p('54535957086487') - halfYearlyBase).toFixed(2);
 
   const cgPrice = p('54535991361815');
   const lpPrice = p('54535991394583');
@@ -132,6 +133,13 @@ function buildPricing(priceById) {
         fortnightly: rgFortnightly,
         monthly: rgMonthly,
         half_yearly: rgHalfYearly,
+      },
+      combo: {
+        label: 'Transfer + Renewal Combo',
+        type: 'recurring',
+        fortnightly: comboDelta.fortnightly,
+        monthly: comboDelta.monthly,
+        half_yearly: comboDelta.half_yearly,
       },
       cg: {
         label: '48hr Cancellation Guarantee',

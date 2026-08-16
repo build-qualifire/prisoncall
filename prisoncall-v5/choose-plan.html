@@ -47,7 +47,7 @@
       --radius-lg: 24px;
       --radius-pill: 80px;
       --tr: 150ms ease;
-      --container-max: 1312px;
+      --container-max: 1200px;
       --header-height: 72px;
       --header-height-mobile: 48px;
     }
@@ -60,6 +60,7 @@
       font-size: 16px; line-height: 1.5;
       color: var(--color-black); background: var(--color-white);
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
     img { display: block; max-width: 100%; }
     a { color: inherit; text-decoration: none; }
@@ -199,20 +200,22 @@
        PAGE LAYOUT
     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     .cp-wrap {
-      max-width: 680px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 32px 20px 80px;
+      width: 100%;
+      box-sizing: border-box;
     }
     @media (min-width: 768px) {
       .cp-wrap {
-        max-width: var(--container-max);
-        padding: 48px 24px 96px;
+        max-width: 1200px;
+        padding: 48px 32px 96px;
       }
     }
     @media (min-width: 1024px) {
       .cp-wrap {
-        max-width: var(--container-max);
-        padding: 56px 32px 96px;
+        max-width: 1200px;
+        padding: 56px 40px 96px;
       }
     }
 
@@ -317,59 +320,143 @@
     .mobile-continue:hover { opacity: 0.86; transform: translateY(-1px); }
     .mobile-continue:active { transform: none; opacity: 1; }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-       PLAN CAROUSEL
-    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-    .carousel-outer { overflow: hidden; margin: 0 -20px; }
-    @media (min-width: 768px) { .carousel-outer { overflow: visible; margin: 0; } }
-
-    .carousel-track {
-      display: flex; gap: 12px; align-items: center;
-      overflow-x: scroll; scroll-snap-type: x mandatory; scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch; scrollbar-width: none;
-      padding: 8px 10% 20px;
+    /* ═══════════════════════════════════════════════════
+       STEP 4 — PLAN CARDS (Phase A / B expand flow)
+    ═══════════════════════════════════════════════════ */
+    .plans-grid {
+      display: flex; flex-direction: column; gap: 12px;
+      position: relative;
+      width: 100%;
+      transition: min-height 300ms ease;
     }
-    .carousel-track::-webkit-scrollbar { display: none; }
-
     @media (min-width: 768px) {
-      .carousel-track {
-        overflow: visible; scroll-snap-type: none;
-        padding: 28px 0 16px; gap: 12px;
-        align-items: center;
+      .plans-grid {
+        flex-direction: row; align-items: stretch; gap: 16px;
+        min-height: 420px;
+      }
+      .plans-grid.is-expanded-mode {
+        min-height: 560px;
+        align-items: stretch;
       }
     }
 
-    /* â”€â”€â”€ Plan card â”€â”€â”€ */
     .plan-card {
-      flex: 0 0 76%; scroll-snap-align: center; scroll-snap-stop: always;
       border: 2px solid var(--color-border); border-radius: var(--radius-md);
-      overflow: hidden; cursor: pointer; background: var(--color-white);
-      transition: border-color var(--tr), transform var(--tr); display: flex; flex-direction: column;
-      user-select: none;
+      overflow: hidden; background: var(--color-white);
+      display: flex; flex-direction: column;
+      user-select: none; width: 100%;
+      transition: transform 300ms ease, opacity 300ms ease, filter 300ms ease,
+                  box-shadow 300ms ease, border-color 300ms ease, flex 300ms ease;
+      position: relative; z-index: 1;
     }
-    @media (min-width: 768px) { .plan-card { flex: 1; scroll-snap-align: none; } }
-    /* Selected card is the enlarged one â€” size follows selection on both mobile and desktop */
-    .plan-card.is-selected { flex: 0 0 84%; border-color: var(--color-black); transform: translateY(-4px); }
-    @media (min-width: 768px) { .plan-card.is-selected { flex: 1.5; } }
+    @media (min-width: 768px) {
+      .plan-card { flex: 1; min-width: 0; }
+    }
 
-    .plan-card:hover { border-color: #bbb; }
+    /* Phase A — Monthly suggested (not selected) */
+    .plan-card.is-suggested {
+      transform: scale(1.02);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.10);
+      border-color: #ccc;
+      z-index: 2;
+    }
+    @media (min-width: 768px) {
+      .plan-card.is-suggested { transform: scale(1.03); }
+    }
+
+    .plan-card:not(.is-expanded):hover { border-color: #bbb; }
+
+    /* Phase B — blurred siblings (desktop) */
+    .plans-grid.is-expanded-mode .plan-card.is-blurred {
+      filter: blur(3px); opacity: 0.4;
+      pointer-events: auto; cursor: pointer;
+      transform: scale(0.92);
+      z-index: 1;
+    }
+    @media (max-width: 767px) {
+      .plans-grid.is-expanded-mode .plan-card.is-blurred { display: none; }
+    }
+
+    /* Phase B — expanded card */
+    .plan-card.is-expanded {
+      border-color: var(--color-black);
+      z-index: 5;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.14);
+    }
+    @media (min-width: 768px) {
+      .plans-grid.is-expanded-mode .plan-card.is-expanded {
+        flex: 0 0 100%;
+        max-width: 720px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 5;
+      }
+      .plans-grid.is-expanded-mode {
+        display: grid;
+        grid-template-columns: 1fr;
+        justify-items: center;
+      }
+      .plans-grid.is-expanded-mode .plan-card.is-blurred {
+        position: absolute;
+        top: 24px; bottom: 24px;
+        width: 26%;
+        max-width: 240px;
+      }
+      .plans-grid.is-expanded-mode .plan-card.is-blur-left { left: 0; right: auto; }
+      .plans-grid.is-expanded-mode .plan-card.is-blur-right { right: 0; left: auto; }
+    }
+
+    /* Mobile full-screen expand */
+    @media (max-width: 767px) {
+      .plan-card.is-expanded {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%; height: 100%; max-width: none;
+        margin: 0; border-radius: 0; border: none;
+        z-index: 999; background: #fff;
+        display: flex; flex-direction: column;
+        transform: none !important;
+        animation: planSlideUp 300ms ease;
+        overflow: hidden;
+        box-shadow: none;
+      }
+      .plan-card.is-expanded .plan-card__scroll {
+        flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+        padding-bottom: 88px;
+      }
+      body.plan-expanded-lock { overflow: hidden; touch-action: none; }
+    }
+    @keyframes planSlideUp {
+      from { transform: translateY(24px); opacity: 0.6; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+
+    .plan-card__change {
+      display: none; align-items: center; gap: 4px;
+      font-size: 13px; font-weight: 600; color: var(--color-muted);
+      font-family: inherit; background: none; border: none;
+      padding: 12px 16px; min-height: 44px; cursor: pointer; text-align: left;
+      width: 100%;
+    }
+    .plan-card.is-expanded .plan-card__change { display: flex; }
+    @media (max-width: 767px) {
+      .plan-card.is-expanded .plan-card__change {
+        position: sticky; top: 0; z-index: 2;
+        background: #fff; border-bottom: 1px solid var(--color-border);
+      }
+    }
 
     .plan-card__header {
-      padding: 18px 18px 14px; background: var(--color-surface);
+      padding: 14px 16px 12px; background: var(--color-surface);
       border-bottom: 1px solid var(--color-border);
-      transition: background var(--tr), border-color var(--tr), padding var(--tr);
+      transition: background 300ms ease, border-color 300ms ease, padding 300ms ease;
     }
-    /* Selected card taller â€” creates floating centred effect */
-    .plan-card.is-selected .plan-card__header { background: var(--color-black); border-bottom-color: transparent; padding-top: 26px; padding-bottom: 18px; }
-    .plan-card.is-selected .plan-card__body { padding-top: 18px; padding-bottom: 18px; }
-    .plan-card.is-selected .plan-card__footer { padding-bottom: 22px; }
-    /* Even more prominent on desktop */
-    @media (min-width: 768px) { .plan-card.is-selected .plan-card__header { padding-top: 42px; padding-bottom: 22px; } }
-    @media (min-width: 768px) { .plan-card.is-selected .plan-card__body { padding-top: 20px; padding-bottom: 20px; } }
-    @media (min-width: 768px) { .plan-card.is-selected .plan-card__footer { padding-bottom: 26px; } }
-    /* Larger price on selected card */
-    .plan-card.is-selected .plan-card__amount { font-size: 42px; }
-    @media (min-width: 768px) { .plan-card.is-selected .plan-card__amount { font-size: 46px; } }
+    .plan-card.is-expanded .plan-card__header {
+      background: var(--color-black); border-bottom-color: transparent;
+      padding-top: 20px; padding-bottom: 16px;
+    }
+    @media (min-width: 768px) {
+      .plan-card.is-expanded .plan-card__header { padding-top: 28px; padding-bottom: 20px; }
+    }
 
     .plan-card__badge {
       display: inline-block; margin-bottom: 8px;
@@ -377,40 +464,114 @@
       background: var(--color-green); color: var(--color-black);
       padding: 3px 9px; border-radius: var(--radius-pill);
     }
-    .plan-card__badge-spacer { height: 21px; margin-bottom: 8px; display: block; }
+    .plan-card__badge--dark { background: #101010; color: #fff; }
+    .plan-card.is-expanded .plan-card__badge--dark { background: #101010; color: #fff; }
+    .plan-card__badge--black { background: var(--color-green); color: var(--color-black); }
 
     .plan-card__plan-name {
       font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
       color: var(--color-muted); margin-bottom: 4px;
-      transition: color var(--tr);
     }
-    .plan-card.is-selected .plan-card__plan-name { color: rgba(255,255,255,0.5); }
+    .plan-card.is-expanded .plan-card__plan-name { color: rgba(255,255,255,0.5); }
 
-    .plan-card__price { display: flex; align-items: baseline; gap: 2px; }
-    .plan-card__amount { font-size: 36px; font-weight: 800; line-height: 1; color: var(--color-black); transition: color var(--tr); }
-    .plan-card.is-selected .plan-card__amount { color: var(--color-white); }
-    .plan-card__period { font-size: 13px; color: var(--color-muted); transition: color var(--tr); }
-    .plan-card.is-selected .plan-card__period { color: rgba(255,255,255,0.48); }
+    .plan-name__save-pill {
+      display: inline-flex; align-items: center;
+      border: 1.5px solid #00D258; color: #00D258; background: transparent;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 2px 6px; border-radius: 80px;
+      vertical-align: middle; margin-left: 5px; line-height: 1;
+    }
+    .plan-card.is-expanded .plan-name__save-pill {
+      border-color: #00D258; color: #00D258;
+    }
 
-    .plan-card__body { padding: 14px 18px; flex: 1; }
-    .plan-card__features { display: flex; flex-direction: column; gap: 9px; }
+    .plan-card__price { display: flex; align-items: baseline; gap: 2px; flex-wrap: wrap; }
+    .plan-card__amount { font-size: 28px; font-weight: 800; line-height: 1; color: var(--color-black); }
+    @media (min-width: 768px) { .plan-card__amount { font-size: 34px; } }
+    .plan-card.is-expanded .plan-card__amount { color: var(--color-white); font-size: 36px; }
+    @media (min-width: 768px) { .plan-card.is-expanded .plan-card__amount { font-size: 42px; } }
+    .plan-card__period { font-size: 13px; color: var(--color-muted); }
+    .plan-card.is-expanded .plan-card__period { color: rgba(255,255,255,0.48); }
+
+    .plan-card__live-price { margin-top: 6px; }
+    .plan-card__onetime {
+      display: none; font-size: 12px; font-weight: 600; margin-top: 4px;
+      color: rgba(255,255,255,0.72);
+    }
+    .plan-card__onetime.is-visible { display: block; }
+    .plan-card__status {
+      display: flex; align-items: flex-start; gap: 6px;
+      font-size: 11px; line-height: 1.45; margin-top: 8px;
+      color: rgba(255,255,255,0.78);
+    }
+    .plan-card__status-icon { flex-shrink: 0; font-size: 12px; line-height: 1.45; }
+    .plan-card__status.is-ok .plan-card__status-icon { color: #00D258; }
+    .plan-card__status.is-warn { color: #F5C542; }
+    .plan-card__status.is-warn .plan-card__status-icon { color: #F5C542; }
+
+    .plan-card__body { padding: 12px 16px; flex: 1; }
+    @media (min-width: 768px) { .plan-card__body { padding: 14px 18px; } }
+    .plan-card.is-expanded .plan-card__body { padding-top: 16px; padding-bottom: 16px; }
+
+    .plan-card__features { display: flex; flex-direction: column; gap: 8px; }
     .plan-card__feature { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; }
     .plan-card__check {
-      flex-shrink: 0; display: block;
+      flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: 9px; font-weight: 900; color: var(--color-black); line-height: 1;
     }
-    .plan-card__footer { padding: 0 18px 18px; }
+
+    .plan-card__footer { padding: 0 16px 16px; }
     .plan-card__select {
-      display: block; width: 100%; padding: 10px; font-size: 13px; font-weight: 700;
+      display: block; width: 100%; padding: 12px; min-height: 44px;
+      font-size: 14px; font-weight: 700;
       font-family: inherit; text-align: center; border-radius: var(--radius-pill);
       background: var(--color-black); color: var(--color-white);
       border: 2px solid var(--color-black); cursor: pointer;
-      transition: background var(--tr), color var(--tr), border-color var(--tr);
+      transition: background var(--tr), color var(--tr), border-color var(--tr), opacity var(--tr);
     }
-    .plan-card.is-selected .plan-card__select {
-      background: var(--color-green); color: var(--color-black); border-color: var(--color-green);
+    .plan-card.is-expanded .plan-card__select { display: none; }
+
+    .plan-card__continue {
+      display: none; width: 100%; padding: 14px; min-height: 48px;
+      font-size: 15px; font-weight: 700; font-family: inherit; text-align: center;
+      border-radius: var(--radius-pill); cursor: pointer;
+      background: var(--color-black); color: var(--color-white);
+      border: 2px solid var(--color-black);
     }
+    @media (min-width: 768px) {
+      .plan-card.is-expanded .plan-card__continue { display: block; }
+    }
+
+    /* Mobile fixed Continue */
+    .plan-continue-fixed {
+      display: none;
+      position: fixed; bottom: 0; left: 0; width: 100%;
+      padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      background: var(--color-black); color: var(--color-white);
+      font-size: 16px; font-weight: 700; font-family: inherit; text-align: center;
+      border: none; z-index: 1000; min-height: 56px; cursor: pointer;
+    }
+    @media (max-width: 767px) {
+      .plan-continue-fixed.is-visible { display: block; }
+      .plan-card.is-expanded .plan-card__footer { display: none; }
+      .plans-grid { gap: 10px; }
+      .plan-card__header { padding: 12px 14px 10px; }
+      .plan-card__body { padding: 10px 14px; }
+      .plan-card__footer { padding: 0 14px 14px; }
+      .plan-card__amount { font-size: 26px; }
+      .plan-card__feature { font-size: 12px; gap: 6px; }
+    }
+
+    .plan-card__equiv { display: none; }
+    .plan-card__selected-indicator { display: none; }
+    .plan-card__badge-spacer { height: 21px; margin-bottom: 8px; display: block; }
+
+    /* Keep legacy carousel class names inert (no longer used for Step 4) */
+    .carousel-outer { overflow: visible; margin: 0; }
+    .carousel-track { display: contents; }
+
+    .plan-continue { margin-top: 28px; }
+    .step-section[data-step="4"] .plan-continue { display: none; }
 
     /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        COMPLETED AREA
@@ -720,74 +881,16 @@
        â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     /* ═══════════════════════════════════════════════════
-       STEP 4 — PLAN CARD ADDITIONS
-    ═══════════════════════════════════════════════════ */
-
-    /* Header needs relative positioning for the selected indicator */
-    .plan-card__header { position: relative; }
-
-    /* Black badge variant (Most Popular) */
-    .plan-card__badge--black { background: var(--color-green); color: var(--color-black); }
-    /* On selected card (black header bg) flip the black badge to white so it's visible */
-    .plan-card.is-selected .plan-card__badge--black { background: var(--color-green); color: var(--color-black); }
-    /* Dark badge variant (Short Term) — black background, white text */
-    .plan-card__badge--dark { background: #101010; color: #fff; }
-    .plan-card.is-selected .plan-card__badge--dark { background: #101010; color: #fff; }
-
-    /* Equiv rate line below price (Annual card) */
-    .plan-card__equiv { font-size: 11px; color: var(--color-muted); margin-top: 4px; transition: color var(--tr); display: none; }
-    .plan-card.is-selected .plan-card__equiv { color: rgba(255,255,255,0.55); display: block; }
-    /* Outlined SAVE 17% pill shown inline after the Half-Yearly plan name */
-    .plan-name__save-pill {
-      display: inline-flex; align-items: center;
-      border: 1.5px solid #00D258; color: #00D258; background: transparent;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 2px 6px; border-radius: 80px;
-      vertical-align: middle; margin-left: 5px; line-height: 1;
-    }
-
-    /* Top-right selected indicator: white circle, black checkmark */
-    .plan-card__selected-indicator {
-      position: absolute; top: 12px; right: 12px;
-      width: 22px; height: 22px;
-      background: transparent;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity var(--tr);
-      color: #00D258; pointer-events: none;
-    }
-    .plan-card.is-selected .plan-card__selected-indicator { opacity: 1; }
-
-    /* Override: selected card button is white/black — never green */
-    .plan-card.is-selected .plan-card__select {
-      background: var(--color-white); color: var(--color-black); border-color: var(--color-black);
-    }
-
-    /* ═══════════════════════════════════════════════════
-       ADD-ON SECTION (Step 4 — inside selected plan card)
+       ADD-ON SECTION (Step 4 — inside expanded plan card)
     ═══════════════════════════════════════════════════ */
     @keyframes addonReveal {
       from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0); }
     }
     @keyframes lpBadgePulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 210, 88, 0.45); }
-      50%      { transform: scale(1.05); box-shadow: 0 0 12px 2px rgba(0, 210, 88, 0.55); }
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 210, 88, 0.4); }
+      50%      { transform: scale(1.05); box-shadow: 0 0 14px 3px rgba(0, 210, 88, 0.4); }
     }
-    .plan-card__live-price { margin-top: 6px; }
-    .plan-card__onetime {
-      display: none; font-size: 12px; font-weight: 600; margin-top: 4px;
-      color: rgba(255,255,255,0.72);
-    }
-    .plan-card__onetime.is-visible { display: block; }
-    .plan-card__status {
-      display: flex; align-items: flex-start; gap: 6px;
-      font-size: 11px; line-height: 1.45; margin-top: 8px;
-      color: rgba(255,255,255,0.78);
-    }
-    .plan-card__status-icon { flex-shrink: 0; font-size: 12px; line-height: 1.45; }
-    .plan-card__status.is-ok .plan-card__status-icon { color: #00D258; }
-    .plan-card__status.is-warn { color: #F5C542; }
-    .plan-card__status.is-warn .plan-card__status-icon { color: #F5C542; }
 
     .plan-card__protect {
       margin-top: 16px; padding-top: 14px;
@@ -798,22 +901,15 @@
       font-size: 14px; font-weight: 800; margin-bottom: 10px; color: var(--color-black);
     }
 
-    .addon-section {
-      margin-top: 32px; padding-top: 28px;
-      border-top: 2px solid var(--color-border);
-      animation: addonReveal 300ms ease forwards;
-    }
-    .addon-section__heading { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
-    .addon-section__sub { font-size: 12px; color: var(--color-muted); margin-bottom: 20px; line-height: 1.5; }
-
     .addon-table { display: flex; flex-direction: column; gap: 8px; margin-bottom: 0; }
 
     .addon-row {
       border: 1.5px solid var(--color-border); border-radius: var(--radius-md);
-      padding: 12px 12px; cursor: pointer; user-select: none;
+      padding: 12px; cursor: pointer; user-select: none;
       transition: border-color var(--tr), background var(--tr), opacity var(--tr);
       display: flex; align-items: flex-start; gap: 10px;
       background: var(--color-white);
+      min-height: 44px;
     }
     .addon-row:hover { border-color: #bbb; }
     .addon-row.is-selected { border-color: var(--color-black); }
@@ -824,7 +920,7 @@
     }
 
     .addon-checkbox {
-      flex-shrink: 0; margin-top: 1px; width: 18px; height: 18px; border-radius: 4px;
+      flex-shrink: 0; margin-top: 1px; width: 20px; height: 20px; border-radius: 4px;
       border: 2px solid var(--color-border);
       display: flex; align-items: center; justify-content: center;
       transition: background var(--tr), border-color var(--tr);
@@ -844,10 +940,6 @@
     .addon-lp-badge.is-pulsing {
       animation: lpBadgePulse 3s ease-in-out infinite;
     }
-    .addon-row__why { font-size: 12px; color: var(--color-muted); line-height: 1.5; margin-top: 4px; margin-bottom: 6px; }
-    .addon-row__risk {
-      font-size: 12px; color: #CC0000; line-height: 1.4; margin-bottom: 8px;
-    }
     .addon-row__price-line {
       display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px;
       margin-top: 4px;
@@ -866,89 +958,6 @@
     .addon-lp-hero__body {
       font-size: 11px; color: var(--color-muted); line-height: 1.45;
     }
-
-    .addon-lifetime {
-      border: 2px solid #333; border-radius: var(--radius-md);
-      padding: 20px; margin-bottom: 20px; cursor: pointer; user-select: none;
-      background: #fafaf9; transition: border-color var(--tr);
-    }
-    .addon-lifetime:hover { border-color: var(--color-black); }
-    .addon-lifetime.is-selected { border-color: var(--color-black); }
-    .addon-lifetime__badge {
-      display: inline-block; margin-bottom: 10px;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-      background: var(--color-green); color: var(--color-black);
-      padding: 3px 9px; border-radius: var(--radius-pill);
-    }
-    .addon-lifetime__heading { font-size: 22px; font-weight: 900; margin-bottom: 6px; line-height: 1.2; }
-    .addon-lifetime__sub { font-size: 13px; color: var(--color-muted); margin-bottom: 16px; line-height: 1.5; }
-    .addon-lifetime__btn {
-      display: block; width: 100%; padding: 15px; min-height: 48px;
-      font-size: 15px; font-weight: 700; font-family: inherit; text-align: center;
-      border-radius: var(--radius-pill); cursor: pointer;
-      background: var(--color-green); color: var(--color-black);
-      border: 2px solid var(--color-green);
-      transition: background var(--tr), color var(--tr), border-color var(--tr);
-    }
-    .addon-lifetime.is-selected .addon-lifetime__btn {
-      background: var(--color-white); color: var(--color-black); border-color: var(--color-green);
-    }
-
-    .addon-actions { margin-top: 8px; }
-    .addon-checkout-btn {
-      display: block; width: 100%; padding: 18px; min-height: 48px;
-      font-size: 17px; font-weight: 700; font-family: inherit; text-align: center;
-      border-radius: var(--radius-pill); cursor: pointer;
-      background: var(--color-green); color: var(--color-black);
-      border: 2px solid var(--color-green);
-      transition: opacity var(--tr), transform var(--tr);
-    }
-    .addon-checkout-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
-    .addon-checkout-btn:active { transform: none; }
-    .addon-checkout-btn:disabled { opacity: 0.5; pointer-events: none; cursor: default; }
-    .addon-skip {
-      display: block; width: 100%; padding: 12px; min-height: 44px;
-      text-align: center; margin-top: 10px;
-      font-size: 12px; color: var(--color-muted); cursor: pointer;
-      background: none; border: none; font-family: inherit;
-      text-decoration: underline; text-underline-offset: 2px;
-      transition: color var(--tr);
-    }
-    .addon-skip:hover { color: var(--color-black); }
-    .addon-skip:disabled { opacity: 0.5; pointer-events: none; }
-
-    /* ====================================================
-       FIX 6: Collapsed add-on rows + info button
-    ==================================================== */
-    .addon-row__header {
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    }
-    .addon-row__details {
-      overflow: hidden; max-height: 0; opacity: 0;
-      transition: max-height 200ms ease, opacity 200ms ease;
-    }
-    .addon-row.is-open .addon-row__details {
-      max-height: 300px; opacity: 1; margin-top: 8px;
-    }
-    @keyframes infoPulse {
-      0%, 100% { transform: scale(1); }
-      50%       { transform: scale(1.18); }
-    }
-    .addon-row__info-btn {
-      flex-shrink: 0; width: 44px; height: 44px;
-      border: none; background: transparent;
-      font-size: 18px; font-weight: 700; color: var(--color-black);
-      font-family: inherit; cursor: pointer; line-height: 1;
-      display: flex; align-items: center; justify-content: center;
-      transition: opacity 150ms ease;
-      animation: infoPulse 2.5s ease-in-out infinite;
-      pointer-events: all;
-    }
-    .addon-row.is-open .addon-row__info-btn {
-      animation: none;
-    }
-    /* FIX 10: Ensure spacing between lifetime block and continue button */
-    .plan-continue { margin-top: 28px; }
 
     @media (min-width: 768px) {
       main    { padding: 8px 12px 0; }
@@ -1436,11 +1445,9 @@
      missing Supabase row does not crash the page with a TypeError. */
   function buildPlansArray() {
     var defs = [
-      { key:'annual',      badge:'Best Value',   badgeCls:'',            cls:'plan-card--annual',      equivFn: function(p){ return '$'+(p.price/12).toFixed(2)+'/month'; } },
       { key:'half_yearly', badge:'Best Value',   badgeCls:'',            cls:'plan-card--half-yearly', equivFn: null },
       { key:'monthly',     badge:'Most Popular', badgeCls:'badge--black', cls:'plan-card--monthly',     equivFn: null },
       { key:'fortnightly', badge:'Short Term',   badgeCls:'badge--dark',  cls:'plan-card--fortnightly', equivFn: null },
-      { key:'weekly',      badge:null,           badgeCls:'',            cls:'plan-card--weekly',      equivFn: null },
     ];
     var result = [];
     defs.forEach(function(d) {
@@ -1475,12 +1482,11 @@
       var s4 = planFlow ? planFlow.querySelector('[data-step="4"]') : null;
       if (s4) {
         if (ok) {
-          var newS4 = buildStep4El(selectedPlan || 'monthly');
+          var newS4 = buildStep4El(null);
           s4.parentNode.replaceChild(newS4, s4);
           wireStep4(newS4);
-          snapCarouselToKey(newS4, selectedPlan || 'monthly');
         } else {
-          var track = s4.querySelector('.carousel-track');
+          var track = s4.querySelector('.plans-grid') || s4.querySelector('.carousel-track');
           if (track) {
             track.innerHTML =
               '<div class="pricing-fetch-error">' +
@@ -1594,9 +1600,12 @@
      Populated by buildPlansArray() after the Supabase fetch resolves. */
   var PLANS = [];
 
-  /* Selected plan state — updated when customer picks a card */
+  /* Selected plan state — updated when customer expands a card */
   var selectedPlan      = 'monthly';
-  var selectedPlanPrice = 0; /* updated to PRICING.plans.monthly.price once the Supabase fetch resolves */
+  var selectedPlanPrice = 0; /* updated once PRICING fetch resolves */
+  /* null = Phase A (no card expanded); plan key = Phase B expanded */
+  var step4ExpandedKey  = null;
+
   /* Default: combo pre-ticked (TP+RG bundle). Keys stay legacy for checkout/Step 5. */
   var selectedAddons    = { addon1: false, addon2: false, addon3: false, combo23: true, lifetimeAll: false };
 
@@ -2075,6 +2084,9 @@
     return (typeof p.comboPrice === 'number') ? p.comboPrice : p.price;
   }
   function getComboAddonPrice(planKey) {
+    var pk = getPlanIntervalKey(planKey);
+    if (PRICING.addons.combo && PRICING.addons.combo[pk] != null) return PRICING.addons.combo[pk];
+    if (PRICING.addons.combo23 && PRICING.addons.combo23[pk] != null) return PRICING.addons.combo23[pk];
     return +(getComboPlanPrice(planKey) - getBasePlanPrice(planKey)).toFixed(2);
   }
   function getTpPrice(planKey) {
@@ -2281,28 +2293,46 @@
     ].join('');
   }
 
-  function buildStep4El(prePlanKey){
-    var defaultKey = prePlanKey || 'monthly';
+  function buildStep4El(expandedKey){
+    /* expandedKey: null = Phase A; plan key = Phase B expanded.
+       When editing, pass entry.planKey to open already expanded. */
     var cardsHtml;
+    step4ExpandedKey = expandedKey || null;
+    var isExpandedMode = !!step4ExpandedKey;
 
     if(pricingFetchError){
-      /* Fetch failed — show a visible error so the customer knows to refresh */
       cardsHtml =
         '<div class="pricing-fetch-error">' +
           '<p>Unable to load plans &mdash; please refresh the page and try again.</p>' +
           '<button type="button" onclick="location.reload()" class="pricing-refresh-btn">Refresh page</button>' +
         '</div>';
     } else if(!PRICING){
-      /* Fetch still in-flight — show spinner; settle() will swap Step 4 when ready */
       cardsHtml =
         '<div class="pricing-loading" role="status" aria-live="polite">' +
           '<span class="pricing-spinner" aria-hidden="true"></span>' +
           '<p>Loading plans&hellip;</p>' +
         '</div>';
     } else {
-      /* PRICING is ready — build plan cards; add-ons only on the selected card */
+      if (isExpandedMode) {
+        selectedPlan = step4ExpandedKey;
+        selectedPlanPrice = calcLiveRecurring(step4ExpandedKey);
+      }
+
+      var blurredOrder = isExpandedMode
+        ? PLANS.filter(function(x){ return x.key !== step4ExpandedKey; })
+        : [];
+
       cardsHtml = PLANS.map(function(p){
-        var isSelected = p.key === defaultKey;
+        var isExpanded = isExpandedMode && p.key === step4ExpandedKey;
+        var isBlurred  = isExpandedMode && !isExpanded;
+        var isSuggested = !isExpandedMode && p.key === 'monthly';
+
+        var blurSide = '';
+        if (isBlurred) {
+          var bIdx = blurredOrder.findIndex(function(x){ return x.key === p.key; });
+          blurSide = bIdx === 0 ? ' is-blur-left' : ' is-blur-right';
+        }
+
         var badgeHtml;
         if(p.badge){
           var bCls = 'plan-card__badge' + (p.badgeCls ? ' plan-card__'+p.badgeCls : '');
@@ -2310,7 +2340,6 @@
         } else {
           badgeHtml = '<span class="plan-card__badge-spacer"></span>';
         }
-        var equivHtml = p.equiv ? '<p class="plan-card__equiv">'+p.equiv+'</p>' : '';
         var planNameHtml = p.key === 'half_yearly'
           ? p.name+'<span class="plan-name__save-pill">Save 17%</span>'
           : p.name;
@@ -2318,10 +2347,12 @@
           return '<li class="plan-card__feature"><img src="/assets/icons/feature_icons/icon_check_black.svg" alt="" width="20" height="20" class="plan-card__check" aria-hidden="true">'+f+'</li>';
         }).join('');
 
-        var displayAmount = isSelected ? calcLiveRecurring(p.key) : (typeof PRICING.plans[p.key].comboPrice === 'number' ? PRICING.plans[p.key].comboPrice : p.amount);
-        var onetime = isSelected ? calcLiveOnetime() : 0;
+        var displayAmount = isExpanded
+          ? calcLiveRecurring(p.key)
+          : (typeof PRICING.plans[p.key].comboPrice === 'number' ? PRICING.plans[p.key].comboPrice : p.amount);
+        var onetime = isExpanded ? calcLiveOnetime() : 0;
         var liveExtras = '';
-        if (isSelected) {
+        if (isExpanded) {
           liveExtras =
             '<div class="plan-card__live-price">' +
               '<p class="plan-card__onetime' + (onetime > 0 ? ' is-visible' : '') + '" data-live-onetime>' +
@@ -2331,13 +2362,30 @@
             '</div>';
         }
 
+        var cardClasses = 'plan-card ' + p.cls;
+        if (isExpanded) cardClasses += ' is-expanded is-selected';
+        if (isBlurred) cardClasses += ' is-blurred' + blurSide;
+        if (isSuggested) cardClasses += ' is-suggested';
+
+        var changeLink = isExpanded
+          ? '<button type="button" class="plan-card__change" data-change-plan>&larr; Change plan</button>'
+          : '';
+
         var bodyInner = '<ul class="plan-card__features">'+featHtml+'</ul>' +
-          (isSelected ? buildInCardProtectHtml(p.key) : '');
+          (isExpanded ? buildInCardProtectHtml(p.key) : '');
+
+        var footerInner = isExpanded
+          ? '<button class="plan-card__continue" type="button" data-plan-continue>Continue &rarr;</button>'
+          : '<button class="plan-card__select" type="button">Choose Plan</button>';
+
+        var scrollOpen = isExpanded ? '<div class="plan-card__scroll">' : '';
+        var scrollClose = isExpanded ? '</div>' : '';
 
         return [
-          '<div class="plan-card '+p.cls+(isSelected?' is-selected':'')+'" data-plan-key="'+p.key+'" role="button" tabindex="0" aria-pressed="'+(isSelected?'true':'false')+'">',
+          '<div class="'+cardClasses+'" data-plan-key="'+p.key+'" role="button" tabindex="0" aria-pressed="'+(isExpanded?'true':'false')+'">',
+            changeLink,
+            scrollOpen,
             '<div class="plan-card__header">',
-              '<div class="plan-card__selected-indicator">'+CHECK_INDICATOR_SVG+'</div>',
               badgeHtml,
               '<p class="plan-card__plan-name">'+planNameHtml+'</p>',
               '<div class="plan-card__price">',
@@ -2345,28 +2393,23 @@
                 '<span class="plan-card__period"> / '+p.period+'</span>',
               '</div>',
               liveExtras,
-              equivHtml,
             '</div>',
             '<div class="plan-card__body">'+bodyInner+'</div>',
-            '<div class="plan-card__footer">',
-              '<button class="plan-card__select" type="button" tabindex="-1">'+(isSelected?'<span style="display:inline-flex;align-items:center;justify-content:center;gap:5px"><img src="/assets/icons/feature_icons/icon_check_green.svg" alt="" width="16" height="16" aria-hidden="true"> Selected</span>':'Select plan')+'</button>',
-            '</div>',
+            scrollClose,
+            '<div class="plan-card__footer">'+footerInner+'</div>',
           '</div>'
         ].join('');
       }).join('');
-
-      /* Sync module-level selectedPlan to the default shown */
-      var defPlan = PLANS.find(function(p){ return p.key === defaultKey; });
-      if(defPlan){ selectedPlan = defPlan.key; selectedPlanPrice = calcLiveRecurring(defPlan.key); }
     }
 
+    var gridCls = 'plans-grid' + (isExpandedMode ? ' is-expanded-mode' : '');
     var el = document.createElement('section');
     el.className = 'step-section'; el.dataset.step = '4';
     el.innerHTML = [
       '<p class="step-eyebrow">Step 4 of 4</p>',
       '<h2 class="step-heading">Choose your plan</h2>',
-      '<div class="carousel-outer"><div class="carousel-track" role="list">'+cardsHtml+'</div></div>',
-      '<button class="mobile-continue plan-continue" type="button">Continue &rarr;</button>',
+      '<div class="'+gridCls+'" role="list">'+cardsHtml+'</div>',
+      '<button class="plan-continue-fixed'+(isExpandedMode?' is-visible':'')+'" type="button" data-plan-continue-fixed>Continue &rarr;</button>',
       '<button class="step-back step-back--bottom" type="button" data-back="4">'+BACK_SVG+' Step 3</button>'
     ].join('');
     return el;
@@ -2548,99 +2591,138 @@
     });
   }
 
+  function setPlanExpandedLock(on) {
+    if (on) document.body.classList.add('plan-expanded-lock');
+    else document.body.classList.remove('plan-expanded-lock');
+  }
+
+  function rebuildStep4(expandedKey, resetAddons) {
+    if (resetAddons) selectedAddons = defaultSelectedAddons();
+    var s4 = planFlow.querySelector('[data-step="4"]');
+    if (!s4) return;
+    var newS4 = buildStep4El(expandedKey);
+    s4.parentNode.replaceChild(newS4, s4);
+    wireStep4(newS4);
+    if (expandedKey && window.innerWidth < 768) setPlanExpandedLock(true);
+    else setPlanExpandedLock(false);
+    if (expandedKey) {
+      setTimeout(function(){ scrollToEl(newS4, true); }, 50);
+    }
+  }
+
   function wireStep4(el){
     /* Back — rebuild Step 3 cleanly so stale OTP UI never persists on back nav */
     el.querySelector('[data-back="4"]').addEventListener('click', function(){
+      setPlanExpandedLock(false);
       clearGate();
       removeStepsFrom(3);
       if(cur){ cur.planKey = null; }
+      step4ExpandedKey = null;
       var s3 = buildStep3El(cur ? cur.mobile : null);
       planFlow.appendChild(s3);
       wireStep3(s3);
       scrollToEl(s3, true);
     });
 
-    /* Carousel scroll debounce for tap-vs-swipe detection */
-    var track = el.querySelector('.carousel-track');
-    var isScrolling = false;
-    var scrollTimer;
-    track.addEventListener('scroll', function(){
-      isScrolling = true;
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(function(){ isScrolling = false; }, 200);
-    }, { passive:true });
-
-    /* Rebuild Step 4 for a plan key — resets add-ons to default when switching cards */
-    function rebuildStep4ForPlan(planKey, resetAddons) {
-      if (resetAddons) selectedAddons = defaultSelectedAddons();
+    function expandPlan(planKey) {
+      selectedAddons = defaultSelectedAddons();
       selectedPlan = planKey;
       selectedPlanPrice = calcLiveRecurring(planKey);
-      var newS4 = buildStep4El(planKey);
-      el.parentNode.replaceChild(newS4, el);
-      wireStep4(newS4);
-      snapCarouselToKey(newS4, planKey);
-    }
-
-    /* Plan card selection */
-    el.querySelectorAll('.plan-card').forEach(function(card){
-      function doSelect(){
-        if(isScrolling) return;
-        var planKey = card.dataset.planKey;
-        if (planKey === selectedPlan && card.classList.contains('is-selected')) return;
-        /* Switching cards resets add-ons to default (combo pre-ticked) */
-        rebuildStep4ForPlan(planKey, true);
-        /* URL-param lifetime preselect (once) */
-        if (addonPreselect === 'lifetime') {
-          addonPreselect = null;
-          if (addonAutoSelectFn) addonAutoSelectFn();
-          var lifetimePreselEl = planFlow.querySelector('[data-step="4"] [data-addon="lifetimeAll"]');
-          if (lifetimePreselEl) {
-            setTimeout(function() {
-              lifetimePreselEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300);
-          }
+      rebuildStep4(planKey, false);
+      /* URL-param lifetime preselect (once) */
+      if (addonPreselect === 'lifetime') {
+        addonPreselect = null;
+        if (addonAutoSelectFn) addonAutoSelectFn();
+        var lifetimePreselEl = planFlow.querySelector('[data-step="4"] [data-addon="lifetimeAll"]');
+        if (lifetimePreselEl) {
+          setTimeout(function() {
+            lifetimePreselEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 300);
         }
       }
-      card.addEventListener('click', function(e){
-        /* Clicks inside protect / addon rows should not re-select / rebuild the card */
-        if (e.target.closest('.plan-card__protect') || e.target.closest('.addon-row')) return;
-        if(e.target.classList.contains('plan-card__select')){ doSelect(); return; }
-        doSelect();
-      });
-      card.addEventListener('keydown', function(e){
-        if(e.key==='Enter'||e.key===' '){
-          if (e.target.closest('.plan-card__protect') || e.target.closest('.addon-row')) return;
-          e.preventDefault(); doSelect();
+    }
+
+    function collapseToPhaseA() {
+      selectedAddons = defaultSelectedAddons();
+      step4ExpandedKey = null;
+      rebuildStep4(null, false);
+    }
+
+    function doContinue() {
+      if (!step4ExpandedKey) return;
+      setPlanExpandedLock(false);
+      completePlan(step4ExpandedKey);
+    }
+
+    /* Phase A: Choose Plan / card click expands */
+    el.querySelectorAll('.plan-card').forEach(function(card){
+      var planKey = card.dataset.planKey;
+
+      function onChoose() {
+        if (card.classList.contains('is-expanded')) return;
+        if (card.classList.contains('is-blurred')) {
+          /* Switch expanded card */
+          expandPlan(planKey);
+          return;
         }
+        expandPlan(planKey);
+      }
+
+      var chooseBtn = card.querySelector('.plan-card__select');
+      if (chooseBtn) {
+        chooseBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          onChoose();
+        });
+      }
+
+      card.addEventListener('click', function(e){
+        if (e.target.closest('.plan-card__protect') || e.target.closest('.addon-row')) return;
+        if (e.target.closest('[data-change-plan]')) return;
+        if (e.target.closest('[data-plan-continue]')) return;
+        if (e.target.closest('.plan-card__select')) return;
+        if (card.classList.contains('is-expanded')) return;
+        onChoose();
       });
-      card.querySelector('.plan-card__select').addEventListener('click', function(e){
-        e.stopPropagation(); doSelect();
+
+      card.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (e.target.closest('.plan-card__protect') || e.target.closest('.addon-row')) return;
+          if (card.classList.contains('is-expanded')) return;
+          e.preventDefault();
+          onChoose();
+        }
       });
     });
 
-    /* Wire in-card add-ons on the selected card */
+    /* Change plan — collapse to Phase A */
+    el.querySelectorAll('[data-change-plan]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        collapseToPhaseA();
+      });
+    });
+
+    /* Continue (desktop in-card + mobile fixed) */
+    el.querySelectorAll('[data-plan-continue], [data-plan-continue-fixed]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        doContinue();
+      });
+    });
+
+    /* Wire in-card add-ons on the expanded card */
     var protectEl = el.querySelector('.plan-card__protect');
     if (protectEl) wireInCardAddons(el, protectEl);
 
-    /* Continue — calls completePlan to confirm the selected plan */
-    el.querySelector('.plan-continue').addEventListener('click', function(){
-      var selected = el.querySelector('.plan-card.is-selected');
-      if(!selected) return;
-      completePlan(selected.dataset.planKey);
-    });
+    /* Mobile scroll lock if already expanded */
+    if (step4ExpandedKey && window.innerWidth < 768) setPlanExpandedLock(true);
+    else setPlanExpandedLock(false);
   }
 
-  /* ─── Snap carousel to a plan key ─── */
+  /* ─── Snap carousel to a plan key (legacy no-op kept for callers) ─── */
   function snapCarouselToKey(stepEl, planKey){
-    setTimeout(function(){
-      var track = stepEl.querySelector('.carousel-track');
-      if(!track) return;
-      var card = track.querySelector('[data-plan-key="'+planKey+'"]');
-      if(!card || window.innerWidth >= 768) return;
-      var cardCenter  = card.offsetLeft + card.offsetWidth / 2;
-      var trackCenter = track.clientWidth / 2;
-      track.scrollLeft = Math.max(0, cardCenter - trackCenter);
-    }, 150);
+    /* Phase A/B layout no longer uses horizontal carousel */
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -3270,6 +3352,8 @@
   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   function completePlan(planKey){
     if(!cur) return;
+    setPlanExpandedLock(false);
+    step4ExpandedKey = null;
     cur.planKey = planKey;
     cur.addons  = Object.assign({}, selectedAddons);
     if(editId !== null){
