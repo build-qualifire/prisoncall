@@ -434,45 +434,35 @@
       min-height: 44px;
     }
 
-    /* ── Phase A Monthly featured — original selected taller sizing + full black card ── */
+    /* ── Phase A Monthly featured — exact ad8eebd selected-card styles ── */
     .plans-grid:not(.is-expanded-mode) .plan-card.is-featured {
+      flex: 0 0 84%;
       border-color: var(--color-black);
-      transform: translateY(-4px);
-      background: #101010;
       z-index: 2;
-    }
-    @media (max-width: 767px) {
-      .plans-grid:not(.is-expanded-mode) .plan-card.is-featured { flex: 0 0 auto; }
     }
     @media (min-width: 768px) {
       .plans-grid:not(.is-expanded-mode) .plan-card.is-featured { flex: 1.5; }
     }
+    /* Selected card taller — creates floating centred effect */
     .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__header {
-      background: #101010; border-bottom-color: transparent;
+      background: var(--color-black); border-bottom-color: transparent;
       padding-top: 26px; padding-bottom: 18px;
     }
-    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__body {
-      padding-top: 18px; padding-bottom: 18px; background: #101010;
-    }
-    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__footer {
-      padding-bottom: 22px; background: #101010;
-    }
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__body { padding-top: 18px; padding-bottom: 18px; }
+    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__footer { padding-bottom: 22px; }
+    /* Even more prominent on desktop */
     @media (min-width: 768px) {
       .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__header { padding-top: 42px; padding-bottom: 22px; }
       .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__body { padding-top: 20px; padding-bottom: 20px; }
       .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__footer { padding-bottom: 26px; }
       .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__amount { font-size: 46px; }
     }
+    /* Larger price on selected card */
     .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__amount { font-size: 42px; color: var(--color-white); }
     .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__plan-name { color: rgba(255,255,255,0.5); }
     .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__period { color: rgba(255,255,255,0.48); }
-    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__feature { color: #ffffff; }
-    .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__badge--black {
-      background: var(--color-green); color: var(--color-black);
-    }
-    /* Original selected-card button override: white/black — never green */
     .plans-grid:not(.is-expanded-mode) .plan-card.is-featured .plan-card__select {
-      background: var(--color-white); color: var(--color-black); border-color: var(--color-black);
+      background: var(--color-green); color: var(--color-black); border-color: var(--color-green);
     }
     .plans-grid:not(.is-expanded-mode) .plan-card.is-featured:hover { border-color: var(--color-black); }
     /* No selected checkmark indicator in Phase A */
@@ -2431,13 +2421,10 @@
         var planNameHtml = p.key === 'half_yearly'
           ? p.name+'<span class="plan-name__save-pill">Save 17%</span>'
           : p.name;
-        /* Phase A: Monthly featured uses white checks; others + Phase B use black */
+        /* Phase A Monthly featured: black feature checklist (ad8eebd) */
         var isFeatured = !isExpandedMode && p.key === 'monthly';
-        var checkIcon = isFeatured
-          ? '/assets/icons/feature_icons/icon_check_white.svg'
-          : '/assets/icons/feature_icons/icon_check_black.svg';
         var featHtml = FEATURES.map(function(f){
-          return '<li class="plan-card__feature"><img src="'+checkIcon+'" alt="" width="20" height="20" class="plan-card__check" aria-hidden="true">'+f+'</li>';
+          return '<li class="plan-card__feature"><img src="/assets/icons/feature_icons/icon_check_black.svg" alt="" width="20" height="20" class="plan-card__check" aria-hidden="true">'+f+'</li>';
         }).join('');
 
         var displayAmount = isExpanded
