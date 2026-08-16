@@ -657,11 +657,50 @@
         flex: 0 0 auto !important;
         min-height: 0;
         overflow: visible !important;
+        padding: 6px 10px !important;
       }
       .plan-card.is-expanded .plan-card__protect {
         flex: 0 0 auto !important;
         min-height: 0;
         overflow: visible !important;
+        margin-top: 4px;
+        padding-top: 4px;
+      }
+      /* Tighten whitespace only — fonts / content unchanged */
+      .plan-card.is-expanded .plan-card__change {
+        padding: 6px 10px;
+        min-height: 32px;
+      }
+      .plan-card.is-expanded .plan-card__header {
+        padding: 8px 10px 6px;
+      }
+      .plan-card.is-expanded .plan-card__badge,
+      .plan-card.is-expanded .plan-card__badge-spacer {
+        margin-bottom: 4px;
+      }
+      .plan-card.is-expanded .plan-card__live-price { margin-top: 2px; }
+      .plan-card.is-expanded .plan-card__onetime { margin-top: 0; }
+      .plan-card.is-expanded .plan-card__status { margin-top: 2px; gap: 4px; }
+      .plan-card.is-expanded .plan-card__protect-heading { margin-bottom: 4px; }
+      .plan-card.is-expanded .addon-table { gap: 2px; }
+      .plan-card.is-expanded .addon-row {
+        padding: 4px 6px;
+        gap: 6px;
+      }
+      .plan-card.is-expanded .addon-combo-label,
+      .plan-card.is-expanded .addon-lp-badge { margin-bottom: 1px; }
+      .plan-card.is-expanded .addon-row__price-line { margin-top: 1px; gap: 2px; }
+      .plan-card.is-expanded .plan-card__footer {
+        padding: 4px 10px 8px;
+      }
+      .plan-card.is-expanded .plan-card__continue {
+        padding: 10px;
+        min-height: 40px;
+      }
+      .step-section[data-step="4"]:has(.plans-grid.is-expanded-mode) {
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: 0;
       }
     }
 
