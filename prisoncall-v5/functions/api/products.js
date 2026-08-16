@@ -1,75 +1,270 @@
 /**
  * GET /api/products
- * Returns active rows from the Supabase products table.
- * Uses the service role key server-side so RLS never blocks the read.
- * Credentials never reach the browser.
+ * Fetches variant prices from Shopify Storefront API and returns a PRICING
+ * object used by choose-plan.html.
+ *
+ * Env vars (Cloudflare Pages):
+ *   SHOPIFY_STORE_DOMAIN
+ *   SHOPIFY_STOREFRONT_ACCESS_TOKEN
  */
+
+const VARIANT_IDS = [
+  'gid://shopify/ProductVariant/54535954497815',
+  'gid://shopify/ProductVariant/54535954891031',
+  'gid://shopify/ProductVariant/54535954956567',
+  'gid://shopify/ProductVariant/54535955218711',
+  'gid://shopify/ProductVariant/54535955382551',
+  'gid://shopify/ProductVariant/54535955546391',
+  'gid://shopify/ProductVariant/54535955710231',
+  'gid://shopify/ProductVariant/54535955841303',
+  'gid://shopify/ProductVariant/54535956005143',
+  'gid://shopify/ProductVariant/54535957020951',
+  'gid://shopify/ProductVariant/54535957086487',
+  'gid://shopify/ProductVariant/54535957119255',
+  'gid://shopify/ProductVariant/54535991361815',
+  'gid://shopify/ProductVariant/54535991394583',
+];
+
+const PRODUCTS_QUERY = `
+  query {
+    nodes(ids: [
+      "gid://shopify/ProductVariant/54535954497815",
+      "gid://shopify/ProductVariant/54535954891031",
+      "gid://shopify/ProductVariant/54535954956567",
+      "gid://shopify/ProductVariant/54535955218711",
+      "gid://shopify/ProductVariant/54535955382551",
+      "gid://shopify/ProductVariant/54535955546391",
+      "gid://shopify/ProductVariant/54535955710231",
+      "gid://shopify/ProductVariant/54535955841303",
+      "gid://shopify/ProductVariant/54535956005143",
+      "gid://shopify/ProductVariant/54535957020951",
+      "gid://shopify/ProductVariant/54535957086487",
+      "gid://shopify/ProductVariant/54535957119255",
+      "gid://shopify/ProductVariant/54535991361815",
+      "gid://shopify/ProductVariant/54535991394583"
+    ]) {
+      ... on ProductVariant {
+        id
+        price {
+          amount
+        }
+      }
+    }
+  }
+`;
+
+function numericId(gid) {
+  if (!gid) return '';
+  const parts = String(gid).split('/');
+  return parts[parts.length - 1];
+}
+
+function parseAmount(node) {
+  if (!node || !node.price || node.price.amount == null) return null;
+  const n = parseFloat(node.price.amount);
+  return Number.isFinite(n) ? n : null;
+}
+
+function buildPricing(priceById) {
+  const p = function (id) {
+    const v = priceById[id];
+    if (v == null) throw new Error('Missing Shopify price for variant ' + id);
+    return v;
+  };
+
+  const fortnightlyBase  = p('54535954497815');
+  const fortnightlyCombo = p('54535955218711');
+  const monthlyBase      = p('54535955382551');
+  const monthlyCombo     = p('54535955841303');
+  const halfYearlyBase   = p('54535956005143');
+  const halfYearlyCombo  = p('54535957119255');
+
+  const tpFortnightly = p('54535954891031');
+  const rgFortnightly = p('54535954956567');
+  const tpMonthly     = p('54535955546391');
+  const rgMonthly     = p('54535955710231');
+  const tpHalfYearly  = p('54535957020951');
+  const rgHalfYearly  = p('54535957086487');
+
+  const cgPrice = p('54535991361815');
+  const lpPrice = p('54535991394583');
+
+  const comboDelta = {
+    fortnightly: +(fortnightlyCombo - fortnightlyBase).toFixed(2),
+    monthly:     +(monthlyCombo - monthlyBase).toFixed(2),
+    half_yearly: +(halfYearlyCombo - halfYearlyBase).toFixed(2),
+  };
+
+  /* New Step 4 keys + legacy aliases (addon1/2/3/combo23/lifetimeAll)
+     so Step 5 summary / checkout mapping keep working unchanged. */
+  return {
+    plans: {
+      fortnightly: {
+        price: fortnightlyBase,
+        comboPrice: fortnightlyCombo,
+        interval: 'fortnight',
+        label: 'Fortnightly',
+      },
+      monthly: {
+        price: monthlyBase,
+        comboPrice: monthlyCombo,
+        interval: 'month',
+        label: 'Monthly',
+      },
+      half_yearly: {
+        price: halfYearlyBase,
+        comboPrice: halfYearlyCombo,
+        interval: '6 months',
+        label: 'Half-Yearly',
+      },
+    },
+    addons: {
+      tp: {
+        label: 'Transfer Protection',
+        type: 'recurring',
+        fortnightly: tpFortnightly,
+        monthly: tpMonthly,
+        half_yearly: tpHalfYearly,
+      },
+      rg: {
+        label: 'Renewal Protection',
+        type: 'recurring',
+        fortnightly: rgFortnightly,
+        monthly: rgMonthly,
+        half_yearly: rgHalfYearly,
+      },
+      cg: {
+        label: '48hr Cancellation Guarantee',
+        type: 'one-time',
+        price: cgPrice,
+      },
+      lp: {
+        label: 'Lifetime Protection',
+        type: 'one-time',
+        price: lpPrice,
+      },
+      /* Legacy aliases for buildSummaryAddonLines / getAddonTotal / checkout */
+      addon1: {
+        label: '48hr Cancellation Guarantee',
+        type: 'one-time',
+        fortnightly: cgPrice,
+        monthly: cgPrice,
+        half_yearly: cgPrice,
+      },
+      addon2: {
+        label: 'Transfer Protection',
+        type: 'recurring',
+        fortnightly: tpFortnightly,
+        monthly: tpMonthly,
+        half_yearly: tpHalfYearly,
+      },
+      addon3: {
+        label: 'Renewal Protection',
+        type: 'recurring',
+        fortnightly: rgFortnightly,
+        monthly: rgMonthly,
+        half_yearly: rgHalfYearly,
+      },
+      combo23: {
+        label: 'Transfer + Renewal Combo',
+        type: 'recurring',
+        fortnightly: comboDelta.fortnightly,
+        monthly: comboDelta.monthly,
+        half_yearly: comboDelta.half_yearly,
+      },
+      lifetimeAll: {
+        label: 'Lifetime Protection',
+        type: 'one-time',
+        fortnightly: lpPrice,
+        monthly: lpPrice,
+        half_yearly: lpPrice,
+      },
+    },
+  };
+}
+
 export async function onRequestGet(context) {
   const { env } = context;
 
-  const isTestMode = env.APP_ENV === 'test';
-  console.log('[Products] Running in', isTestMode ? 'TEST' : 'LIVE', 'mode');
+  const STORE_DOMAIN = env.SHOPIFY_STORE_DOMAIN;
+  const ACCESS_TOKEN = env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
-  const SUPABASE_URL = env.SUPABASE_URL;
-  /* Prefer service role key (bypasses RLS); fall back to anon key */
-  const SUPABASE_KEY = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_ANON_KEY;
+  console.log('[products] SHOPIFY_STORE_DOMAIN set:', !!STORE_DOMAIN);
+  console.log('[products] SHOPIFY_STOREFRONT_ACCESS_TOKEN set:', !!ACCESS_TOKEN);
 
-  console.log('[products] SUPABASE_URL set:', !!SUPABASE_URL);
-  console.log('[products] SUPABASE_SERVICE_ROLE_KEY set:', !!env.SUPABASE_SERVICE_ROLE_KEY);
-  console.log('[products] SUPABASE_ANON_KEY set:', !!env.SUPABASE_ANON_KEY);
-
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error('[products] Missing credentials — cannot query Supabase');
-    return new Response(JSON.stringify({ error: 'Server misconfiguration: missing Supabase credentials' }), {
+  if (!STORE_DOMAIN || !ACCESS_TOKEN) {
+    console.error('[products] Missing Shopify Storefront credentials');
+    return new Response(JSON.stringify({ error: 'Server misconfiguration: missing Shopify credentials' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  const url = `${SUPABASE_URL}/rest/v1/products?active=eq.true&select=id,product_name,plan_interval,plan_interval_type,plan_interval_count,plan_price,includes_transfer_guarantee,includes_renewal_guarantee,includes_combo,is_one_time,active,created_at&order=plan_interval_type.asc,plan_interval.asc`;
-  console.log('[products] Querying:', url.replace(SUPABASE_URL, '<SUPABASE_URL>'));
+  const endpoint = `https://${STORE_DOMAIN}/api/2025-04/graphql.json`;
 
   try {
-    const res = await fetch(url, {
+    const res = await fetch(endpoint, {
+      method: 'POST',
       headers: {
-        'apikey':        SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Accept':        'application/json',
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': ACCESS_TOKEN,
       },
+      body: JSON.stringify({ query: PRODUCTS_QUERY }),
     });
 
-    const body = await res.text();
-    console.log('[products] Supabase status:', res.status, '— body length:', body.length, '— first 300 chars:', body.slice(0, 300));
+    const bodyText = await res.text();
+    console.log('[products] Shopify status:', res.status, '— body length:', bodyText.length);
 
     if (!res.ok) {
-      console.error('[products] Supabase error', res.status, body);
-      return new Response(JSON.stringify({ error: `Supabase responded with ${res.status}: ${body.slice(0, 200)}` }), {
+      console.error('[products] Shopify HTTP error', res.status, bodyText.slice(0, 300));
+      return new Response(JSON.stringify({ error: `Shopify responded with ${res.status}` }), {
         status: res.status,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    /* Parse rows to log count and apply test-mode price ID remapping */
-    let responseBody = body;
+    let json;
     try {
-      const rows = JSON.parse(body);
-      console.log('[products] Returning', Array.isArray(rows) ? rows.length : '?', 'rows');
-      if (Array.isArray(rows) && rows[0]) {
-        console.log('[products] First row keys:', Object.keys(rows[0]).join(', '));
-      }
+      json = JSON.parse(bodyText);
+    } catch (e) {
+      console.error('[products] JSON parse failed:', e && e.message);
+      return new Response(JSON.stringify({ error: 'Invalid JSON from Shopify' }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
-      /* In test mode, replace stripe_price_id with stripe_price_id_test so
-         choose-plan.html always reads stripe_price_id and gets the right value */
-      if (isTestMode && Array.isArray(rows)) {
-        const remapped = rows.map(function(row) {
-          return Object.assign({}, row, { stripe_price_id: row.stripe_price_id_test || null });
-        });
-        responseBody = JSON.stringify(remapped);
-        console.log('[products] Test mode: stripe_price_id remapped to stripe_price_id_test');
-      }
-    } catch (_) { /* non-fatal — raw body returned if parse fails */ }
+    if (json.errors && json.errors.length) {
+      console.error('[products] GraphQL errors:', JSON.stringify(json.errors).slice(0, 400));
+      return new Response(JSON.stringify({ error: 'Shopify GraphQL error', details: json.errors }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
-    return new Response(responseBody, {
+    const nodes = (json.data && json.data.nodes) || [];
+    const priceById = {};
+    nodes.forEach(function (node) {
+      if (!node) return;
+      const id = numericId(node.id);
+      const amount = parseAmount(node);
+      if (id && amount != null) priceById[id] = amount;
+    });
+
+    console.log('[products] Parsed variant prices:', Object.keys(priceById).length, 'of', VARIANT_IDS.length);
+
+    let pricing;
+    try {
+      pricing = buildPricing(priceById);
+    } catch (mapErr) {
+      console.error('[products] Mapping error:', mapErr && mapErr.message);
+      return new Response(JSON.stringify({ error: mapErr.message || 'Failed to map Shopify prices' }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify(pricing), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -78,7 +273,7 @@ export async function onRequestGet(context) {
     });
   } catch (err) {
     console.error('[products] Fetch error:', err && err.message);
-    return new Response(JSON.stringify({ error: 'Failed to reach Supabase: ' + (err && err.message) }), {
+    return new Response(JSON.stringify({ error: 'Failed to reach Shopify: ' + (err && err.message) }), {
       status: 502,
       headers: { 'Content-Type': 'application/json' },
     });

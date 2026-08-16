@@ -763,12 +763,41 @@
     }
 
     /* ═══════════════════════════════════════════════════
-       ADD-ON SECTION (Step 4 inline)
+       ADD-ON SECTION (Step 4 — inside selected plan card)
     ═══════════════════════════════════════════════════ */
     @keyframes addonReveal {
       from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+    @keyframes lpBadgePulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 210, 88, 0.45); }
+      50%      { transform: scale(1.05); box-shadow: 0 0 12px 2px rgba(0, 210, 88, 0.55); }
+    }
+    .plan-card__live-price { margin-top: 6px; }
+    .plan-card__onetime {
+      display: none; font-size: 12px; font-weight: 600; margin-top: 4px;
+      color: rgba(255,255,255,0.72);
+    }
+    .plan-card__onetime.is-visible { display: block; }
+    .plan-card__status {
+      display: flex; align-items: flex-start; gap: 6px;
+      font-size: 11px; line-height: 1.45; margin-top: 8px;
+      color: rgba(255,255,255,0.78);
+    }
+    .plan-card__status-icon { flex-shrink: 0; font-size: 12px; line-height: 1.45; }
+    .plan-card__status.is-ok .plan-card__status-icon { color: #00D258; }
+    .plan-card__status.is-warn { color: #F5C542; }
+    .plan-card__status.is-warn .plan-card__status-icon { color: #F5C542; }
+
+    .plan-card__protect {
+      margin-top: 16px; padding-top: 14px;
+      border-top: 1px solid var(--color-border);
+      animation: addonReveal 300ms ease forwards;
+    }
+    .plan-card__protect-heading {
+      font-size: 14px; font-weight: 800; margin-bottom: 10px; color: var(--color-black);
+    }
+
     .addon-section {
       margin-top: 32px; padding-top: 28px;
       border-top: 2px solid var(--color-border);
@@ -777,22 +806,25 @@
     .addon-section__heading { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
     .addon-section__sub { font-size: 12px; color: var(--color-muted); margin-bottom: 20px; line-height: 1.5; }
 
-    .addon-table { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .addon-table { display: flex; flex-direction: column; gap: 8px; margin-bottom: 0; }
 
     .addon-row {
-      border: 2px solid var(--color-border); border-radius: var(--radius-md);
-      padding: 14px 16px; cursor: pointer; user-select: none;
-      transition: border-color var(--tr), background var(--tr);
-      display: flex; align-items: flex-start; gap: 14px;
+      border: 1.5px solid var(--color-border); border-radius: var(--radius-md);
+      padding: 12px 12px; cursor: pointer; user-select: none;
+      transition: border-color var(--tr), background var(--tr), opacity var(--tr);
+      display: flex; align-items: flex-start; gap: 10px;
       background: var(--color-white);
     }
     .addon-row:hover { border-color: #bbb; }
     .addon-row.is-selected { border-color: var(--color-black); }
     .addon-row.is-combo { background: #f8f7f5; border-style: dashed; border-color: #aaa; }
-    .addon-row.is-combo.is-selected { border-style: solid; }
+    .addon-row.is-combo.is-selected { border-style: solid; border-color: var(--color-black); }
+    .addon-row.is-greyed {
+      opacity: 0.4; pointer-events: none; cursor: default;
+    }
 
     .addon-checkbox {
-      flex-shrink: 0; margin-top: 1px; width: 20px; height: 20px; border-radius: 4px;
+      flex-shrink: 0; margin-top: 1px; width: 18px; height: 18px; border-radius: 4px;
       border: 2px solid var(--color-border);
       display: flex; align-items: center; justify-content: center;
       transition: background var(--tr), border-color var(--tr);
@@ -802,11 +834,15 @@
     .addon-row.is-selected .addon-checkbox__tick { display: block; }
 
     .addon-row__content { flex: 1; min-width: 0; }
-    .addon-row__name { font-size: 15px; font-weight: 700; margin-bottom: 0; line-height: 1.3; }
-    .addon-combo-label {
+    .addon-row__name { font-size: 13px; font-weight: 700; margin-bottom: 0; line-height: 1.3; }
+    .addon-combo-label,
+    .addon-lp-badge {
       display: inline-flex; align-items: center; font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
-      text-transform: uppercase; background: #101010; color: #00d258;
+      text-transform: uppercase; background: #00D258; color: #101010;
       padding: 2px 8px; border-radius: var(--radius-pill); margin-bottom: 6px;
+    }
+    .addon-lp-badge.is-pulsing {
+      animation: lpBadgePulse 3s ease-in-out infinite;
     }
     .addon-row__why { font-size: 12px; color: var(--color-muted); line-height: 1.5; margin-top: 4px; margin-bottom: 6px; }
     .addon-row__risk {
@@ -814,10 +850,22 @@
     }
     .addon-row__price-line {
       display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px;
+      margin-top: 4px;
     }
-    .addon-row__price { font-size: 14px; font-weight: 800; }
+    .addon-row__price { font-size: 13px; font-weight: 800; }
     .addon-row__payment-type { font-size: 11px; color: var(--color-muted); }
-    .addon-combo-savings { font-size: 11px; color: var(--color-green); font-weight: 700; margin-top: 6px; }
+    .addon-combo-savings { font-size: 11px; color: var(--color-green); font-weight: 700; margin-top: 4px; }
+
+    .addon-lp-hero {
+      margin-top: 8px; padding: 10px 12px;
+      background: #f4f4f2; border-radius: var(--radius-md);
+    }
+    .addon-lp-hero__heading {
+      font-size: 13px; font-weight: 800; line-height: 1.3; margin-bottom: 4px; color: var(--color-black);
+    }
+    .addon-lp-hero__body {
+      font-size: 11px; color: var(--color-muted); line-height: 1.45;
+    }
 
     .addon-lifetime {
       border: 2px solid #333; border-radius: var(--radius-md);
@@ -1398,8 +1446,10 @@
     defs.forEach(function(d) {
       var p = PRICING.plans[d.key];
       if (!p) { console.warn('[Prisoncall] buildPlansArray: missing plan interval "' + d.key + '" — skipping'); return; }
+      /* Headline amount is combo-inclusive when available (Step 4 default display) */
+      var displayAmount = (typeof p.comboPrice === 'number') ? p.comboPrice : p.price;
       result.push({
-        key: d.key, name: p.label, amount: p.price, period: p.interval,
+        key: d.key, name: p.label, amount: displayAmount, period: p.interval,
         badge: d.badge, badgeCls: d.badgeCls,
         equiv: d.equivFn ? d.equivFn(p) : null,
         cls: d.cls,
@@ -1460,16 +1510,26 @@
         }
       });
     })
-    .then(function(products) {
-      console.log('[Prisoncall] fetchPricing: parsed', Array.isArray(products) ? products.length + ' rows' : typeof products);
-      if (products && products[0]) console.log('[Prisoncall] fetchPricing: first row sample', JSON.stringify(products[0]));
-      if (!Array.isArray(products) || !products.length) throw new Error('No active products returned from /api/products');
-      PRICING = buildPricingFromProducts(products);
+    .then(function(data) {
+      console.log('[Prisoncall] fetchPricing: parsed', Array.isArray(data) ? data.length + ' rows' : typeof data);
+      /* Shopify /api/products returns the PRICING object directly.
+         Legacy Supabase row arrays still go through buildPricingFromProducts. */
+      if (data && data.plans && data.addons) {
+        PRICING = data;
+        console.log('[Prisoncall] fetchPricing: using PRICING object from /api/products');
+      } else if (Array.isArray(data) && data.length) {
+        if (data[0]) console.log('[Prisoncall] fetchPricing: first row sample', JSON.stringify(data[0]));
+        PRICING = buildPricingFromProducts(data);
+      } else {
+        throw new Error('No pricing data returned from /api/products');
+      }
       console.log('[Prisoncall] fetchPricing: PRICING.plans keys =', Object.keys(PRICING.plans));
-      if (!PRICING.plans.monthly) throw new Error('Monthly plan missing — check product_type and interval values in Supabase');
+      if (!PRICING.plans.monthly) throw new Error('Monthly plan missing — check Shopify variant mapping');
       PLANS = buildPlansArray();
       console.log('[Prisoncall] fetchPricing: PLANS built, count =', PLANS.length);
-      selectedPlanPrice = PRICING.plans.monthly.price;
+      selectedPlanPrice = PRICING.plans.monthly.comboPrice != null
+        ? PRICING.plans.monthly.comboPrice
+        : PRICING.plans.monthly.price;
       settle(true);
     })
     .catch(function(err) {
@@ -1537,7 +1597,12 @@
   /* Selected plan state — updated when customer picks a card */
   var selectedPlan      = 'monthly';
   var selectedPlanPrice = 0; /* updated to PRICING.plans.monthly.price once the Supabase fetch resolves */
-  var selectedAddons    = { addon1: false, addon2: false, addon3: false, combo23: false, lifetimeAll: false };
+  /* Default: combo pre-ticked (TP+RG bundle). Keys stay legacy for checkout/Step 5. */
+  var selectedAddons    = { addon1: false, addon2: false, addon3: false, combo23: true, lifetimeAll: false };
+
+  function defaultSelectedAddons() {
+    return { addon1: false, addon2: false, addon3: false, combo23: true, lifetimeAll: false };
+  }
 
   
 
@@ -1996,6 +2061,226 @@
   var CHECK_INDICATOR_SVG = '<img src="/assets/icons/feature_icons/icon_check_white.svg" alt="" width="20" height="20" aria-hidden="true">';
   var TICK_SVG = '<img src="/assets/icons/feature_icons/icon_check_white.svg" alt="" width="20" height="20" class="addon-checkbox__tick" aria-hidden="true">';
 
+  /* ── Step 4 pricing helpers (all values from PRICING — never hardcode) ── */
+  function getPlanIntervalKey(planKey) {
+    return planKey && PRICING && PRICING.plans[planKey] ? planKey : 'monthly';
+  }
+  function getBasePlanPrice(planKey) {
+    var pk = getPlanIntervalKey(planKey);
+    return PRICING.plans[pk].price;
+  }
+  function getComboPlanPrice(planKey) {
+    var pk = getPlanIntervalKey(planKey);
+    var p = PRICING.plans[pk];
+    return (typeof p.comboPrice === 'number') ? p.comboPrice : p.price;
+  }
+  function getComboAddonPrice(planKey) {
+    return +(getComboPlanPrice(planKey) - getBasePlanPrice(planKey)).toFixed(2);
+  }
+  function getTpPrice(planKey) {
+    var pk = getPlanIntervalKey(planKey);
+    return (PRICING.addons.tp && PRICING.addons.tp[pk] != null)
+      ? PRICING.addons.tp[pk]
+      : (PRICING.addons.addon2[pk] || 0);
+  }
+  function getRgPrice(planKey) {
+    var pk = getPlanIntervalKey(planKey);
+    return (PRICING.addons.rg && PRICING.addons.rg[pk] != null)
+      ? PRICING.addons.rg[pk]
+      : (PRICING.addons.addon3[pk] || 0);
+  }
+  function getCgPrice() {
+    if (PRICING.addons.cg && PRICING.addons.cg.price != null) return PRICING.addons.cg.price;
+    return PRICING.addons.addon1.monthly || 0;
+  }
+  function getLpPrice() {
+    if (PRICING.addons.lp && PRICING.addons.lp.price != null) return PRICING.addons.lp.price;
+    return PRICING.addons.lifetimeAll.monthly || 0;
+  }
+  function intervalWord(planKey) {
+    var pk = getPlanIntervalKey(planKey);
+    if (pk === 'fortnightly') return 'fortnight';
+    if (pk === 'half_yearly') return '6 months';
+    return 'month';
+  }
+  function intervalUnitPlural(planKey, n) {
+    var pk = getPlanIntervalKey(planKey);
+    if (pk === 'fortnightly') return n === 1 ? 'fortnight' : 'fortnights';
+    if (pk === 'half_yearly') return n === 1 ? 'cycle' : 'cycles';
+    return n === 1 ? 'month' : 'months';
+  }
+  function savePhrase(planKey, amount) {
+    var pk = getPlanIntervalKey(planKey);
+    var a = amount.toFixed(2);
+    if (pk === 'fortnightly') return '$' + a + '/fortnight';
+    if (pk === 'half_yearly') return '$' + a + ' every 6 months';
+    return '$' + a + '/month';
+  }
+  function periodSlashLabel(planKey) {
+    var pk = getPlanIntervalKey(planKey);
+    var intv = PRICING.plans[pk].interval;
+    return '/' + intv;
+  }
+  function calcLiveRecurring(planKey) {
+    var base = getBasePlanPrice(planKey);
+    if (selectedAddons.lifetimeAll) return base;
+    if (selectedAddons.combo23) return getComboPlanPrice(planKey);
+    var t = base;
+    if (selectedAddons.addon2) t += getTpPrice(planKey);
+    if (selectedAddons.addon3) t += getRgPrice(planKey);
+    return +t.toFixed(2);
+  }
+  function calcLiveOnetime() {
+    if (selectedAddons.lifetimeAll) return getLpPrice();
+    if (selectedAddons.addon1) return getCgPrice();
+    return 0;
+  }
+  function buildLpStatusMessage(planKey) {
+    var save = getComboAddonPrice(planKey);
+    var lp = getLpPrice();
+    var cycles = Math.ceil(lp / save);
+    return 'Fully protected for life. Saves ' + savePhrase(planKey, save) +
+      ' — pays for itself in ' + cycles + ' ' + intervalUnitPlural(planKey, cycles) +
+      '. 48hr cancellation guarantee included free.';
+  }
+  function buildLpHeroCopy(planKey) {
+    var base = getBasePlanPrice(planKey);
+    var save = getComboAddonPrice(planKey);
+    var lp = getLpPrice();
+    var cycles = Math.ceil(lp / save);
+    var iv = intervalWord(planKey);
+    var heading = 'Pay once. Save every ' + iv + '. Covered for life.';
+    var body = 'Lifetime Protection drops your plan to $' + base.toFixed(2) + '/' + iv +
+      ' — saving $' + save.toFixed(2) + ' every ' + iv +
+      '. Pays for itself in ' + cycles + ' ' + intervalUnitPlural(planKey, cycles) +
+      '. Unlimited prison transfers, 96hr post-renewal cancellation, and 48hr cancellation guarantee included free. Forever.';
+    return { heading: heading, body: body };
+  }
+  function buildProtectStatusHtml(planKey) {
+    var a = selectedAddons;
+    var icon, msg, cls;
+    if (a.lifetimeAll) {
+      icon = '\u2605'; msg = buildLpStatusMessage(planKey); cls = 'is-ok';
+    } else if (a.combo23) {
+      icon = '\u2713'; msg = 'Your plan is protected'; cls = 'is-ok';
+    } else if (!a.addon1 && !a.addon2 && !a.addon3) {
+      icon = '\u26A0'; msg = 'Your plan is unprotected. Prison transfers charged per request.'; cls = 'is-warn';
+    } else if (a.addon1 && !a.addon2 && !a.addon3) {
+      icon = '\u26A0'; msg = 'Partially protected. Transfers still charged per request.'; cls = 'is-warn';
+    } else if (a.addon2 && !a.addon3) {
+      icon = '\u26A0'; msg = 'Partially protected. Renewal protection not included.'; cls = 'is-warn';
+    } else if (a.addon3 && !a.addon2) {
+      icon = '\u26A0'; msg = 'Partially protected. Transfer protection not included.'; cls = 'is-warn';
+    } else {
+      icon = '\u2713'; msg = 'Your plan is protected'; cls = 'is-ok';
+    }
+    return '<div class="plan-card__status ' + cls + '" data-live-status>' +
+      '<span class="plan-card__status-icon" aria-hidden="true">' + icon + '</span>' +
+      '<span class="plan-card__status-text">' + msg + '</span></div>';
+  }
+
+  function buildInCardProtectHtml(planKey) {
+    var pk   = getPlanIntervalKey(planKey);
+    var intv = PRICING.plans[pk].interval;
+    var tp   = getTpPrice(pk);
+    var rg   = getRgPrice(pk);
+    var cg   = getCgPrice();
+    var lp   = getLpPrice();
+    var comboDelta = getComboAddonPrice(pk);
+    var hero = buildLpHeroCopy(pk);
+    var lpSelected = !!selectedAddons.lifetimeAll;
+    var comboSelected = !!selectedAddons.combo23;
+    var cgSelected = !!selectedAddons.addon1;
+    var tpSelected = !!selectedAddons.addon2;
+    var rgSelected = !!selectedAddons.addon3;
+    var tpRgGreyed = comboSelected || lpSelected;
+    var cgGreyed = lpSelected;
+    var comboGreyed = lpSelected;
+
+    function rowClass(key, selected, greyed, extra) {
+      var c = 'addon-row' + (extra ? ' ' + extra : '');
+      if (selected) c += ' is-selected';
+      if (greyed) c += ' is-greyed';
+      return c;
+    }
+
+    return [
+      '<div class="plan-card__protect" id="planCardProtect">',
+        '<p class="plan-card__protect-heading">Protect your plan</p>',
+        '<div class="addon-table">',
+
+          /* 1. Lifetime Protection */
+          '<div class="' + rowClass('lifetimeAll', lpSelected, false) + '" data-addon="lifetimeAll" role="checkbox" aria-checked="' + (lpSelected?'true':'false') + '" tabindex="0">',
+            '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+            '<div class="addon-row__content">',
+              '<span class="addon-lp-badge' + (lpSelected ? '' : ' is-pulsing') + '">LIFETIME DEAL</span>',
+              '<p class="addon-row__name">Lifetime Protection + free CG</p>',
+              '<div class="addon-lp-hero">',
+                '<p class="addon-lp-hero__heading" data-lp-hero-heading>' + hero.heading + '</p>',
+                '<p class="addon-lp-hero__body" data-lp-hero-body>' + hero.body + '</p>',
+              '</div>',
+              '<div class="addon-row__price-line">',
+                '<span class="addon-row__price">$' + lp.toFixed(2) + ' once</span>',
+                '<span class="addon-row__payment-type">One-time — never pay again</span>',
+              '</div>',
+            '</div>',
+          '</div>',
+
+          /* 2. CG */
+          '<div class="' + rowClass('addon1', cgSelected, cgGreyed) + '" data-addon="addon1" role="checkbox" aria-checked="' + (cgSelected?'true':'false') + '" tabindex="0">',
+            '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+            '<div class="addon-row__content">',
+              '<p class="addon-row__name">48hr Cancellation Guarantee (CG)</p>',
+              '<div class="addon-row__price-line">',
+                '<span class="addon-row__price">$' + cg.toFixed(2) + ' once</span>',
+                '<span class="addon-row__payment-type">One-time at checkout</span>',
+              '</div>',
+            '</div>',
+          '</div>',
+
+          /* 3. TP */
+          '<div class="' + rowClass('addon2', tpSelected, tpRgGreyed) + '" data-addon="addon2" role="checkbox" aria-checked="' + (tpSelected?'true':'false') + '" tabindex="0">',
+            '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+            '<div class="addon-row__content">',
+              '<p class="addon-row__name">Transfer Protection (TP)</p>',
+              '<div class="addon-row__price-line">',
+                '<span class="addon-row__price" data-dynamic="tp-price">$' + tp.toFixed(2) + '/' + intv + '</span>',
+                '<span class="addon-row__payment-type">Recurring with your plan</span>',
+              '</div>',
+            '</div>',
+          '</div>',
+
+          /* 4. RG */
+          '<div class="' + rowClass('addon3', rgSelected, tpRgGreyed) + '" data-addon="addon3" role="checkbox" aria-checked="' + (rgSelected?'true':'false') + '" tabindex="0">',
+            '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+            '<div class="addon-row__content">',
+              '<p class="addon-row__name">Renewal Protection (RG)</p>',
+              '<div class="addon-row__price-line">',
+                '<span class="addon-row__price" data-dynamic="rg-price">$' + rg.toFixed(2) + '/' + intv + '</span>',
+                '<span class="addon-row__payment-type">Recurring with your plan</span>',
+              '</div>',
+            '</div>',
+          '</div>',
+
+          /* 5. Combo */
+          '<div class="' + rowClass('combo23', comboSelected, comboGreyed, 'is-combo') + '" data-addon="combo23" role="checkbox" aria-checked="' + (comboSelected?'true':'false') + '" tabindex="0">',
+            '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+            '<div class="addon-row__content">',
+              '<span class="addon-combo-label">BUNDLE DEAL</span>',
+              '<p class="addon-row__name">Transfer + Renewal Combo (TP+RG)</p>',
+              '<div class="addon-row__price-line">',
+                '<span class="addon-row__price" data-dynamic="combo-price">$' + comboDelta.toFixed(2) + '/' + intv + '</span>',
+                '<span class="addon-row__payment-type">Recurring with your plan</span>',
+              '</div>',
+              '<p class="addon-combo-savings">Save vs buying separately</p>',
+            '</div>',
+          '</div>',
+
+        '</div>',
+      '</div>'
+    ].join('');
+  }
+
   function buildStep4El(prePlanKey){
     var defaultKey = prePlanKey || 'monthly';
     var cardsHtml;
@@ -2015,7 +2300,7 @@
           '<p>Loading plans&hellip;</p>' +
         '</div>';
     } else {
-      /* PRICING is ready — build the plan cards exactly as before */
+      /* PRICING is ready — build plan cards; add-ons only on the selected card */
       cardsHtml = PLANS.map(function(p){
         var isSelected = p.key === defaultKey;
         var badgeHtml;
@@ -2032,6 +2317,23 @@
         var featHtml = FEATURES.map(function(f){
           return '<li class="plan-card__feature"><img src="/assets/icons/feature_icons/icon_check_black.svg" alt="" width="20" height="20" class="plan-card__check" aria-hidden="true">'+f+'</li>';
         }).join('');
+
+        var displayAmount = isSelected ? calcLiveRecurring(p.key) : (typeof PRICING.plans[p.key].comboPrice === 'number' ? PRICING.plans[p.key].comboPrice : p.amount);
+        var onetime = isSelected ? calcLiveOnetime() : 0;
+        var liveExtras = '';
+        if (isSelected) {
+          liveExtras =
+            '<div class="plan-card__live-price">' +
+              '<p class="plan-card__onetime' + (onetime > 0 ? ' is-visible' : '') + '" data-live-onetime>' +
+                (onetime > 0 ? '+ $' + onetime.toFixed(2) + ' once today' : '') +
+              '</p>' +
+              buildProtectStatusHtml(p.key) +
+            '</div>';
+        }
+
+        var bodyInner = '<ul class="plan-card__features">'+featHtml+'</ul>' +
+          (isSelected ? buildInCardProtectHtml(p.key) : '');
+
         return [
           '<div class="plan-card '+p.cls+(isSelected?' is-selected':'')+'" data-plan-key="'+p.key+'" role="button" tabindex="0" aria-pressed="'+(isSelected?'true':'false')+'">',
             '<div class="plan-card__header">',
@@ -2039,12 +2341,13 @@
               badgeHtml,
               '<p class="plan-card__plan-name">'+planNameHtml+'</p>',
               '<div class="plan-card__price">',
-                '<span class="plan-card__amount">$'+p.amount.toFixed(2)+'</span>',
+                '<span class="plan-card__amount" data-live-amount>$'+displayAmount.toFixed(2)+'</span>',
                 '<span class="plan-card__period"> / '+p.period+'</span>',
               '</div>',
+              liveExtras,
               equivHtml,
             '</div>',
-            '<div class="plan-card__body"><ul class="plan-card__features">'+featHtml+'</ul></div>',
+            '<div class="plan-card__body">'+bodyInner+'</div>',
             '<div class="plan-card__footer">',
               '<button class="plan-card__select" type="button" tabindex="-1">'+(isSelected?'<span style="display:inline-flex;align-items:center;justify-content:center;gap:5px"><img src="/assets/icons/feature_icons/icon_check_green.svg" alt="" width="16" height="16" aria-hidden="true"> Selected</span>':'Select plan')+'</button>',
             '</div>',
@@ -2054,7 +2357,7 @@
 
       /* Sync module-level selectedPlan to the default shown */
       var defPlan = PLANS.find(function(p){ return p.key === defaultKey; });
-      if(defPlan){ selectedPlan = defPlan.key; selectedPlanPrice = defPlan.amount; }
+      if(defPlan){ selectedPlan = defPlan.key; selectedPlanPrice = calcLiveRecurring(defPlan.key); }
     }
 
     var el = document.createElement('section');
@@ -2066,10 +2369,6 @@
       '<button class="mobile-continue plan-continue" type="button">Continue &rarr;</button>',
       '<button class="step-back step-back--bottom" type="button" data-back="4">'+BACK_SVG+' Step 3</button>'
     ].join('');
-    /* Only insert the add-on section when PRICING loaded successfully */
-    if(PRICING && !pricingFetchError){
-      el.querySelector('.plan-continue').insertAdjacentElement('beforebegin', buildAddonSection(defaultKey));
-    }
     return el;
   }
 
@@ -2250,7 +2549,7 @@
   }
 
   function wireStep4(el){
-    /* Back â€” rebuild Step 3 cleanly so stale OTP UI never persists on back nav */
+    /* Back — rebuild Step 3 cleanly so stale OTP UI never persists on back nav */
     el.querySelector('[data-back="4"]').addEventListener('click', function(){
       clearGate();
       removeStepsFrom(3);
@@ -2271,31 +2570,30 @@
       scrollTimer = setTimeout(function(){ isScrolling = false; }, 200);
     }, { passive:true });
 
-    /* Plan card selection â€” visual highlight only */
+    /* Rebuild Step 4 for a plan key — resets add-ons to default when switching cards */
+    function rebuildStep4ForPlan(planKey, resetAddons) {
+      if (resetAddons) selectedAddons = defaultSelectedAddons();
+      selectedPlan = planKey;
+      selectedPlanPrice = calcLiveRecurring(planKey);
+      var newS4 = buildStep4El(planKey);
+      el.parentNode.replaceChild(newS4, el);
+      wireStep4(newS4);
+      snapCarouselToKey(newS4, planKey);
+    }
+
+    /* Plan card selection */
     el.querySelectorAll('.plan-card').forEach(function(card){
       function doSelect(){
         if(isScrolling) return;
-        el.querySelectorAll('.plan-card').forEach(function(c){
-          c.classList.remove('is-selected'); c.setAttribute('aria-pressed','false');
-          c.querySelector('.plan-card__select').textContent = 'Select plan';
-        });
-        card.classList.add('is-selected'); card.setAttribute('aria-pressed','true');
-        card.querySelector('.plan-card__select').innerHTML = '<span style="display:inline-flex;align-items:center;justify-content:center;gap:5px"><img src="/assets/icons/feature_icons/icon_check_green.svg" alt="" width="16" height="16" aria-hidden="true"> Selected</span>';
-        /* Track selectedPlan / selectedPlanPrice */
         var planKey = card.dataset.planKey;
-        var planObj = PLANS.find(function(p){ return p.key === planKey; });
-        selectedPlan = planKey;
-        selectedPlanPrice = planObj ? planObj.amount : 0;
-        /* If add-on section is already visible, refresh its dynamic prices */
-        var existingAddon = el.querySelector('.addon-section');
-        if(existingAddon){ updateAddonPrices(existingAddon, planKey); }
-        /* Pre-select lifetime add-on on first plan card click when ?addon=lifetime.
-           Uses autoSelectLifetime (not .click()) so the toast fires correctly.
-           Fires once then clears so repeat clicks don't re-scroll. */
+        if (planKey === selectedPlan && card.classList.contains('is-selected')) return;
+        /* Switching cards resets add-ons to default (combo pre-ticked) */
+        rebuildStep4ForPlan(planKey, true);
+        /* URL-param lifetime preselect (once) */
         if (addonPreselect === 'lifetime') {
           addonPreselect = null;
           if (addonAutoSelectFn) addonAutoSelectFn();
-          var lifetimePreselEl = el.querySelector('#addonLifetime');
+          var lifetimePreselEl = planFlow.querySelector('[data-step="4"] [data-addon="lifetimeAll"]');
           if (lifetimePreselEl) {
             setTimeout(function() {
               lifetimePreselEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2304,18 +2602,25 @@
         }
       }
       card.addEventListener('click', function(e){
+        /* Clicks inside protect / addon rows should not re-select / rebuild the card */
+        if (e.target.closest('.plan-card__protect') || e.target.closest('.addon-row')) return;
         if(e.target.classList.contains('plan-card__select')){ doSelect(); return; }
         doSelect();
       });
-      card.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); doSelect(); } });
+      card.addEventListener('keydown', function(e){
+        if(e.key==='Enter'||e.key===' '){
+          if (e.target.closest('.plan-card__protect') || e.target.closest('.addon-row')) return;
+          e.preventDefault(); doSelect();
+        }
+      });
       card.querySelector('.plan-card__select').addEventListener('click', function(e){
         e.stopPropagation(); doSelect();
       });
     });
 
-    /* Wire the add-on section — only present when PRICING has loaded */
-    var addonSectionEl = el.querySelector('.addon-section');
-    if (addonSectionEl) wireAddonSection(addonSectionEl);
+    /* Wire in-card add-ons on the selected card */
+    var protectEl = el.querySelector('.plan-card__protect');
+    if (protectEl) wireInCardAddons(el, protectEl);
 
     /* Continue — calls completePlan to confirm the selected plan */
     el.querySelector('.plan-continue').addEventListener('click', function(){
@@ -2325,7 +2630,7 @@
     });
   }
 
-  /* â”€â”€â”€ Snap carousel to a plan key â”€â”€â”€ */
+  /* ─── Snap carousel to a plan key ─── */
   function snapCarouselToKey(stepEl, planKey){
     setTimeout(function(){
       var track = stepEl.querySelector('.carousel-track');
@@ -2339,170 +2644,86 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
-     BUILD & WIRE ADD-ON SECTION (Step 4 inline)
+     BUILD & WIRE IN-CARD ADD-ONS (Step 4 selected plan card only)
   ═══════════════════════════════════════════════════════════════════════ */
 
-  function buildAddonSection(planKey) {
-    var pk   = planKey && PRICING.plans[planKey] ? planKey : 'monthly';
-    var intv = PRICING.plans[pk].interval;
-    var a1p  = PRICING.addons.addon1[pk];
-    var a2p  = PRICING.addons.addon2[pk];
-    var a3p  = PRICING.addons.addon3[pk];
-    var cop  = PRICING.addons.combo23[pk];
-    var ltp  = PRICING.addons.lifetimeAll[pk];
-    var sav  = (a2p + a3p - cop).toFixed(2);
+  function updateLivePriceDisplay(stepEl) {
+    var card = stepEl.querySelector('.plan-card.is-selected');
+    if (!card || !PRICING) return;
+    var planKey = card.dataset.planKey;
+    var recurring = calcLiveRecurring(planKey);
+    var onetime = calcLiveOnetime();
+    selectedPlanPrice = recurring;
 
-    var div = document.createElement('div');
-    div.className = 'addon-section';
-    div.id = 'addonSection';
-    div.innerHTML = [
-      '<h3 class="addon-section__heading">Protect your plan</h3>',
-      '<p class="addon-section__sub">Optional add-ons. Select any that apply, then continue to checkout.</p>',
-      '<div class="addon-table">',
+    var amountEl = card.querySelector('[data-live-amount]');
+    if (amountEl) amountEl.textContent = '$' + recurring.toFixed(2);
 
-        /* - Add-on 1 - */
-        '<div class="addon-row" data-addon="addon1" role="checkbox" aria-checked="false" tabindex="0">',
-          '<div class="addon-checkbox">'+TICK_SVG+'</div>',
-          '<div class="addon-row__content">',
-            '<div class="addon-row__header"><p class="addon-row__name">48 Hours Cancellation Guarantee</p><button class="addon-row__info-btn" type="button" tabindex="-1"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></button></div>',
-            '<div class="addon-row__details">',
-            '<p class="addon-row__why">Your number is activated within 24 hours. Once activated, refunds are not available. This guarantee gives you a full refund if you change your mind within 48 hours of purchase, no questions asked.</p>',
-            '<div class="addon-row__risk">Without this you risk: losing your full plan payment with no recourse.</div>',
-            '</div>',
-            '<div class="addon-row__price-line">',
-              '<span class="addon-row__price">'+'\$'+a1p.toFixed(2)+'</span>',
-              '<span class="addon-row__payment-type">One-time at checkout</span>',
-            '</div>',
-          '</div>',
-        '</div>',
-
-        /* - Add-on 2 - */
-        '<div class="addon-row" data-addon="addon2" role="checkbox" aria-checked="false" tabindex="0">',
-          '<div class="addon-checkbox">'+TICK_SVG+'</div>',
-          '<div class="addon-row__content">',
-            '<div class="addon-row__header"><p class="addon-row__name">Unlimited Prison Transfers</p><button class="addon-row__info-btn" type="button" tabindex="-1"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></button></div>',
-            '<div class="addon-row__details">',
-            '<p class="addon-row__why">If your loved one is transferred to a different prison, their current number may no longer be the closest local number. This add-on covers unlimited transfers so calls always stay at the lowest rate.</p>',
-            '<div class="addon-row__risk">Without this you risk: paying $24.99 per transfer every time your loved one is moved.</div>',
-            '</div>',
-            '<div class="addon-row__price-line">',
-              '<span class="addon-row__price" data-dynamic="addon2-price">'+'\$'+a2p.toFixed(2)+'/'+intv+'</span>',
-              '<span class="addon-row__payment-type">Recurring with your plan</span>',
-            '</div>',
-          '</div>',
-        '</div>',
-
-        /* - Add-on 3 - */
-        '<div class="addon-row" data-addon="addon3" role="checkbox" aria-checked="false" tabindex="0">',
-          '<div class="addon-checkbox">'+TICK_SVG+'</div>',
-          '<div class="addon-row__content">',
-            '<div class="addon-row__header"><p class="addon-row__name">96 Hours Post Renewal Cancellation</p><button class="addon-row__info-btn" type="button" tabindex="-1"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></button></div>',
-            '<div class="addon-row__details">',
-            '<p class="addon-row__why">If your loved one is released shortly after a renewal, you have already been charged. This add-on gives you 96 hours after every renewal to cancel and receive a full refund.</p>',
-            '<div class="addon-row__risk">Without this you risk: losing a full renewal payment you will not use.</div>',
-            '</div>',
-            '<div class="addon-row__price-line">',
-              '<span class="addon-row__price" data-dynamic="addon3-price">'+'\$'+a3p.toFixed(2)+'/'+intv+'</span>',
-              '<span class="addon-row__payment-type">Recurring with your plan</span>',
-            '</div>',
-          '</div>',
-        '</div>',
-
-        /* - Combo row - */
-        '<div class="addon-row is-combo" data-addon="combo23" role="checkbox" aria-checked="false" tabindex="0">',
-          '<div class="addon-checkbox">'+TICK_SVG+'</div>',
-          '<div class="addon-row__content">',
-            '<span class="addon-combo-label">Bundle deal</span>',
-            '<div class="addon-row__header"><p class="addon-row__name">Unlimited Prison Transfers + 96 Hours Post Renewal Cancellation</p><button class="addon-row__info-btn" type="button" tabindex="-1"><img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16"></button></div>',
-            '<div class="addon-row__details">',
-            '<p class="addon-row__why">Both recurring add-ons together at a reduced combined price.</p>',
-            '</div>',
-            '<div class="addon-row__price-line">',
-              '<span class="addon-row__price" data-dynamic="combo23-price">'+'\$'+cop.toFixed(2)+'/'+intv+'</span>',
-              '<span class="addon-row__payment-type">Recurring with your plan</span>',
-            '</div>',
-            '<p class="addon-combo-savings" data-dynamic="combo23-savings">Save '+'\$'+sav+' vs buying separately</p>',
-          '</div>',
-        '</div>',
-
-      '</div>',
-
-      /* - Lifetime hero block - */
-      '<div class="addon-lifetime" id="addonLifetime" role="checkbox" aria-checked="false" tabindex="0">',
-        '<span class="addon-lifetime__badge">Most Popular</span>',
-        '<h4 class="addon-lifetime__heading">Get all three add-ons for life.</h4>',
-        '<p class="addon-lifetime__sub">'+'\$'+ltp.toFixed(2)+' once. Never pay for transfers, cancellations, or renewal refunds again. Ever.</p>',
-        '<button class="addon-lifetime__btn" type="button">Get lifetime protection \u2014 $'+ltp.toFixed(2)+'</button>',
-      '</div>',
-    ].join('');
-    return div;
-  }
-
-  function updateAddonPrices(sectionEl, planKey) {
-    var pk   = planKey && PRICING.plans[planKey] ? planKey : 'monthly';
-    var intv = PRICING.plans[pk].interval;
-    var a2p  = PRICING.addons.addon2[pk];
-    var a3p  = PRICING.addons.addon3[pk];
-    var cop  = PRICING.addons.combo23[pk];
-    var sav  = (a2p + a3p - cop).toFixed(2);
-    sectionEl.querySelectorAll('[data-dynamic="addon2-price"]').forEach(function(el){ el.textContent = '\$'+a2p.toFixed(2)+'/'+intv; });
-    sectionEl.querySelectorAll('[data-dynamic="addon3-price"]').forEach(function(el){ el.textContent = '\$'+a3p.toFixed(2)+'/'+intv; });
-    sectionEl.querySelectorAll('[data-dynamic="combo23-price"]').forEach(function(el){ el.textContent = '\$'+cop.toFixed(2)+'/'+intv; });
-    var savEl = sectionEl.querySelector('[data-dynamic="combo23-savings"]');
-    if(savEl){ savEl.textContent = 'Save \$'+sav+' vs buying separately'; }
-  }
-
-
-  function wireAddonSection(sectionEl) {
-    /* Apply current selectedAddons to visual elements (handles fresh + restored state) */
-    function applyAddonState() {
-      sectionEl.querySelectorAll('.addon-row').forEach(function(row) {
-        var k = row.dataset.addon;
-        if(selectedAddons[k]){ row.classList.add('is-selected'); row.setAttribute('aria-checked','true'); }
-        else { row.classList.remove('is-selected'); row.setAttribute('aria-checked','false'); }
-      });
-      var lt = sectionEl.querySelector('.addon-lifetime');
-      if(lt){
-        var ltBtn = lt.querySelector('.addon-lifetime__btn');
-        if(selectedAddons.lifetimeAll){
-          lt.classList.add('is-selected'); lt.setAttribute('aria-checked','true');
-          if(ltBtn) ltBtn.textContent = '\u2713 Lifetime selected \u2014 $29.99 once';
-        } else {
-          lt.classList.remove('is-selected'); lt.setAttribute('aria-checked','false');
-        }
+    var otEl = card.querySelector('[data-live-onetime]');
+    if (otEl) {
+      if (onetime > 0) {
+        otEl.textContent = '+ $' + onetime.toFixed(2) + ' once today';
+        otEl.classList.add('is-visible');
+      } else {
+        otEl.textContent = '';
+        otEl.classList.remove('is-visible');
       }
     }
-    applyAddonState();
 
+    var statusWrap = card.querySelector('[data-live-status]');
+    if (statusWrap) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = buildProtectStatusHtml(planKey);
+      statusWrap.parentNode.replaceChild(tmp.firstChild, statusWrap);
+    }
+  }
+
+  function applyAddonGreyState(protectEl) {
+    var lpOn = !!selectedAddons.lifetimeAll;
+    var comboOn = !!selectedAddons.combo23;
+    protectEl.querySelectorAll('.addon-row').forEach(function(row) {
+      var key = row.dataset.addon;
+      var grey = false;
+      if (key === 'addon2' || key === 'addon3') grey = comboOn || lpOn;
+      if (key === 'addon1') grey = lpOn;
+      if (key === 'combo23') grey = lpOn;
+      if (grey) row.classList.add('is-greyed');
+      else row.classList.remove('is-greyed');
+    });
+    var lpBadge = protectEl.querySelector('.addon-lp-badge');
+    if (lpBadge) {
+      if (lpOn) lpBadge.classList.remove('is-pulsing');
+      else lpBadge.classList.add('is-pulsing');
+    }
+  }
+
+  function wireInCardAddons(stepEl, protectEl) {
     function setRow(row, key, checked) {
       selectedAddons[key] = checked;
-      if(checked){ row.classList.add('is-selected'); row.setAttribute('aria-checked','true'); }
-      else { row.classList.remove('is-selected'); row.setAttribute('aria-checked','false'); }
-    }
-    function setLifetime(checked) {
-      selectedAddons.lifetimeAll = checked;
-      var el = sectionEl.querySelector('.addon-lifetime');
-      var ltBtn   = el ? el.querySelector('.addon-lifetime__btn')   : null;
-      var ltBadge = el ? el.querySelector('.addon-lifetime__badge') : null;
-      if(checked){
-        el.classList.add('is-selected'); el.setAttribute('aria-checked','true');
-        if(ltBtn)   ltBtn.textContent = '\u2713 Lifetime selected \u2014 $29.99 once';
-        if(ltBadge) ltBadge.textContent = 'Selected';
-      } else {
-        el.classList.remove('is-selected'); el.setAttribute('aria-checked','false');
-        if(ltBtn)   ltBtn.textContent = 'Get lifetime protection \u2014 $' + PRICING.addons.lifetimeAll[selectedPlan].toFixed(2);
-        if(ltBadge) ltBadge.textContent = 'Most Popular';
-      }
+      if (checked) { row.classList.add('is-selected'); row.setAttribute('aria-checked', 'true'); }
+      else { row.classList.remove('is-selected'); row.setAttribute('aria-checked', 'false'); }
     }
 
-    /* ── Toast: fires on auto-upgrade and URL-param pre-select only ── */
+    /* Sync DOM to selectedAddons (needed when editEntry restores addons after build) */
+    function applyAddonState() {
+      protectEl.querySelectorAll('.addon-row').forEach(function(row) {
+        var k = row.dataset.addon;
+        if (selectedAddons[k]) {
+          row.classList.add('is-selected');
+          row.setAttribute('aria-checked', 'true');
+        } else {
+          row.classList.remove('is-selected');
+          row.setAttribute('aria-checked', 'false');
+        }
+      });
+    }
+
     function showUpgradeToast(msg) {
       var existing = document.getElementById('lifetimeUpgradeToast');
-      if(existing) existing.remove();
+      if (existing) existing.remove();
       var isMobile = window.innerWidth <= 768;
       var toast = document.createElement('div');
       toast.id = 'lifetimeUpgradeToast';
-      var msgText = msg || 'You\u2019re getting the best deal. Lifetime Protection covers all three add-ons, once, forever.';
+      var msgText = msg || 'We have upgraded you to the Bundle Deal - better value';
       toast.innerHTML =
         '<span style="flex:1;text-align:left;">' + msgText + '</span>' +
         '<button type="button" aria-label="Dismiss" style="flex-shrink:0;background:none;border:none;cursor:pointer;padding:4px;margin-left:14px;line-height:0;opacity:0.7;">' +
@@ -2533,189 +2754,114 @@
       ].join(';');
       document.body.appendChild(toast);
       var toastCloseBtn = toast.querySelector('button[aria-label="Dismiss"]');
-      if(toastCloseBtn) toastCloseBtn.addEventListener('click', function(){
+      if (toastCloseBtn) toastCloseBtn.addEventListener('click', function(){
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(-50%) translateY(20px)';
-        setTimeout(function(){ if(toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+        setTimeout(function(){ if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
       });
-      toast.getBoundingClientRect(); /* force reflow before animating */
+      toast.getBoundingClientRect();
       toast.style.opacity = '1';
       toast.style.transform = 'translateX(-50%) translateY(0)';
       setTimeout(function() {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(-50%) translateY(20px)';
-        setTimeout(function(){ if(toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+        setTimeout(function(){ if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
       }, 4000);
     }
 
-    /* ── Grey / ungrey all addon rows ── */
-    function setRowsGreyed(greyed) {
-      sectionEl.querySelectorAll('.addon-row').forEach(function(r) {
-        r.style.opacity = greyed ? '0.4' : '1';
-        r.style.pointerEvents = greyed ? 'none' : 'auto';
-      });
-    }
-
-    /* ── Auto-select lifetime (called by auto-upgrade + URL param, not direct click) ── */
-    function autoSelectLifetime() {
-      ['addon1','addon2','addon3','combo23'].forEach(function(k){
-        var r = sectionEl.querySelector('[data-addon="'+k+'"]');
-        if(r) setRow(r, k, false);
-      });
-      setLifetime(true);
-      setRowsGreyed(true);
-      showUpgradeToast();
-    }
-
-    /* ── Check if auto-upgrade threshold is met after any checkbox change ── */
-    function checkAutoUpgrade() {
-      if(selectedAddons.lifetimeAll) return;
-      var allThree    = selectedAddons.addon1 && selectedAddons.addon2 && selectedAddons.addon3;
-      var comboAndOne = selectedAddons.combo23 && selectedAddons.addon1;
-      if(allThree || comboAndOne) autoSelectLifetime();
-    }
-
-    /* ── Auto-upgrade to Bundle Deal when transfer + post-renewal both ticked ── */
     function autoUpgradeToCombo() {
-      var r2 = sectionEl.querySelector('[data-addon="addon2"]');
-      var r3 = sectionEl.querySelector('[data-addon="addon3"]');
-      var rc = sectionEl.querySelector('[data-addon="combo23"]');
-      if(r2) setRow(r2, 'addon2', false);
-      if(r3) setRow(r3, 'addon3', false);
-      if(rc) setRow(rc, 'combo23', true);
-      showUpgradeToast('We\u2019ve switched you to the Bundle Deal, it\u2019s better value!');
+      var r2 = protectEl.querySelector('[data-addon="addon2"]');
+      var r3 = protectEl.querySelector('[data-addon="addon3"]');
+      var rc = protectEl.querySelector('[data-addon="combo23"]');
+      if (r2) setRow(r2, 'addon2', false);
+      if (r3) setRow(r3, 'addon3', false);
+      if (rc) setRow(rc, 'combo23', true);
+      showUpgradeToast('We have upgraded you to the Bundle Deal - better value');
     }
 
-    function checkAutoUpgradeToCombo() {
-      if(selectedAddons.lifetimeAll) return; /* lifetime already covers this */
-      if(selectedAddons.combo23) return;     /* bundle deal already selected  */
-      if(selectedAddons.addon2 && selectedAddons.addon3) autoUpgradeToCombo();
+    function selectLifetime(checked) {
+      var lpRow = protectEl.querySelector('[data-addon="lifetimeAll"]');
+      if (!lpRow) return;
+      setRow(lpRow, 'lifetimeAll', checked);
+      if (checked) {
+        ['addon1', 'addon2', 'addon3', 'combo23'].forEach(function(k) {
+          var r = protectEl.querySelector('[data-addon="' + k + '"]');
+          if (r) setRow(r, k, false);
+        });
+      }
+      applyAddonGreyState(protectEl);
+      updateLivePriceDisplay(stepEl);
     }
 
-    /* Expose autoSelectLifetime at module level for URL-param pre-selection */
-    addonAutoSelectFn = autoSelectLifetime;
+    /* Expose for ?addon=lifetime URL preselect */
+    addonAutoSelectFn = function() { selectLifetime(true); };
 
-    sectionEl.querySelectorAll('.addon-row').forEach(function(row){
+    applyAddonState();
+    applyAddonGreyState(protectEl);
+    updateLivePriceDisplay(stepEl);
+
+    protectEl.querySelectorAll('.addon-row').forEach(function(row) {
       var key = row.dataset.addon;
 
-      /* Expand / collapse details on row click (anywhere on row or info button) */
-      row.addEventListener('click', function(e){
-        if(e.target.closest('.addon-checkbox')) return;
-        var opening = !row.classList.contains('is-open');
-        sectionEl.querySelectorAll('.addon-row.is-open').forEach(function(r){
-          r.classList.remove('is-open');
-          var b = r.querySelector('.addon-row__info-btn'); if(b) b.innerHTML = '<img src="/assets/icons/feature_icons/Icon_Tooltip_Black.svg" alt="" width="16" height="16">';
-        });
-        if(opening){
-          row.classList.add('is-open');
-          var ib = row.querySelector('.addon-row__info-btn'); if(ib) ib.textContent = '\u00D7';
-        }
-      });
-      row.addEventListener('keydown', function(e){
-        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); row.click(); }
-      });
+      function toggleAddon() {
+        if (row.classList.contains('is-greyed')) return;
 
-      /* Select / deselect via checkbox click (stops propagation to row) */
-      var cb = row.querySelector('.addon-checkbox');
-      if(cb){
-        cb.addEventListener('click', function(e){
+        var next = !selectedAddons[key];
+
+        if (key === 'lifetimeAll') {
+          selectLifetime(next);
+          return;
+        }
+
+        /* Selecting any non-LP while LP is on: clear LP first */
+        if (selectedAddons.lifetimeAll) {
+          selectLifetime(false);
+        }
+
+        setRow(row, key, next);
+
+        if (key === 'combo23') {
+          if (next) {
+            var r2 = protectEl.querySelector('[data-addon="addon2"]');
+            var r3 = protectEl.querySelector('[data-addon="addon3"]');
+            if (r2) setRow(r2, 'addon2', false);
+            if (r3) setRow(r3, 'addon3', false);
+          }
+        }
+
+        if ((key === 'addon2' || key === 'addon3') && next) {
+          var comboRow = protectEl.querySelector('[data-addon="combo23"]');
+          if (comboRow) setRow(comboRow, 'combo23', false);
+        }
+
+        /* TP + RG both ticked → auto-upgrade to combo */
+        if (!selectedAddons.lifetimeAll && !selectedAddons.combo23 &&
+            selectedAddons.addon2 && selectedAddons.addon3) {
+          autoUpgradeToCombo();
+        }
+
+        applyAddonGreyState(protectEl);
+        updateLivePriceDisplay(stepEl);
+      }
+
+      row.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleAddon();
+      });
+      row.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
           e.stopPropagation();
-          /* CHANGE 2: If lifetime is active, deselect it and restore all rows */
-          if(selectedAddons.lifetimeAll) {
-            setLifetime(false);
-            setRowsGreyed(false);
-          }
-          var next = !selectedAddons[key];
-          setRow(row, key, next);
-          if(next){
-            if(key === 'addon2' || key === 'addon3'){
-              var comboRow = sectionEl.querySelector('[data-addon="combo23"]');
-              if(comboRow) setRow(comboRow, 'combo23', false);
-            }
-          }
-          if(key === 'combo23' && next){
-            var r2 = sectionEl.querySelector('[data-addon="addon2"]');
-            var r3 = sectionEl.querySelector('[data-addon="addon3"]');
-            if(r2) setRow(r2, 'addon2', false);
-            if(r3) setRow(r3, 'addon3', false);
-          }
-          /* Auto-upgrade to Bundle Deal if transfer + post-renewal both ticked */
-          checkAutoUpgradeToCombo();
-          /* Auto-upgrade to Lifetime if threshold met (all 3, or combo + addon1) */
-          checkAutoUpgrade();
-        });
-        cb.addEventListener('keydown', function(e){
-          if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); cb.click(); }
-        });
-      }
-    });
-
-
-    /* Lifetime hero — manual click only (no toast, no grey on select) */
-    var lifetimeEl = sectionEl.querySelector('.addon-lifetime');
-    lifetimeEl.addEventListener('click', function(){
-      var next = !selectedAddons.lifetimeAll;
-      setLifetime(next);
-      if(next){
-        /* Deselect all individual rows and combo */
-        ['addon1','addon2','addon3','combo23'].forEach(function(k){
-          var r = sectionEl.querySelector('[data-addon="'+k+'"]');
-          if(r) setRow(r, k, false);
-        });
-      } else {
-        /* CHANGE 2: Ungrey rows when manually deselecting lifetime */
-        setRowsGreyed(false);
-      }
-    });
-    lifetimeEl.addEventListener('keydown', function(e){
-      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); lifetimeEl.click(); }
-    });
-
-    var checkoutBtn = sectionEl.querySelector('#addonCheckoutBtn');
-    var skipBtn     = sectionEl.querySelector('#addonSkipBtn');
-
-    function doAddonCheckout(clearAddons) {
-      if(clearAddons){
-        selectedAddons = { addon1:false, addon2:false, addon3:false, combo23:false, lifetimeAll:false };
-      }
-      if(!cur) return;
-      var allPlans = entries.slice();
-      allPlans.push({ prison: cur.prison, state: cur.state, mobile: cur.mobile, planKey: selectedPlan, addons: Object.assign({}, selectedAddons) });
-      var isBundle = allPlans.length >= 2;
-      var plansArray = allPlans.map(function(e){
-        return { prison_name: e.prison, prison_state: e.state, assigned_mobile: e.mobile, plan_interval: e.planKey, bundle: isBundle, addons: e.addons || {} };
-      });
-      checkoutBtn.textContent = 'Preparing checkout\u2026';
-      checkoutBtn.disabled = true;
-      skipBtn.disabled = true;
-      fetch('/api/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plans: plansArray, customer_mobile: entries.length > 0 ? entries[0].mobile : cur.mobile })
-      })
-      .then(function(res){ return res.json(); })
-      .then(function(data){
-        if(data.url){ window.location.href = data.url; }
-        else { throw new Error(data.error || 'Unexpected response'); }
-      })
-      .catch(function(){
-        checkoutBtn.textContent = 'Continue to checkout';
-        checkoutBtn.disabled = false;
-        skipBtn.disabled = false;
-        var errEl = sectionEl.querySelector('.addon-error');
-        if(!errEl){
-          errEl = document.createElement('p');
-          errEl.className = 'addon-error';
-          errEl.style.cssText = 'color:red;font-size:13px;font-weight:600;margin-top:8px;text-align:center;';
-          sectionEl.querySelector('.addon-actions').appendChild(errEl);
+          toggleAddon();
         }
-        errEl.textContent = 'Something went wrong. Please try again.';
       });
-    }
-
-    if(checkoutBtn){ checkoutBtn.addEventListener('click', function(){ doAddonCheckout(false); }); }
-    if(skipBtn){ skipBtn.addEventListener('click', function(){ doAddonCheckout(true); }); }
+    });
   }
+
+  /* Legacy stubs — separate below-cards addon section removed (Step 4 in-card only) */
+  function buildAddonSection() { return document.createElement('div'); }
+  function updateAddonPrices() {}
+  function wireAddonSection() {}
 
   /* â”€â”€â”€ Format mobile number â”€â”€â”€ */
   function formatMobile(digits){
@@ -3136,7 +3282,7 @@
       entries.push(Object.assign({}, cur));
     }
     cur = null;
-    selectedAddons = { addon1:false, addon2:false, addon3:false, combo23:false, lifetimeAll:false };
+    selectedAddons = defaultSelectedAddons();
     planFlow.innerHTML = '';
     clearGate();
     renderCompletedArea();
@@ -3171,9 +3317,9 @@
     planFlow.appendChild(s3);
     wireStep3(s3);
 
+    selectedAddons = Object.assign({}, entry.addons || defaultSelectedAddons());
     var s4 = buildStep4El(entry.planKey);
     planFlow.appendChild(s4);
-    selectedAddons = Object.assign({}, entry.addons || { addon1:false, addon2:false, addon3:false, combo23:false, lifetimeAll:false });
     wireStep4(s4);
 
     /* Release gate so page can scroll back up to the edit steps */
