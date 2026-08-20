@@ -1102,6 +1102,101 @@
       .plan-card.is-expanded .plan-card__status { display: none; }
     }
 
+    /* ═══════════════════════════════════════════════════
+       PHASE B ADD-ON REDESIGN — INFO TOGGLE, DETAIL PANELS,
+       VALUE STACK, CUSTOMISE LINK
+    ═══════════════════════════════════════════════════ */
+    .addon-row__name-row {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 6px;
+    }
+    .addon-info-btn {
+      flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.25); background: transparent;
+      color: rgba(255,255,255,0.55); font-size: 10px; font-weight: 700;
+      font-family: inherit; cursor: pointer; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color var(--tr), color var(--tr), background var(--tr);
+      padding: 0; margin-top: 1px;
+    }
+    .plan-card:not(.is-expanded) .addon-info-btn {
+      border-color: var(--color-border); color: var(--color-muted); background: var(--color-white);
+    }
+    .addon-info-btn:hover { border-color: currentColor; color: var(--color-white); }
+    .plan-card:not(.is-expanded) .addon-info-btn:hover { color: var(--color-black); }
+    .addon-info-btn[aria-expanded="true"] { background: rgba(255,255,255,0.18); color: var(--color-white); border-color: rgba(255,255,255,0.5); }
+    .plan-card:not(.is-expanded) .addon-info-btn[aria-expanded="true"] { background: var(--color-black); color: var(--color-white); border-color: var(--color-black); }
+
+    .addon-detail-panel {
+      display: none; margin-top: 6px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.07); border-radius: var(--radius-sm);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .plan-card:not(.is-expanded) .addon-detail-panel {
+      background: var(--color-surface); border-color: var(--color-border);
+    }
+    .addon-detail-panel.is-open { display: block; animation: stepIn 200ms ease forwards; }
+
+    .addon-detail-list {
+      list-style: none; padding: 0; margin: 0 0 4px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .addon-detail-list li {
+      font-size: 11px; color: rgba(255,255,255,0.72); line-height: 1.4;
+      padding-left: 14px; position: relative;
+    }
+    .plan-card:not(.is-expanded) .addon-detail-list li { color: var(--color-muted); }
+    .addon-detail-list li::before {
+      content: '\2713'; position: absolute; left: 0;
+      color: #00D258; font-size: 10px; line-height: 1.4;
+    }
+    .addon-detail-note {
+      font-size: 10px; color: rgba(255,255,255,0.42); font-style: italic;
+      margin: 4px 0 0; line-height: 1.4;
+    }
+    .plan-card:not(.is-expanded) .addon-detail-note { color: var(--color-muted); }
+    .addon-detail-comparison {
+      font-size: 10px; color: rgba(255,255,255,0.55); margin: 4px 0 0; line-height: 1.4;
+    }
+    .addon-detail-copy {
+      font-size: 11px; color: rgba(255,255,255,0.72); line-height: 1.4; margin: 0;
+    }
+    .plan-card:not(.is-expanded) .addon-detail-copy { color: var(--color-muted); }
+
+    .addon-value-stack {
+      margin: 6px 0 4px;
+      padding: 10px 12px;
+      background: rgba(0,210,88,0.10);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(0,210,88,0.28);
+    }
+    .addon-value-list {
+      list-style: none; padding: 0; margin: 0 0 6px;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .addon-value-list li {
+      font-size: 11px; color: rgba(255,255,255,0.85); line-height: 1.4;
+      display: flex; align-items: flex-start; gap: 5px;
+    }
+    .addon-value-check { color: #00D258; font-weight: 700; flex-shrink: 0; }
+    .addon-value-note {
+      font-size: 10px; color: rgba(255,255,255,0.42); font-style: italic;
+      margin: 0 0 6px; line-height: 1.4;
+    }
+    .addon-covered-copy {
+      font-size: 12px; font-weight: 700; color: #00D258; margin: 0; line-height: 1.4;
+    }
+
+    .addon-customise-link {
+      display: block; width: 100%; margin-top: 8px;
+      background: none; border: none; padding: 4px 0;
+      font-size: 11px; font-weight: 500; font-family: inherit;
+      color: rgba(255,255,255,0.4); cursor: pointer; text-align: left;
+      text-decoration: underline; text-underline-offset: 2px;
+      transition: color var(--tr);
+    }
+    .addon-customise-link:hover { color: rgba(255,255,255,0.75); }
+
     @media (min-width: 768px) {
       main    { padding: 8px 12px 0; }
       .footer { margin: 0 12px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden; }
@@ -1747,7 +1842,9 @@
   var selectedPlan      = 'monthly';
   var selectedPlanPrice = 0; /* updated once PRICING fetch resolves */
   /* null = Phase A (no card expanded); plan key = Phase B expanded */
-  var step4ExpandedKey  = null;
+  var step4ExpandedKey   = null;
+  /* true when "Customise protection options" has been clicked — reveals individual TP/RG/CG rows */
+  var step4CustomiseMode = false;
 
   /* Default: combo pre-ticked (TP+RG bundle). Keys stay legacy for checkout/Step 5. */
   var selectedAddons    = { addon1: false, addon2: false, addon3: false, combo23: true, lifetimeAll: false };
@@ -2319,64 +2416,104 @@
   }
 
   function buildInCardProtectHtml(planKey) {
-    var pk   = getPlanIntervalKey(planKey);
-    var intv = PRICING.plans[pk].interval;
-    var tp   = getTpPrice(pk);
-    var rg   = getRgPrice(pk);
-    var cg   = getCgPrice();
-    var lp   = getLpPrice();
-    var comboDelta = getComboAddonPrice(pk);
-    var lpSelected = !!selectedAddons.lifetimeAll;
-    var comboOn = !!selectedAddons.combo23;
-    /* When LP is on: CG/TP/RG look ticked (included); Bundle greyed + unticked (redundant) */
-    var cgSelected = lpSelected || !!selectedAddons.addon1;
-    var tpSelected = lpSelected || !!selectedAddons.addon2;
-    var rgSelected = lpSelected || !!selectedAddons.addon3;
-    var comboSelected = lpSelected ? false : comboOn;
-    var tpRgGreyed = comboOn || lpSelected;
-    var cgGreyed = lpSelected;
-    var comboGreyed = lpSelected;
+    var pk        = getPlanIntervalKey(planKey);
+    var intv      = PRICING.plans[pk].interval;
+    var tp        = getTpPrice(pk);
+    var rg        = getRgPrice(pk);
+    var cg        = getCgPrice();
+    var lp        = getLpPrice();
+    var barePrice = getBasePlanPrice(pk);
+    var comboPrice = getComboPlanPrice(pk);
+    var saveAmount = (comboPrice - barePrice).toFixed(2);
 
-    function rowClass(key, selected, greyed, extra) {
-      var c = 'addon-row' + (extra ? ' ' + extra : '');
-      if (selected) c += ' is-selected';
-      if (greyed) c += ' is-greyed';
-      return c;
-    }
+    var lpSelected = !!selectedAddons.lifetimeAll;
+    /* State 1: combo on, customise not clicked, LP not selected */
+    var isState1   = !step4CustomiseMode && !lpSelected;
+    /* State 3: LP selected */
+    var isState3   = lpSelected;
+
+    /* LP row classes */
+    var lpRowCls   = 'addon-row' + (lpSelected ? ' is-selected' : '');
+    var lpBadgeCls = 'addon-lp-badge' + (lpSelected ? '' : ' is-pulsing');
+
+    /* Sub-rows hidden in State 1 — revealed by Customise link or LP toggle */
+    var subHidden = isState1 ? ' hidden' : '';
+
+    /* In State 3: CG/TP/RG shown greyed + selected (included with LP) */
+    var cgRowCls = 'addon-row' + (isState3 ? ' is-selected is-greyed' : (selectedAddons.addon1 ? ' is-selected' : '')) + subHidden;
+    var tpRowCls = 'addon-row' + (isState3 ? ' is-selected is-greyed' : (selectedAddons.addon2 ? ' is-selected' : '')) + subHidden;
+    var rgRowCls = 'addon-row' + (isState3 ? ' is-selected is-greyed' : (selectedAddons.addon3 ? ' is-selected' : '')) + subHidden;
+    var cgChecked = (isState3 || !!selectedAddons.addon1) ? 'true' : 'false';
+    var tpChecked = (isState3 || !!selectedAddons.addon2) ? 'true' : 'false';
+    var rgChecked = (isState3 || !!selectedAddons.addon3) ? 'true' : 'false';
+
+    /* Customise link: State 1 only */
+    var customiseCls = 'addon-customise-link' + (isState1 ? '' : ' hidden');
+    /* Value stack: State 3 only */
+    var valueStackCls = 'addon-value-stack' + (isState3 ? '' : ' hidden');
 
     return [
       '<div class="plan-card__protect" id="planCardProtect">',
         '<p class="plan-card__protect-heading">Protect your plan</p>',
         '<div class="addon-table">',
 
-          /* 1. Lifetime Protection */
-          '<div class="' + rowClass('lifetimeAll', lpSelected, false) + '" data-addon="lifetimeAll" role="checkbox" aria-checked="' + (lpSelected?'true':'false') + '" tabindex="0">',
-            '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+          /* LP row — always visible in Phase B */
+          '<div class="' + lpRowCls + '" data-addon="lifetimeAll" role="checkbox" aria-checked="' + lpSelected + '" tabindex="0">',
+            '<div class="addon-checkbox">' + TICK_SVG + '</div>',
             '<div class="addon-row__content">',
-              '<span class="addon-lp-badge' + (lpSelected ? '' : ' is-pulsing') + '">LIFETIME DEAL</span>',
-              '<p class="addon-row__name">Lifetime Protection + free Cancellation Guarantee (CG)</p>',
+              '<span class="' + lpBadgeCls + '">LIFETIME DEAL</span>',
+              '<div class="addon-row__name-row">',
+                '<p class="addon-row__name">Lifetime Protection + free CG</p>',
+                '<button type="button" class="addon-info-btn" data-info-toggle="lp" aria-label="More info about Lifetime Protection" aria-expanded="false">i</button>',
+              '</div>',
               '<div class="addon-row__price-line">',
                 '<span class="addon-row__price">$' + lp.toFixed(2) + ' once</span>',
-                '<span class="addon-lp-desc">Pay once. Covered for life. Pay lower monthly.</span>',
+                '<span class="addon-lp-desc">Pay once. Covered for life.</span>',
+              '</div>',
+              '<div class="addon-detail-panel" id="addon-detail-lp">',
+                '<ul class="addon-detail-list">',
+                  '<li>Get Cancellation Guarantee free - $' + cg.toFixed(2) + ' value</li>',
+                  '<li>Transfer + Renewal Protection included for life</li>',
+                  '<li>Your plan price drops to $' + barePrice.toFixed(2) + '/' + intv + ' forever</li>',
+                '</ul>',
+                '<p class="addon-detail-note">*Based on average Prisoncall customer usage of 10 months</p>',
               '</div>',
             '</div>',
           '</div>',
 
-          /* 2. CG */
-          '<div class="' + rowClass('addon1', cgSelected, cgGreyed) + '" data-addon="addon1" role="checkbox" aria-checked="' + (cgSelected?'true':'false') + '" tabindex="0">',
-            '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+          /* State 3 value stack — hidden unless LP selected */
+          '<div class="' + valueStackCls + '" id="addon-value-stack">',
+            '<ul class="addon-value-list">',
+              '<li><span class="addon-value-check">&#10003;</span> 48hr Cancellation Guarantee - free ($' + cg.toFixed(2) + ' value)</li>',
+              '<li><span class="addon-value-check">&#10003;</span> Transfer Protection - for life</li>',
+              '<li><span class="addon-value-check">&#10003;</span> Renewal Protection - for life</li>',
+              '<li><span class="addon-value-check">&#10003;</span> Lower plan price forever - save $' + saveAmount + '/' + intv + ' vs standard plan</li>',
+            '</ul>',
+            '<p class="addon-value-note">*Based on average Prisoncall customer usage of 10 months</p>',
+            '<p class="addon-covered-copy">You are fully covered. Nothing to worry about.</p>',
+          '</div>',
+
+          /* CG row — hidden in State 1 */
+          '<div class="' + cgRowCls + '" data-addon="addon1" role="checkbox" aria-checked="' + cgChecked + '" tabindex="0">',
+            '<div class="addon-checkbox">' + TICK_SVG + '</div>',
             '<div class="addon-row__content">',
-              '<p class="addon-row__name">48hr Cancellation Guarantee (CG)</p>',
+              '<div class="addon-row__name-row">',
+                '<p class="addon-row__name">48hr Cancellation Guarantee (CG)</p>',
+                '<button type="button" class="addon-info-btn" data-info-toggle="cg" aria-label="More info about Cancellation Guarantee" aria-expanded="false">i</button>',
+              '</div>',
               '<div class="addon-row__price-line">',
                 '<span class="addon-row__price">$' + cg.toFixed(2) + ' once</span>',
                 '<span class="addon-row__payment-type">One-time at checkout</span>',
               '</div>',
+              '<div class="addon-detail-panel" id="addon-detail-cg">',
+                '<p class="addon-detail-copy">Protects your first 48 hours - cancel within 48hrs of signup for a full refund if your circumstances change.</p>',
+              '</div>',
             '</div>',
           '</div>',
 
-          /* 3. TP */
-          '<div class="' + rowClass('addon2', tpSelected, tpRgGreyed) + '" data-addon="addon2" role="checkbox" aria-checked="' + (tpSelected?'true':'false') + '" tabindex="0">',
-            '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+          /* TP row — hidden in State 1 */
+          '<div class="' + tpRowCls + '" data-addon="addon2" role="checkbox" aria-checked="' + tpChecked + '" tabindex="0">',
+            '<div class="addon-checkbox">' + TICK_SVG + '</div>',
             '<div class="addon-row__content">',
               '<p class="addon-row__name">Transfer Protection (TP)</p>',
               '<div class="addon-row__price-line">',
@@ -2386,9 +2523,9 @@
             '</div>',
           '</div>',
 
-          /* 4. RG */
-          '<div class="' + rowClass('addon3', rgSelected, tpRgGreyed) + '" data-addon="addon3" role="checkbox" aria-checked="' + (rgSelected?'true':'false') + '" tabindex="0">',
-            '<div class="addon-checkbox">'+TICK_SVG+'</div>',
+          /* RG row — hidden in State 1 */
+          '<div class="' + rgRowCls + '" data-addon="addon3" role="checkbox" aria-checked="' + rgChecked + '" tabindex="0">',
+            '<div class="addon-checkbox">' + TICK_SVG + '</div>',
             '<div class="addon-row__content">',
               '<p class="addon-row__name">Renewal Protection (RG)</p>',
               '<div class="addon-row__price-line">',
@@ -2398,18 +2535,8 @@
             '</div>',
           '</div>',
 
-          /* 5. Combo */
-          '<div class="' + rowClass('combo23', comboSelected, comboGreyed, 'is-combo') + '" data-addon="combo23" role="checkbox" aria-checked="' + (comboSelected?'true':'false') + '" tabindex="0">',
-            '<div class="addon-checkbox">'+TICK_SVG+'</div>',
-            '<div class="addon-row__content">',
-              '<span class="addon-combo-label">BUNDLE DEAL</span>',
-              '<p class="addon-row__name">Transfer + Renewal Combo (TP+RG)</p>',
-              '<div class="addon-row__price-line">',
-                '<span class="addon-row__price" data-dynamic="combo-price">$' + comboDelta.toFixed(2) + '/' + intv + '</span>',
-                '<span class="addon-row__payment-type">Recurring with your plan</span>',
-              '</div>',
-            '</div>',
-          '</div>',
+          /* Customise link — State 1 only */
+          '<button type="button" class="' + customiseCls + '" data-customise-btn>Customise protection options</button>',
 
         '</div>',
       '</div>'
@@ -2755,6 +2882,7 @@
 
     function expandPlan(planKey) {
       selectedAddons = defaultSelectedAddons();
+      step4CustomiseMode = false;
       selectedPlan = planKey;
       selectedPlanPrice = calcLiveRecurring(planKey);
       rebuildStep4(planKey, false);
@@ -2773,6 +2901,7 @@
 
     function collapseToPhaseA() {
       selectedAddons = defaultSelectedAddons();
+      step4CustomiseMode = false;
       step4ExpandedKey = null;
       rebuildStep4(null, false);
     }
@@ -2928,177 +3057,256 @@
   }
 
   function wireInCardAddons(stepEl, protectEl) {
+    var planKey = step4ExpandedKey || selectedPlan;
+
+    /* ── DOM helpers ── */
     function setRow(row, key, checked) {
       selectedAddons[key] = checked;
-      if (checked) { row.classList.add('is-selected'); row.setAttribute('aria-checked', 'true'); }
-      else { row.classList.remove('is-selected'); row.setAttribute('aria-checked', 'false'); }
+      row.classList.toggle('is-selected', !!checked);
+      row.setAttribute('aria-checked', checked ? 'true' : 'false');
     }
+    function showRow(r) { if (r) r.classList.remove('hidden'); }
+    function hideRow(r) { if (r) r.classList.add('hidden'); }
+    function getLpRow()       { return protectEl.querySelector('[data-addon="lifetimeAll"]'); }
+    function getCgRow()       { return protectEl.querySelector('[data-addon="addon1"]'); }
+    function getTpRow()       { return protectEl.querySelector('[data-addon="addon2"]'); }
+    function getRgRow()       { return protectEl.querySelector('[data-addon="addon3"]'); }
+    function getValueStack()  { return protectEl.querySelector('#addon-value-stack'); }
+    function getCustomiseBtn(){ return protectEl.querySelector('[data-customise-btn]'); }
 
-    /* Sync DOM to selectedAddons (needed when editEntry restores addons after build) */
-    function applyAddonState() {
-      protectEl.querySelectorAll('.addon-row').forEach(function(row) {
-        var k = row.dataset.addon;
-        if (selectedAddons[k]) {
-          row.classList.add('is-selected');
-          row.setAttribute('aria-checked', 'true');
-        } else {
-          row.classList.remove('is-selected');
-          row.setAttribute('aria-checked', 'false');
-        }
+    /* ── Info toggle buttons (independent of addon selection) ── */
+    protectEl.querySelectorAll('.addon-info-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var target = btn.getAttribute('data-info-toggle');
+        var panel  = protectEl.querySelector('#addon-detail-' + target);
+        if (!panel) return;
+        var isOpen = panel.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        /* Inject/refresh comparison line when LP panel opens in customise mode */
+        if (isOpen && target === 'lp') updateLpDetailComparison();
       });
+    });
+
+    /* ── Refresh comparison line inside LP detail panel ── */
+    function updateLpDetailComparison() {
+      var panel = protectEl.querySelector('#addon-detail-lp');
+      if (!panel) return;
+      var existing = panel.querySelector('.addon-detail-comparison');
+      if (existing) existing.parentNode.removeChild(existing);
+      if (step4CustomiseMode && !selectedAddons.lifetimeAll) {
+        var pk   = getPlanIntervalKey(planKey);
+        var intv = PRICING.plans[pk].interval;
+        var p    = document.createElement('p');
+        p.className = 'addon-detail-comparison';
+        p.textContent = 'vs your current selection: $' + calcLiveRecurring(planKey).toFixed(2) + '/' + intv + ' recurring';
+        var note = panel.querySelector('.addon-detail-note');
+        if (note) panel.insertBefore(p, note); else panel.appendChild(p);
+      }
     }
 
-    function showUpgradeToast(msg) {
+    /* ── Green combo auto-upgrade toast (behaviour unchanged) ── */
+    function showComboToast(msg) {
       var existing = document.getElementById('lifetimeUpgradeToast');
-      if (existing) existing.remove();
+      if (existing) existing.parentNode.removeChild(existing);
       var isMobile = window.innerWidth <= 768;
-      var toast = document.createElement('div');
-      toast.id = 'lifetimeUpgradeToast';
-      var msgText = msg || 'We have upgraded you to the Bundle Deal - better value';
+      var toast    = document.createElement('div');
+      toast.id     = 'lifetimeUpgradeToast';
       toast.innerHTML =
-        '<span style="flex:1;text-align:left;">' + msgText + '</span>' +
-        '<button type="button" aria-label="Dismiss" style="flex-shrink:0;background:none;border:none;cursor:pointer;padding:4px;margin-left:14px;line-height:0;opacity:0.7;">' +
-          '<img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="18" height="18" alt="" aria-hidden="true" style="display:block;">' +
+        '<span style="flex:1;text-align:left;">' + msg + '</span>' +
+        '<button type="button" aria-label="Dismiss"' +
+          ' style="flex-shrink:0;background:none;border:none;cursor:pointer;' +
+          'padding:4px;margin-left:14px;line-height:0;opacity:0.7;">' +
+          '<img src="assets/icons/quick_pill_icons/Cancel_Delete.svg"' +
+          ' width="18" height="18" alt="" aria-hidden="true" style="display:block;">' +
         '</button>';
       toast.style.cssText = [
         'position:fixed',
-        'bottom:calc(' + (isMobile ? '80px' : '72px') + ' + env(safe-area-inset-bottom, 0px))',
-        'left:50%',
-        'transform:translateX(-50%) translateY(20px)',
-        'width:calc(100% - 32px)',
-        'max-width:480px',
-        'background:#00d258',
-        'color:#101010',
-        'font-family:inherit',
+        'bottom:calc(' + (isMobile ? '80px' : '72px') + ' + env(safe-area-inset-bottom,0px))',
+        'left:50%', 'transform:translateX(-50%) translateY(20px)',
+        'width:calc(100% - 32px)', 'max-width:480px',
+        'background:#00d258', 'color:#101010', 'font-family:inherit',
         'font-size:' + (isMobile ? '14px' : '15px'),
-        'line-height:1.5',
-        'font-weight:600',
+        'line-height:1.5', 'font-weight:600',
         'padding:' + (isMobile ? '14px 16px' : '16px 20px'),
-        'border-radius:12px',
-        'z-index:9999',
-        'pointer-events:auto',
-        'opacity:0',
-        'transition:opacity 300ms ease, transform 300ms ease',
-        'box-sizing:border-box',
-        'display:flex',
-        'align-items:center'
+        'border-radius:12px', 'z-index:9999', 'pointer-events:auto',
+        'opacity:0', 'transition:opacity 300ms ease,transform 300ms ease',
+        'box-sizing:border-box', 'display:flex', 'align-items:center'
       ].join(';');
       document.body.appendChild(toast);
-      var toastCloseBtn = toast.querySelector('button[aria-label="Dismiss"]');
-      if (toastCloseBtn) toastCloseBtn.addEventListener('click', function(){
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(-50%) translateY(20px)';
-        setTimeout(function(){ if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+      var cb = toast.querySelector('button[aria-label="Dismiss"]');
+      if (cb) cb.addEventListener('click', function() {
+        toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(20px)';
+        setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
       });
       toast.getBoundingClientRect();
-      toast.style.opacity = '1';
-      toast.style.transform = 'translateX(-50%) translateY(0)';
+      toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)';
       setTimeout(function() {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(-50%) translateY(20px)';
-        setTimeout(function(){ if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+        toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(20px)';
+        setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
       }, 4000);
     }
 
-    function autoUpgradeToCombo() {
-      var r2 = protectEl.querySelector('[data-addon="addon2"]');
-      var r3 = protectEl.querySelector('[data-addon="addon3"]');
-      var rc = protectEl.querySelector('[data-addon="combo23"]');
-      if (r2) setRow(r2, 'addon2', false);
-      if (r3) setRow(r3, 'addon3', false);
-      if (rc) setRow(rc, 'combo23', true);
-      showUpgradeToast('We have upgraded you to the Bundle Deal - better value');
+    /* ── LP upgrade toast (dark, with CTA + No thanks) ── */
+    function showLpUpgradeToast() {
+      var existing = document.getElementById('lpUpgradeToast');
+      if (existing) existing.parentNode.removeChild(existing);
+      var isMobile = window.innerWidth <= 768;
+      var toast    = document.createElement('div');
+      toast.id     = 'lpUpgradeToast';
+      toast.innerHTML = [
+        '<div style="flex:1;min-width:0;">',
+          '<p style="font-size:' + (isMobile ? '13px' : '14px') + ';font-weight:600;',
+            'line-height:1.45;margin:0 0 10px;color:#fff;">',
+            'Upgrade to Lifetime Protection - CG included free, complete TP + RG protection for life, and your plan price drops forever.',
+          '</p>',
+          '<button type="button" id="lpToastUpgradeBtn"',
+            ' style="display:block;width:100%;padding:9px 16px;margin-bottom:8px;',
+            'background:#F5C542;color:#101010;border:none;border-radius:80px;',
+            'font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;line-height:1;">',
+            'Upgrade to LP',
+          '</button>',
+          '<button type="button" id="lpToastNoThanks"',
+            ' style="display:block;width:100%;padding:0;background:none;border:none;',
+            'font-size:11px;font-weight:500;font-family:inherit;',
+            'color:rgba(255,255,255,0.5);cursor:pointer;text-align:center;">',
+            'No thanks',
+          '</button>',
+        '</div>'
+      ].join('');
+      toast.style.cssText = [
+        'position:fixed',
+        'bottom:calc(' + (isMobile ? '80px' : '72px') + ' + env(safe-area-inset-bottom,0px))',
+        'left:50%', 'transform:translateX(-50%) translateY(20px)',
+        'width:calc(100% - 32px)', 'max-width:480px',
+        'background:#101010', 'color:#fff', 'font-family:inherit',
+        'padding:' + (isMobile ? '16px' : '18px 20px'),
+        'border-radius:12px', 'z-index:9999', 'pointer-events:auto',
+        'opacity:0', 'transition:opacity 300ms ease,transform 300ms ease',
+        'box-sizing:border-box', 'display:flex', 'align-items:flex-start'
+      ].join(';');
+      document.body.appendChild(toast);
+
+      var timer;
+      function dismiss() {
+        clearTimeout(timer);
+        toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(20px)';
+        setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+      }
+      var upgradeBtn  = document.getElementById('lpToastUpgradeBtn');
+      var noThanksBtn = document.getElementById('lpToastNoThanks');
+      if (upgradeBtn)  upgradeBtn.addEventListener('click',  function() { dismiss(); selectLifetime(true); });
+      if (noThanksBtn) noThanksBtn.addEventListener('click', function() { dismiss(); });
+      toast.getBoundingClientRect();
+      toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)';
+      timer = setTimeout(dismiss, 6000);
     }
 
+    /* ── Select / deselect Lifetime Protection ── */
     function selectLifetime(checked) {
-      var lpRow = protectEl.querySelector('[data-addon="lifetimeAll"]');
-      if (!lpRow) return;
+      var lpRow = getLpRow(); if (!lpRow) return;
       setRow(lpRow, 'lifetimeAll', checked);
+      var cgRow  = getCgRow(); var tpRow = getTpRow(); var rgRow = getRgRow();
+      var vs     = getValueStack(); var cb = getCustomiseBtn();
+      var badge  = protectEl.querySelector('.addon-lp-badge');
       if (checked) {
-        ['addon1', 'addon2', 'addon3', 'combo23'].forEach(function(k) {
-          var r = protectEl.querySelector('[data-addon="' + k + '"]');
-          if (r) setRow(r, k, false);
+        ['addon1','addon2','addon3','combo23'].forEach(function(k){ selectedAddons[k] = false; });
+        [cgRow, tpRow, rgRow].forEach(function(r) {
+          if (!r) return;
+          showRow(r); r.classList.add('is-selected','is-greyed'); r.setAttribute('aria-checked','true');
         });
+        if (cb)    hideRow(cb);
+        if (vs)    vs.classList.remove('hidden');
+        if (badge) badge.classList.remove('is-pulsing');
+      } else {
+        [cgRow, tpRow, rgRow].forEach(function(r) {
+          if (!r) return;
+          r.classList.remove('is-greyed','is-selected'); r.setAttribute('aria-checked','false');
+          if (step4CustomiseMode) showRow(r); else hideRow(r);
+        });
+        if (cb) { if (step4CustomiseMode) hideRow(cb); else showRow(cb); }
+        if (vs)    vs.classList.add('hidden');
+        if (badge) badge.classList.add('is-pulsing');
       }
-      applyAddonGreyState(protectEl);
       updateLivePriceDisplay(stepEl);
     }
 
-    /* Expose for ?addon=lifetime URL preselect */
+    /* ── Auto-upgrade TP+RG back to combo (returns to State 1) ── */
+    function autoUpgradeToCombo() {
+      var tpRow = getTpRow(); var rgRow = getRgRow();
+      var cgRow = getCgRow(); var cb    = getCustomiseBtn();
+      if (tpRow) setRow(tpRow, 'addon2', false);
+      if (rgRow) setRow(rgRow, 'addon3', false);
+      if (cgRow) { setRow(cgRow, 'addon1', false); hideRow(cgRow); }
+      selectedAddons.combo23 = true;
+      step4CustomiseMode     = false;
+      if (tpRow) hideRow(tpRow);
+      if (rgRow) hideRow(rgRow);
+      if (cb)    showRow(cb);
+      showComboToast('We have upgraded you to the Bundle Deal - better value');
+      updateLivePriceDisplay(stepEl);
+    }
+
+    /* ── Customise link — reveals individual rows, moves to State 2 ── */
+    var customiseBtn = getCustomiseBtn();
+    if (customiseBtn) {
+      customiseBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        step4CustomiseMode     = true;
+        selectedAddons.combo23 = false;
+        showRow(getCgRow()); showRow(getTpRow()); showRow(getRgRow());
+        hideRow(customiseBtn);
+        updateLivePriceDisplay(stepEl);
+      });
+    }
+
+    /* ── Expose for ?addon=lifetime URL preselect ── */
     addonAutoSelectFn = function() { selectLifetime(true); };
 
-    applyAddonState();
-    applyAddonGreyState(protectEl);
-    updateLivePriceDisplay(stepEl);
-
+    /* ── Addon row click handlers ── */
     protectEl.querySelectorAll('.addon-row').forEach(function(row) {
       var key = row.dataset.addon;
 
       function toggleAddon() {
         if (row.classList.contains('is-greyed')) return;
-
         var next = !selectedAddons[key];
 
-        if (key === 'lifetimeAll') {
-          selectLifetime(next);
-          return;
-        }
+        if (key === 'lifetimeAll') { selectLifetime(next); return; }
 
-        /* Selecting any non-LP while LP is on: clear LP first */
-        if (selectedAddons.lifetimeAll) {
-          selectLifetime(false);
-        }
+        /* Deselecting any non-LP while LP is on: clear LP first */
+        if (selectedAddons.lifetimeAll) { selectLifetime(false); }
 
         setRow(row, key, next);
 
-        if (key === 'combo23') {
-          if (next) {
-            var r2 = protectEl.querySelector('[data-addon="addon2"]');
-            var r3 = protectEl.querySelector('[data-addon="addon3"]');
-            if (r2) setRow(r2, 'addon2', false);
-            if (r3) setRow(r3, 'addon3', false);
-          }
-        }
-
-        if ((key === 'addon2' || key === 'addon3') && next) {
-          var comboRow = protectEl.querySelector('[data-addon="combo23"]');
-          if (comboRow) setRow(comboRow, 'combo23', false);
-        }
-
-        /* TP + RG both ticked → auto-upgrade to combo (or LP if CG also on) */
+        /* TP + RG both on -> auto-upgrade to combo (or LP if CG also on) */
         if (!selectedAddons.lifetimeAll && !selectedAddons.combo23 &&
             selectedAddons.addon2 && selectedAddons.addon3) {
           if (selectedAddons.addon1) {
             selectLifetime(true);
-            showUpgradeToast('We have upgraded you to the Lifetime Deal - better value');
+            showComboToast('We have upgraded you to the Lifetime Deal - better value');
             return;
           }
           autoUpgradeToCombo();
-        }
-
-        /* Bundle Deal + CG both selected → auto-upgrade to Lifetime Protection */
-        if (!selectedAddons.lifetimeAll && selectedAddons.combo23 && selectedAddons.addon1) {
-          selectLifetime(true);
-          showUpgradeToast('We have upgraded you to the Lifetime Deal - better value');
           return;
         }
 
-        applyAddonGreyState(protectEl);
+        /* CG + single addon (TP or RG) -> LP upgrade toast */
+        if (!selectedAddons.lifetimeAll && selectedAddons.addon1 &&
+            (selectedAddons.addon2 || selectedAddons.addon3)) {
+          showLpUpgradeToast();
+        }
+
         updateLivePriceDisplay(stepEl);
+        updateLpDetailComparison();
       }
 
-      row.addEventListener('click', function(e) {
-        e.stopPropagation();
-        toggleAddon();
-      });
+      row.addEventListener('click', function(e) { e.stopPropagation(); toggleAddon(); });
       row.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          e.stopPropagation();
-          toggleAddon();
-        }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleAddon(); }
       });
     });
+
+    updateLivePriceDisplay(stepEl);
   }
 
   /* Legacy stubs — separate below-cards addon section removed (Step 4 in-card only) */
@@ -3563,6 +3771,9 @@
     wireStep3(s3);
 
     selectedAddons = Object.assign({}, entry.addons || defaultSelectedAddons());
+    /* Restore customise mode: if saved addons had individual (non-combo) selection,
+       re-enter State 2 so the correct rows are visible when the card opens */
+    step4CustomiseMode = !selectedAddons.combo23 && !selectedAddons.lifetimeAll;
     var s4 = buildStep4El(entry.planKey);
     planFlow.appendChild(s4);
     wireStep4(s4);
