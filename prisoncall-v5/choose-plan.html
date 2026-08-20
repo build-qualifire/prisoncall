@@ -1175,16 +1175,16 @@
       display: flex; flex-direction: column; gap: 5px;
     }
     .addon-value-list li {
-      font-size: 11px; color: rgba(255,255,255,0.85); line-height: 1.4;
+      font-size: 11px; color: #101010; line-height: 1.4;
       display: flex; align-items: flex-start; gap: 5px;
     }
-    .addon-value-check { color: #00D258; font-weight: 700; flex-shrink: 0; }
+    .addon-value-check { color: #101010; font-weight: 700; flex-shrink: 0; }
     .addon-value-note {
-      font-size: 10px; color: rgba(255,255,255,0.42); font-style: italic;
+      font-size: 10px; color: #101010; font-style: italic;
       margin: 0 0 6px; line-height: 1.4;
     }
     .addon-covered-copy {
-      font-size: 12px; font-weight: 700; color: #00D258; margin: 0; line-height: 1.4;
+      font-size: 12px; font-weight: 700; color: #101010; margin: 0; line-height: 1.4;
     }
 
     .addon-customise-link {
@@ -3247,15 +3247,15 @@
       updateLivePriceDisplay(stepEl);
     }
 
-    /* ── Customise link — reveals individual rows, moves to State 2 ── */
+    /* ── Customise link — State 1 only; click rebuilds protect section in State 2 ── */
     var customiseBtn = getCustomiseBtn();
     if (customiseBtn) {
       customiseBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         step4CustomiseMode     = true;
         selectedAddons.combo23 = false;
-        showRow(getCgRow()); showRow(getTpRow()); showRow(getRgRow());
-        hideRow(customiseBtn);
+        protectEl.innerHTML    = buildInCardProtectHtml(planKey);
+        wireInCardAddons(stepEl, protectEl);
         updateLivePriceDisplay(stepEl);
       });
     }
@@ -3300,7 +3300,12 @@
         updateLpDetailComparison();
       }
 
-      row.addEventListener('click', function(e) { e.stopPropagation(); toggleAddon(); });
+      row.addEventListener('click', function(e) {
+        e.stopPropagation();
+        /* FIX 2: info button handles its own toggle — do not also toggle the addon */
+        if (e.target.closest('.addon-info-btn')) return;
+        toggleAddon();
+      });
       row.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleAddon(); }
       });
