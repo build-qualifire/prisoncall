@@ -1191,11 +1191,11 @@
       display: block; width: 100%; margin-top: 8px;
       background: none; border: none; padding: 4px 0;
       font-size: 11px; font-weight: 500; font-family: inherit;
-      color: rgba(255,255,255,0.4); cursor: pointer; text-align: left;
+      color: rgba(255,255,255,0.65); cursor: pointer; text-align: left;
       text-decoration: underline; text-underline-offset: 2px;
       transition: color var(--tr);
     }
-    .addon-customise-link:hover { color: rgba(255,255,255,0.75); }
+    .addon-customise-link:hover { color: rgba(255,255,255,0.9); }
 
     @media (min-width: 768px) {
       main    { padding: 8px 12px 0; }
@@ -3204,29 +3204,25 @@
 
     /* ── Select / deselect Lifetime Protection ── */
     function selectLifetime(checked) {
-      var lpRow = getLpRow(); if (!lpRow) return;
-      setRow(lpRow, 'lifetimeAll', checked);
-      var cgRow  = getCgRow(); var tpRow = getTpRow(); var rgRow = getRgRow();
-      var vs     = getValueStack(); var cb = getCustomiseBtn();
-      var badge  = protectEl.querySelector('.addon-lp-badge');
       if (checked) {
-        ['addon1','addon2','addon3','combo23'].forEach(function(k){ selectedAddons[k] = false; });
-        [cgRow, tpRow, rgRow].forEach(function(r) {
-          if (!r) return;
-          showRow(r); r.classList.add('is-selected','is-greyed'); r.setAttribute('aria-checked','true');
-        });
-        if (cb)    hideRow(cb);
-        if (vs)    vs.classList.remove('hidden');
-        if (badge) badge.classList.remove('is-pulsing');
+        /* Move to State 3: LP selected, all other addons cleared */
+        selectedAddons.lifetimeAll = true;
+        selectedAddons.combo23     = false;
+        selectedAddons.addon1      = false;
+        selectedAddons.addon2      = false;
+        selectedAddons.addon3      = false;
+        protectEl.innerHTML = buildInCardProtectHtml(planKey);
+        wireInCardAddons(stepEl, protectEl);
       } else {
-        [cgRow, tpRow, rgRow].forEach(function(r) {
-          if (!r) return;
-          r.classList.remove('is-greyed','is-selected'); r.setAttribute('aria-checked','false');
-          if (step4CustomiseMode) showRow(r); else hideRow(r);
-        });
-        if (cb) { if (step4CustomiseMode) hideRow(cb); else showRow(cb); }
-        if (vs)    vs.classList.add('hidden');
-        if (badge) badge.classList.add('is-pulsing');
+        /* Deselecting LP: revert fully to State 1 — combo-inclusive, all sub-addons cleared */
+        selectedAddons.lifetimeAll = false;
+        selectedAddons.combo23     = true;
+        selectedAddons.addon1      = false;
+        selectedAddons.addon2      = false;
+        selectedAddons.addon3      = false;
+        step4CustomiseMode         = false;
+        protectEl.innerHTML        = buildInCardProtectHtml(planKey);
+        wireInCardAddons(stepEl, protectEl);
       }
       updateLivePriceDisplay(stepEl);
     }
