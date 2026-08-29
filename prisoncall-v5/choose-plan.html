@@ -1127,6 +1127,10 @@
     .plan-card:not(.is-expanded) .addon-info-btn[aria-expanded="true"] { background: var(--color-black); color: var(--color-white); border-color: var(--color-black); }
     .plan-card.is-expanded .addon-info-btn { color: rgba(0,0,0,0.5); border-color: rgba(0,0,0,0.2); }
     .plan-card.is-expanded .addon-info-btn:hover { color: rgba(0,0,0,0.8); border-color: rgba(0,0,0,0.4); }
+    .plan-card.is-expanded .addon-detail-panel { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.08); }
+    .plan-card.is-expanded .addon-detail-list li { color: rgba(0,0,0,0.7); }
+    .plan-card.is-expanded .addon-detail-note { color: rgba(0,0,0,0.45); }
+    .plan-card.is-expanded .addon-detail-copy { color: rgba(0,0,0,0.7); }
 
     .addon-detail-panel {
       display: none; margin-top: 6px;
@@ -2517,10 +2521,16 @@
           '<div class="' + tpRowCls + '" data-addon="addon2" role="checkbox" aria-checked="' + tpChecked + '" tabindex="0">',
             '<div class="addon-checkbox">' + TICK_SVG + '</div>',
             '<div class="addon-row__content">',
-              '<p class="addon-row__name">Transfer Protection (TP)</p>',
+              '<div class="addon-row__name-row">',
+                '<p class="addon-row__name">Transfer Protection (TP)</p>',
+                '<button type="button" class="addon-info-btn" data-info-toggle="tp" aria-label="More info about Transfer Protection" aria-expanded="false">i</button>',
+              '</div>',
               '<div class="addon-row__price-line">',
                 '<span class="addon-row__price" data-dynamic="tp-price">$' + tp.toFixed(2) + '/' + intv + '</span>',
                 '<span class="addon-row__payment-type">Recurring with your plan</span>',
+              '</div>',
+              '<div class="addon-detail-panel" id="addon-detail-tp">',
+                '<p class="addon-detail-copy">Covers the cost of transferring your Prisoncall number if your loved one moves to a different prison. Without this, each transfer is charged at $24.99 per request.</p>',
               '</div>',
             '</div>',
           '</div>',
@@ -2529,10 +2539,16 @@
           '<div class="' + rgRowCls + '" data-addon="addon3" role="checkbox" aria-checked="' + rgChecked + '" tabindex="0">',
             '<div class="addon-checkbox">' + TICK_SVG + '</div>',
             '<div class="addon-row__content">',
-              '<p class="addon-row__name">Renewal Protection (RG)</p>',
+              '<div class="addon-row__name-row">',
+                '<p class="addon-row__name">Renewal Protection (RG)</p>',
+                '<button type="button" class="addon-info-btn" data-info-toggle="rg" aria-label="More info about Renewal Protection" aria-expanded="false">i</button>',
+              '</div>',
               '<div class="addon-row__price-line">',
                 '<span class="addon-row__price" data-dynamic="rg-price">$' + rg.toFixed(2) + '/' + intv + '</span>',
                 '<span class="addon-row__payment-type">Recurring with your plan</span>',
+              '</div>',
+              '<div class="addon-detail-panel" id="addon-detail-rg">',
+                '<p class="addon-detail-copy">Gives you 96 hours after each billing renewal to cancel and receive a full refund. Useful if your loved one is released shortly after a renewal date.</p>',
               '</div>',
             '</div>',
           '</div>',
