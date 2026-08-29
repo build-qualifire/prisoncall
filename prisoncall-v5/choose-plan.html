@@ -3189,9 +3189,7 @@
       ].join(';');
       document.body.appendChild(toast);
 
-      var timer;
       function dismiss() {
-        clearTimeout(timer);
         toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(20px)';
         setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
       }
@@ -3201,7 +3199,6 @@
       if (noThanksBtn) noThanksBtn.addEventListener('click', function() { dismiss(); });
       toast.getBoundingClientRect();
       toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)';
-      timer = setTimeout(dismiss, 6000);
     }
 
     /* ── Solo TP or RG toast — suggests completing the combo ── */
@@ -3247,9 +3244,7 @@
         'box-sizing:border-box', 'display:flex', 'align-items:flex-start'
       ].join(';');
       document.body.appendChild(toast);
-      var timer;
       function dismiss() {
-        clearTimeout(timer);
         toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(20px)';
         setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
       }
@@ -3263,7 +3258,6 @@
       if (noThanksBtn) noThanksBtn.addEventListener('click', function() { dismiss(); });
       toast.getBoundingClientRect();
       toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)';
-      timer = setTimeout(dismiss, 6000);
     }
 
     /* ── Select / deselect Lifetime Protection ── */
