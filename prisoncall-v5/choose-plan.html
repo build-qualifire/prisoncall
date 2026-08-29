@@ -2400,7 +2400,7 @@
     if (a.lifetimeAll) {
       icon = '\u2605'; msg = buildLpStatusMessage(planKey); cls = 'is-ok';
     } else if (a.combo23) {
-      icon = '\u2713'; msg = 'Your plan is protected'; cls = 'is-ok';
+      icon = '\u2713'; msg = 'Transfer Protection + Renewal Protection included'; cls = 'is-ok';
     } else if (!a.addon1 && !a.addon2 && !a.addon3) {
       icon = '\u26A0'; msg = 'Your plan is unprotected. Prison transfers charged per request.'; cls = 'is-warn';
     } else if (a.addon1 && !a.addon2 && !a.addon3) {
@@ -3204,6 +3204,68 @@
       timer = setTimeout(dismiss, 6000);
     }
 
+    /* ── Solo TP or RG toast — suggests completing the combo ── */
+    function showComboSuggestionToast(missingKey) {
+      var existing = document.getElementById('comboSuggestionToast');
+      if (existing) existing.parentNode.removeChild(existing);
+      var isMobile  = window.innerWidth <= 768;
+      var toast     = document.createElement('div');
+      toast.id      = 'comboSuggestionToast';
+      var isRg      = missingKey === 'addon3';
+      var addLabel  = isRg ? 'Renewal Protection' : 'Transfer Protection';
+      var msgText   = 'Add ' + addLabel + ' to complete your combo - save money and get full recurring cover.';
+      var ctaLabel  = 'Add ' + addLabel;
+      toast.innerHTML = [
+        '<div style="flex:1;min-width:0;">',
+          '<p style="font-size:' + (isMobile ? '13px' : '14px') + ';font-weight:600;',
+            'line-height:1.45;margin:0 0 10px;color:#fff;">',
+            msgText,
+          '</p>',
+          '<button type="button" id="comboSuggestionUpgradeBtn"',
+            ' style="display:block;width:100%;padding:9px 16px;margin-bottom:8px;',
+            'background:#F5C542;color:#101010;border:none;border-radius:80px;',
+            'font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;line-height:1;">',
+            ctaLabel,
+          '</button>',
+          '<button type="button" id="comboSuggestionNoThanks"',
+            ' style="display:block;width:100%;padding:0;background:none;border:none;',
+            'font-size:11px;font-weight:500;font-family:inherit;',
+            'color:rgba(255,255,255,0.5);cursor:pointer;text-align:center;">',
+            'No thanks',
+          '</button>',
+        '</div>'
+      ].join('');
+      toast.style.cssText = [
+        'position:fixed',
+        'bottom:calc(' + (isMobile ? '80px' : '72px') + ' + env(safe-area-inset-bottom,0px))',
+        'left:50%', 'transform:translateX(-50%) translateY(20px)',
+        'width:calc(100% - 32px)', 'max-width:480px',
+        'background:#101010', 'color:#fff', 'font-family:inherit',
+        'padding:' + (isMobile ? '16px' : '18px 20px'),
+        'border-radius:12px', 'z-index:9999', 'pointer-events:auto',
+        'opacity:0', 'transition:opacity 300ms ease,transform 300ms ease',
+        'box-sizing:border-box', 'display:flex', 'align-items:flex-start'
+      ].join(';');
+      document.body.appendChild(toast);
+      var timer;
+      function dismiss() {
+        clearTimeout(timer);
+        toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(20px)';
+        setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+      }
+      var upgradeBtn  = document.getElementById('comboSuggestionUpgradeBtn');
+      var noThanksBtn = document.getElementById('comboSuggestionNoThanks');
+      if (upgradeBtn) upgradeBtn.addEventListener('click', function() {
+        dismiss();
+        selectedAddons[missingKey] = true;
+        autoUpgradeToCombo();
+      });
+      if (noThanksBtn) noThanksBtn.addEventListener('click', function() { dismiss(); });
+      toast.getBoundingClientRect();
+      toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)';
+      timer = setTimeout(dismiss, 6000);
+    }
+
     /* ── Select / deselect Lifetime Protection ── */
     function selectLifetime(checked) {
       if (checked) {
@@ -3292,6 +3354,17 @@
         if (!selectedAddons.lifetimeAll && selectedAddons.addon1 &&
             (selectedAddons.addon2 || selectedAddons.addon3)) {
           showLpUpgradeToast();
+        }
+
+        /* Solo TP (no RG, no CG, no LP) -> suggest completing the combo */
+        if (next && !selectedAddons.lifetimeAll && !selectedAddons.combo23 &&
+            selectedAddons.addon2 && !selectedAddons.addon3 && !selectedAddons.addon1) {
+          showComboSuggestionToast('addon3');
+        }
+        /* Solo RG (no TP, no CG, no LP) -> suggest completing the combo */
+        if (next && !selectedAddons.lifetimeAll && !selectedAddons.combo23 &&
+            selectedAddons.addon3 && !selectedAddons.addon2 && !selectedAddons.addon1) {
+          showComboSuggestionToast('addon2');
         }
 
         updateLivePriceDisplay(stepEl);
