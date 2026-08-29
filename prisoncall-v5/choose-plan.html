@@ -2499,7 +2499,7 @@
           /* State 3 value stack — hidden unless LP selected */
           '<div class="' + valueStackCls + '" id="addon-value-stack">',
             '<ul class="addon-value-list">',
-              '<li><span class="addon-value-check">&#10003;</span> 48hr Cancellation Guarantee - free ($' + cg.toFixed(2) + ' value)</li>',
+              (isFortNightly ? '' : '<li><span class="addon-value-check">&#10003;</span> 48hr Cancellation Guarantee - free ($' + cg.toFixed(2) + ' value)</li>'),
               '<li><span class="addon-value-check">&#10003;</span> Transfer Protection - for life</li>',
               '<li><span class="addon-value-check">&#10003;</span> Renewal Protection - for life</li>',
               '<li><span class="addon-value-check">&#10003;</span> Lower plan price forever - save $' + saveAmount + '/' + intv + ' vs standard plan</li>',
