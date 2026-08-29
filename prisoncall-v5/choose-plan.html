@@ -2397,8 +2397,9 @@
   }
   function buildLpStatusMessage(planKey) {
     var save = getComboAddonPrice(planKey);
-    return 'Fully protected for life. Saves ' + savePhrase(planKey, save) +
-      '. 48hr cancellation guarantee included free.';
+    var base = 'Fully protected for life. Saves ' + savePhrase(planKey, save);
+    if (getPlanIntervalKey(planKey) === 'fortnightly') return base + '.';
+    return base + '. 48hr cancellation guarantee included free.';
   }
   function buildProtectStatusHtml(planKey) {
     var a = selectedAddons;
@@ -2503,7 +2504,6 @@
               '<li><span class="addon-value-check">&#10003;</span> Renewal Protection - for life</li>',
               '<li><span class="addon-value-check">&#10003;</span> Lower plan price forever - save $' + saveAmount + '/' + intv + ' vs standard plan</li>',
             '</ul>',
-            '<p class="addon-value-note">*Based on average Prisoncall customer usage of 10 months</p>',
             '<p class="addon-covered-copy">You are fully covered. Nothing to worry about.</p>',
           '</div>',
 
