@@ -3351,6 +3351,14 @@
 
         setRow(row, key, next);
 
+        /* Deselection: dismiss any visible toast immediately */
+        if (!next) {
+          ['lpUpgradeToast', 'comboSuggestionToast'].forEach(function(id) {
+            var t = document.getElementById(id);
+            if (t) t.parentNode.removeChild(t);
+          });
+        }
+
         /* TP + RG both on -> auto-upgrade to combo (or LP if CG also on) */
         if (!selectedAddons.lifetimeAll && !selectedAddons.combo23 &&
             selectedAddons.addon2 && selectedAddons.addon3) {
