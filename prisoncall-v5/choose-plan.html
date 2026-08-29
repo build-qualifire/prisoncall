@@ -1090,6 +1090,8 @@
     }
     .addon-row__price { font-size: 11px; font-weight: 800; }
     .addon-row__payment-type { font-size: 10px; color: var(--color-muted); }
+    .addon-unavailable-note { font-size: 10px; color: rgba(0,0,0,0.4); font-style: italic; margin: 3px 0 0; line-height: 1.4; }
+    .plan-card:not(.is-expanded) .addon-unavailable-note { color: var(--color-muted); }
     .addon-combo-savings { font-size: 10px; color: var(--color-green); font-weight: 700; margin-top: 2px; }
     .addon-lp-desc {
       font-size: 10px; font-weight: 400; color: var(--color-muted); line-height: 1.35;
@@ -2446,12 +2448,19 @@
     var subHidden = isState1 ? ' hidden' : '';
 
     /* In State 3: CG/TP/RG shown greyed + selected (included with LP) */
-    var cgRowCls = 'addon-row' + (isState3 ? ' is-selected is-greyed' : (selectedAddons.addon1 ? ' is-selected' : '')) + subHidden;
+    var isFortNightly = (pk === 'fortnightly');
+    var cgRowCls = 'addon-row' + (isState3 ? ' is-selected is-greyed' : (isFortNightly ? ' is-greyed' : (selectedAddons.addon1 ? ' is-selected' : ''))) + subHidden;
     var tpRowCls = 'addon-row' + (isState3 ? ' is-selected is-greyed' : (selectedAddons.addon2 ? ' is-selected' : '')) + subHidden;
     var rgRowCls = 'addon-row' + (isState3 ? ' is-selected is-greyed' : (selectedAddons.addon3 ? ' is-selected' : '')) + subHidden;
-    var cgChecked = (isState3 || !!selectedAddons.addon1) ? 'true' : 'false';
+    var cgChecked = (isState3) ? 'true' : 'false';
     var tpChecked = (isState3 || !!selectedAddons.addon2) ? 'true' : 'false';
     var rgChecked = (isState3 || !!selectedAddons.addon3) ? 'true' : 'false';
+    var cgInfoContent = isFortNightly
+      ? 'Available on Monthly and Half-Yearly plans only.'
+      : 'Protects your first 48 hours - cancel within 48hrs of signup for a full refund if your circumstances change.';
+    var cgUnavailableNote = isFortNightly
+      ? '<p class="addon-unavailable-note">Not available on Fortnightly plan.</p>'
+      : '';
 
     /* Customise link: State 1 only */
     var customiseCls = 'addon-customise-link' + (isState1 ? '' : ' hidden');
@@ -2510,8 +2519,9 @@
                 '<span class="addon-row__price">$' + cg.toFixed(2) + ' once</span>',
                 '<span class="addon-row__payment-type">One-time at checkout</span>',
               '</div>',
+              cgUnavailableNote,
               '<div class="addon-detail-panel" id="addon-detail-cg">',
-                '<p class="addon-detail-copy">Protects your first 48 hours - cancel within 48hrs of signup for a full refund if your circumstances change.</p>',
+                '<p class="addon-detail-copy">' + cgInfoContent + '</p>',
               '</div>',
             '</div>',
           '</div>',
@@ -2899,6 +2909,8 @@
 
     function expandPlan(planKey) {
       selectedAddons = defaultSelectedAddons();
+      /* CG (addon1) not available on Fortnightly — ensure it's never carried in */
+      if (planKey === 'fortnightly') selectedAddons.addon1 = false;
       step4CustomiseMode = false;
       selectedPlan = planKey;
       selectedPlanPrice = calcLiveRecurring(planKey);
