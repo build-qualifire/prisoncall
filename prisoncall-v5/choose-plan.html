@@ -1970,6 +1970,7 @@
   var completedArea = document.getElementById('completedArea');
   var addonPreselect = (function(){ try { return new URLSearchParams(window.location.search).get('addon'); } catch(e){ return null; } }());
   var addonAutoSelectFn = null; /* set by wireAddonSection to expose autoSelectLifetime */
+  var addonToastEvalFn  = null; /* set by wireInCardAddons to re-fire toasts on edit re-entry */
 
   /* â”€â”€â”€ Scroll gating â€” prevents scrolling back above the active step â”€â”€â”€ */
   var gateY      = 0;
@@ -3174,12 +3175,14 @@
       ].join(';');
       document.body.appendChild(toast);
       var cb = toast.querySelector('button[aria-label="Dismiss"]');
-      if (cb) cb.addEventListener('click', function() {
+      function dismiss() {
         toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(20px)';
         setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
-      });
+      }
+      if (cb) cb.addEventListener('click', dismiss);
       toast.getBoundingClientRect();
       toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)';
+      setTimeout(dismiss, 8000);
     }
 
     /* ── LP upgrade toast (dark, with CTA + No thanks) ── */
@@ -3231,6 +3234,7 @@
       if (noThanksBtn) noThanksBtn.addEventListener('click', function() { dismiss(); });
       toast.getBoundingClientRect();
       toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)';
+      setTimeout(dismiss, 8000);
     }
 
     /* ── Solo TP or RG toast — suggests completing the combo ── */
@@ -3289,6 +3293,7 @@
       if (noThanksBtn) noThanksBtn.addEventListener('click', function() { dismiss(); });
       toast.getBoundingClientRect();
       toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)';
+      setTimeout(dismiss, 8000);
     }
 
     /* ── Select / deselect Lifetime Protection ── */
@@ -3372,6 +3377,17 @@
 
     /* ── Expose for ?addon=lifetime URL preselect ── */
     addonAutoSelectFn = function() { selectLifetime(true); };
+
+    /* ── Expose toast re-evaluation for editEntry re-entry ── */
+    addonToastEvalFn = function() {
+      if (selectedAddons.lifetimeAll || selectedAddons.combo23) return;
+      var hasTP = !!selectedAddons.addon2;
+      var hasRG = !!selectedAddons.addon3;
+      var hasCG = !!selectedAddons.addon1;
+      if ((hasTP || hasRG) && hasCG) { showLpUpgradeToast(); return; }
+      if (hasTP && !hasRG)           { showComboSuggestionToast('addon3'); return; }
+      if (hasRG && !hasTP)           { showComboSuggestionToast('addon2'); return; }
+    };
 
     /* ── Addon row click handlers ── */
     protectEl.querySelectorAll('.addon-row').forEach(function(row) {
@@ -3851,6 +3867,7 @@
      COMPLETE PLAN
   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   function completePlan(planKey){
+    dismissAllToasts();
     if(!cur) return;
     setPlanExpandedLock(false);
     step4ExpandedKey = null;
@@ -3908,6 +3925,9 @@
     var s4 = buildStep4El(entry.planKey);
     planFlow.appendChild(s4);
     wireStep4(s4);
+
+    /* Re-fire toast if returning to an active triggering addon state */
+    if (addonToastEvalFn) setTimeout(addonToastEvalFn, 600);
 
     /* Release gate so page can scroll back up to the edit steps */
     clearGate();
