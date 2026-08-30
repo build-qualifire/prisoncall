@@ -823,6 +823,13 @@
     .order-total__orig { text-decoration: line-through; color: var(--color-muted); font-size: 15px; }
     .order-total__disc { color: var(--color-green); font-size: 22px; font-weight: 800; }
     .order-total__plain { font-size: 22px; font-weight: 800; }
+    .order-recurring-sub {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 0 18px 14px; margin-top: -10px;
+      font-size: 12px; color: var(--color-muted);
+    }
+    .order-recurring-sub__label { font-weight: 500; }
+    .order-recurring-sub__val   { font-weight: 600; white-space: nowrap; }
 
     /* â”€â”€â”€ Checkout CTA â”€â”€â”€ */
     .checkout-cta {
@@ -3972,23 +3979,18 @@
 
   function buildSummaryAddonLines(e) {
     if(!e.addons) return '';
-    var pk   = e.planKey;
-    var intv = PRICING.plans[pk] ? PRICING.plans[pk].interval : 'plan';
-    var s    = '';
-    var ad;
+    var pk = e.planKey;
+    var s  = '';
     function addonLine(label, price, suffix) {
-      return '<div class="summary-line__addon"><span class="summary-line__addon-name">+ ' + label + '</span><span class="summary-line__addon-price">$' + price + suffix + '</span></div>';
+      return '<div class="summary-line__addon"><span class="summary-line__addon-name">' + label + '</span><span class="summary-line__addon-price">$' + price + suffix + '</span></div>';
     }
+    /* Recurring plan addons (combo23, addon2, addon3) are folded into the plan
+       product name and price — only one-time add-ons appear as separate lines. */
     if(e.addons.lifetimeAll) {
-      ad = PRICING.addons.lifetimeAll;
-      s += addonLine(ad.label, ad[pk].toFixed(2), ' once');
-    } else {
-      if(e.addons.addon1) { ad = PRICING.addons.addon1; s += addonLine(ad.label, ad[pk].toFixed(2), ' once'); }
-      if(e.addons.combo23) { s += '<div class="summary-line__addon"><span class="summary-line__addon-name">+ Transfer + Renewal Protection included</span></div>'; }
-      else {
-        if(e.addons.addon2) { ad = PRICING.addons.addon2; s += addonLine(ad.label, ad[pk].toFixed(2), ' per ' + intv); }
-        if(e.addons.addon3) { ad = PRICING.addons.addon3; s += addonLine(ad.label, ad[pk].toFixed(2), ' per ' + intv); }
-      }
+      s += addonLine('Lifetime Protection', (PRICING.addons.lifetimeAll[pk] || 49.99).toFixed(2), ' once');
+    }
+    if(e.addons.addon1) {
+      s += addonLine('48hr Cancellation Guarantee', (PRICING.addons.addon1[pk] || 29.99).toFixed(2), ' once');
     }
     return s ? '<div class="summary-line__addons">' + s + '</div>' : '';
   }
@@ -4071,12 +4073,24 @@ function renderCompletedArea(){
           if (!pl) return plan.amount;
           var addons = e.addons || {};
           if (addons.combo23) return (pl.comboPrice != null ? pl.comboPrice : pl.price);
+          if (addons.addon2 && !addons.addon3 && !addons.lifetimeAll) return pl.price + (PRICING.addons.addon2[pk] || 0);
+          if (addons.addon3 && !addons.addon2 && !addons.lifetimeAll) return pl.price + (PRICING.addons.addon3[pk] || 0);
           return pl.price;
+        }());
+        /* Shopify product name for this line item, reflecting which variant is purchased */
+        var planProductName = (function() {
+          var IL = { fortnightly: 'Fortnightly', monthly: 'Monthly', half_yearly: 'Half-Yearly' };
+          var base   = (IL[e.planKey] || plan.name) + ' Plan';
+          var addons = e.addons || {};
+          if (addons.combo23)                                         return base + ' + Combo (Transfer & Renewal) Guarantee';
+          if (addons.addon2 && !addons.addon3 && !addons.lifetimeAll) return base + ' + Transfer Guarantee';
+          if (addons.addon3 && !addons.addon2 && !addons.lifetimeAll) return base + ' + Renewal Guarantee';
+          return base;
         }());
         html += '<div class="summary-line'+(isBeingEdited?' summary-line--editing':'')+'">'+
           '<div class="summary-line__info">'+
             '<p class="summary-line__prison">'+escHtml(e.prison)+(isBeingEdited?'<span class="summary-line__editing-tag">Editing&hellip;</span>':'')+'</p>'+
-            '<p class="summary-line__meta summary-line__meta--dsk">'+e.state.toUpperCase()+' &middot; '+escHtml(maskMobile(e.mobile))+' &middot; '+plan.name+'</p>'+
+            '<p class="summary-line__meta summary-line__meta--dsk">'+e.state.toUpperCase()+' &middot; '+escHtml(maskMobile(e.mobile))+' &middot; '+escHtml(planProductName)+'</p>'+
             '<p class="summary-line__meta summary-line__meta--mob">'+e.state.toUpperCase()+' &middot; '+escHtml(maskMobile(e.mobile))+'</p>'+
           '</div>'+
           '<div class="summary-line__right">'+
@@ -4086,7 +4100,7 @@ function renderCompletedArea(){
           '</div>'+
           '<div class="summary-line__mobile-extra">'+
             '<div class="summary-line__mobile-billing">'+
-              '<span class="summary-line__billing-plan">'+plan.name+'</span>'+
+              '<span class="summary-line__billing-plan">'+escHtml(planProductName)+'</span>'+
               '<span class="summary-line__price">$'+displayPrice.toFixed(2)+'/'+plan.period+'</span>'+
             '</div>'+
             '<div class="summary-line__mobile-actions">'+
@@ -4137,6 +4151,16 @@ function renderCompletedArea(){
         totalHtml = '<span class="order-total__plain">$'+rawTotal.toFixed(2)+'</span>';
       }
       html += '<div class="order-total"><span class="order-total__label">Total</span><span class="order-total__val">'+totalHtml+'</span></div>';
+      /* Recurring subtotal — what the customer is charged each billing period */
+      var recurringDisplay = isBundleOrder ? (recurringTotal - discountAmount) : recurringTotal;
+      if(recurringDisplay > 0) {
+        var EVERY_MAP = { fortnightly: 'every fortnight', monthly: 'every month', half_yearly: 'every 6 months' };
+        var everyLabel = (!hasIntervalMismatch && entries.length > 0) ? (EVERY_MAP[entries[0].planKey] || '') : '';
+        html += '<div class="order-recurring-sub">'+
+          '<span class="order-recurring-sub__label">Recurring subtotal</span>'+
+          '<span class="order-recurring-sub__val">$'+recurringDisplay.toFixed(2)+(everyLabel ? ' '+everyLabel : '')+'</span>'+
+        '</div>';
+      }
     }
 
     /* Add another plan: always visible when entries exist and below max.
