@@ -527,6 +527,7 @@
       font-family: inherit; background: none; border: none;
       padding: 10px 16px; min-height: 40px; cursor: pointer; text-align: left;
       width: 100%; flex-shrink: 0;
+      position: relative; z-index: 10;
     }
     .plan-card.is-expanded .plan-card__change { display: flex; }
 
@@ -3301,7 +3302,11 @@
         selectedAddons.addon1      = false;
         selectedAddons.addon2      = false;
         selectedAddons.addon3      = false;
-        protectEl.innerHTML = buildInCardProtectHtml(planKey);
+        var _t1 = document.createElement('div');
+        _t1.innerHTML = buildInCardProtectHtml(planKey);
+        var _np1 = _t1.firstChild;
+        protectEl.parentNode.replaceChild(_np1, protectEl);
+        protectEl = _np1;
         wireInCardAddons(stepEl, protectEl);
       } else {
         /* Deselecting LP: revert fully to State 1 — combo-inclusive, all sub-addons cleared */
@@ -3311,7 +3316,11 @@
         selectedAddons.addon2      = false;
         selectedAddons.addon3      = false;
         step4CustomiseMode         = false;
-        protectEl.innerHTML        = buildInCardProtectHtml(planKey);
+        var _t2 = document.createElement('div');
+        _t2.innerHTML = buildInCardProtectHtml(planKey);
+        var _np2 = _t2.firstChild;
+        protectEl.parentNode.replaceChild(_np2, protectEl);
+        protectEl = _np2;
         wireInCardAddons(stepEl, protectEl);
       }
       updateLivePriceDisplay(stepEl);
@@ -3331,6 +3340,18 @@
       if (cb)    showRow(cb);
       showComboToast('We have upgraded you to the Bundle Deal - better value');
       updateLivePriceDisplay(stepEl);
+      setTimeout(function() {
+        var btn = document.querySelector('[data-change-plan]');
+        if (btn) {
+          var r = btn.getBoundingClientRect();
+          var cx = Math.round(r.left + r.width / 2);
+          var cy = Math.round(r.top + r.height / 2);
+          var top = document.elementFromPoint(cx, cy);
+          console.log('[DEBUG] autoUpgrade elementFromPoint at ('+cx+','+cy+'):', top);
+          console.log('[DEBUG] btn rect top='+r.top.toFixed(0)+' left='+r.left.toFixed(0)+' w='+r.width.toFixed(0)+' h='+r.height.toFixed(0));
+          console.log('[DEBUG] btn computed pointerEvents='+getComputedStyle(btn).pointerEvents+' display='+getComputedStyle(btn).display+' zIndex='+getComputedStyle(btn).zIndex);
+        }
+      }, 400);
     }
 
     /* ── Customise link — State 1 only; click rebuilds protect section in State 2 ── */
@@ -3340,7 +3361,11 @@
         e.stopPropagation();
         step4CustomiseMode     = true;
         selectedAddons.combo23 = false;
-        protectEl.innerHTML    = buildInCardProtectHtml(planKey);
+        var _t3 = document.createElement('div');
+        _t3.innerHTML = buildInCardProtectHtml(planKey);
+        var _np3 = _t3.firstChild;
+        protectEl.parentNode.replaceChild(_np3, protectEl);
+        protectEl = _np3;
         wireInCardAddons(stepEl, protectEl);
         updateLivePriceDisplay(stepEl);
       });
