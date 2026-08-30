@@ -2929,10 +2929,7 @@
     }
 
     function collapseToPhaseA() {
-      ['lpUpgradeToast', 'comboSuggestionToast'].forEach(function(id) {
-        var t = document.getElementById(id);
-        if (t) t.parentNode.removeChild(t);
-      });
+      dismissAllToasts();
       selectedAddons = defaultSelectedAddons();
       step4CustomiseMode = false;
       step4ExpandedKey = null;
@@ -3138,10 +3135,17 @@
       }
     }
 
-    /* ── Green combo auto-upgrade toast (behaviour unchanged) ── */
+    /* ── Dismiss all active toasts immediately ── */
+    function dismissAllToasts() {
+      ['lifetimeUpgradeToast', 'lpUpgradeToast', 'comboSuggestionToast'].forEach(function(id) {
+        var t = document.getElementById(id);
+        if (t) t.parentNode.removeChild(t);
+      });
+    }
+
+    /* ── Green combo auto-upgrade toast ── */
     function showComboToast(msg) {
-      var existing = document.getElementById('lifetimeUpgradeToast');
-      if (existing) existing.parentNode.removeChild(existing);
+      dismissAllToasts();
       var isMobile = window.innerWidth <= 768;
       var toast    = document.createElement('div');
       toast.id     = 'lifetimeUpgradeToast';
@@ -3174,16 +3178,11 @@
       });
       toast.getBoundingClientRect();
       toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)';
-      setTimeout(function() {
-        toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(20px)';
-        setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
-      }, 4000);
     }
 
     /* ── LP upgrade toast (dark, with CTA + No thanks) ── */
     function showLpUpgradeToast() {
-      var existing = document.getElementById('lpUpgradeToast');
-      if (existing) existing.parentNode.removeChild(existing);
+      dismissAllToasts();
       var isMobile = window.innerWidth <= 768;
       var toast    = document.createElement('div');
       toast.id     = 'lpUpgradeToast';
@@ -3234,8 +3233,7 @@
 
     /* ── Solo TP or RG toast — suggests completing the combo ── */
     function showComboSuggestionToast(missingKey) {
-      var existing = document.getElementById('comboSuggestionToast');
-      if (existing) existing.parentNode.removeChild(existing);
+      dismissAllToasts();
       var isMobile  = window.innerWidth <= 768;
       var toast     = document.createElement('div');
       toast.id      = 'comboSuggestionToast';
@@ -3294,6 +3292,7 @@
     /* ── Select / deselect Lifetime Protection ── */
     function selectLifetime(checked) {
       if (checked) {
+        dismissAllToasts();
         /* Move to State 3: LP selected, all other addons cleared */
         selectedAddons.lifetimeAll = true;
         selectedAddons.combo23     = false;
@@ -3365,10 +3364,7 @@
 
         /* Deselection: dismiss any visible toast immediately */
         if (!next) {
-          ['lpUpgradeToast', 'comboSuggestionToast'].forEach(function(id) {
-            var t = document.getElementById(id);
-            if (t) t.parentNode.removeChild(t);
-          });
+          dismissAllToasts();
         }
 
         /* TP + RG both on -> auto-upgrade to combo (or LP if CG also on) */
