@@ -3964,7 +3964,7 @@
       s += addonLine(ad.label, ad[pk].toFixed(2), ' once');
     } else {
       if(e.addons.addon1) { ad = PRICING.addons.addon1; s += addonLine(ad.label, ad[pk].toFixed(2), ' once'); }
-      if(e.addons.combo23) { ad = PRICING.addons.combo23; s += addonLine(ad.label, ad[pk].toFixed(2), ' per ' + intv); }
+      if(e.addons.combo23) { s += '<div class="summary-line__addon"><span class="summary-line__addon-name">+ Transfer + Renewal Protection included</span></div>'; }
       else {
         if(e.addons.addon2) { ad = PRICING.addons.addon2; s += addonLine(ad.label, ad[pk].toFixed(2), ' per ' + intv); }
         if(e.addons.addon3) { ad = PRICING.addons.addon3; s += addonLine(ad.label, ad[pk].toFixed(2), ' per ' + intv); }
@@ -4044,6 +4044,19 @@ function renderCompletedArea(){
         /* Normal state: full plan row with mobile-responsive layout */
         var editCls = (hasIntervalMismatch && e.id === pulseEntryId) ? ' edit-pulse' : '';
         var removeBtn = '<button class="summary-line__remove" type="button" data-remove-id="'+e.id+'" aria-label="Remove plan"><img src="assets/icons/quick_pill_icons/Cancel_Delete.svg" width="14" height="14" alt="" aria-hidden="true" style="display:block;"></button>';
+        /* Actual Shopify product price for the selected addon state */
+        var displayPrice = (function() {
+          var pk = e.planKey;
+          var pl = PRICING && PRICING.plans[pk];
+          if (!pl) return plan.amount;
+          var addons = e.addons || {};
+          if (addons.combo23) return (pl.comboPrice != null ? pl.comboPrice : pl.price);
+          if (addons.lifetimeAll) return pl.price;
+          var p = pl.price;
+          if (addons.addon2) p = +(p + (PRICING.addons.addon2 && PRICING.addons.addon2[pk] != null ? PRICING.addons.addon2[pk] : 0)).toFixed(2);
+          if (addons.addon3) p = +(p + (PRICING.addons.addon3 && PRICING.addons.addon3[pk] != null ? PRICING.addons.addon3[pk] : 0)).toFixed(2);
+          return p;
+        }());
         html += '<div class="summary-line'+(isBeingEdited?' summary-line--editing':'')+'">'+
           '<div class="summary-line__info">'+
             '<p class="summary-line__prison">'+escHtml(e.prison)+(isBeingEdited?'<span class="summary-line__editing-tag">Editing&hellip;</span>':'')+'</p>'+
@@ -4051,14 +4064,14 @@ function renderCompletedArea(){
             '<p class="summary-line__meta summary-line__meta--mob">'+e.state.toUpperCase()+' &middot; '+escHtml(maskMobile(e.mobile))+'</p>'+
           '</div>'+
           '<div class="summary-line__right">'+
-            '<span class="summary-line__price">$'+plan.amount.toFixed(2)+'/'+plan.period+'</span>'+
+            '<span class="summary-line__price">$'+displayPrice.toFixed(2)+'/'+plan.period+'</span>'+
             '<button class="summary-line__edit'+editCls+'" type="button" data-edit-id="'+e.id+'">Edit</button>'+
             removeBtn+
           '</div>'+
           '<div class="summary-line__mobile-extra">'+
             '<div class="summary-line__mobile-billing">'+
               '<span class="summary-line__billing-plan">'+plan.name+'</span>'+
-              '<span class="summary-line__price">$'+plan.amount.toFixed(2)+'/'+plan.period+'</span>'+
+              '<span class="summary-line__price">$'+displayPrice.toFixed(2)+'/'+plan.period+'</span>'+
             '</div>'+
             '<div class="summary-line__mobile-actions">'+
               '<button class="summary-line__edit'+editCls+'" type="button" data-edit-id="'+e.id+'">Edit</button>'+
