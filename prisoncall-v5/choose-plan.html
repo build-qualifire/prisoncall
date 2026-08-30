@@ -2929,6 +2929,7 @@
     }
 
     function collapseToPhaseA() {
+      console.log('[DEBUG] collapseToPhaseA called');
       dismissAllToasts();
       selectedAddons = defaultSelectedAddons();
       step4CustomiseMode = false;
@@ -2986,6 +2987,7 @@
     /* Change plan — collapse to Phase A */
     el.querySelectorAll('[data-change-plan]').forEach(function(btn){
       btn.addEventListener('click', function(e){
+        console.log('[DEBUG] data-change-plan click fired', e.target, 'propagation stopped:', e.cancelBubble);
         e.stopPropagation();
         collapseToPhaseA();
       });
