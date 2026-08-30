@@ -2894,6 +2894,13 @@
     }
   }
 
+  function dismissAllToasts() {
+    ['lifetimeUpgradeToast', 'lpUpgradeToast', 'comboSuggestionToast'].forEach(function(id) {
+      var t = document.getElementById(id);
+      if (t && t.parentNode) t.parentNode.removeChild(t);
+    });
+  }
+
   function wireStep4(el){
     /* Back — rebuild Step 3 cleanly so stale OTP UI never persists on back nav */
     el.querySelector('[data-back="4"]').addEventListener('click', function(){
@@ -3136,14 +3143,6 @@
         var note = panel.querySelector('.addon-detail-note');
         if (note) panel.insertBefore(p, note); else panel.appendChild(p);
       }
-    }
-
-    /* ── Dismiss all active toasts immediately ── */
-    function dismissAllToasts() {
-      ['lifetimeUpgradeToast', 'lpUpgradeToast', 'comboSuggestionToast'].forEach(function(id) {
-        var t = document.getElementById(id);
-        if (t) t.parentNode.removeChild(t);
-      });
     }
 
     /* ── Green combo auto-upgrade toast ── */
