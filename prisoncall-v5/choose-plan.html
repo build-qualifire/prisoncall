@@ -4051,11 +4051,7 @@ function renderCompletedArea(){
           if (!pl) return plan.amount;
           var addons = e.addons || {};
           if (addons.combo23) return (pl.comboPrice != null ? pl.comboPrice : pl.price);
-          if (addons.lifetimeAll) return pl.price;
-          var p = pl.price;
-          if (addons.addon2) p = +(p + (PRICING.addons.addon2 && PRICING.addons.addon2[pk] != null ? PRICING.addons.addon2[pk] : 0)).toFixed(2);
-          if (addons.addon3) p = +(p + (PRICING.addons.addon3 && PRICING.addons.addon3[pk] != null ? PRICING.addons.addon3[pk] : 0)).toFixed(2);
-          return p;
+          return pl.price;
         }());
         html += '<div class="summary-line'+(isBeingEdited?' summary-line--editing':'')+'">'+
           '<div class="summary-line__info">'+
