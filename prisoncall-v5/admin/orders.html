@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prisoncall - Orders</title>
+  <link rel="icon" href="/assets/brand_logos/Prisoncall_Icon_BLACK.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body class="orders-page">
+
+<!-- ── Top nav ───────────────────────────────────────────────────────────── -->
+<nav class="admin-topnav">
+  <a href="/admin/orders.html">
+    <img src="/assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall" class="topnav-logo">
+  </a>
+  <div class="topnav-right">
+    <span class="topnav-count" id="topnavCount"></span>
+    <a href="/admin/settings.html" class="topnav-link">Settings</a>
+    <button class="topnav-signout" id="btnSignout">Sign out</button>
+  </div>
+</nav>
+
+<!-- ── Orders wrap ───────────────────────────────────────────────────────── -->
+<div class="orders-wrap">
+
+  <!-- Toolbar -->
+  <div class="orders-toolbar">
+    <div class="orders-search">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input type="text" id="searchInput" class="form-input" placeholder="Search name, mobile, DID, prison, Seal ID..." autocomplete="off">
+    </div>
+
+    <div class="filter-tabs" id="filterTabs">
+      <button class="filter-tab active" data-status="">All</button>
+      <button class="filter-tab" data-status="PENDING">Pending</button>
+      <button class="filter-tab" data-status="ACTIVE">Active</button>
+      <button class="filter-tab" data-status="SUSPENDED">Suspended</button>
+      <button class="filter-tab" data-status="CANCELLED">Cancelled</button>
+    </div>
+
+    <button class="orders-refresh" id="btnRefresh" title="Refresh">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M4.09 9A8 8 0 0120 15.91M19.91 15A8 8 0 014 8.09"/>
+      </svg>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Desktop table -->
+  <div class="orders-table-wrap" id="tableWrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Customer</th>
+          <th>Email</th>
+          <th>Mobile</th>
+          <th>PBX ID</th>
+          <th>Assigned Mobile</th>
+          <th>Prison</th>
+          <th>Prisoncall No</th>
+          <th>Plan</th>
+          <th>Add-ons</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="12">
+          <div class="loading-state">
+            <div class="spinner"></div>
+            Loading orders...
+          </div>
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile cards -->
+  <div class="orders-cards" id="cardsWrap">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      Loading orders...
+    </div>
+  </div>
+
+</div><!-- /orders-wrap -->
+
+<script type="module">
+import {
+  initAdminPage, api, logout,
+  fmtDate, showToast, showSmsToast,
+} from '/admin/admin-auth.js';
+
+// ── Constants ──────────────────────────────────────────────────────────────
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+// ── State ──────────────────────────────────────────────────────────────────
+let allRows    = [];
+let subs       = [];
+let txOrders   = [];
+let searchTerm = '';
+let statusFilter = '';
+
+// ── HTML helpers ───────────────────────────────────────────────────────────
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Convert 61XXXXXXXXX -> local format (04XX XXX XXX or 0X XXXX XXXX)
+function formatAU(num) {
+  if (!num) return '-';
+  const d = String(num).replace(/\D/g, '');
+  let local = d;
+  if (d.length === 11 && d.startsWith('61')) local = '0' + d.slice(2);
+  if (local.length !== 10 || !local.startsWith('0')) return String(num);
+  if (local.startsWith('04')) return `${local.slice(0,4)} ${local.slice(4,7)} ${local.slice(7)}`;
+  return `${local.slice(0,2)} ${local.slice(2,6)} ${local.slice(6)}`;
+}
+
+function capPlan(p) {
+  if (!p) return '-';
+  const m = {
+    fortnightly: 'Fortnightly', monthly: 'Monthly',
+    half_yearly: 'Half-Yearly', halfyearly: 'Half-Yearly', 'half-yearly': 'Half-Yearly',
+  };
+  return m[(p || '').toLowerCase()] || p;
+}
+
+function safeAttrs(raw) {
+  if (!raw) return {};
+  try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return {}; }
+}
+
+function getAddons(s) {
+  const out = [];
+  if (s.addon_transfer_guarantee)     out.push('TG');
+  if (s.addon_renewal_guarantee)      out.push('RG');
+  if (s.addon_combo)                  out.push('Combo');
+  if (s.addon_cancellation_guarantee) out.push('CG');
+  if (s.addon_lifetime_protection)    out.push('LP');
+  return out;
+}
+
+function renderAddons(addons) {
+  if (!addons || !addons.length) return '<span style="color:var(--color-muted)">-</span>';
+  return addons.map(a => `<span class="badge badge--addon">${a}</span>`).join(' ');
+}
+
+function getOverdueBadge(createdAt) {
+  if (!createdAt) return '';
+  const hrs = (Date.now() - new Date(createdAt).getTime()) / 3600000;
+  if (hrs >= 24) return `<span class="overdue-badge overdue-badge--urgent">URGENT - 24hr overdue</span>`;
+  if (hrs >= 12) return `<span class="overdue-badge overdue-badge--red">12hr overdue</span>`;
+  if (hrs >= 4)  return `<span class="overdue-badge overdue-badge--orange">4hr overdue</span>`;
+  if (hrs >= 2)  return `<span class="overdue-badge overdue-badge--amber">2hr overdue</span>`;
+  return '';
+}
+
+// ── Status badge ───────────────────────────────────────────────────────────
+
+function statusBadge(status) {
+  const cfg = {
+    PENDING:    ['badge--pending',   'Pending'],
+    ACTIVE:     ['badge--active',    'Active'],
+    SUSPENDED:  ['badge--orange',    'Suspended'],
+    CANCELLED:  ['badge--grey',      'Cancelled'],
+    TX_PENDING: ['badge--purple',    'Transfer Pending'],
+    TX_RELEASE: ['badge--release',   'Release Old DID'],
+    TX_WAIT:    ['badge--blue',      'Transfer Active'],
+    TX_DONE:    ['badge--completed', 'Transfer Done'],
+  };
+  const [cls, label] = cfg[status] || ['badge--grey', status || '-'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+// ── Copy button HTML ───────────────────────────────────────────────────────
+
+const COPY_SVG = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+  <path stroke-linecap="round" d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+</svg>`;
+
+function copyBtn(text) {
+  return `<button class="copy-btn" data-copy="${esc(text)}" onclick="doCopy(this)" aria-label="Copy to clipboard">
+    ${COPY_SVG}
+    <span class="copy-tip">Copied!</span>
+  </button>`;
+}
+
+// ── Build unified rows ─────────────────────────────────────────────────────
+
+function buildRows() {
+  const rows = [];
+
+  // Regular subscriptions
+  subs.forEach(s => {
+    const attrs = safeAttrs(s.subscription_attributes);
+    rows.push({
+      _type:       'sub',
+      _id:         s.id,
+      _raw:        s,
+      date:        s.created_at,
+      name:        s.customer_name   || '',
+      email:       s.customer_email  || '',
+      mobile:      s.customer_mobile || '',
+      seal:        s.seal_subscription_id || '',
+      prison_name:  s.prison_name  || '',
+      prison_state: s.prison_state || '',
+      prison:      [s.prison_name, s.prison_state].filter(Boolean).join(', '),
+      did:         s.current_did   || '',
+      plan:        capPlan(s.plan_interval),
+      addons:      getAddons(s),
+      status:      s.status || 'UNKNOWN',
+      attrs,
+      voipline_done: attrs.voipline_cancelled === true,
+    });
+  });
+
+  // Transfer orders
+  txOrders.forEach(t => {
+    const sub     = t.subscriptions || {};
+    const isPending   = ['PENDING', 'PENDING_SMS_CONFIRM'].includes(t.status);
+    const isFulfilled = t.status === 'FULFILLED';
+    const isCompleted = t.status === 'COMPLETED';
+    const age         = Date.now() - new Date(t.updated_at).getTime();
+
+    let status = 'TX_DONE';
+    if (isPending)                           status = 'TX_PENDING';
+    else if (isFulfilled && age >= SEVEN_DAYS_MS) status = 'TX_RELEASE';
+    else if (isFulfilled)                    status = 'TX_WAIT';
+
+    rows.push({
+      _type:        'tx',
+      _id:          t.id,
+      _raw:         t,
+      _sub:         sub,
+      date:         t.created_at,
+      name:         sub.customer_name  || t.customer_name  || '',
+      email:        sub.customer_email || '',
+      mobile:       sub.customer_mobile || t.customer_mobile || '',
+      seal:         sub.seal_subscription_id || '',
+      prison_name:      t.prison_name      || '',
+      prison_state:     t.prison_state     || '',
+      old_prison_name:  t.old_prison_name  || '',
+      old_prison_state: t.old_prison_state || '',
+      prison:       [t.prison_name, t.prison_state].filter(Boolean).join(', '),
+      did:          (isFulfilled || isCompleted) ? (t.did_number || '') : (sub.current_did || ''),
+      old_did:      sub.current_did || '',
+      new_did:      t.did_number   || '',
+      plan:         capPlan(sub.plan_interval),
+      addons:       getAddons(sub),
+      status,
+      subscription_id: t.subscription_id,
+    });
+  });
+
+  rows.sort((a, b) => new Date(b.date) - new Date(a.date));
+  return rows;
+}
+
+// ── Filter + render ────────────────────────────────────────────────────────
+
+function applyFilters() {
+  const q = searchTerm.trim().toLowerCase();
+
+  const filtered = allRows.filter(row => {
+    // Status filter
+    if (statusFilter) {
+      if (statusFilter === 'PENDING') {
+        if (!['PENDING', 'TX_PENDING', 'TX_RELEASE'].includes(row.status)) return false;
+      } else if (statusFilter === 'ACTIVE') {
+        if (!['ACTIVE', 'TX_WAIT'].includes(row.status)) return false;
+      } else {
+        if (row.status !== statusFilter) return false;
+      }
+    }
+    // Search
+    if (q) {
+      const hay = [row.name, row.email, row.mobile, row.did, row.prison, row.seal]
+        .join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const countEl = document.getElementById('topnavCount');
+  if (countEl) countEl.textContent = `${filtered.length} order${filtered.length !== 1 ? 's' : ''}`;
+
+  renderTable(filtered);
+  renderCards(filtered);
+}
+
+// ── Table rendering ────────────────────────────────────────────────────────
+
+const EMPTY_ROW = `<tr><td colspan="12">
+  <div class="empty-state">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+      style="width:36px;height:36px;margin:0 auto 10px;display:block;opacity:.3">
+      <path stroke-linecap="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+    </svg>
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px">No orders found</div>
+    <div style="font-size:13px;color:var(--color-muted)">Try clearing your search or filter</div>
+  </div>
+</td></tr>`;
+
+function renderTable(rows) {
+  const tbody = document.getElementById('tableBody');
+  if (!tbody) return;
+  tbody.innerHTML = rows.length ? rows.map(renderTableRow).join('') : EMPTY_ROW;
+}
+
+function renderTableRow(row) {
+  const pbxId  = [row.name, row.seal].filter(Boolean).join(' ');
+  const didFmt = row.did ? formatAU(row.did) : '-';
+  const mobFmt = formatAU(row.mobile);
+  const date   = fmtDate(row.date);
+
+  return `<tr id="row-${row._id}">
+    <td style="white-space:nowrap;color:var(--color-muted);font-size:11px">${date}</td>
+    <td style="font-weight:700;white-space:nowrap">${esc(row.name || '-')}</td>
+    <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--color-muted)">${esc(row.email || '-')}</td>
+    <td style="white-space:nowrap">${esc(mobFmt)}</td>
+    <td style="max-width:160px">
+      <div class="copy-cell">
+        <span class="copy-cell-text">${esc(pbxId || '-')}</span>
+        ${pbxId ? copyBtn(pbxId) : ''}
+      </div>
+    </td>
+    <td style="white-space:nowrap">
+      <div class="copy-cell">
+        <span>${mobFmt}</span>
+        ${row.mobile ? copyBtn(mobFmt) : ''}
+      </div>
+    </td>
+    <td style="max-width:150px">${esc(row.prison || '-')}</td>
+    <td style="font-family:monospace;white-space:nowrap">${esc(didFmt)}</td>
+    <td style="white-space:nowrap">${esc(row.plan)}</td>
+    <td style="min-width:70px">${renderAddons(row.addons)}</td>
+    <td style="white-space:nowrap">${statusBadge(row.status)}</td>
+    <td style="min-width:210px">${renderTableAction(row)}</td>
+  </tr>`;
+}
+
+function renderTableAction(row) {
+  const id  = row._id;
+  const isTx = row._type === 'tx';
+
+  switch (row.status) {
+    case 'PENDING':
+      return `<div class="action-inline">
+        <div class="did-row">
+          <input class="did-mini" id="did-${id}" placeholder="61XXXXXXXXX" maxlength="11" inputmode="numeric" oninput="syncDid('${id}','sub','tbl')">
+          <button class="btn btn--green btn--xs" onclick="fulfilOrder('${id}')">Fulfil</button>
+        </div>
+        <div class="form-error" id="derr-${id}" style="display:none">11 digits, must start with 61</div>
+        ${getOverdueBadge(row.date)}
+      </div>`;
+
+    case 'TX_PENDING':
+      return `<div class="action-inline">
+        <div class="did-row">
+          <input class="did-mini" id="tdid-${id}" placeholder="61XXXXXXXXX" maxlength="11" inputmode="numeric" oninput="syncDid('${id}','tx','tbl')">
+          <button class="btn btn--green btn--xs" onclick="fulfilTransfer('${id}')">Fulfil Transfer</button>
+        </div>
+        <div class="form-error" id="tderr-${id}" style="display:none">11 digits, must start with 61</div>
+        ${getOverdueBadge(row.date)}
+      </div>`;
+
+    case 'TX_RELEASE':
+      return `<button class="btn btn--amber btn--sm" onclick="releaseOldDID('${id}')">Release Old DID</button>`;
+
+    case 'SUSPENDED':
+      return `<div class="action-pair">
+        <button class="btn btn--amber btn--sm" onclick="onPaused('${id}')">VoipLine Paused</button>
+        <button class="btn btn--green btn--sm" onclick="onResumed('${id}')">VoipLine Resumed</button>
+      </div>`;
+
+    case 'CANCELLED':
+      if (row.voipline_done) return `<span class="text-xs text-muted">VoipLine done</span>`;
+      return `<button class="btn btn--danger-outline btn--sm" onclick="onCancelled('${id}')">VoipLine Done</button>`;
+
+    default:
+      return '';
+  }
+}
+
+// ── Mobile card rendering ──────────────────────────────────────────────────
+
+const CARD_BORDER_CLASS = {
+  PENDING:    'order-card--pending',
+  ACTIVE:     'order-card--active',
+  SUSPENDED:  'order-card--suspended',
+  CANCELLED:  'order-card--cancelled',
+  TX_PENDING: 'order-card--tx-pending',
+  TX_RELEASE: 'order-card--tx-release',
+  TX_WAIT:    'order-card--active',
+  TX_DONE:    '',
+};
+
+function renderCards(rows) {
+  const wrap = document.getElementById('cardsWrap');
+  if (!wrap) return;
+  if (!rows.length) {
+    wrap.innerHTML = `<div class="empty-state">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+        style="width:36px;height:36px;margin:0 auto 10px;display:block;opacity:.3">
+        <path stroke-linecap="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+      <div style="font-size:15px;font-weight:700;margin-bottom:4px">No orders found</div>
+      <div style="font-size:13px;color:var(--color-muted)">Try clearing your search or filter</div>
+    </div>`;
+    return;
+  }
+  wrap.innerHTML = rows.map(renderCard).join('');
+}
+
+function renderCard(row) {
+  const pbxId  = [row.name, row.seal].filter(Boolean).join(' ');
+  const didFmt = row.did ? formatAU(row.did) : null;
+  const mobFmt = formatAU(row.mobile);
+  const borderCls = CARD_BORDER_CLASS[row.status] || '';
+
+  const fieldRow = (label, val, extra = '') =>
+    `<div class="order-card-row">
+      <span class="ocr-label">${label}</span>
+      <span class="ocr-val">${val}</span>${extra}
+    </div>`;
+
+  const copyFieldRow = (label, val, text) =>
+    `<div class="order-card-row">
+      <span class="ocr-label">${label}</span>
+      <span class="ocr-val">${esc(val)}</span>
+      ${text ? copyBtn(text) : ''}
+    </div>`;
+
+  return `<div class="order-card ${borderCls}" id="card-${row._id}">
+    <div class="order-card-head">
+      <div class="order-card-name">${esc(row.name || '-')}</div>
+      <div class="order-card-bgs">
+        ${statusBadge(row.status)}
+        ${['PENDING','TX_PENDING'].includes(row.status) ? getOverdueBadge(row.date) : ''}
+      </div>
+    </div>
+    <div class="order-card-body">
+      ${copyFieldRow('PBX ID:', pbxId || '-', pbxId)}
+      ${copyFieldRow('Assigned Mobile:', mobFmt, row.mobile ? mobFmt : '')}
+      ${fieldRow('Prison:', esc(row.prison || '-'))}
+      ${didFmt ? fieldRow('Prisoncall No:', `<span class="font-mono">${esc(didFmt)}</span>`) : ''}
+      ${fieldRow('Plan:', esc(row.plan))}
+      ${row.addons.length ? `<div class="order-card-row">
+        <span class="ocr-label">Add-ons:</span>
+        <span class="ocr-val">${renderAddons(row.addons)}</span>
+      </div>` : ''}
+      ${fieldRow('Date:', `<span style="color:var(--color-muted)">${esc(fmtDate(row.date))}</span>`)}
+    </div>
+    ${renderCardAction(row)}
+  </div>`;
+}
+
+function renderCardAction(row) {
+  const id = row._id;
+
+  switch (row.status) {
+    case 'PENDING':
+      return `<div class="order-card-action">
+        <input class="form-input" id="cdid-${id}" placeholder="61XXXXXXXXX" maxlength="11" inputmode="numeric" oninput="syncDid('${id}','sub','card')" style="font-family:monospace">
+        <div class="form-error" id="cderr-${id}" style="display:none">Must be 11 digits starting with 61</div>
+        <button class="btn btn--green btn--full" onclick="fulfilOrder('${id}')">Fulfil</button>
+      </div>`;
+
+    case 'TX_PENDING':
+      return `<div class="order-card-action">
+        <input class="form-input" id="ctdid-${id}" placeholder="61XXXXXXXXX" maxlength="11" inputmode="numeric" oninput="syncDid('${id}','tx','card')" style="font-family:monospace">
+        <div class="form-error" id="ctderr-${id}" style="display:none">Must be 11 digits starting with 61</div>
+        <button class="btn btn--green btn--full" onclick="fulfilTransfer('${id}')">Fulfil Transfer</button>
+      </div>`;
+
+    case 'TX_RELEASE':
+      return `<div class="order-card-action">
+        <button class="btn btn--amber btn--full" onclick="releaseOldDID('${id}')">Release Old DID</button>
+      </div>`;
+
+    case 'SUSPENDED':
+      return `<div class="order-card-action">
+        <button class="btn btn--amber btn--full" onclick="onPaused('${id}')">VoipLine Paused</button>
+        <button class="btn btn--green btn--full" onclick="onResumed('${id}')">VoipLine Resumed</button>
+      </div>`;
+
+    case 'CANCELLED':
+      if (row.voipline_done) return '';
+      return `<div class="order-card-action">
+        <button class="btn btn--danger-outline btn--full" onclick="onCancelled('${id}')">VoipLine Done</button>
+      </div>`;
+
+    default:
+      return '';
+  }
+}
+
+// ── DID input sync (table <-> card share same value) ──────────────────────
+
+window.syncDid = function(id, type, source) {
+  const pfxTbl  = type === 'tx' ? 'tdid-'  : 'did-';
+  const pfxCard = type === 'tx' ? 'ctdid-' : 'cdid-';
+  const tblEl   = document.getElementById(pfxTbl  + id);
+  const cardEl  = document.getElementById(pfxCard + id);
+
+  if (source === 'tbl' && tblEl && cardEl)  cardEl.value = tblEl.value;
+  if (source === 'card' && cardEl && tblEl) tblEl.value  = cardEl.value;
+};
+
+function getDID(id, type) {
+  const pfxTbl  = type === 'tx' ? 'tdid-'  : 'did-';
+  const pfxCard = type === 'tx' ? 'ctdid-' : 'cdid-';
+  const tblEl  = document.getElementById(pfxTbl  + id);
+  const cardEl = document.getElementById(pfxCard + id);
+  return (tblEl && tblEl.value.trim()) || (cardEl && cardEl.value.trim()) || '';
+}
+
+function showDidError(id, type, show) {
+  const pfxTbl  = type === 'tx' ? 'tderr-'  : 'derr-';
+  const pfxCard = type === 'tx' ? 'ctderr-' : 'cderr-';
+  const tblErr  = document.getElementById(pfxTbl  + id);
+  const cardErr = document.getElementById(pfxCard + id);
+  const disp = show ? '' : 'none';
+  if (tblErr)  tblErr.style.display  = disp;
+  if (cardErr) cardErr.style.display = disp;
+}
+
+function validateDID(val) {
+  const d = val.replace(/\D/g, '');
+  return d.length === 11 && d.startsWith('61') ? d : null;
+}
+
+// ── Action: Fulfil new order ───────────────────────────────────────────────
+
+window.fulfilOrder = async function(id) {
+  const raw = getDID(id, 'sub');
+  const did = validateDID(raw);
+  if (!did) { showDidError(id, 'sub', true); return; }
+  showDidError(id, 'sub', false);
+
+  const row = allRows.find(r => r._id === id);
+  if (!row) return;
+
+  const btnTbl  = document.querySelector(`#row-${id}  .btn--green`);
+  const btnCard = document.querySelector(`#card-${id} .btn--green`);
+  [btnTbl, btnCard].forEach(b => { if (b) { b.disabled = true; b.textContent = 'Saving...'; } });
+
+  try {
+    await api('fulfil_job', { subscription_id: id, did });
+
+    // Update local state
+    row.did    = did;
+    row.status = 'ACTIVE';
+    if (row._raw) { row._raw.current_did = did; row._raw.status = 'ACTIVE'; }
+
+    const didDisplay    = formatAU(did);
+    const mobileDisplay = formatAU(row.mobile);
+
+    showSmsToast('Customer', `Your new Prisoncall number is ready.\nPrison: ${row.prison_name}\nPrisoncall No: ${didDisplay}\nAssigned Mobile: ${mobileDisplay}\nGive this number to your loved one and start receiving Prisoncalls soon. For your reference.`);
+    showSmsToast('Admin (Guness + Dinisha)', `Order fulfilled. ${row.name} | DID: ${did} | Prison: ${row.prison_name} ${row.prison_state} | Seal ID: ${row.seal}`);
+
+    applyFilters();
+  } catch (err) {
+    showToast('Failed: ' + err.message, 'error');
+    [btnTbl, btnCard].forEach(b => { if (b) { b.disabled = false; b.textContent = 'Fulfil'; } });
+  }
+};
+
+// ── Action: Fulfil transfer ────────────────────────────────────────────────
+
+window.fulfilTransfer = async function(id) {
+  const raw = getDID(id, 'tx');
+  const did = validateDID(raw);
+  if (!did) { showDidError(id, 'tx', true); return; }
+  showDidError(id, 'tx', false);
+
+  const row = allRows.find(r => r._id === id);
+  if (!row) return;
+
+  const btnTbl  = document.querySelector(`#row-${id}  .btn--green`);
+  const btnCard = document.querySelector(`#card-${id} .btn--green`);
+  [btnTbl, btnCard].forEach(b => { if (b) { b.disabled = true; b.textContent = 'Saving...'; } });
+
+  try {
+    await api('fulfil_transfer', { order_id: id, did_number: did });
+
+    row.new_did = did;
+    row.did     = row.old_did; // old DID stays active during 7-day overlap
+    row.status  = 'TX_WAIT';
+    if (row._raw) { row._raw.did_number = did; row._raw.status = 'FULFILLED'; row._raw.updated_at = new Date().toISOString(); }
+
+    const didDisplay = formatAU(did);
+    showSmsToast('Customer', `Your Prisoncall number for ${row.prison_name} is ready.\nNew Prisoncall No: ${didDisplay}.\nYour old number stays active for 7 days.\nRegards, Prisoncall.`);
+    showSmsToast('Admin (Guness + Dinisha)', `Transfer fulfilled. ${row.name} | New DID: ${did} | To: ${row.prison_name} ${row.prison_state}`);
+
+    applyFilters();
+  } catch (err) {
+    showToast('Failed: ' + err.message, 'error');
+    [btnTbl, btnCard].forEach(b => { if (b) { b.disabled = false; b.textContent = 'Fulfil Transfer'; } });
+  }
+};
+
+// ── Action: Release old DID ────────────────────────────────────────────────
+
+window.releaseOldDID = async function(id) {
+  if (!confirm('Confirm: have you released the old DID in VoipLine?')) return;
+
+  const row = allRows.find(r => r._id === id);
+  if (!row) return;
+
+  const btns = document.querySelectorAll(`#row-${id} button, #card-${id} button`);
+  btns.forEach(b => { b.disabled = true; b.textContent = 'Saving...'; });
+
+  try {
+    await api('confirm_old_did_released', { order_id: id });
+
+    const oldDID = row.old_did;
+    row.old_did  = '';
+    row.did      = row.new_did;
+    row.status   = 'TX_DONE';
+    if (row._raw) { row._raw.status = 'COMPLETED'; }
+
+    showSmsToast('Admin (Guness + Dinisha)', `Old DID ${oldDID} released for ${row.name}. Please remove from VoipLine.`);
+
+    applyFilters();
+  } catch (err) {
+    showToast('Failed: ' + err.message, 'error');
+    btns.forEach(b => { b.disabled = false; b.textContent = 'Release Old DID'; });
+  }
+};
+
+// ── Action: VoipLine paused (suspended) ───────────────────────────────────
+
+window.onPaused = async function(id) {
+  const row = allRows.find(r => r._id === id);
+  if (!row) return;
+
+  const btns = document.querySelectorAll(`#row-${id} .btn--amber, #card-${id} .btn--amber`);
+  btns.forEach(b => { b.disabled = true; b.textContent = 'Saving...'; });
+
+  try {
+    await api('confirm_voipline_paused', { subscription_id: id });
+
+    showSmsToast('Customer', `Hi, Your Prisoncall plan payment failed. Your number has been paused. Please update your payment account balance, and reply YES. Thank you. Regards, Prisoncall.`);
+    showSmsToast('Admin (Guness + Dinisha)', `VoipLine paused confirmed. ${row.name} | DID: ${row.did} | Seal ID: ${row.seal}. Monitor for customer YES reply.`);
+    showToast('Pause confirmed. Day 1 SMS queued.', 'success');
+  } catch (err) {
+    showToast('Failed: ' + err.message, 'error');
+    btns.forEach(b => { b.disabled = false; b.textContent = 'VoipLine Paused'; });
+  }
+};
+
+// ── Action: VoipLine resumed ───────────────────────────────────────────────
+
+window.onResumed = async function(id) {
+  const row = allRows.find(r => r._id === id);
+  if (!row) return;
+
+  const btns = document.querySelectorAll(`#row-${id} .btn--green, #card-${id} .btn--green`);
+  btns.forEach(b => { b.disabled = true; b.textContent = 'Saving...'; });
+
+  try {
+    await api('confirm_voipline_resumed', { subscription_id: id });
+
+    row.status = 'ACTIVE';
+    if (row._raw) { row._raw.status = 'ACTIVE'; }
+
+    showSmsToast('Customer', `Hi, Your payment has cleared, and we have restored your Prisoncall number. To avoid future disruptions, please ensure your payment method is updated before each renewal. Thank you for using Prisoncall.`);
+    showSmsToast('Admin (Guness + Dinisha)', `VoipLine resumed confirmed. ${row.name} | DID: ${row.did}. Service restored.`);
+
+    applyFilters();
+  } catch (err) {
+    showToast('Failed: ' + err.message, 'error');
+    btns.forEach(b => { b.disabled = false; b.textContent = 'VoipLine Resumed'; });
+  }
+};
+
+// ── Action: VoipLine done (cancellation) ──────────────────────────────────
+
+window.onCancelled = async function(id) {
+  if (!confirm('Confirm: have you deleted the user licence and released the DID in VoipLine?')) return;
+
+  const row = allRows.find(r => r._id === id);
+  if (!row) return;
+
+  const btns = document.querySelectorAll(`#row-${id} button, #card-${id} button`);
+  btns.forEach(b => { b.disabled = true; b.textContent = 'Saving...'; });
+
+  try {
+    await api('confirm_voipline_done', { subscription_id: id });
+
+    row.voipline_done = true;
+    if (row.attrs) row.attrs.voipline_cancelled = true;
+
+    showSmsToast('Customer', `Hi, Your Prisoncall plan has been cancelled as requested. Your number has been permanently deleted. To get a new Prisoncall number, please visit prisoncall.com.au. Regards, Prisoncall.`);
+    showSmsToast('Admin (Guness + Dinisha)', `Cancellation confirmed. ${row.name} | DID released: ${row.did} | Seal ID: ${row.seal}. Remove user licence from VoipLine.`);
+
+    applyFilters();
+  } catch (err) {
+    showToast('Failed: ' + err.message, 'error');
+    btns.forEach(b => { b.disabled = false; b.textContent = 'VoipLine Done'; });
+  }
+};
+
+// ── Copy to clipboard ──────────────────────────────────────────────────────
+
+window.doCopy = function(btn) {
+  const text = btn.dataset.copy || '';
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const tip = btn.querySelector('.copy-tip');
+    if (tip) {
+      tip.classList.add('show');
+      setTimeout(() => tip.classList.remove('show'), 1600);
+    }
+  }).catch(() => {
+    // Fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch {}
+    document.body.removeChild(ta);
+    const tip = btn.querySelector('.copy-tip');
+    if (tip) { tip.classList.add('show'); setTimeout(() => tip.classList.remove('show'), 1600); }
+  });
+};
+
+// ── Load data ──────────────────────────────────────────────────────────────
+
+window.loadData = async function() {
+  const tbody = document.getElementById('tableBody');
+  const cards = document.getElementById('cardsWrap');
+
+  if (tbody) tbody.innerHTML = `<tr><td colspan="12"><div class="loading-state"><div class="spinner"></div>Loading...</div></td></tr>`;
+  if (cards) cards.innerHTML = `<div class="loading-state"><div class="spinner"></div>Loading orders...</div>`;
+
+  const countEl = document.getElementById('topnavCount');
+  if (countEl) countEl.textContent = '';
+
+  try {
+    const data = await api('get_orders_combined');
+    subs     = data.subscriptions || [];
+    txOrders = data.transfers     || [];
+    allRows  = buildRows();
+    applyFilters();
+  } catch (err) {
+    const errMsg = `<div class="alert alert--error">${esc(err.message || 'Failed to load orders')}</div>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="12">${errMsg}</td></tr>`;
+    if (cards) cards.innerHTML = errMsg;
+  }
+};
+
+// ── Init ───────────────────────────────────────────────────────────────────
+
+(async () => {
+  await initAdminPage();
+
+  document.getElementById('btnSignout').addEventListener('click', () => {
+    if (confirm('Sign out?')) logout();
+  });
+
+  document.getElementById('btnRefresh').addEventListener('click', loadData);
+
+  // Search
+  const searchEl = document.getElementById('searchInput');
+  searchEl.addEventListener('input', () => {
+    searchTerm = searchEl.value;
+    applyFilters();
+  });
+
+  // Filter tabs
+  document.getElementById('filterTabs').addEventListener('click', e => {
+    const tab = e.target.closest('.filter-tab');
+    if (!tab) return;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    statusFilter = tab.dataset.status || '';
+    applyFilters();
+  });
+
+  loadData();
+})();
+</script>
+</body>
+</html>

@@ -639,6 +639,26 @@ export async function onRequest(context) {
         return json({ success: true, data: { count, lastUpdated } });
       }
 
+      // ── COMBINED ORDERS (single table view) ──────────────────────────────
+
+      case 'get_orders_combined': {
+        const [subRes, txRes] = await Promise.all([
+          sb('subscriptions?order=created_at.desc&select=*'),
+          sb('orders?order_type=eq.TRANSFER&order=created_at.desc&select=*,subscriptions(*)'),
+        ]);
+
+        const subscriptions = subRes.ok  ? await subRes.json()  : [];
+        const transfers     = txRes.ok   ? await txRes.json()   : [];
+
+        return json({
+          success: true,
+          data: {
+            subscriptions: Array.isArray(subscriptions) ? subscriptions : [],
+            transfers:     Array.isArray(transfers)     ? transfers     : [],
+          },
+        });
+      }
+
       default:
         return json({ success: false, error: `Unknown action: ${action}` });
     }
