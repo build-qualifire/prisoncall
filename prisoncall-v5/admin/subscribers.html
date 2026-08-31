@@ -23,17 +23,29 @@
       <img src="/assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall" class="sidebar-logo">
     </div>
     <nav class="sidebar-nav">
-      <a href="/admin/dashboard.html" class="sidebar-nav-item">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Dashboard
-      </a>
-      <a href="/admin/subscribers.html" class="sidebar-nav-item active">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Subscribers
+      <a href="/admin/jobs.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Jobs
+        <span class="nav-count" id="nav-jobs-count" style="display:none"></span>
       </a>
       <a href="/admin/transfers.html" class="sidebar-nav-item">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
         Transfers
+        <span class="nav-count" id="nav-transfers-count" style="display:none"></span>
+      </a>
+      <a href="/admin/suspended.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg>
+        Suspended
+        <span class="nav-count" id="nav-suspended-count" style="display:none"></span>
+      </a>
+      <a href="/admin/cancellations.html" class="sidebar-nav-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        Cancellations
+        <span class="nav-count" id="nav-cancellations-count" style="display:none"></span>
+      </a>
+      <a href="/admin/subscribers.html" class="sidebar-nav-item active">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Subscribers
       </a>
       <a href="/admin/settings.html" class="sidebar-nav-item" data-role-min="super_admin">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -52,60 +64,69 @@
   <!-- Main -->
   <main class="admin-main">
     <header class="admin-topbar">
-      <div style="display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden">
+      <div class="admin-topbar-left">
         <div class="admin-topbar-title">Subscribers</div>
-        <span class="badge badge--grey" id="subCount" style="display:none;flex-shrink:0"></span>
+        <span class="badge badge--grey" id="subCount" style="display:none"></span>
       </div>
       <div class="admin-topbar-right">
+        <button class="btn btn--outline btn--sm export-btn" onclick="exportCSV()" style="display:none" id="exportBtn">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Export CSV
+        </button>
         <button class="mobile-logout-btn" onclick="doLogout()" aria-label="Sign out">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
         </button>
         <a href="/admin/settings.html" class="mobile-settings-btn" data-role-min="super_admin" aria-label="Settings">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         </a>
       </div>
     </header>
 
     <div class="admin-content">
 
-      <!-- Fixed search + filter bar (position:fixed, out of flow) -->
+      <!-- Search + filter bar -->
       <div class="admin-search-bar">
-        <div class="search-wrap mb-12">
+        <div class="search-wrap">
           <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
           <input class="form-input search-input" type="text" id="searchInput"
             placeholder="Search by name, mobile, DID or prison..." autocomplete="off">
         </div>
         <div class="filter-tabs" id="filterTabs">
           <button class="filter-tab active" data-status="">All</button>
+          <button class="filter-tab" data-status="ACTIVE">Active</button>
+          <button class="filter-tab" data-status="PENDING">Pending</button>
           <button class="filter-tab" data-status="SUSPENDED">Suspended</button>
+          <button class="filter-tab" data-status="CANCELLED">Cancelled</button>
         </div>
       </div>
 
-      <!-- Subscriber table — padding-top clears the fixed bar above -->
-      <div class="sub-table-wrap">
-        <table class="sub-table data-table">
-          <colgroup>
-            <col class="c-customer">
-            <col class="c-did">
-            <col class="c-prison">
-            <col class="c-plan">
-            <col class="c-status">
-            <col class="c-actions">
-          </colgroup>
+      <!-- Table (desktop) -->
+      <div class="sub-table-wrap sub-content-offset" id="tableWrap">
+        <table class="sub-table">
           <thead>
             <tr>
               <th>Customer</th>
-              <th>DID</th>
+              <th>Mobile</th>
+              <th>Prisoncall No</th>
               <th>Prison</th>
               <th>Plan</th>
+              <th>Price</th>
+              <th>Add-ons</th>
               <th>Status</th>
-              <th></th>
+              <th>Seal ID</th>
+              <th>Next billing</th>
+              <th>Created</th>
             </tr>
           </thead>
-          <tbody id="subsContent">
-            <tr><td colspan="6"><div class="loading-state"><div class="spinner"></div>Loading subscribers...</div></td></tr>
+          <tbody id="tableBody">
+            <tr><td colspan="11"><div class="loading-state"><div class="spinner"></div>Loading...</div></td></tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Cards (mobile) -->
+      <div class="sub-card-list sub-content-offset" id="cardList">
+        <div class="loading-state"><div class="spinner"></div>Loading subscribers...</div>
       </div>
 
     </div>
@@ -114,17 +135,29 @@
   <!-- Bottom tab bar -->
   <nav class="admin-bottom-bar">
     <div class="bottom-bar-inner">
-      <a href="/admin/dashboard.html" class="bottom-bar-item">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        <span>Dashboard</span>
-      </a>
-      <a href="/admin/subscribers.html" class="bottom-bar-item active">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>Subscribers</span>
+      <a href="/admin/jobs.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Jobs</span>
+        <span class="bar-count" id="bar-jobs-count" style="display:none"></span>
       </a>
       <a href="/admin/transfers.html" class="bottom-bar-item">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
         <span>Transfers</span>
+        <span class="bar-count" id="bar-transfers-count" style="display:none"></span>
+      </a>
+      <a href="/admin/suspended.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg>
+        <span>Suspended</span>
+        <span class="bar-count" id="bar-suspended-count" style="display:none"></span>
+      </a>
+      <a href="/admin/cancellations.html" class="bottom-bar-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <span>Cancelled</span>
+        <span class="bar-count" id="bar-cancellations-count" style="display:none"></span>
+      </a>
+      <a href="/admin/subscribers.html" class="bottom-bar-item active">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>All</span>
       </a>
     </div>
   </nav>
@@ -132,524 +165,229 @@
 </div>
 
 <script type="module">
-  import {
-    initAdminPage, api, fmtDate, fmtCurrency,
-    formatMobile, statusBadge, isSmsUnlocked, showToast, showSmsToast
-  } from '/admin/admin-auth.js';
+import { initAdminPage, api, fmtDate, formatMobile, showToast } from '/admin/admin-auth.js';
 
-  // ── State ──────────────────────────────────────────────────────────────
-  let allSubs = [];
-  let filterStatus = '';
-  let searchTerm = '';
-  let searchTimeout;
-  // Local flag overlay per subscriber id (persists in memory, backed to DB)
-  let localFlags = {};
+let allSubs = [];
+let filterStatus = '';
+let searchTerm   = '';
+let searchTimeout;
 
-  // ── Init ───────────────────────────────────────────────────────────────
-  async function init() {
-    const session = await initAdminPage();
-    if (!session) return;
-    await loadSubs();
-    appendDevTools();
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatDID(did) {
+  if (!did) return '-';
+  const d = String(did).replace(/\D/g, '');
+  if (d.length === 11 && d.startsWith('61')) {
+    const local = '0' + d.slice(2);
+    return `${local.slice(0,4)} ${local.slice(4,7)} ${local.slice(7)}`;
   }
+  return did;
+}
 
-  async function loadSubs() {
-    const container = document.getElementById('subsContent');
-    container.innerHTML = '<tr><td colspan="6"><div class="loading-state"><div class="spinner"></div>Loading...</div></td></tr>';
-    try {
-      const params = {};
-      if (filterStatus) params.status = filterStatus;
-      if (searchTerm) params.search = searchTerm;
-      allSubs = await api('get_subscribers', params);
+function capPlan(interval) {
+  if (!interval) return '-';
+  const map = { fortnightly: 'Fortnightly', monthly: 'Monthly', half_yearly: 'Half-Yearly', halfyearly: 'Half-Yearly', 'half-yearly': 'Half-Yearly' };
+  return map[interval.toLowerCase()] || interval;
+}
 
-      const countEl = document.getElementById('subCount');
-      if (allSubs && allSubs.length > 0) {
-        countEl.textContent = allSubs.length;
-        countEl.style.display = '';
-      } else {
-        countEl.style.display = 'none';
-      }
-
-      renderSubs();
-    } catch (err) {
-      container.innerHTML = `<tr><td colspan="6"><div class="alert alert--error">${esc(err.message)}</div></td></tr>`;
-    }
-  }
-
-  function renderSubs() {
-    const container = document.getElementById('subsContent');
-    if (!allSubs || allSubs.length === 0) {
-      container.innerHTML = `
-        <tr><td colspan="6">
-          <div class="empty-state">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <h3>No subscribers found</h3>
-            <p>Try adjusting your search or filter</p>
-          </div>
-        </td></tr>`;
-      return;
-    }
-    container.innerHTML = allSubs.map(s => renderSubRow(s)).join('');
-  }
-
-  function renderSubRow(sub) {
-    const id = sub.id;
-    const flags = getFlags(sub);
-    const status = sub.status;
-    const isSuspended = status === 'SUSPENDED';
-    const smsDayCount = parseInt(sub.sms_day_count) || 0;
-    const bypassGating = localStorage.getItem('dev_bypass_sms_gating') === 'true' &&
-                         window.location.hostname === 'prisoncall.pages.dev';
-    const smsUnlocked = bypassGating ? (smsDayCount > 0) : isSmsUnlocked(sub.last_sms_sent_at);
-
-    const name = esc(sub.customer_name || '-');
-    const mobile = formatMobile(sub.customer_mobile);
-    const did = sub.current_did || '';
-    const prison = esc(sub.prison_name || '-');
-    const state = esc(sub.prison_state || '');
-    const plan = capPlan(sub.plan_interval);
-
-    const actions = buildActionsHtml(sub, flags, smsDayCount, smsUnlocked);
-    const suspClass = isSuspended ? ' sub-row--suspended' : '';
-
-    const mainRow = `
-      <tr class="sub-row${suspClass}" id="sub-${id}">
-        <td>
-          <div class="sub-name">${name}</div>
-          <div class="sub-mobile">${mobile}</div>
-        </td>
-        <td>${did ? `<span class="sub-did">${did}</span>` : '<span style="color:var(--color-muted);font-size:13px">-</span>'}</td>
-        <td>
-          <div class="sub-location">${prison}</div>
-          ${state ? `<div class="sub-location-state">${state}</div>` : ''}
-        </td>
-        <td><span class="sub-plan">${plan}</span></td>
-        <td>${statusBadge(status)}</td>
-        <td>${actions.topRight}</td>
-      </tr>`;
-
-    const expandedRow = actions.inline ? `
-      <tr id="sub-exp-${id}" class="sub-expanded-row${suspClass}">
-        <td colspan="6" class="sub-inline">${actions.inline}</td>
-      </tr>` : '';
-
-    return mainRow + expandedRow;
-  }
-
-  function buildActionsHtml(sub, flags, smsDayCount, smsUnlocked) {
-    const id = sub.id;
-    const status = sub.status;
-    let topRight = '';
-    let inline = '';
-
-    if (status === 'PENDING') {
-      topRight = `<button class="btn btn--green btn--sm" onclick="showDidForm('${id}')">Enter DID + Fulfil</button>`;
-      inline = `
-        <div id="didFormWrap-${id}" style="display:none">
-          <div style="font-size:13px;font-weight:600;color:var(--color-muted);margin-bottom:8px">Enter subscriber DID number</div>
-          <div class="sub-did-input-row" style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
-            <div style="flex:1;min-width:180px">
-              <input class="form-input form-input--mono" id="didInput-${id}" placeholder="61XXXXXXXXX" maxlength="11" oninput="validateDid('${id}')">
-              <div class="form-error" id="didErr-${id}" style="display:none">Must be 11 digits starting with 61</div>
-            </div>
-            <button class="btn btn--green btn--sm" style="height:44px" onclick="confirmDid('${id}')">Confirm + Fulfil</button>
-            <button class="btn btn--outline btn--sm" style="height:44px" onclick="hideDidForm('${id}')">Cancel</button>
-          </div>
-        </div>`;
-
-    } else if (status === 'ACTIVATING') {
-      topRight = `<div style="display:flex;align-items:center;gap:8px;color:var(--color-muted)"><div class="spinner"></div><span style="font-size:13px;white-space:nowrap">Setting up 3CX...</span></div>`;
-
-    } else if (status === 'ACTIVATION_FAILED') {
-      inline = `
-        <div class="alert alert--error" style="margin-bottom:10px">Activation failed. Check 3CX and VoipLine then retry.</div>
-        <button class="btn btn--outline btn--sm" onclick="retryActivation('${id}')">Retry</button>`;
-
-    } else if (status === 'ACTIVE') {
-      if (flags.cancel_flow_started) {
-        inline = cancelFlowHtml(id, sub, flags, false);
-      } else {
-        topRight = `<button class="btn btn--danger btn--sm" onclick="showCancelFlow('${id}')">Cancel</button>`;
-      }
-
-    } else if (status === 'SUSPENDED') {
-      // Pause + Resume buttons
-      const pauseBtn = smsDayCount === 0
-        ? `<button class="btn btn--orange btn--sm" onclick="pauseNumber('${id}')">Paused VoipLine - Confirm Pause</button>`
-        : '';
-      const resumeBtn = `<button class="btn btn--green btn--sm" onclick="resumeNumber('${id}')">Restored VoipLine - Confirm Resume</button>`;
-
-      topRight = resumeBtn;
-      inline = pauseBtn ? `<div class="mb-8">${pauseBtn}</div>` : '';
-
-      // Progressive SMS
-      if (smsDayCount === 1) {
-        const label = smsUnlocked ? 'Send Day 2 SMS' : 'Day 2 SMS - available at 7am tomorrow';
-        inline += `<button class="btn ${smsUnlocked ? 'btn--green' : 'btn--outline'} btn--sm" ${smsUnlocked ? '' : 'disabled'} onclick="sendProgressiveSms('${id}', 2)">
-          ${label}
-        </button>`;
-      } else if (smsDayCount === 2) {
-        const label = smsUnlocked ? 'Send Day 3 SMS' : 'Day 3 SMS - available at 7am tomorrow';
-        inline += `<button class="btn ${smsUnlocked ? 'btn--green' : 'btn--outline'} btn--sm" ${smsUnlocked ? '' : 'disabled'} onclick="sendProgressiveSms('${id}', 3)">
-          ${label}
-        </button>`;
-      } else if (smsDayCount === 3) {
-        const label = smsUnlocked ? 'Send Day 4 SMS' : 'Day 4 SMS - available at 7am tomorrow';
-        inline += `<button class="btn ${smsUnlocked ? 'btn--green' : 'btn--outline'} btn--sm" ${smsUnlocked ? '' : 'disabled'} onclick="sendProgressiveSms('${id}', 4)">
-          ${label}
-        </button>`;
-      } else if (smsDayCount >= 4) {
-        inline += cancelFlowHtml(id, sub, flags, true);
-      }
-    }
-
-    return { topRight, inline };
-  }
-
-  function cancelFlowHtml(id, sub, flags, isPaymentFailure) {
-    const voiplDone = flags.cancel_voipline_done || false;
-    const otherDone = flags.cancel_other_done || false;
-    const warningText = isPaymentFailure
-      ? 'Day 4 SMS sent. Cancel in Appstle and release DID in VoipLine. Reminders at 2hr, 4hr, 12hr, 24hr. (Wired at B14)'
-      : 'Cancel in VoipLine and delete 3CX extension before confirming. Reminders at 2hr, 4hr, 12hr, 24hr. (Wired at B14)';
-    const otherLabel = isPaymentFailure ? 'Appstle Cancelled' : '3CX Extension Deleted';
-
-    return `
-      <div class="sub-cancel-flow">
-        <div class="sub-cancel-warning">${warningText}</div>
-        <div class="sub-cancel-btns">
-          ${voiplDone
-            ? `<button class="btn btn--green btn--sm" disabled><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> VoipLine DID Released</button>`
-            : `<button class="btn btn--outline btn--sm" onclick="markCancelVoipline('${id}', ${isPaymentFailure})">VoipLine DID Released</button>`}
-          ${otherDone
-            ? `<button class="btn btn--green btn--sm" disabled><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> ${otherLabel}</button>`
-            : `<button class="btn btn--outline btn--sm" onclick="markCancelOther('${id}', ${isPaymentFailure})">${otherLabel}</button>`}
-        </div>
-      </div>`;
-  }
-
-  // ── Helpers ────────────────────────────────────────────────────────────
-
-  function getFlags(sub) {
-    const base = localFlags[sub.id] || {};
-    let fromDb = {};
-    try {
-      const raw = sub.subscription_attributes;
-      fromDb = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : {};
-    } catch { fromDb = {}; }
-    return { ...fromDb, ...base };
-  }
-
-  function setLocalFlag(id, flagKey, value) {
-    if (!localFlags[id]) localFlags[id] = {};
-    localFlags[id][flagKey] = value;
-  }
-
-  function getSubById(id) {
-    return allSubs.find(s => s.id === id) || null;
-  }
-
-  function updateSubInList(id, fields) {
-    const idx = allSubs.findIndex(s => s.id === id);
-    if (idx >= 0) allSubs[idx] = { ...allSubs[idx], ...fields };
-  }
-
-  function reRenderRow(id) {
-    const el = document.getElementById('sub-' + id);
-    if (!el) return;
-    // Remove stale expanded row first
-    const expEl = document.getElementById('sub-exp-' + id);
-    if (expEl) expEl.remove();
-    const sub = getSubById(id);
-    if (sub) el.outerHTML = renderSubRow(sub);
-  }
-
-  function esc(str) {
-    return String(str || '')
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
-  function capPlan(interval) {
-    if (!interval) return '-';
-    const map = { fortnightly: 'Fortnightly', monthly: 'Monthly', half_yearly: 'Half-Yearly', halfyearly: 'Half-Yearly', 'half-yearly': 'Half-Yearly' };
-    return map[interval.toLowerCase()] || interval;
-  }
-
-  // ── DID Form ───────────────────────────────────────────────────────────
-
-  window.showDidForm = function(id) {
-    const wrap = document.getElementById('didFormWrap-' + id);
-    if (wrap) { wrap.style.display = ''; wrap.querySelector('input')?.focus(); }
+function statusBadge(status) {
+  const map = {
+    PENDING:   'badge--pending',  ACTIVE:    'badge--active',
+    SUSPENDED: 'badge--suspended', CANCELLED: 'badge--cancelled',
+    ACTIVATING:'badge--purple',   ACTIVATION_FAILED:'badge--red',
   };
-
-  window.hideDidForm = function(id) {
-    const wrap = document.getElementById('didFormWrap-' + id);
-    if (wrap) wrap.style.display = 'none';
+  const labels = {
+    PENDING:'Pending', ACTIVE:'Active', SUSPENDED:'Suspended', CANCELLED:'Cancelled',
+    ACTIVATING:'Activating', ACTIVATION_FAILED:'Failed',
   };
+  return `<span class="badge ${map[status] || 'badge--grey'}">${labels[status] || status || '-'}</span>`;
+}
 
-  window.validateDid = function(id) {
-    const input = document.getElementById('didInput-' + id);
-    const errEl = document.getElementById('didErr-' + id);
-    if (!input || !errEl) return;
-    const v = input.value.replace(/\D/g, '');
-    const valid = v.length === 11 && v.startsWith('61');
-    errEl.style.display = (!v || valid) ? 'none' : '';
-  };
+function addonBadges(sub) {
+  const parts = [];
+  if (sub.addon_transfer_guarantee)     parts.push('TG');
+  if (sub.addon_renewal_guarantee)      parts.push('RG');
+  if (sub.addon_combo)                  parts.push('Combo');
+  if (sub.addon_cancellation_guarantee) parts.push('CG');
+  if (sub.addon_lifetime_protection)    parts.push('LP');
+  return parts.length ? parts.map(p => `<span class="badge badge--addon">${p}</span>`).join(' ') : '-';
+}
 
-  window.confirmDid = async function(id) {
-    const input = document.getElementById('didInput-' + id);
-    const errEl = document.getElementById('didErr-' + id);
-    if (!input) return;
-    const did = input.value.replace(/\D/g, '');
-    if (did.length !== 11 || !did.startsWith('61')) {
-      if (errEl) errEl.style.display = '';
-      return;
-    }
+function setNavCount(id, n) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (n > 0) { el.textContent = n > 99 ? '99+' : n; el.style.display = ''; }
+  else el.style.display = 'none';
+}
 
-    const sub = getSubById(id);
-    if (!sub) return;
-    const btn = document.querySelector(`#sub-${id} button[onclick="confirmDid('${id}')"]`);
-    if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+// ── Nav counts ─────────────────────────────────────────────────────────────
 
-    try {
-      await api('update_subscriber_did', { id, current_did: did, status: 'ACTIVATING' });
-      updateSubInList(id, { current_did: did, status: 'ACTIVATING' });
+async function refreshNavCounts() {
+  try {
+    const c = await api('get_nav_counts');
+    setNavCount('nav-jobs-count',          c.pending_jobs);
+    setNavCount('nav-transfers-count',     c.pending_transfers);
+    setNavCount('nav-suspended-count',     c.suspended_count);
+    setNavCount('nav-cancellations-count', c.pending_cancellations);
+    setNavCount('bar-jobs-count',          c.pending_jobs);
+    setNavCount('bar-transfers-count',     c.pending_transfers);
+    setNavCount('bar-suspended-count',     c.suspended_count);
+    setNavCount('bar-cancellations-count', c.pending_cancellations);
+  } catch {}
+}
 
-      const welSms = `Your new Prisoncall number is being set up. Prison: ${sub.prison_name || '-'}. DID: ${did}. Details coming shortly. Regards, Prisoncall.`;
-      showSmsToast(formatMobile(sub.customer_mobile), welSms);
-      showToast('DID saved - subscriber set to Activating');
-      reRenderRow(id);
-    } catch (err) {
-      showToast(err.message, 'error');
-      if (btn) { btn.disabled = false; btn.textContent = 'Confirm + Fulfil'; }
-    }
-  };
+// ── Load ───────────────────────────────────────────────────────────────────
 
-  // ── Activation ─────────────────────────────────────────────────────────
+async function loadSubs() {
+  const tableBody = document.getElementById('tableBody');
+  const cardList  = document.getElementById('cardList');
+  const loadHtml  = '<tr><td colspan="11"><div class="loading-state"><div class="spinner"></div>Loading...</div></td></tr>';
+  tableBody.innerHTML = loadHtml;
+  cardList.innerHTML  = '<div class="loading-state"><div class="spinner"></div>Loading subscribers...</div>';
 
-  window.retryActivation = async function(id) {
-    try {
-      await api('update_subscriber_status', { id, status: 'PENDING' });
-      updateSubInList(id, { status: 'PENDING' });
-      showToast('Status reset to Pending');
-      reRenderRow(id);
-    } catch (err) {
-      showToast(err.message, 'error');
-    }
-  };
+  try {
+    const params = {};
+    if (filterStatus) params.status = filterStatus;
+    if (searchTerm)   params.search = searchTerm;
+    allSubs = await api('get_all_subscribers', params);
 
-  // ── SUSPENDED: Pause / Resume ──────────────────────────────────────────
-
-  window.pauseNumber = async function(id) {
-    const sub = getSubById(id);
-    if (!sub) return;
-    try {
-      const now = new Date().toISOString();
-      await api('update_subscriber_sms', { id, sms_day_count: 1, last_sms_sent_at: now });
-      updateSubInList(id, { sms_day_count: 1, last_sms_sent_at: now });
-
-      const pauseSms = 'Hi, Your Prisoncall plan payment failed. Your number has been paused. Please update your payment account balance, and reply YES. Thank you. Regards, Prisoncall.';
-      showSmsToast(formatMobile(sub.customer_mobile), pauseSms);
-      showToast('Pause confirmed - Day 1 SMS sent');
-      reRenderRow(id);
-    } catch (err) {
-      showToast(err.message, 'error');
-    }
-  };
-
-  window.resumeNumber = async function(id) {
-    const sub = getSubById(id);
-    if (!sub) return;
-    try {
-      await api('update_subscriber_status', { id, status: 'ACTIVE' });
-      await api('update_subscriber_sms', { id, sms_day_count: 0, last_sms_sent_at: null });
-      updateSubInList(id, { status: 'ACTIVE', sms_day_count: 0, last_sms_sent_at: null });
-
-      const resumeSms = 'Hi, Your payment has cleared, and we have restored your Prisoncall number. To avoid future disruptions, please ensure your payment method is updated before each renewal. Thank you for using Prisoncall.';
-      showSmsToast(formatMobile(sub.customer_mobile), resumeSms);
-      showToast('Number resumed - subscriber now Active');
-
-      // Remove from list if filtering by SUSPENDED
-      if (filterStatus === 'SUSPENDED') {
-        allSubs = allSubs.filter(s => s.id !== id);
-        const expEl = document.getElementById('sub-exp-' + id);
-        if (expEl) expEl.remove();
-        const el = document.getElementById('sub-' + id);
-        if (el) el.remove();
-      } else {
-        reRenderRow(id);
-      }
-    } catch (err) {
-      showToast(err.message, 'error');
-    }
-  };
-
-  // ── Progressive SMS ────────────────────────────────────────────────────
-
-  const SMS_TEMPLATES = {
-    2: 'Hi, Your Prisoncall number is still paused due to a failed payment. Please update your payment account balance and reply YES to restore your service. Regards, Prisoncall.',
-    3: 'Hi, Reminder: Your Prisoncall number remains paused. Please update your payment today to avoid cancellation. Reply YES once updated. Regards, Prisoncall.',
-    4: 'Hi, Final notice: Your Prisoncall plan will be cancelled today due to unsuccessful payment. Please update your payment immediately and reply YES. Regards, Prisoncall.',
-  };
-
-  window.sendProgressiveSms = async function(id, day) {
-    const sub = getSubById(id);
-    if (!sub) return;
-    const btn = document.querySelector(`#sub-${id} button[onclick="sendProgressiveSms('${id}', ${day})"]`);
-    if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
-
-    try {
-      const now = new Date().toISOString();
-      await api('update_subscriber_sms', { id, sms_day_count: day, last_sms_sent_at: now });
-      updateSubInList(id, { sms_day_count: day, last_sms_sent_at: now });
-
-      showSmsToast(formatMobile(sub.customer_mobile), SMS_TEMPLATES[day]);
-      showToast(`Day ${day} SMS sent`);
-
-      if (day === 4) {
-        const adminSms = `DAY 4 SMS SENT - ${sub.customer_name || 'Customer'} DID ${sub.current_did || '-'}. ACTION REQUIRED: Cancel in Appstle AND release DID in VoipLine.`;
-        showSmsToast('Admin team', adminSms);
-      }
-
-      reRenderRow(id);
-    } catch (err) {
-      showToast(err.message, 'error');
-      if (btn) { btn.disabled = false; btn.textContent = `Send Day ${day} SMS`; }
-    }
-  };
-
-  // ── ACTIVE: Voluntary Cancellation ────────────────────────────────────
-
-  window.showCancelFlow = function(id) {
-    setLocalFlag(id, 'cancel_flow_started', true);
-    reRenderRow(id);
-  };
-
-  window.markCancelVoipline = async function(id, isPaymentFailure) {
-    const sub = getSubById(id);
-    if (!sub) return;
-    try {
-      await api('update_subscriber_flags', { id, flags: { cancel_voipline_done: true } });
-      setLocalFlag(id, 'cancel_voipline_done', true);
-
-      // Voluntary cancellation SMS to customer
-      if (!isPaymentFailure) {
-        const cancelSms = 'Hi, Your Prisoncall plan has been cancelled as requested. Your number has been permanently deleted. To get a new Prisoncall number, please visit prisoncall.com.au. Regards, Prisoncall.';
-        showSmsToast(formatMobile(sub.customer_mobile), cancelSms);
-      } else {
-        const cancelSms = 'Hi, Your Prisoncall plan has been cancelled due to unsuccessful payments. Your number has been permanently deleted. To get a new Prisoncall number, please visit prisoncall.com.au. Regards, Prisoncall.';
-        showSmsToast(formatMobile(sub.customer_mobile), cancelSms);
-      }
-
-      showToast('VoipLine DID Released confirmed');
-      await checkBothCancelDone(id);
-    } catch (err) {
-      showToast(err.message, 'error');
-    }
-  };
-
-  window.markCancelOther = async function(id, isPaymentFailure) {
-    try {
-      await api('update_subscriber_flags', { id, flags: { cancel_other_done: true } });
-      setLocalFlag(id, 'cancel_other_done', true);
-      showToast(isPaymentFailure ? 'Appstle Cancelled confirmed' : '3CX Extension Deleted confirmed');
-      await checkBothCancelDone(id);
-    } catch (err) {
-      showToast(err.message, 'error');
-    }
-  };
-
-  async function checkBothCancelDone(id) {
-    const flags = localFlags[id] || {};
-    if (flags.cancel_voipline_done && flags.cancel_other_done) {
-      try {
-        await api('update_subscriber_status', { id, status: 'CANCELLED' });
-        showToast('Subscription cancelled');
-        // Remove from list (CANCELLED never shown)
-        allSubs = allSubs.filter(s => s.id !== id);
-        const expEl2 = document.getElementById('sub-exp-' + id);
-        if (expEl2) expEl2.remove();
-        const el = document.getElementById('sub-' + id);
-        if (el) el.remove();
-        document.getElementById('subCount').textContent = allSubs.length;
-      } catch (err) {
-        showToast(err.message, 'error');
-      }
+    const countEl  = document.getElementById('subCount');
+    const exportBtn = document.getElementById('exportBtn');
+    if (allSubs && allSubs.length > 0) {
+      countEl.textContent  = allSubs.length;
+      countEl.style.display  = '';
+      exportBtn.style.display = '';
     } else {
-      reRenderRow(id);
+      countEl.style.display  = 'none';
+      exportBtn.style.display = 'none';
     }
+
+    renderTable();
+    renderCards();
+  } catch (err) {
+    tableBody.innerHTML = `<tr><td colspan="11"><div class="alert alert--error">${esc(err.message)}</div></td></tr>`;
+    cardList.innerHTML  = `<div class="alert alert--error">${esc(err.message)}</div>`;
+  }
+}
+
+// ── Render desktop table ───────────────────────────────────────────────────
+
+function renderTable() {
+  const tableBody = document.getElementById('tableBody');
+  if (!allSubs || allSubs.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="11"><div class="empty-state">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <h3>No subscribers found</h3>
+      <p>Try adjusting your search or filter</p>
+    </div></td></tr>`;
+    return;
   }
 
-  // ── Filter + Search ────────────────────────────────────────────────────
+  tableBody.innerHTML = allSubs.map(s => `
+    <tr>
+      <td style="font-weight:700">${esc(s.customer_name || '-')}</td>
+      <td>${esc(formatMobile(s.customer_mobile))}</td>
+      <td style="font-family:monospace;font-size:12px">${esc(formatDID(s.current_did))}</td>
+      <td>${esc([s.prison_name, s.prison_state].filter(Boolean).join(', ') || '-')}</td>
+      <td>${capPlan(s.plan_interval)}</td>
+      <td>${s.plan_price ? '$' + parseFloat(s.plan_price).toFixed(2) : '-'}</td>
+      <td>${addonBadges(s)}</td>
+      <td>${statusBadge(s.status)}</td>
+      <td style="color:var(--color-muted)">${esc(s.seal_subscription_id || '-')}</td>
+      <td style="color:var(--color-muted)">${fmtDate(s.next_billing_date)}</td>
+      <td style="color:var(--color-muted)">${fmtDate(s.created_at)}</td>
+    </tr>`).join('');
+}
 
-  document.getElementById('filterTabs').addEventListener('click', e => {
-    const btn = e.target.closest('.filter-tab');
-    if (!btn) return;
-    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    filterStatus = btn.dataset.status;
-    loadSubs();
-  });
+// ── Render mobile cards ────────────────────────────────────────────────────
 
-  document.getElementById('searchInput').addEventListener('input', e => {
-    clearTimeout(searchTimeout);
-    searchTerm = e.target.value.trim();
-    searchTimeout = setTimeout(loadSubs, 350);
-  });
+function renderCards() {
+  const cardList = document.getElementById('cardList');
+  if (!allSubs || allSubs.length === 0) {
+    cardList.innerHTML = `<div class="empty-state">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <h3>No subscribers found</h3>
+      <p>Try adjusting your search or filter</p>
+    </div>`;
+    return;
+  }
 
-  // ── DEV TOOLS (staging only) ───────────────────────────────────────────
-
-  function appendDevTools() {
-    if (window.location.hostname !== 'prisoncall.pages.dev') return;
-    const mc = document.getElementById('subsContent');
-    if (!mc) return;
-
-    const existing = document.getElementById('devToolsPanel');
-    if (existing) existing.remove();
-
-    const bypass = localStorage.getItem('dev_bypass_sms_gating') === 'true';
-    const panel = document.createElement('div');
-    panel.id = 'devToolsPanel';
-    panel.style.cssText = 'margin-top:24px;border:2px solid #F97316;border-radius:12px;background:#fff7ed;padding:20px';
-    panel.innerHTML = `
-      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#F97316;margin-bottom:16px">
-        DEV TOOLS - Remove at go-live
-      </div>
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
-        <div>
-          <div style="font-size:14px;font-weight:700;color:#101010;margin-bottom:3px">Bypass SMS day gating</div>
-          <div style="font-size:12px;color:#666;line-height:1.5">When ON, Day 2/3/4 buttons unlock immediately.</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <div class="toggle">
-            <input type="checkbox" id="devBypassGating" ${bypass ? 'checked' : ''}>
-            <span class="toggle-slider"></span>
-          </div>
-          <span id="devBypassLabel" style="font-size:13px;font-weight:700;color:${bypass ? '#00D258' : '#6B7280'}">${bypass ? 'ON' : 'OFF'}</span>
-        </div>
+  cardList.innerHTML = allSubs.map(s => {
+    const prison = [s.prison_name, s.prison_state].filter(Boolean).join(', ');
+    return `
+      <div class="sub-card">
+        <div class="sub-card-name">${esc(s.customer_name || '-')} ${statusBadge(s.status)}</div>
+        <div class="sub-card-row"><span class="sub-card-label">Mobile:</span><span class="sub-card-val">${esc(formatMobile(s.customer_mobile))}</span></div>
+        <div class="sub-card-row"><span class="sub-card-label">Prisoncall No:</span><span class="sub-card-val" style="font-family:monospace">${formatDID(s.current_did)}</span></div>
+        <div class="sub-card-row"><span class="sub-card-label">Prison:</span><span class="sub-card-val">${esc(prison || '-')}</span></div>
+        <div class="sub-card-row"><span class="sub-card-label">Plan:</span><span class="sub-card-val">${capPlan(s.plan_interval)}${s.plan_price ? ' - $' + parseFloat(s.plan_price).toFixed(2) : ''}</span></div>
+        ${s.seal_subscription_id ? `<div class="sub-card-row"><span class="sub-card-label">Seal ID:</span><span class="sub-card-val" style="color:var(--color-muted)">${esc(s.seal_subscription_id)}</span></div>` : ''}
+        <div class="sub-card-row"><span class="sub-card-label">Created:</span><span class="sub-card-val" style="color:var(--color-muted)">${fmtDate(s.created_at)}</span></div>
       </div>`;
+  }).join('');
+}
 
-    mc.after(panel);
+// ── Export CSV ─────────────────────────────────────────────────────────────
 
-    document.getElementById('devBypassGating').addEventListener('change', function() {
-      const on = this.checked;
-      localStorage.setItem('dev_bypass_sms_gating', on ? 'true' : 'false');
-      const label = document.getElementById('devBypassLabel');
-      if (label) { label.textContent = on ? 'ON' : 'OFF'; label.style.color = on ? '#00D258' : '#6B7280'; }
-      renderSubs();
-    });
-  }
+window.exportCSV = function() {
+  if (!allSubs || allSubs.length === 0) return;
+  const cols = [
+    'customer_name', 'customer_mobile', 'current_did', 'prison_name', 'prison_state',
+    'plan_interval', 'plan_price', 'status', 'seal_subscription_id',
+    'next_billing_date', 'created_at',
+  ];
+  const header = cols.join(',');
+  const rows   = allSubs.map(s =>
+    cols.map(c => `"${String(s[c] || '').replace(/"/g, '""')}"`).join(',')
+  );
+  const csv  = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `prisoncall-subscribers-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
-  window.doLogout = function () {
-    import('/admin/admin-auth.js').then(m => m.logout());
-  };
+// ── Filters + search ───────────────────────────────────────────────────────
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/admin/sw.js').catch(() => {});
-  }
+document.getElementById('filterTabs').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-tab');
+  if (!btn) return;
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterStatus = btn.dataset.status;
+  loadSubs();
+});
 
-  init();
+document.getElementById('searchInput').addEventListener('input', e => {
+  clearTimeout(searchTimeout);
+  searchTerm   = e.target.value.trim();
+  searchTimeout = setTimeout(loadSubs, 350);
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────
+
+async function init() {
+  const session = await initAdminPage();
+  if (!session) return;
+  await Promise.all([loadSubs(), refreshNavCounts()]);
+}
+
+window.doLogout = function () {
+  import('/admin/admin-auth.js').then(m => m.logout());
+};
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/admin/sw.js').catch(() => {});
+}
+
+init();
 </script>
 
 </body>

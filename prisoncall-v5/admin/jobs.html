@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Transfers | Prisoncall Admin</title>
+  <title>Jobs | Prisoncall Admin</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/svg+xml" href="../assets/brand_logos/Prisoncall_Icon_BLACK.svg">
   <link rel="manifest" href="/admin/manifest.json">
@@ -23,12 +23,12 @@
       <img src="/assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall" class="sidebar-logo">
     </div>
     <nav class="sidebar-nav">
-      <a href="/admin/jobs.html" class="sidebar-nav-item">
+      <a href="/admin/jobs.html" class="sidebar-nav-item active">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         Jobs
         <span class="nav-count" id="nav-jobs-count" style="display:none"></span>
       </a>
-      <a href="/admin/transfers.html" class="sidebar-nav-item active">
+      <a href="/admin/transfers.html" class="sidebar-nav-item">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
         Transfers
         <span class="nav-count" id="nav-transfers-count" style="display:none"></span>
@@ -65,7 +65,7 @@
   <main class="admin-main">
     <header class="admin-topbar">
       <div class="admin-topbar-left">
-        <div class="admin-topbar-title">Transfers</div>
+        <div class="admin-topbar-title">Jobs</div>
       </div>
       <div class="admin-topbar-right">
         <button class="mobile-logout-btn" onclick="doLogout()" aria-label="Sign out">
@@ -78,19 +78,19 @@
     </header>
 
     <div class="admin-content" id="mainContent">
-      <div class="loading-state"><div class="spinner"></div>Loading transfers...</div>
+      <div class="loading-state"><div class="spinner"></div>Loading jobs...</div>
     </div>
   </main>
 
   <!-- Bottom tab bar -->
   <nav class="admin-bottom-bar">
     <div class="bottom-bar-inner">
-      <a href="/admin/jobs.html" class="bottom-bar-item">
+      <a href="/admin/jobs.html" class="bottom-bar-item active">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         <span>Jobs</span>
         <span class="bar-count" id="bar-jobs-count" style="display:none"></span>
       </a>
-      <a href="/admin/transfers.html" class="bottom-bar-item active">
+      <a href="/admin/transfers.html" class="bottom-bar-item">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
         <span>Transfers</span>
         <span class="bar-count" id="bar-transfers-count" style="display:none"></span>
@@ -117,8 +117,7 @@
 <script type="module">
 import { initAdminPage, api, fmtDate, formatMobile, showToast, showSmsToast } from '/admin/admin-auth.js';
 
-const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-let allTx = [];
+let allJobs = [];
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -146,12 +145,6 @@ function getOverdueBadge(createdAt) {
   return null;
 }
 
-function releaseDate(updatedAt) {
-  if (!updatedAt) return '';
-  const d = new Date(new Date(updatedAt).getTime() + SEVEN_DAYS_MS);
-  return d.toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' });
-}
-
 function setNavCount(id, n) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -175,73 +168,59 @@ async function refreshNavCounts() {
   } catch {}
 }
 
-// ── Load transfers ─────────────────────────────────────────────────────────
+// ── Load jobs ──────────────────────────────────────────────────────────────
 
-async function loadTransfers() {
+async function loadJobs() {
   const container = document.getElementById('mainContent');
-  container.innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading transfers...</div>';
+  container.innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading jobs...</div>';
   try {
-    allTx = await api('get_transfers');
-    renderTransfers();
+    allJobs = await api('get_jobs');
+    renderJobs();
   } catch (err) {
     container.innerHTML = `<div class="alert alert--error">${esc(err.message)}</div>`;
   }
 }
 
-function renderTransfers() {
+function renderJobs() {
   const container = document.getElementById('mainContent');
-
-  const pending   = allTx.filter(t => ['PENDING','PENDING_SMS_CONFIRM'].includes(t.status));
-  const needsRelease = allTx.filter(t => t.status === 'FULFILLED' && (Date.now() - new Date(t.updated_at).getTime()) >= SEVEN_DAYS_MS);
-  const fulfilled = allTx.filter(t => t.status === 'FULFILLED' && (Date.now() - new Date(t.updated_at).getTime()) < SEVEN_DAYS_MS);
-  const completed = allTx.filter(t => t.status === 'COMPLETED');
-
-  const needsAction = [...pending, ...needsRelease];
+  const pending = allJobs.filter(s => ['PENDING','ACTIVATING','ACTIVATION_FAILED'].includes(s.status));
+  const active  = allJobs.filter(s => s.status === 'ACTIVE');
 
   let html = '';
 
-  html += `<div class="section-label"><span class="section-dot section-dot--amber"></span>Needs action (${needsAction.length})</div>`;
-  if (needsAction.length === 0) {
+  // Pending section
+  html += `<div class="section-label"><span class="section-dot section-dot--amber"></span>Needs action (${pending.length})</div>`;
+  if (pending.length === 0) {
     html += `<div class="empty-state">
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       <h3>All clear</h3>
-      <p>No pending transfer requests</p>
+      <p>No pending orders right now</p>
     </div>`;
   } else {
-    pending.forEach(t      => { html += renderPendingCard(t); });
-    needsRelease.forEach(t => { html += renderReleaseCard(t); });
+    pending.forEach(sub => { html += renderPendingCard(sub); });
   }
 
-  const completedCount = fulfilled.length + completed.length;
-  html += `<div class="section-label"><span class="section-dot section-dot--green"></span>Completed (${completedCount})</div>`;
-  if (completedCount === 0) {
-    html += `<p class="text-sm text-muted" style="padding:8px 0">No completed transfers yet</p>`;
+  // Active section
+  html += `<div class="section-label"><span class="section-dot section-dot--green"></span>Fulfilled (${active.length})</div>`;
+  if (active.length === 0) {
+    html += `<p class="text-sm text-muted" style="padding:8px 0">No active subscriptions yet</p>`;
   } else {
-    fulfilled.forEach(t => { html += renderFulfilledCard(t); });
-    completed.forEach(t => { html += renderCompletedCard(t); });
+    active.forEach(sub => { html += renderActiveCard(sub); });
   }
 
   container.innerHTML = html;
 }
 
-function getSub(tx) { return tx.subscriptions || {}; }
-
-function renderPendingCard(tx) {
-  const id      = tx.id;
-  const sub     = getSub(tx);
-  const name    = esc(sub.customer_name || tx.customer_name || '-');
-  const mobile  = formatMobile(sub.customer_mobile || tx.customer_mobile);
-  const from    = [esc(tx.old_prison_name), esc(tx.old_prison_state)].filter(Boolean).join(', ');
-  const to      = [esc(tx.prison_name), esc(tx.prison_state)].filter(Boolean).join(', ');
-  const curDID  = formatDID(sub.current_did);
-  const sealId  = esc(sub.seal_subscription_id || '');
-  const overdue = getOverdueBadge(tx.created_at);
+function renderPendingCard(sub) {
+  const id      = sub.id;
+  const overdue = getOverdueBadge(sub.created_at);
+  const prison  = [esc(sub.prison_name), esc(sub.prison_state)].filter(Boolean).join(', ');
 
   return `
-    <div class="job-card job-card--pending" id="tx-${id}">
+    <div class="job-card job-card--pending" id="job-${id}">
       <div class="card-top">
         <div class="card-header-row">
-          <div class="card-name">${name}</div>
+          <div class="card-name">${esc(sub.customer_name || '-')}</div>
           <div class="card-badges">
             <span class="badge badge--pending">Pending</span>
             ${overdue ? `<span class="overdue-badge ${overdue.cls}">${overdue.text}</span>` : ''}
@@ -250,160 +229,83 @@ function renderPendingCard(tx) {
         <div class="card-fields">
           <div class="card-field">
             <span class="field-label">Divert calls to:</span>
-            <span class="field-value">${mobile}</span>
+            <span class="field-value">${formatMobile(sub.customer_mobile)}</span>
           </div>
           <div class="card-field">
-            <span class="field-label">From:</span>
-            <span class="field-value">${from || '-'}</span>
+            <span class="field-label">Prison:</span>
+            <span class="field-value">${prison || '-'}</span>
           </div>
-          <div class="card-field">
-            <span class="field-label">To:</span>
-            <span class="field-value field-value--green">${to || '-'}</span>
-          </div>
-          <div class="card-field">
-            <span class="field-label">Current DID:</span>
-            <span class="field-value field-value--mono">${curDID}</span>
-          </div>
-          ${sealId ? `<div class="card-field">
+          ${sub.seal_subscription_id ? `<div class="card-field">
             <span class="field-label">Seal ID:</span>
-            <span class="field-value field-value--muted">${sealId}</span>
+            <span class="field-value field-value--muted">${esc(sub.seal_subscription_id)}</span>
           </div>` : ''}
         </div>
       </div>
       <div class="card-instruction">
-        1. Go to VoipLine. Buy a new DID for the destination prison (shown in green above). Keep the old DID active for 7 days.
-        2. Enter the new DID below and click Fulfil.
+        1. Go to VoipLine. Buy a DID for this prison. Set up the user with call diversion to the mobile above.
+        2. Enter the DID below and click Fulfil.
       </div>
       <div class="card-action">
         <div class="did-row">
-          <input class="form-input form-input--mono" id="tx-did-${id}" placeholder="61XXXXXXXXX" maxlength="11"
-            oninput="validateTxDid('${id}')" inputmode="numeric">
-          <button class="btn btn--green btn--md" onclick="fulfilTransfer('${id}')">Fulfil</button>
+          <input class="form-input form-input--mono" id="did-${id}" placeholder="61XXXXXXXXX" maxlength="11"
+            oninput="validateJobDid('${id}')" inputmode="numeric">
+          <button class="btn btn--green btn--md" onclick="fulfilJob('${id}')">Fulfil</button>
         </div>
-        <div class="form-error" id="tx-did-err-${id}" style="display:none">Must be 11 digits starting with 61</div>
+        <div class="form-error" id="did-err-${id}" style="display:none">Must be 11 digits starting with 61</div>
       </div>
     </div>`;
 }
 
-function renderReleaseCard(tx) {
-  const id      = tx.id;
-  const sub     = getSub(tx);
-  const name    = esc(sub.customer_name || tx.customer_name || '-');
-  const oldDID  = formatDID(sub.current_did);
-
-  return `
-    <div class="job-card job-card--release" id="tx-${id}">
-      <div class="card-top">
-        <div class="card-header-row">
-          <div class="card-name">${name}</div>
-          <span class="badge badge--release">Release old DID</span>
-        </div>
-        <div class="card-fields">
-          <div class="card-field">
-            <span class="field-label">Old DID to release:</span>
-            <span class="field-value field-value--mono" style="font-size:15px;color:#9A3412">${oldDID}</span>
-          </div>
-          <div class="card-field">
-            <span class="field-label">New DID:</span>
-            <span class="field-value field-value--mono">${formatDID(tx.did_number)}</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-instruction">
-        7 days have passed. Go to VoipLine and release the old DID now.
-      </div>
-      <div class="card-action">
-        <button class="btn btn--green btn--full" onclick="confirmOldDidReleased('${id}')">Old DID Released</button>
-      </div>
-    </div>`;
-}
-
-function renderFulfilledCard(tx) {
-  const sub  = getSub(tx);
-  const name = esc(sub.customer_name || tx.customer_name || '-');
-  const from = [esc(tx.old_prison_name), esc(tx.old_prison_state)].filter(Boolean).join(', ');
-  const to   = [esc(tx.prison_name), esc(tx.prison_state)].filter(Boolean).join(', ');
-  const rd   = releaseDate(tx.updated_at);
-
-  return `
-    <div class="job-card job-card--fulfilled">
-      <div class="card-top">
-        <div class="card-header-row">
-          <div class="card-name">${name}</div>
-          <span class="badge badge--fulfilled">DID assigned</span>
-        </div>
-        <div class="card-fields">
-          <div class="card-field">
-            <span class="field-label">From:</span>
-            <span class="field-value">${from || '-'}</span>
-          </div>
-          <div class="card-field">
-            <span class="field-label">To:</span>
-            <span class="field-value">${to || '-'}</span>
-          </div>
-          <div class="card-field">
-            <span class="field-label">New DID:</span>
-            <span class="field-value field-value--mono">${formatDID(tx.did_number)}</span>
-          </div>
-          <div class="card-field">
-            <span class="field-label">Release old DID by:</span>
-            <span class="field-value field-value--muted">${rd}</span>
-          </div>
-        </div>
-      </div>
-    </div>`;
-}
-
-function renderCompletedCard(tx) {
-  const sub  = getSub(tx);
-  const name = esc(sub.customer_name || tx.customer_name || '-');
-  const from = [esc(tx.old_prison_name), esc(tx.old_prison_state)].filter(Boolean).join(', ');
-  const to   = [esc(tx.prison_name), esc(tx.prison_state)].filter(Boolean).join(', ');
-
+function renderActiveCard(sub) {
+  const prison = [esc(sub.prison_name), esc(sub.prison_state)].filter(Boolean).join(', ');
   return `
     <div class="job-card job-card--active">
       <div class="card-top">
         <div class="card-header-row">
-          <div class="card-name">${name}</div>
-          <span class="badge badge--completed">Completed</span>
+          <div class="card-name">${esc(sub.customer_name || '-')}</div>
+          <span class="badge badge--active">Active</span>
         </div>
         <div class="card-fields">
           <div class="card-field">
-            <span class="field-label">From:</span>
-            <span class="field-value">${from || '-'}</span>
+            <span class="field-label">Divert calls to:</span>
+            <span class="field-value">${formatMobile(sub.customer_mobile)}</span>
           </div>
           <div class="card-field">
-            <span class="field-label">To:</span>
-            <span class="field-value">${to || '-'}</span>
+            <span class="field-label">Prison:</span>
+            <span class="field-value">${prison || '-'}</span>
           </div>
           <div class="card-field">
-            <span class="field-label">New DID:</span>
-            <span class="field-value field-value--mono">${formatDID(tx.did_number)}</span>
+            <span class="field-label">Prisoncall No:</span>
+            <span class="field-value field-value--mono">${formatDID(sub.current_did)}</span>
           </div>
+          ${sub.seal_subscription_id ? `<div class="card-field">
+            <span class="field-label">Seal ID:</span>
+            <span class="field-value field-value--muted">${esc(sub.seal_subscription_id)}</span>
+          </div>` : ''}
           <div class="card-field">
-            <span class="field-label">Completed:</span>
-            <span class="field-value field-value--muted">${fmtDate(tx.updated_at)}</span>
+            <span class="field-label">Created:</span>
+            <span class="field-value field-value--muted">${fmtDate(sub.created_at)}</span>
           </div>
         </div>
       </div>
     </div>`;
 }
 
-// ── DID validation ─────────────────────────────────────────────────────────
+// ── DID Validation ─────────────────────────────────────────────────────────
 
-window.validateTxDid = function(id) {
-  const input = document.getElementById('tx-did-' + id);
-  const errEl = document.getElementById('tx-did-err-' + id);
+window.validateJobDid = function(id) {
+  const input = document.getElementById('did-' + id);
+  const errEl = document.getElementById('did-err-' + id);
   if (!input || !errEl) return;
   const v = input.value.replace(/\D/g, '');
   errEl.style.display = (!v || (v.length === 11 && v.startsWith('61'))) ? 'none' : '';
 };
 
-// ── Fulfil transfer ────────────────────────────────────────────────────────
+// ── Fulfil Job ─────────────────────────────────────────────────────────────
 
-window.fulfilTransfer = async function(id) {
-  const input = document.getElementById('tx-did-' + id);
-  const errEl = document.getElementById('tx-did-err-' + id);
+window.fulfilJob = async function(id) {
+  const input = document.getElementById('did-' + id);
+  const errEl = document.getElementById('did-err-' + id);
   if (!input) return;
 
   const did = input.value.replace(/\D/g, '');
@@ -412,68 +314,37 @@ window.fulfilTransfer = async function(id) {
     return;
   }
 
-  const tx  = allTx.find(t => t.id === id);
-  if (!tx) return;
-  const sub = getSub(tx);
+  const sub = allJobs.find(s => s.id === id);
+  if (!sub) return;
 
-  const btn = document.querySelector(`#tx-${id} .card-action button`);
+  const btn = input.closest('.card-action').querySelector('button');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
 
   try {
-    await api('fulfil_transfer', { id, did_number: did });
+    await api('fulfil_job', { id, current_did: did });
 
-    const idx = allTx.findIndex(t => t.id === id);
-    if (idx >= 0) allTx[idx] = { ...allTx[idx], did_number: did, status: 'FULFILLED', updated_at: new Date().toISOString() };
+    // Remove from pending, update to ACTIVE
+    const idx = allJobs.findIndex(s => s.id === id);
+    if (idx >= 0) allJobs[idx] = { ...allJobs[idx], status: 'ACTIVE', current_did: did };
 
-    const newDID   = formatDID(did);
-    const toPrison = tx.prison_name || '-';
-    const mobile   = sub.customer_mobile || tx.customer_mobile;
-
+    // SMS stubs
+    const formattedDID = formatDID(did);
+    const prison       = [sub.prison_name, sub.prison_state].filter(Boolean).join(' ');
     showSmsToast(
-      formatMobile(mobile),
-      `Your Prisoncall number for ${toPrison} is ready. New Prisoncall No: ${newDID}. Your old number stays active for 7 days. Regards, Prisoncall.`
+      formatMobile(sub.customer_mobile),
+      `Your new Prisoncall number is ready. Prison: ${sub.prison_name || '-'}. Prisoncall No: ${formattedDID}. Give this number to your loved one and start receiving calls. Regards, Prisoncall.`
     );
     showSmsToast(
       'Admin team',
-      `Transfer fulfilled. ${sub.customer_name || 'Customer'} new DID ${did}. To: ${toPrison}.`
+      `Order fulfilled. ${sub.customer_name || 'Customer'} DID ${did}. Prison: ${prison}.`
     );
 
-    showToast('Transfer fulfilled. Customer SMS queued.');
-    renderTransfers();
+    showToast('Fulfilled. Welcome SMS queued for customer.');
+    renderJobs();
     refreshNavCounts();
   } catch (err) {
     showToast(err.message, 'error');
     if (btn) { btn.disabled = false; btn.textContent = 'Fulfil'; }
-  }
-};
-
-// ── Confirm old DID released ───────────────────────────────────────────────
-
-window.confirmOldDidReleased = async function(id) {
-  const tx  = allTx.find(t => t.id === id);
-  if (!tx) return;
-  const sub = getSub(tx);
-
-  const btn = document.querySelector(`#tx-${id} .card-action button`);
-  if (btn) { btn.disabled = true; btn.textContent = 'Confirming...'; }
-
-  try {
-    await api('confirm_old_did_released', { id });
-
-    const idx = allTx.findIndex(t => t.id === id);
-    if (idx >= 0) allTx[idx] = { ...allTx[idx], status: 'COMPLETED', updated_at: new Date().toISOString() };
-
-    showSmsToast(
-      'Admin team',
-      `Old DID ${sub.current_did || '-'} released for ${sub.customer_name || 'Customer'}.`
-    );
-
-    showToast('Confirmed. Old DID released.');
-    renderTransfers();
-    refreshNavCounts();
-  } catch (err) {
-    showToast(err.message, 'error');
-    if (btn) { btn.disabled = false; btn.textContent = 'Old DID Released'; }
   }
 };
 
@@ -482,7 +353,7 @@ window.confirmOldDidReleased = async function(id) {
 async function init() {
   const session = await initAdminPage();
   if (!session) return;
-  await Promise.all([loadTransfers(), refreshNavCounts()]);
+  await Promise.all([loadJobs(), refreshNavCounts()]);
 }
 
 window.doLogout = function () {

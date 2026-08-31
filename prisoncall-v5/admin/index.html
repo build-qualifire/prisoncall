@@ -16,7 +16,7 @@
         if (session && session.access_token) {
           const exp = session.expires_at;
           if (!exp || (Date.now() / 1000) < (exp - 60)) {
-            window.location.replace('/admin/dashboard.html');
+            window.location.replace('/admin/jobs.html');
             return;
           }
         }
