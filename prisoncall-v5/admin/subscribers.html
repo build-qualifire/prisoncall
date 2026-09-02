@@ -127,6 +127,7 @@ function applyFilters() {
 }
 
 function renderTable() {
+  console.log('renderTable called - page-body computed paddingTop:', window.getComputedStyle(document.querySelector('.page-body')).paddingTop);
   const tbody = document.getElementById('subsBody');
     document.getElementById('countBadge').textContent = `${filtered.length} subscriber${filtered.length !== 1 ? 's' : ''}`;
 

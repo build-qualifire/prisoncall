@@ -98,6 +98,7 @@ function render() {
 
   const pbxName = derivePBXName(sub);
 
+  console.log('BEFORE render - pageContent paddingTop:', document.getElementById('pageContent').style.paddingTop, 'computed:', window.getComputedStyle(document.getElementById('pageContent')).paddingTop);
   document.getElementById('pageContent').innerHTML = `
     <div class="detail-layout">
 
@@ -189,6 +190,7 @@ function render() {
 
       </aside>
     </div>`;
+  console.log('AFTER render - pageContent paddingTop:', document.getElementById('pageContent').style.paddingTop, 'computed:', window.getComputedStyle(document.getElementById('pageContent')).paddingTop);
 
   // Copy PBX name
   document.getElementById('copyPbx')?.addEventListener('click', e => {
