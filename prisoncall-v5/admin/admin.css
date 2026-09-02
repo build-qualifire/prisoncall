@@ -129,6 +129,7 @@ img { display: block; max-width: 100%; }
   display: flex; align-items: center; gap: 12px;
   padding: 0 28px;
   height: var(--header-h);
+  flex-shrink: 0;   /* never compress the header below 60px */
   border-bottom: 1px solid var(--color-border);
   background: var(--color-white);
   box-shadow: 0 1px 3px rgba(0,0,0,.05);
@@ -181,6 +182,16 @@ img { display: block; max-width: 100%; }
 .breadcrumb a:hover { color: var(--color-text); }
 .breadcrumb-sep { color: var(--color-border); }
 .breadcrumb-current { color: var(--color-text); font-weight: 600; }
+
+/* Inside the admin-header, the current page name gets full page-title weight */
+.admin-header .breadcrumb { min-width: 0; overflow: hidden; }
+.admin-header .breadcrumb-current {
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* ── Content ────────────────────────────────────────────── */
 /* Centred content column — grey page bg shows as side margins */
