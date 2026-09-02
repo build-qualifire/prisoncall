@@ -146,6 +146,13 @@ img { display: block; max-width: 100%; }
   font-size: 16px; font-weight: 700; color: var(--color-text);
   flex: 1;
   white-space: nowrap;
+  min-width: 0;
+}
+
+/* Loading placeholder inside admin-content (detail pages) */
+.loading-placeholder {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--color-muted); font-size: 14px;
 }
 
 /* Count badge — shown beside the page title in the header */
