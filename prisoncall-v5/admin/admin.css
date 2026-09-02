@@ -554,9 +554,15 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
   flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .m-card-body  { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
-.m-card-row   { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; min-width: 0; }
+.m-card-row   { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; min-width: 0; overflow: hidden; }
 .m-card-label { font-size: 12px; color: var(--color-muted); flex-shrink: 0; }
-.m-card-value { font-size: 13px; color: var(--color-text); text-align: right; min-width: 0; word-break: break-all; }
+.m-card-value {
+  font-size: 13px; color: var(--color-text); text-align: right;
+  flex: 1;                  /* fill the space left after the label, not content-sized */
+  min-width: 0;             /* allow shrinking below intrinsic content width */
+  overflow-wrap: break-word; /* break long URLs/addresses only when truly necessary */
+  word-break: break-word;
+}
 .m-card-mono  { font-family: monospace; }
 .m-card-footer {
   display: flex; justify-content: space-between; align-items: center;
