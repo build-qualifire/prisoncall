@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/admin/admin.css?v=5">
+  <link rel="stylesheet" href="/admin/admin.css?v=6">
   <style>
     .expand-row { display: none; }
     .expand-row.open { display: table-row; }
@@ -92,6 +92,7 @@
         </tbody>
       </table>
     </div>
+    <div class="m-card-list" id="txCards"></div>
   </div>
 </main>
 
@@ -131,11 +132,24 @@ function applyFilters() {
     }
     return true;
   });
-  document.getElementById('countBadge').textContent = `${filtered.length} transfer${filtered.length !== 1 ? 's' : ''}`;
   renderTable();
 }
 
 function renderTable() {
+  const isMobile = window.innerWidth <= 768;
+  document.getElementById('countBadge').textContent = `${filtered.length} transfer${filtered.length !== 1 ? 's' : ''}`;
+
+  if (isMobile) {
+    document.querySelector('.table-wrap').style.display = 'none';
+    const cardsEl = document.getElementById('txCards');
+    cardsEl.style.display = '';
+    renderTxCards(cardsEl);
+    return;
+  }
+
+  document.querySelector('.table-wrap').style.display = '';
+  document.getElementById('txCards').style.display = 'none';
+
   const tbody = document.getElementById('txBody');
   if (!filtered.length) {
     tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No transfers found</td></tr>`;
@@ -168,13 +182,58 @@ function renderTable() {
       </tr>`;
   }).join('');
 
-  // Row click = toggle expand
   tbody.querySelectorAll('tr.row-clickable[data-txid]').forEach(tr => {
     tr.addEventListener('click', () => toggleExpand(tr.dataset.txid));
   });
 
-  // Re-bind action buttons in open expand
   if (expandedId) bindExpandActions(expandedId);
+}
+
+function renderTxCards(el) {
+  if (!filtered.length) {
+    el.innerHTML = `<p class="m-card-empty">No transfers found</p>`;
+    return;
+  }
+  el.innerHTML = filtered.map(t => {
+    const sub    = t.subscriptions || {};
+    const name   = sub.customer_name || '—';
+    const oldP   = t.old_prison_name ? `${t.old_prison_name}${t.old_prison_state ? ', '+t.old_prison_state.toUpperCase() : ''}` : '—';
+    const newP   = t.new_prison_name ? `${t.new_prison_name}${t.new_prison_state ? ', '+t.new_prison_state.toUpperCase() : ''}` : '—';
+    const isOpen = expandedId === t.id;
+
+    return `
+      <div class="m-card${isOpen ? ' m-card--open' : ''}" data-txid="${esc(t.id)}">
+        <div class="m-card-top">
+          <div class="m-card-header">
+            <span class="m-card-name">${esc(name)}</span>
+            ${statusPill(t.status)}
+          </div>
+          <div class="m-card-body">
+            <div class="m-card-row">
+              <span class="m-card-label">From</span>
+              <span class="m-card-value">${esc(oldP)}</span>
+            </div>
+            <div class="m-card-row">
+              <span class="m-card-label">To</span>
+              <span class="m-card-value" style="font-weight:600;color:var(--color-green)">${esc(newP)}</span>
+            </div>
+          </div>
+          <div class="m-card-footer">
+            <span class="m-card-date">${fmtDate(t.created_at)}</span>
+            <span class="m-card-arrow" style="transform:rotate(${isOpen ? '90' : '0'}deg)">›</span>
+          </div>
+        </div>
+        ${isOpen ? `<div class="m-card-expand" id="m-expand-${esc(t.id)}">
+          ${renderExpandContent(t, 'm-')}
+        </div>` : ''}
+      </div>`;
+  }).join('');
+
+  el.querySelectorAll('.m-card[data-txid]').forEach(card => {
+    card.querySelector('.m-card-top').addEventListener('click', () => toggleExpand(card.dataset.txid));
+  });
+
+  if (expandedId) bindExpandActions(expandedId, 'm-');
 }
 
 async function toggleExpand(txId) {
@@ -192,14 +251,15 @@ async function toggleExpand(txId) {
     try {
       const ex = await api('get-prison-lookup', { prison_name: t.new_prison_name });
       exchangeCache[t.new_prison_name] = ex || null;
-      const el = document.getElementById(`expand-${txId}`);
-      if (el) el.innerHTML = renderExpandContent(t);
-      bindExpandActions(txId);
+      const p  = window.innerWidth <= 768 ? 'm-' : '';
+      const el = document.getElementById(p ? `m-expand-${txId}` : `expand-${txId}`);
+      if (el) el.innerHTML = renderExpandContent(t, p);
+      bindExpandActions(txId, p);
     } catch {}
   }
 }
 
-function renderExpandContent(t) {
+function renderExpandContent(t, p = '') {
   const sub      = t.subscriptions || {};
   const pbxName  = derivePBXName(sub);
   const assignedM = formatMobile(t.assigned_mobile);
@@ -249,12 +309,12 @@ function renderExpandContent(t) {
 
         ${isPending ? `
         <div class="form-group" style="margin-top:4px">
-          <label class="form-label" for="newDid-${esc(t.id)}">New Prisoncall Number (DID)</label>
-          <input class="form-input" id="newDid-${esc(t.id)}" placeholder="61XXXXXXXXX" maxlength="11" inputmode="numeric" value="${esc(t.new_did || '')}" style="font-family:monospace">
+          <label class="form-label" for="${p}newDid-${esc(t.id)}">New Prisoncall Number (DID)</label>
+          <input class="form-input" id="${p}newDid-${esc(t.id)}" placeholder="61XXXXXXXXX" maxlength="11" inputmode="numeric" value="${esc(t.new_did || '')}" style="font-family:monospace">
           <p class="form-hint">11 digits, must start with 61</p>
-          <p class="form-error" id="txErr-${esc(t.id)}">Must be 11 digits starting with 61</p>
+          <p class="form-error" id="${p}txErr-${esc(t.id)}">Must be 11 digits starting with 61</p>
         </div>
-        <button class="btn btn--primary btn--sm" id="fulfilTxBtn-${esc(t.id)}">Fulfil Transfer</button>
+        <button class="btn btn--primary btn--sm" id="${p}fulfilTxBtn-${esc(t.id)}">Fulfil Transfer</button>
         ` : ''}
 
         ${isWindowOpen ? `
@@ -271,13 +331,13 @@ function renderExpandContent(t) {
           <span class="info-label">Old DID (still live)</span>
           <span class="info-value info-value--mono">${esc(t.old_did || '—')}</span>
         </div>
-        <button class="btn btn--outline btn--sm" id="releaseDIDBtn-${esc(t.id)}">Old DID Released in VoipLine</button>
+        <button class="btn btn--outline btn--sm" id="${p}releaseDIDBtn-${esc(t.id)}">Old DID Released in VoipLine</button>
         ` : ''}
 
         <div class="form-group">
           <label class="form-label">Admin Notes</label>
-          <textarea class="form-input" id="txNotes-${esc(t.id)}" placeholder="Notes about this transfer…">${esc(t.admin_notes || '')}</textarea>
-          <span class="save-indicator" id="txNotesSaved-${esc(t.id)}">Saved</span>
+          <textarea class="form-input" id="${p}txNotes-${esc(t.id)}" placeholder="Notes about this transfer…">${esc(t.admin_notes || '')}</textarea>
+          <span class="save-indicator" id="${p}txNotesSaved-${esc(t.id)}">Saved</span>
         </div>
       </div>
 
@@ -290,8 +350,9 @@ function renderExpandContent(t) {
     </div>`;
 }
 
-function bindExpandActions(txId) {
-  const el = document.getElementById(`expand-${txId}`);
+function bindExpandActions(txId, p = '') {
+  const elId = p ? `m-expand-${txId}` : `expand-${txId}`;
+  const el = document.getElementById(elId);
   if (!el) return;
 
   // Copy buttons
@@ -300,33 +361,33 @@ function bindExpandActions(txId) {
   });
 
   // Fulfil transfer
-  const fulfilBtn = document.getElementById(`fulfilTxBtn-${txId}`);
+  const fulfilBtn = document.getElementById(`${p}fulfilTxBtn-${txId}`);
   if (fulfilBtn) {
-    fulfilBtn.addEventListener('click', () => handleFulfilTransfer(txId));
+    fulfilBtn.addEventListener('click', () => handleFulfilTransfer(txId, p));
   }
 
   // Release DID
-  const releaseBtn = document.getElementById(`releaseDIDBtn-${txId}`);
+  const releaseBtn = document.getElementById(`${p}releaseDIDBtn-${txId}`);
   if (releaseBtn) {
     releaseBtn.addEventListener('click', () => handleReleaseDID(txId));
   }
 
   // Notes auto-save
-  const notesEl = document.getElementById(`txNotes-${txId}`);
+  const notesEl = document.getElementById(`${p}txNotes-${txId}`);
   if (notesEl) {
     notesEl.addEventListener('blur', async () => {
       try {
         await api('update-transfer', { id: txId, admin_notes: notesEl.value });
-        const ind = document.getElementById(`txNotesSaved-${txId}`);
+        const ind = document.getElementById(`${p}txNotesSaved-${txId}`);
         if (ind) { ind.classList.add('show'); setTimeout(() => ind.classList.remove('show'), 2000); }
       } catch { showToast('Failed to save notes', 'error'); }
     });
   }
 }
 
-async function handleFulfilTransfer(txId) {
-  const input = document.getElementById(`newDid-${txId}`);
-  const errEl = document.getElementById(`txErr-${txId}`);
+async function handleFulfilTransfer(txId, p = '') {
+  const input = document.getElementById(`${p}newDid-${txId}`);
+  const errEl = document.getElementById(`${p}txErr-${txId}`);
   const val   = (input?.value || '').replace(/\D/g,'');
 
   errEl?.classList.remove('visible');
@@ -336,7 +397,7 @@ async function handleFulfilTransfer(txId) {
     return;
   }
 
-  const btn = document.getElementById(`fulfilTxBtn-${txId}`);
+  const btn = document.getElementById(`${p}fulfilTxBtn-${txId}`);
   btn.disabled = true; btn.textContent = 'Saving…';
 
   try {
@@ -396,6 +457,12 @@ document.getElementById('searchInput').addEventListener('input', e => {
 });
 
 loadTx();
+
+let _rszTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_rszTimer);
+  _rszTimer = setTimeout(applyFilters, 150);
+});
 </script>
 </body>
 </html>

@@ -526,6 +526,42 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
 .placeholder-body h2 { font-size: 24px; font-weight: 800; color: var(--color-text); margin-bottom: 8px; }
 .placeholder-body p { font-size: 15px; }
 
+/* ── Mobile Card List (subscribers / transfers) ─────────── */
+.m-card-list { display: none; }
+
+.m-card {
+  background: var(--color-white);
+  border-bottom: 1px solid var(--color-border);
+  padding: 14px 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--transition);
+}
+.m-card:first-child { border-top: 1px solid var(--color-border); }
+.m-card:active      { background: var(--color-surface); }
+.m-card--open       { background: #FAFBFF; }
+.m-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 8px;
+}
+.m-card-name {
+  font-size: 15px; font-weight: 700; color: var(--color-text);
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.m-card-body  { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+.m-card-row   { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; min-width: 0; }
+.m-card-label { font-size: 12px; color: var(--color-muted); flex-shrink: 0; }
+.m-card-value { font-size: 13px; color: var(--color-text); text-align: right; min-width: 0; word-break: break-all; }
+.m-card-mono  { font-family: monospace; }
+.m-card-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 8px; border-top: 1px solid var(--color-border);
+}
+.m-card-date   { font-size: 12px; color: var(--color-muted); }
+.m-card-arrow  { font-size: 18px; color: var(--color-muted); display: inline-block; transition: transform .2s; }
+.m-card-expand { border-top: 1px solid var(--color-border); padding: 16px; background: #FAFBFF; }
+.m-card-empty  { text-align: center; color: var(--color-muted); font-size: 14px; padding: 32px 16px; }
+
 /* ── Mobile ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
   /* Sidebar hides off-screen, hamburger reveals it */
@@ -539,7 +575,8 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
 
   /* Content breathing room */
   .admin-content { padding: 24px 16px; }
-  .page-body { padding: 24px 16px; }
+  /* List pages: no side/top padding — card list is full-bleed */
+  .page-body { padding: 0; }
 
   /* Filter bar stacks: tabs row then search row */
   .filter-bar {
@@ -568,9 +605,9 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
   .card-body { padding: 16px; }
   .card-header { padding: 14px 16px; }
 
-  /* Table: horizontal scroll */
-  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .admin-table { min-width: 680px; }
+  /* Tables: hidden on mobile — card list shown instead (toggled by JS) */
+  .table-wrap { display: none; }
+  .m-card-list { display: block; }
 
   /* Toasts full-width at bottom */
   .toast-container { bottom: 16px; right: 12px; left: 12px; }

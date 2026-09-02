@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/admin/admin.css?v=5">
+  <link rel="stylesheet" href="/admin/admin.css?v=6">
 </head>
 <body class="admin-body">
 
@@ -90,6 +90,7 @@
         </tbody>
       </table>
     </div>
+    <div class="m-card-list" id="subsCards"></div>
   </div>
 </main>
 
@@ -127,9 +128,21 @@ function applyFilters() {
 }
 
 function renderTable() {
-  const tbody = document.getElementById('subsBody');
-    document.getElementById('countBadge').textContent = `${filtered.length} subscriber${filtered.length !== 1 ? 's' : ''}`;
+  const isMobile = window.innerWidth <= 768;
+  document.getElementById('countBadge').textContent = `${filtered.length} subscriber${filtered.length !== 1 ? 's' : ''}`;
 
+  if (isMobile) {
+    document.querySelector('.table-wrap').style.display = 'none';
+    const cardsEl = document.getElementById('subsCards');
+    cardsEl.style.display = '';
+    renderSubsCards(cardsEl);
+    return;
+  }
+
+  document.querySelector('.table-wrap').style.display = '';
+  document.getElementById('subsCards').style.display = 'none';
+
+  const tbody = document.getElementById('subsBody');
   if (!filtered.length) {
     tbody.innerHTML = `<tr class="empty-row"><td colspan="10">No subscribers found</td></tr>`;
     return;
@@ -158,6 +171,52 @@ function renderTable() {
   });
 }
 
+function renderSubsCards(el) {
+  if (!filtered.length) {
+    el.innerHTML = `<p class="m-card-empty">No subscribers found</p>`;
+    return;
+  }
+  el.innerHTML = filtered.map(s => {
+    const did = s.current_did ? formatDID(s.current_did) : null;
+    const prison = [s.prison_name, s.prison_state ? s.prison_state.toUpperCase() : ''].filter(Boolean).join(', ') || '—';
+    return `
+      <div class="m-card" data-id="${esc(s.id)}">
+        <div class="m-card-header">
+          <span class="m-card-name">${esc(s.customer_name || '—')}</span>
+          ${statusPill(s.status)}
+        </div>
+        <div class="m-card-body">
+          <div class="m-card-row">
+            <span class="m-card-label">Prison</span>
+            <span class="m-card-value">${esc(prison)}</span>
+          </div>
+          <div class="m-card-row">
+            <span class="m-card-label">Mobile</span>
+            <span class="m-card-value">${esc(formatMobile(s.customer_mobile))}</span>
+          </div>
+          ${did ? `<div class="m-card-row">
+            <span class="m-card-label">Prisoncall No</span>
+            <span class="m-card-value m-card-mono">${esc(did)}</span>
+          </div>` : ''}
+          <div class="m-card-row">
+            <span class="m-card-label">Plan</span>
+            <span class="m-card-value">${esc(s.plan_name || s.plan_interval || '—')}</span>
+          </div>
+        </div>
+        <div class="m-card-footer">
+          <span class="m-card-date">${fmtDate(s.created_at)}</span>
+          <span class="m-card-arrow">›</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  el.querySelectorAll('.m-card[data-id]').forEach(card => {
+    card.addEventListener('click', () => {
+      window.location.href = `/admin/subscriber-detail.html?id=${card.dataset.id}`;
+    });
+  });
+}
+
 // Filter tabs
 document.getElementById('filterTabs').addEventListener('click', e => {
   const tab = e.target.closest('.filter-tab');
@@ -175,6 +234,12 @@ document.getElementById('searchInput').addEventListener('input', e => {
 });
 
 loadSubs();
+
+let _rszTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_rszTimer);
+  _rszTimer = setTimeout(applyFilters, 150);
+});
 </script>
 </body>
 </html>
