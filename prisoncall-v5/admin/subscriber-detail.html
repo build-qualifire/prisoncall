@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/admin/admin.css?v=10">
+  <link rel="stylesheet" href="/admin/admin.css?v=11">
 </head>
 <body class="admin-body">
 
@@ -52,7 +52,9 @@
       <nav class="breadcrumb">
         <a href="/admin/subscribers.html">Subscribers</a>
         <span class="breadcrumb-sep">›</span>
-        <span class="breadcrumb-current" id="bcName">Loading…</span>
+        <!-- desktop: customer name | mobile: Seal ID (short, never truncates) -->
+        <span class="breadcrumb-current bc-desktop" id="bcName">Loading…</span>
+        <span class="breadcrumb-current bc-mobile" id="bcSealId">Loading…</span>
       </nav>
     </div>
     <div class="header-actions" id="headerStatus"></div>
@@ -92,7 +94,8 @@ async function loadData() {
 }
 
 function render() {
-  document.getElementById('bcName').textContent = sub.customer_name || 'Subscriber';
+  document.getElementById('bcName').textContent   = sub.customer_name || 'Subscriber';
+  document.getElementById('bcSealId').textContent = sub.seal_subscription_id || sub.customer_name || '#';
   document.getElementById('headerStatus').innerHTML = statusPill(sub.status);
   document.title = `${sub.customer_name || 'Subscriber'} — Prisoncall Admin`;
 

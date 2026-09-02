@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/admin/admin.css?v=10">
+  <link rel="stylesheet" href="/admin/admin.css?v=11">
 </head>
 <body class="admin-body">
 
@@ -62,6 +62,13 @@
       <button class="filter-tab" data-status="SUSPENDED">Suspended</button>
       <button class="filter-tab" data-status="CANCELLED">Cancelled</button>
     </div>
+    <select class="filter-select" id="filterSelect" aria-label="Filter by status">
+      <option value="">All</option>
+      <option value="PENDING">Pending</option>
+      <option value="ACTIVE">Active</option>
+      <option value="SUSPENDED">Suspended</option>
+      <option value="CANCELLED">Cancelled</option>
+    </select>
     <div class="search-box" style="margin-left:auto">
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
       <input type="search" id="searchInput" placeholder="Name, email, mobile, prison…" autocomplete="off">
@@ -219,13 +226,23 @@ function renderSubsCards(el) {
   });
 }
 
-// Filter tabs
+// Filter tabs (desktop) — keep select in sync
 document.getElementById('filterTabs').addEventListener('click', e => {
   const tab = e.target.closest('.filter-tab');
   if (!tab) return;
   document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
   activeStatus = tab.dataset.status;
+  document.getElementById('filterSelect').value = activeStatus;
+  applyFilters();
+});
+
+// Filter select (mobile) — keep tabs in sync
+document.getElementById('filterSelect').addEventListener('change', e => {
+  activeStatus = e.target.value;
+  document.querySelectorAll('.filter-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.status === activeStatus);
+  });
   applyFilters();
 });
 
