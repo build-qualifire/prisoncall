@@ -121,7 +121,7 @@ export async function onRequest({ request, env }) {
 
         const [subRes, txRes] = await Promise.all([
           sb(`subscriptions?id=eq.${id}&select=*&limit=1`),
-          sb(`orders?subscription_id=eq.${id}&order_type=eq.TRANSFER&order=created_at.desc&select=*`),
+          sb(`transfers?subscription_id=eq.${id}&order=created_at.desc&select=*`),
         ]);
 
         const [subs, transfers] = await Promise.all([subRes.json(), txRes.json()]);
@@ -159,12 +159,12 @@ export async function onRequest({ request, env }) {
         return json({ data: Array.isArray(data) ? data[0] : data });
       }
 
-      // ── Transfers (orders with order_type=TRANSFER) ────────
+      // ── Transfers (dedicated transfers table) ──────────────
       case 'get-transfers': {
         await requireAuth();
-        // Join orders with subscriptions to get customer_name + old prison
+        // Join with subscriptions for customer_name and seal_subscription_id
         const r = await sb(
-          'orders?order_type=eq.TRANSFER&order=created_at.desc&select=*,subscriptions(customer_name,prison_name,prison_state,current_did,assigned_mobile,seal_subscription_id,customer_email,customer_mobile)'
+          'transfers?order=created_at.desc&select=*,subscriptions(customer_name,seal_subscription_id,customer_email)'
         );
         const data = await r.json();
         if (!r.ok) return json({ error: data.message || 'Query failed' }, 500);
@@ -176,13 +176,13 @@ export async function onRequest({ request, env }) {
         const { id, ...updates } = params;
         if (!id) return json({ error: 'id required' }, 400);
 
-        const allowed = ['did_number', 'status', 'admin_notes'];
-        const patch = {};
+        const allowed = ['new_did', 'status', 'fulfilled_at', 'window_expires_at', 'old_did_released_at', 'admin_notes'];
+        const patch = { updated_at: new Date().toISOString() };
         for (const key of allowed) {
           if (key in updates) patch[key] = updates[key];
         }
 
-        const r = await sb(`orders?id=eq.${id}`, {
+        const r = await sb(`transfers?id=eq.${id}`, {
           method: 'PATCH',
           body: JSON.stringify(patch),
         });

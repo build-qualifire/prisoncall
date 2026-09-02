@@ -341,12 +341,14 @@ function renderTransferHistory() {
         ${transfers.map(t => `
           <div style="display:flex;flex-direction:column;gap:6px;padding:12px;background:var(--color-surface);border-radius:8px">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <span style="font-size:13px;font-weight:600">${esc(t.prison_name || '—')}, ${esc((t.prison_state||'').toUpperCase())}</span>
+              <span style="font-size:13px;color:#6B7280">${esc(t.old_prison_name || '—')} →</span>
+              <span style="font-size:13px;font-weight:600">${esc(t.new_prison_name || '—')}${t.new_prison_state ? `, ${t.new_prison_state.toUpperCase()}` : ''}</span>
               ${statusPill(t.status)}
             </div>
             <div style="font-size:12px;color:#6B7280">
-              Requested ${fmtDate(t.created_at)}
-              ${t.did_number ? ` · New DID: <span style="font-family:monospace">${esc(t.did_number)}</span>` : ''}
+              Requested ${fmtDate(t.requested_at || t.created_at)}
+              ${t.new_did ? ` · New DID: <span style="font-family:monospace">${esc(t.new_did)}</span>` : ''}
+              ${t.fulfilled_at ? ` · Fulfilled ${fmtDate(t.fulfilled_at)}` : ''}
             </div>
           </div>`).join('')}
       </div>

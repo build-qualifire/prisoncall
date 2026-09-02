@@ -125,8 +125,7 @@ function applyFilters() {
     const subName = t.subscriptions?.customer_name || '';
     if (activeStatus && t.status !== activeStatus) return false;
     if (q) {
-      const oldPrison = t.subscriptions?.prison_name || '';
-      const hay = [subName, t.prison_name, oldPrison].join(' ').toLowerCase();
+      const hay = [subName, t.new_prison_name, t.old_prison_name].join(' ').toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -145,8 +144,8 @@ function renderTable() {
   tbody.innerHTML = filtered.map(t => {
     const sub    = t.subscriptions || {};
     const name   = sub.customer_name || '—';
-    const oldP   = sub.prison_name ? `${sub.prison_name}${sub.prison_state ? ', '+sub.prison_state.toUpperCase() : ''}` : '—';
-    const newP   = t.prison_name   ? `${t.prison_name}${t.prison_state   ? ', '+t.prison_state.toUpperCase()   : ''}` : '—';
+    const oldP   = t.old_prison_name ? `${t.old_prison_name}${t.old_prison_state ? ', '+t.old_prison_state.toUpperCase() : ''}` : '—';
+    const newP   = t.new_prison_name ? `${t.new_prison_name}${t.new_prison_state ? ', '+t.new_prison_state.toUpperCase() : ''}` : '—';
     const isOpen = expandedId === t.id;
 
     return `<tr class="row-clickable${isOpen ? ' row-expanded' : ''}" data-txid="${esc(t.id)}">
@@ -186,13 +185,12 @@ async function toggleExpand(txId) {
   expandedId = txId;
   renderTable();
 
-  // Load exchange if needed
+  // Load exchange guidance for new prison if not yet cached
   const t = allTx.find(x => x.id === txId);
-  if (t && t.prison_name && !exchangeCache[t.prison_name]) {
+  if (t && t.new_prison_name && !exchangeCache[t.new_prison_name]) {
     try {
-      const ex = await api('get-prison-lookup', { prison_name: t.prison_name });
-      exchangeCache[t.prison_name] = ex || null;
-      // Re-render the expand content
+      const ex = await api('get-prison-lookup', { prison_name: t.new_prison_name });
+      exchangeCache[t.new_prison_name] = ex || null;
       const el = document.getElementById(`expand-${txId}`);
       if (el) el.innerHTML = renderExpandContent(t);
       bindExpandActions(txId);
@@ -203,9 +201,9 @@ async function toggleExpand(txId) {
 function renderExpandContent(t) {
   const sub      = t.subscriptions || {};
   const pbxName  = derivePBXName(sub);
-  const assignedM = formatMobile(sub.assigned_mobile || t.assigned_mobile);
-  const oldDID   = t.old_did_number || sub.current_did || '—';
-  const exchange = exchangeCache[t.prison_name];
+  const assignedM = formatMobile(t.assigned_mobile);
+  const oldDID   = t.old_did || '—';
+  const exchange = exchangeCache[t.new_prison_name];
 
   const exchangeHtml = (() => {
     if (!exchange) return `<p style="font-size:13px;color:#6B7280">No exchange data for this prison yet.</p>`;
@@ -251,7 +249,7 @@ function renderExpandContent(t) {
         ${isPending ? `
         <div class="form-group" style="margin-top:4px">
           <label class="form-label" for="newDid-${esc(t.id)}">New Prisoncall Number (DID)</label>
-          <input class="form-input" id="newDid-${esc(t.id)}" placeholder="61XXXXXXXXX" maxlength="11" inputmode="numeric" value="${esc(t.did_number || '')}" style="font-family:monospace">
+          <input class="form-input" id="newDid-${esc(t.id)}" placeholder="61XXXXXXXXX" maxlength="11" inputmode="numeric" value="${esc(t.new_did || '')}" style="font-family:monospace">
           <p class="form-hint">11 digits, must start with 61</p>
           <p class="form-error" id="txErr-${esc(t.id)}">Must be 11 digits starting with 61</p>
         </div>
@@ -260,10 +258,19 @@ function renderExpandContent(t) {
 
         ${isWindowOpen ? `
         <div style="background:var(--color-amber-pale);border:1px solid #FDE68A;border-radius:8px;padding:14px">
-          <p style="font-size:13px;font-weight:600;color:#92400E;margin-bottom:6px">7-day overlap window</p>
-          <p style="font-size:13px;color:#92400E">Old DID stays active while the new number is registered. Click below when you have released it in VoipLine.</p>
+          <p style="font-size:13px;font-weight:600;color:#92400E;margin-bottom:4px">7-day overlap window active</p>
+          ${t.window_expires_at ? `<p style="font-size:12px;color:#92400E">Window closes: ${new Date(t.window_expires_at).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}</p>` : ''}
+          <p style="font-size:13px;color:#92400E;margin-top:4px">Old DID stays active while the new number is registered. Click below once you have released it in VoipLine.</p>
         </div>
-        <button class="btn btn--outline btn--sm" id="releaseDIDBtn-${esc(t.id)}">Old DID Released</button>
+        <div class="info-row">
+          <span class="info-label">New DID (active)</span>
+          <span class="info-value info-value--mono">${esc(t.new_did || '—')}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Old DID (still live)</span>
+          <span class="info-value info-value--mono">${esc(t.old_did || '—')}</span>
+        </div>
+        <button class="btn btn--outline btn--sm" id="releaseDIDBtn-${esc(t.id)}">Old DID Released in VoipLine</button>
         ` : ''}
 
         <div class="form-group">
@@ -332,10 +339,17 @@ async function handleFulfilTransfer(txId) {
   btn.disabled = true; btn.textContent = 'Saving…';
 
   try {
-    await api('update-transfer', { id: txId, did_number: val, status: 'WINDOW_OPEN' });
-    // Update local state
+    const now      = new Date();
+    const expires  = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    await api('update-transfer', {
+      id: txId,
+      new_did: val,
+      status: 'WINDOW_OPEN',
+      fulfilled_at: now.toISOString(),
+      window_expires_at: expires.toISOString(),
+    });
     const t = allTx.find(x => x.id === txId);
-    if (t) { t.did_number = val; t.status = 'WINDOW_OPEN'; }
+    if (t) { t.new_did = val; t.status = 'WINDOW_OPEN'; t.fulfilled_at = now.toISOString(); t.window_expires_at = expires.toISOString(); }
     showToast('Transfer fulfilled - 7-day window open', 'success');
     applyFilters();
   } catch (err) {
@@ -351,9 +365,10 @@ async function handleReleaseDID(txId) {
   btn.disabled = true; btn.textContent = 'Saving…';
 
   try {
-    await api('update-transfer', { id: txId, status: 'COMPLETED' });
+    const now = new Date().toISOString();
+    await api('update-transfer', { id: txId, status: 'COMPLETED', old_did_released_at: now });
     const t = allTx.find(x => x.id === txId);
-    if (t) t.status = 'COMPLETED';
+    if (t) { t.status = 'COMPLETED'; t.old_did_released_at = now; }
     showToast('Old DID released - transfer completed', 'success');
     expandedId = null;
     applyFilters();
