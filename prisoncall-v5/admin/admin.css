@@ -38,8 +38,8 @@
 
 /* ── Reset ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { height: 100%; }
-body { font-family: var(--font); color: var(--color-text); background: var(--color-page); height: 100%; }
+html { height: 100%; overflow-x: hidden; }
+body { font-family: var(--font); color: var(--color-text); background: var(--color-page); height: 100%; overflow-x: hidden; }
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
 input, textarea, select { font-family: inherit; }
@@ -239,7 +239,8 @@ img { display: block; max-width: 100%; }
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 7px 12px;
-  min-width: 240px;
+  min-width: 0;
+  width: 220px;   /* flex-basis on desktop; overridden to 100% on mobile */
 }
 .search-box svg { width: 15px; height: 15px; color: var(--color-muted); flex-shrink: 0; }
 .search-box input {
@@ -252,12 +253,14 @@ img { display: block; max-width: 100%; }
 .table-wrap {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  overflow: hidden;
+  overflow-x: auto;         /* table scrolls inside wrapper; page does not scroll */
+  -webkit-overflow-scrolling: touch;
   background: var(--color-white);
 }
 
 .admin-table {
   width: 100%;
+  min-width: 680px;         /* keeps columns readable at narrow desktop/tablet widths */
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -532,7 +535,7 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
 .m-card {
   background: var(--color-white);
   border-bottom: 1px solid var(--color-border);
-  padding: 14px 16px;
+  /* no padding here — padding lives on .m-card-top so expand area is full-bleed */
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: background var(--transition);
@@ -540,6 +543,8 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
 .m-card:first-child { border-top: 1px solid var(--color-border); }
 .m-card:active      { background: var(--color-surface); }
 .m-card--open       { background: #FAFBFF; }
+/* The clickable summary area inside each card */
+.m-card-top { padding: 14px 16px; }
 .m-card-header {
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px; margin-bottom: 8px;
@@ -573,10 +578,16 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
   .admin-main { margin-left: 0; }
   .hamburger { display: flex; }
 
+  /* Header: tighter side padding on small phones */
+  .admin-header { padding: 0 16px; }
+
   /* Content breathing room */
   .admin-content { padding: 24px 16px; }
   /* List pages: no side/top padding — card list is full-bleed */
   .page-body { padding: 0; }
+
+  /* Settings upload area: less padding on mobile */
+  .upload-area { padding: 24px 16px; }
 
   /* Filter bar stacks: tabs row then search row */
   .filter-bar {
@@ -605,9 +616,10 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
   .card-body { padding: 16px; }
   .card-header { padding: 14px 16px; }
 
-  /* Tables: hidden on mobile — card list shown instead (toggled by JS) */
-  .table-wrap { display: none; }
+  /* Tables: hidden on mobile — card list shown instead (JS may also toggle) */
+  .table-wrap { display: none !important; }
   .m-card-list { display: block; }
+  .admin-table { min-width: 0; }  /* reset desktop min-width when hidden */
 
   /* Toasts full-width at bottom */
   .toast-container { bottom: 16px; right: 12px; left: 12px; }
