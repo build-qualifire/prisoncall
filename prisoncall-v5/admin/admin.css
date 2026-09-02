@@ -39,7 +39,8 @@
 /* ── Reset ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { height: 100%; overflow-x: hidden; }
-body { font-family: var(--font); color: var(--color-text); background: var(--color-page); height: 100%; overflow-x: hidden; }
+body { font-family: var(--font); color: var(--color-text); background: var(--color-page); height: 100%; }
+/* overflow-x: hidden lives on html only — adding it to body causes iOS Safari clipping bugs */
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
 input, textarea, select { font-family: inherit; }
@@ -119,9 +120,11 @@ img { display: block; max-width: 100%; }
 .admin-main {
   margin-left: var(--sidebar-w);
   flex: 1;
+  min-width: 0;       /* CRITICAL: without this, a flex item's min-width:auto allows
+                         it to expand beyond the viewport when any child is non-shrinkable */
   display: flex; flex-direction: column;
   min-height: 100vh;
-  background: var(--color-page);  /* grey page canvas — white cards lift off it */
+  background: var(--color-page);
 }
 
 /* ── Admin Header ───────────────────────────────────────── */
@@ -581,14 +584,22 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
   .sidebar-close { display: flex; }
   .sidebar-overlay.open { display: block; }
 
-  .admin-main { margin-left: 0; }
+  .admin-main {
+    margin-left: 0;
+    width: 100%;        /* explicit full-width — paired with min-width:0 kills any remaining overflow */
+    overflow-x: hidden; /* secondary containment: clip anything that still escapes */
+  }
   .hamburger { display: flex; }
 
   /* Header: tighter side padding on small phones */
   .admin-header { padding: 0 16px; }
 
-  /* Content breathing room */
-  .admin-content { padding: 24px 16px; }
+  /* Content: reset ALL desktop layout constraints — not just padding */
+  .admin-content {
+    padding: 24px 16px;
+    max-width: 100%; /* override 1360px */
+    margin: 0;       /* override 0 auto — kills the centering offset */
+  }
   /* List pages: fully reset all desktop layout constraints so cards fill 100% viewport width */
   .page-body {
     max-width: 100%;
