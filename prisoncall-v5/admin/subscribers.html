@@ -48,9 +48,9 @@
     <button class="hamburger" id="hamburger" aria-label="Open menu">
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
-    <h1 class="admin-title">Subscribers</h1>
-    <div class="header-actions">
-      <span id="countBadge" style="font-size:12px;color:#6B7280"></span>
+    <div style="flex:1;display:flex;align-items:center;gap:12px;min-width:0">
+      <h1 style="font-size:16px;font-weight:700;color:var(--color-text);white-space:nowrap">Subscribers</h1>
+      <span class="page-count-badge" id="countBadge"></span>
     </div>
   </header>
 
@@ -68,7 +68,7 @@
     </div>
   </div>
 
-  <div style="padding:28px">
+  <div class="page-body">
     <div class="table-wrap">
       <table class="admin-table" id="subsTable">
         <thead>
@@ -80,12 +80,13 @@
             <th>Prison</th>
             <th>Prisoncall No</th>
             <th>Plan</th>
+            <th>Seal ID</th>
             <th>Status</th>
             <th></th>
           </tr>
         </thead>
         <tbody id="subsBody">
-          <tr class="loading-row"><td colspan="9"><span class="spinner"></span>Loading subscribers…</td></tr>
+          <tr class="loading-row"><td colspan="10"><span class="spinner"></span>Loading subscribers…</td></tr>
         </tbody>
       </table>
     </div>
@@ -108,7 +109,7 @@ async function loadSubs() {
     applyFilters();
   } catch (err) {
     document.getElementById('subsBody').innerHTML =
-      `<tr class="empty-row"><td colspan="9">Failed to load subscribers: ${esc(err.message)}</td></tr>`;
+      `<tr class="empty-row"><td colspan="10">Failed to load subscribers: ${esc(err.message)}</td></tr>`;
   }
 }
 
@@ -127,10 +128,10 @@ function applyFilters() {
 
 function renderTable() {
   const tbody = document.getElementById('subsBody');
-  document.getElementById('countBadge').textContent = `${filtered.length} subscriber${filtered.length !== 1 ? 's' : ''}`;
+    document.getElementById('countBadge').textContent = `${filtered.length} subscriber${filtered.length !== 1 ? 's' : ''}`;
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="9">No subscribers found</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="10">No subscribers found</td></tr>`;
     return;
   }
 
@@ -144,6 +145,7 @@ function renderTable() {
       <td>${esc(s.prison_name || '—')}${s.prison_state ? `, <span style="color:#6B7280">${esc(s.prison_state.toUpperCase())}</span>` : ''}</td>
       <td class="td-mono">${did}</td>
       <td>${esc(s.plan_name || s.plan_interval || '—')}</td>
+      <td class="td-mono" style="font-size:11px;color:#6B7280">${esc(s.seal_subscription_id || '—')}</td>
       <td>${statusPill(s.status)}</td>
       <td style="color:#6B7280;font-size:18px;text-align:right;padding-right:20px">›</td>
     </tr>`;

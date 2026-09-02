@@ -30,6 +30,10 @@
   --sidebar-w:    232px;
   --header-h:     60px;
   --transition:   150ms ease;
+
+  /* Content layout */
+  --content-px:   48px;   /* horizontal padding — creates grey side margins */
+  --content-max:  1360px; /* caps width on very large screens */
 }
 
 /* ── Reset ─────────────────────────────────────────────── */
@@ -141,6 +145,20 @@ img { display: block; max-width: 100%; }
 .admin-title {
   font-size: 16px; font-weight: 700; color: var(--color-text);
   flex: 1;
+  white-space: nowrap;
+}
+
+/* Count badge — shown beside the page title in the header */
+.page-count-badge {
+  display: inline-flex; align-items: center;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 13px; font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  letter-spacing: -.01em;
 }
 
 .header-actions { display: flex; gap: 8px; align-items: center; }
@@ -156,13 +174,29 @@ img { display: block; max-width: 100%; }
 .breadcrumb-current { color: var(--color-text); font-weight: 600; }
 
 /* ── Content ────────────────────────────────────────────── */
-.admin-content { flex: 1; padding: 32px 28px; max-width: 1280px; }
-.admin-content--wide { max-width: none; }
+/* Centred content column — grey page bg shows as side margins */
+.admin-content {
+  flex: 1;
+  padding: 40px var(--content-px);
+  max-width: var(--content-max);
+  width: 100%;
+  margin: 0 auto;
+}
+/* Wide variant for detail pages (same max-width, keeps the side margins) */
+.admin-content--wide { max-width: var(--content-max); }
+
+/* Standalone page-body wrapper used by list pages below filter-bar */
+.page-body {
+  max-width: var(--content-max);
+  width: 100%;
+  margin: 0 auto;
+  padding: 36px var(--content-px);
+}
 
 /* ── Filter Toolbar ─────────────────────────────────────── */
 .filter-bar {
   display: flex; align-items: center; gap: 12px;
-  padding: 14px 28px;
+  padding: 14px var(--content-px);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-white);
   flex-wrap: wrap;
@@ -210,7 +244,7 @@ img { display: block; max-width: 100%; }
 
 .admin-table thead { background: var(--color-surface); }
 .admin-table th {
-  padding: 10px 16px;
+  padding: 11px 16px;
   text-align: left;
   font-size: 11px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .06em;
@@ -220,7 +254,7 @@ img { display: block; max-width: 100%; }
 }
 
 .admin-table td {
-  padding: 13px 16px;
+  padding: 16px;
   border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
   color: var(--color-text);
@@ -484,7 +518,8 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
   .hamburger { display: flex; }
 
   /* Content breathing room */
-  .admin-content { padding: 20px 16px; }
+  .admin-content { padding: 24px 16px; }
+  .page-body { padding: 24px 16px; }
 
   /* Filter bar stacks: tabs row then search row */
   .filter-bar {
