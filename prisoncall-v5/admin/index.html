@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prisoncall Admin</title>
+  <meta name="robots" content="noindex,nofollow">
+</head>
+<body>
+<script>
+(function(){
+  try {
+    var s = localStorage.getItem('pc_admin_v2') || sessionStorage.getItem('pc_admin_v2');
+    if (s) {
+      var sess = JSON.parse(s);
+      if (sess && sess.access_token) {
+        window.location.replace('/admin/subscribers.html');
+        return;
+      }
+    }
+  } catch(e){}
+  window.location.replace('/admin/login.html');
+})();
+</script>
+</body>
+</html>

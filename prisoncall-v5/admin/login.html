@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in — Prisoncall Admin</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="/assets/brand_logos/Prisoncall_Favicon_Circle_Black.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body class="login-body">
+
+<div class="login-card">
+  <img src="/assets/brand_logos/Prisoncall_Black.svg" alt="Prisoncall" class="login-logo">
+  <h1 class="login-title">Admin portal</h1>
+  <p class="login-subtitle">Sign in to manage subscriptions</p>
+
+  <div class="login-error" id="loginError"></div>
+
+  <form class="login-form" id="loginForm" novalidate>
+    <div class="form-group">
+      <label class="form-label" for="email">Email address</label>
+      <input class="form-input" type="email" id="email" name="email" autocomplete="email" placeholder="guness@prisoncall.com.au" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="password">Password</label>
+      <input class="form-input" type="password" id="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <input type="checkbox" id="remember" name="remember" checked style="width:15px;height:15px;accent-color:#00D258">
+      <label for="remember" style="font-size:13px;color:#6B7280;cursor:pointer">Keep me signed in</label>
+    </div>
+    <button type="submit" class="btn btn--primary" id="loginBtn" style="margin-top:4px;width:100%;padding:11px;">
+      Sign in
+    </button>
+  </form>
+</div>
+
+<script type="module">
+import { adminLogin } from '/admin/admin-auth.js';
+import { getSession } from '/admin/admin-auth.js';
+
+// Already logged in?
+if (getSession()?.access_token) {
+  window.location.replace('/admin/subscribers.html');
+}
+
+// Show reason message
+const params = new URLSearchParams(window.location.search);
+if (params.get('reason') === 'session-expired') {
+  const err = document.getElementById('loginError');
+  err.textContent = 'Your session has expired. Please sign in again.';
+  err.classList.add('visible');
+}
+
+const form   = document.getElementById('loginForm');
+const btn    = document.getElementById('loginBtn');
+const errEl  = document.getElementById('loginError');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errEl.classList.remove('visible');
+
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const remember = document.getElementById('remember').checked;
+
+  if (!email || !password) {
+    errEl.textContent = 'Please enter your email and password.';
+    errEl.classList.add('visible');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+
+  try {
+    await adminLogin(email, password, remember);
+    window.location.replace('/admin/subscribers.html');
+  } catch (err) {
+    errEl.textContent = err.message || 'Sign in failed. Please try again.';
+    errEl.classList.add('visible');
+    btn.disabled = false;
+    btn.textContent = 'Sign in';
+  }
+});
+</script>
+</body>
+</html>

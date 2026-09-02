@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscriber — Prisoncall Admin</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="/assets/brand_logos/Prisoncall_Favicon_Circle_Black.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <a href="/admin/subscribers.html" class="sidebar-logo">
+      <img src="/assets/brand_logos/Prisoncall_White.svg" alt="Prisoncall">
+    </a>
+    <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">✕</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/admin/subscribers.html" class="sidebar-link" data-page="subscribers">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-5.916-3.516M9 20H4v-2a4 4 0 015.916-3.516M15 7a4 4 0 11-8 0 4 4 0 018 0zm6 3a3 3 0 11-6 0 3 3 0 016 0zM3 10a3 3 0 116 0 3 3 0 01-6 0z"/></svg>
+      Subscribers
+    </a>
+    <a href="/admin/transfers.html" class="sidebar-link" data-page="transfers">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m-4 6H4m0 0l4 4m-4-4l4-4"/></svg>
+      Transfers
+    </a>
+    <a href="/admin/settings.html" class="sidebar-link" data-page="settings" data-super-only>
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <span class="sidebar-user-email" id="userEmail"></span>
+    <button class="sidebar-logout" id="btnLogout">Sign out</button>
+  </div>
+</aside>
+
+<main class="admin-main">
+  <header class="admin-header">
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <nav class="breadcrumb">
+        <a href="/admin/subscribers.html">Subscribers</a>
+        <span class="breadcrumb-sep">›</span>
+        <span class="breadcrumb-current" id="bcName">Loading…</span>
+      </nav>
+    </div>
+    <div class="header-actions" id="headerStatus"></div>
+  </header>
+
+  <div class="admin-content admin-content--wide" id="pageContent">
+    <div style="display:flex;align-items:center;gap:8px;color:#6B7280;padding:60px 0;justify-content:center">
+      <span class="spinner"></span> Loading subscriber…
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import {
+  initAdminPage, api, formatDID, formatMobile, fmtDate, fmtDateTime,
+  statusPill, derivePBXName, copyText, validateDID, showToast, esc
+} from '/admin/admin-supabase.js';
+
+await initAdminPage();
+
+const id = new URLSearchParams(window.location.search).get('id');
+if (!id) { window.location.replace('/admin/subscribers.html'); }
+
+let sub, transfers, exchange;
+
+async function loadData() {
+  try {
+    const data = await api('get-subscriber', { id });
+    sub       = data.subscriber;
+    transfers = data.transfers || [];
+    exchange  = data.exchange || null;
+    render();
+  } catch (err) {
+    document.getElementById('pageContent').innerHTML =
+      `<div style="color:#EF4444;padding:40px">${esc(err.message)}</div>`;
+  }
+}
+
+function render() {
+  document.getElementById('bcName').textContent = sub.customer_name || 'Subscriber';
+  document.getElementById('headerStatus').innerHTML = statusPill(sub.status);
+  document.title = `${sub.customer_name || 'Subscriber'} — Prisoncall Admin`;
+
+  const pbxName = derivePBXName(sub);
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="detail-layout">
+
+      <!-- ── LEFT: Action area ── -->
+      <div class="detail-main">
+
+        <div class="card">
+          <div class="card-body">
+            ${renderActionArea()}
+          </div>
+        </div>
+
+        ${transfers.length ? renderTransferHistory() : ''}
+
+      </div>
+
+      <!-- ── RIGHT: Subscriber info ── -->
+      <aside class="detail-sidebar">
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Customer</span></div>
+          <div class="card-body">
+            <div class="info-row">
+              <span class="info-label">Name</span>
+              <span class="info-value">${esc(sub.customer_name || '—')}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Email</span>
+              <span class="info-value" style="font-size:13px;word-break:break-all">${esc(sub.customer_email || '—')}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Mobile</span>
+              <span class="info-value">${esc(formatMobile(sub.customer_mobile))}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Subscription</span></div>
+          <div class="card-body">
+            <div class="info-row">
+              <span class="info-label">Prisoncall No</span>
+              <span class="info-value info-value--mono">${sub.current_did ? esc(formatDID(sub.current_did)) : '—'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Prison</span>
+              <span class="info-value">${esc(sub.prison_name || '—')}${sub.prison_state ? `, ${sub.prison_state.toUpperCase()}` : ''}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Plan</span>
+              <span class="info-value">${esc(sub.plan_name || '—')}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Billing interval</span>
+              <span class="info-value">${esc(sub.plan_interval || '—')}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Assigned Mobile</span>
+              <span class="info-value info-value--mono">${esc(formatMobile(sub.assigned_mobile))}</span>
+            </div>
+            <div class="info-divider"></div>
+            <div class="info-row">
+              <span class="info-label">VoipLine Name</span>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+                <span class="info-value info-value--mono" id="pbxDisplay">${esc(pbxName)}</span>
+                <button class="copy-btn" id="copyPbx">Copy</button>
+              </div>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Seal Subscription ID</span>
+              <span class="info-value info-value--mono">${esc(sub.seal_subscription_id || '—')}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Subscribed</span>
+              <span class="info-value" style="font-size:13px">${fmtDate(sub.created_at)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Admin Notes</span>
+            <span class="save-indicator" id="notesSaved">Saved</span>
+          </div>
+          <div class="card-body">
+            <textarea class="form-input" id="adminNotes" placeholder="Internal notes about this subscriber…" style="min-height:100px">${esc(sub.admin_notes || '')}</textarea>
+          </div>
+        </div>
+
+      </aside>
+    </div>`;
+
+  // Copy PBX name
+  document.getElementById('copyPbx')?.addEventListener('click', e => {
+    copyText(pbxName, e.currentTarget);
+  });
+
+  // Copy assigned mobile (in action area)
+  document.getElementById('copyMobile')?.addEventListener('click', e => {
+    copyText(formatMobile(sub.assigned_mobile), e.currentTarget);
+  });
+
+  // Fulfil button
+  document.getElementById('fulfilBtn')?.addEventListener('click', handleFulfil);
+
+  // Resume button
+  document.getElementById('resumeBtn')?.addEventListener('click', handleResume);
+
+  // VoipLine Done button
+  document.getElementById('voipDoneBtn')?.addEventListener('click', handleVoipDone);
+
+  // Notes auto-save
+  const notesEl = document.getElementById('adminNotes');
+  if (notesEl) {
+    notesEl.addEventListener('blur', async () => {
+      const val = notesEl.value;
+      try {
+        await api('update-subscriber', { id, admin_notes: val });
+        const ind = document.getElementById('notesSaved');
+        if (ind) { ind.classList.add('show'); setTimeout(() => ind.classList.remove('show'), 2000); }
+      } catch { showToast('Failed to save notes', 'error'); }
+    });
+  }
+}
+
+function renderActionArea() {
+  switch (sub.status) {
+    case 'PENDING': return renderPendingAction();
+    case 'SUSPENDED': return renderSuspendedAction();
+    case 'CANCELLED': return renderCancelledAction();
+    case 'ACTIVE':
+    default: return renderActiveAction();
+  }
+}
+
+function renderPendingAction() {
+  const exchangeHtml = renderExchangeGuidance();
+  return `
+    <h2 class="action-heading">Action Required</h2>
+    <p class="action-subheading">
+      Set up this subscriber in VoipLine, then enter the DID below and click Fulfil.
+    </p>
+
+    <div class="info-row" style="margin-bottom:16px">
+      <span class="info-label">Prison</span>
+      <span class="info-value" style="font-size:16px;font-weight:700">${esc(sub.prison_name || '—')}${sub.prison_state ? `, ${sub.prison_state.toUpperCase()}` : ''}</span>
+    </div>
+
+    ${exchangeHtml}
+
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px">
+      <div class="form-group">
+        <label class="form-label">VoipLine Name (click to copy)</label>
+        <div class="copy-field">
+          <span class="copy-field-value">${esc(derivePBXName(sub))}</span>
+          <button class="copy-btn" id="copyPbxAction">Copy</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Assigned Mobile (divert calls to this number)</label>
+        <div class="copy-field">
+          <span class="copy-field-value">${esc(formatMobile(sub.assigned_mobile))}</span>
+          <button class="copy-btn" id="copyMobile">Copy</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="didInput">Prisoncall Number (DID)</label>
+        <input class="form-input" id="didInput" placeholder="61XXXXXXXXX" maxlength="11" inputmode="numeric" style="font-family:monospace">
+        <p class="form-hint">11 digits, must start with 61</p>
+        <p class="form-error" id="didError">Must be 11 digits starting with 61</p>
+      </div>
+
+      <button class="btn btn--primary" id="fulfilBtn" style="width:100%;padding:12px">
+        Fulfil — Mark as Active
+      </button>
+    </div>`;
+}
+
+function renderSuspendedAction() {
+  return `
+    <h2 class="action-heading">Payment Failed - Account Suspended</h2>
+    <p class="action-subheading">Resume the subscriber's account after confirming payment has cleared.</p>
+    <button class="btn btn--primary" id="resumeBtn" style="margin-top:8px">Resume Account</button>
+    <p style="margin-top:14px;font-size:13px;color:#6B7280">
+      Only resume after confirming payment has cleared in Seal.
+    </p>`;
+}
+
+function renderCancelledAction() {
+  const attrs = (() => { try { return typeof sub.subscription_attributes === 'string' ? JSON.parse(sub.subscription_attributes) : (sub.subscription_attributes || {}); } catch { return {}; } })();
+  if (attrs.voipline_cancelled) {
+    return `
+      <h2 class="action-heading">Cancelled</h2>
+      <p class="action-subheading">VoipLine has been cleaned up for this account.</p>`;
+  }
+  return `
+    <h2 class="action-heading">Cancelled</h2>
+    <p class="action-subheading">Delete this user's licence in VoipLine and release their DID, then click confirm.</p>
+    <button class="btn btn--grey" id="voipDoneBtn" style="margin-top:8px">
+      VoipLine Done - Confirm Cleanup
+    </button>`;
+}
+
+function renderActiveAction() {
+  return `
+    <h2 class="action-heading">Active</h2>
+    <p class="action-subheading">No action required. This subscription is live.</p>`;
+}
+
+function renderExchangeGuidance() {
+  if (!exchange) {
+    return `<div class="exchange-box"><p class="exchange-title">Exchange Guidance</p><p style="font-size:13px;color:#6B7280">No exchange data found for this prison. Upload via Settings.</p></div>`;
+  }
+
+  const rows = [
+    exchange.primary_exchange_code ? { code: exchange.primary_exchange_code, area: exchange.primary_area, label: 'Primary' } : null,
+    exchange.fallback_1 ? { code: exchange.fallback_1, area: exchange.fallback_1_area, label: 'Fallback 1' } : null,
+    exchange.fallback_2 ? { code: exchange.fallback_2, area: exchange.fallback_2_area, label: 'Fallback 2' } : null,
+    exchange.fallback_3 ? { code: exchange.fallback_3, area: exchange.fallback_3_area, label: 'Fallback 3' } : null,
+  ].filter(Boolean);
+
+  return `
+    <div class="exchange-box">
+      <p class="exchange-title">Exchange Guidance</p>
+      ${rows.map((r, i) => `
+        <div class="exchange-item">
+          <span class="exchange-code">${esc(r.code)}</span>
+          <span class="exchange-area">${esc(r.area || '')}</span>
+          <span class="exchange-badge ${i > 0 ? 'exchange-badge--fallback' : ''}">${esc(r.label)}</span>
+        </div>`).join('')}
+      ${exchange.notes ? `<p style="margin-top:10px;font-size:12px;color:#6B7280">${esc(exchange.notes)}</p>` : ''}
+    </div>`;
+}
+
+function renderTransferHistory() {
+  return `
+    <div class="card">
+      <div class="card-header"><span class="card-title">Transfer History</span></div>
+      <div class="card-body" style="gap:12px">
+        ${transfers.map(t => `
+          <div style="display:flex;flex-direction:column;gap:6px;padding:12px;background:var(--color-surface);border-radius:8px">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font-size:13px;font-weight:600">${esc(t.prison_name || '—')}, ${esc((t.prison_state||'').toUpperCase())}</span>
+              ${statusPill(t.status)}
+            </div>
+            <div style="font-size:12px;color:#6B7280">
+              Requested ${fmtDate(t.created_at)}
+              ${t.did_number ? ` · New DID: <span style="font-family:monospace">${esc(t.did_number)}</span>` : ''}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── Actions ────────────────────────────────────────────────
+
+async function handleFulfil() {
+  const input = document.getElementById('didInput');
+  const errEl = document.getElementById('didError');
+  const val   = (input?.value || '').replace(/\D/g,'');
+
+  errEl?.classList.remove('visible');
+  if (!validateDID(val)) {
+    errEl?.classList.add('visible');
+    input?.focus();
+    return;
+  }
+
+  const btn = document.getElementById('fulfilBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  try {
+    await api('update-subscriber', { id, status: 'ACTIVE', current_did: val });
+    sub.status      = 'ACTIVE';
+    sub.current_did = val;
+    document.getElementById('headerStatus').innerHTML = statusPill('ACTIVE');
+    showToast('Fulfilled - subscriber is now active', 'success');
+    render();
+  } catch (err) {
+    showToast(err.message || 'Failed to fulfil', 'error');
+    btn.disabled = false; btn.textContent = 'Fulfil — Mark as Active';
+  }
+}
+
+async function handleResume() {
+  const btn = document.getElementById('resumeBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await api('update-subscriber', { id, status: 'ACTIVE' });
+    sub.status = 'ACTIVE';
+    document.getElementById('headerStatus').innerHTML = statusPill('ACTIVE');
+    showToast('Account resumed', 'success');
+    render();
+  } catch (err) {
+    showToast(err.message || 'Failed to resume', 'error');
+    btn.disabled = false; btn.textContent = 'Resume Account';
+  }
+}
+
+async function handleVoipDone() {
+  if (!confirm('Confirm: have you deleted the user licence and released the DID in VoipLine?')) return;
+  const btn = document.getElementById('voipDoneBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    let attrs = {};
+    try { attrs = typeof sub.subscription_attributes === 'string' ? JSON.parse(sub.subscription_attributes) : (sub.subscription_attributes || {}); } catch {}
+    attrs.voipline_cancelled = true;
+    await api('update-subscriber', { id, subscription_attributes: attrs });
+    showToast('VoipLine cleanup confirmed', 'success');
+    render();
+  } catch (err) {
+    showToast(err.message || 'Failed to update', 'error');
+    btn.disabled = false; btn.textContent = 'VoipLine Done - Confirm Cleanup';
+  }
+}
+
+// Copy PBX name in action area (bound after render)
+document.addEventListener('click', e => {
+  if (e.target.id === 'copyPbxAction') copyText(derivePBXName(sub), e.target);
+});
+
+loadData();
+</script>
+</body>
+</html>
