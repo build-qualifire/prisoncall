@@ -106,6 +106,12 @@ import { initAdminPage, api, formatDID, formatMobile, fmtDate, statusPill, statu
 
 await initAdminPage();
 
+// "monthly" → "Monthly" | "half_yearly" → "Half-Yearly"
+function formatInterval(val) {
+  if (!val) return '—';
+  return val.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('-');
+}
+
 let allSubs  = [];
 let filtered = [];
 let activeStatus = '';
@@ -164,7 +170,7 @@ function renderTable() {
       <td>${esc(formatMobile(s.customer_mobile))}</td>
       <td>${esc(s.prison_name || '—')}${s.prison_state ? `, <span style="color:#6B7280">${esc(s.prison_state.toUpperCase())}</span>` : ''}</td>
       <td class="td-mono">${did}</td>
-      <td>${esc(s.plan_name || s.plan_interval || '—')}</td>
+      <td>${formatInterval(s.plan_interval)}</td>
       <td class="td-mono" style="font-size:11px;color:#6B7280">${esc(s.seal_subscription_id || '—')}</td>
       <td>${statusPill(s.status)}</td>
       <td style="color:#6B7280;font-size:18px;text-align:right;padding-right:20px">›</td>
@@ -208,7 +214,7 @@ function renderSubsCards(el) {
             </div>` : ''}
             <div class="m-card-row">
               <span class="m-card-label">Plan</span>
-              <span class="m-card-value">${esc(s.plan_name || s.plan_interval || '—')}</span>
+              <span class="m-card-value">${formatInterval(s.plan_interval)}</span>
             </div>
           </div>
           <div class="m-card-footer">

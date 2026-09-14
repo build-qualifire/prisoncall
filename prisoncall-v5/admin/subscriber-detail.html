@@ -151,11 +151,7 @@ function render() {
             </div>
             <div class="info-row">
               <span class="info-label">Plan</span>
-              <span class="info-value">${esc(sub.plan_name || '—')}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Billing interval</span>
-              <span class="info-value">${esc(formatInterval(sub.plan_interval))}</span>
+              <span class="info-value">${formatInterval(sub.plan_interval)}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Assigned Mobile</span>
