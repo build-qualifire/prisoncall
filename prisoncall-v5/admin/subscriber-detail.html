@@ -296,13 +296,17 @@ function renderCancelledAction() {
   if (attrs.voipline_cancelled) {
     return `
       <h2 class="action-heading">Cancelled</h2>
-      <p class="action-subheading">VoipLine has been cleaned up for this account.</p>`;
+      <p class="action-subheading">VoipLine has been cleaned up for this account.</p>
+      <div style="display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:10px 16px;background:#16a34a;color:#fff;border-radius:8px;font-size:14px;font-weight:600;cursor:default">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        VoipLine DID/PBX Deleted — Confirmed
+      </div>`;
   }
   return `
     <h2 class="action-heading">Cancelled</h2>
     <p class="action-subheading">Delete this user's licence in VoipLine and release their DID, then click confirm.</p>
     <button class="btn btn--grey" id="voipDoneBtn" style="margin-top:8px">
-      VoipLine Done - Confirm Cleanup
+      VoipLine DID/PBX Deleted
     </button>`;
 }
 
@@ -405,7 +409,7 @@ async function handleResume() {
 }
 
 async function handleVoipDone() {
-  if (!confirm('Confirm: have you deleted the user licence and released the DID in VoipLine?')) return;
+  if (!confirm('Confirm: have you deleted the VoipLine user licence and PBX routing for this subscriber?')) return;
   const btn = document.getElementById('voipDoneBtn');
   btn.disabled = true; btn.textContent = 'Saving…';
   try {
@@ -413,11 +417,12 @@ async function handleVoipDone() {
     try { attrs = typeof sub.subscription_attributes === 'string' ? JSON.parse(sub.subscription_attributes) : (sub.subscription_attributes || {}); } catch {}
     attrs.voipline_cancelled = true;
     await api('update-subscriber', { id, subscription_attributes: attrs });
+    sub.subscription_attributes = attrs;
     showToast('VoipLine cleanup confirmed', 'success');
     render();
   } catch (err) {
     showToast(err.message || 'Failed to update', 'error');
-    btn.disabled = false; btn.textContent = 'VoipLine Done - Confirm Cleanup';
+    btn.disabled = false; btn.textContent = 'VoipLine DID/PBX Deleted';
   }
 }
 
