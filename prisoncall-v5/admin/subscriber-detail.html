@@ -155,7 +155,7 @@ function render() {
             </div>
             <div class="info-row">
               <span class="info-label">Billing interval</span>
-              <span class="info-value">${esc(sub.plan_interval || '—')}</span>
+              <span class="info-value">${esc(formatInterval(sub.plan_interval))}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Assigned Mobile</span>
@@ -224,6 +224,12 @@ function render() {
       } catch { showToast('Failed to save notes', 'error'); }
     });
   }
+}
+
+// "monthly" → "Monthly" | "half_yearly" → "Half-Yearly"
+function formatInterval(val) {
+  if (!val) return '—';
+  return val.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('-');
 }
 
 function renderActionArea() {
@@ -297,16 +303,16 @@ function renderCancelledAction() {
     return `
       <h2 class="action-heading">Cancelled</h2>
       <p class="action-subheading">VoipLine has been cleaned up for this account.</p>
-      <div style="display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:10px 16px;background:#16a34a;color:#fff;border-radius:8px;font-size:14px;font-weight:600;cursor:default">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-        VoipLine DID/PBX Deleted — Confirmed
-      </div>`;
+      <button disabled style="display:inline-flex;align-items:center;margin-top:8px;padding:8px 14px;background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;font-weight:500;cursor:not-allowed;outline:none">
+        <img src="/assets/icons/feature_icons/icon_check_green.svg" width="16" height="16" alt="" style="vertical-align:middle;margin-right:6px">
+        VoipLine Cancelled
+      </button>`;
   }
   return `
     <h2 class="action-heading">Cancelled</h2>
     <p class="action-subheading">Delete this user's licence in VoipLine and release their DID, then click confirm.</p>
     <button class="btn btn--grey" id="voipDoneBtn" style="margin-top:8px">
-      VoipLine DID/PBX Deleted
+      Cancel VoipLine
     </button>`;
 }
 
@@ -422,7 +428,7 @@ async function handleVoipDone() {
     render();
   } catch (err) {
     showToast(err.message || 'Failed to update', 'error');
-    btn.disabled = false; btn.textContent = 'VoipLine DID/PBX Deleted';
+    btn.disabled = false; btn.textContent = 'Cancel VoipLine';
   }
 }
 
