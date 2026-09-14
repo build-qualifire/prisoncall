@@ -60,10 +60,10 @@
         </div>
         <div class="card-body">
           <p style="font-size:14px;color:#6B7280;line-height:1.6">
-            This table maps each prison to its local exchange codes in VoipLine. When a new subscriber orders a plan, the admin portal reads this table to display which DID prefix to use. Upload a new .xlsx file to replace the entire table.
+            This table maps each prison to its primary town for DID lookup. When a new subscriber orders a plan, the admin portal reads this table. Upload a new .xlsx file to atomically replace the entire table.
           </p>
           <p style="font-size:12px;color:#6B7280;margin-top:-8px">
-            Required columns: <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:11px">prison_name, prison_state, primary_exchange_code, primary_area, fallback_1, fallback_1_area, fallback_2, fallback_2_area, fallback_3, fallback_3_area, location, notes</code>
+            Required columns: <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:11px">prison_name, prison_state, primary_town</code>
           </p>
 
           <div class="upload-area" id="uploadArea">
@@ -110,11 +110,24 @@ import { initAdminPage, api, fmtDateTime, showToast, esc } from '/admin/admin-su
 
 await initAdminPage('super_admin');
 
-const REQUIRED_COLS = [
-  'prison_name','prison_state','primary_exchange_code','primary_area',
-  'fallback_1','fallback_1_area','fallback_2','fallback_2_area',
-  'fallback_3','fallback_3_area','location','notes'
-];
+/*
+ * SCHEMA NOTE — before uploading, ensure the prison_did_lookup table has been
+ * migrated to the simplified schema. Run the following SQL in Supabase:
+ *
+ * ALTER TABLE prison_did_lookup DROP COLUMN IF EXISTS primary_exchange_code;
+ * ALTER TABLE prison_did_lookup DROP COLUMN IF EXISTS primary_area;
+ * ALTER TABLE prison_did_lookup DROP COLUMN IF EXISTS fallback_1;
+ * ALTER TABLE prison_did_lookup DROP COLUMN IF EXISTS fallback_1_area;
+ * ALTER TABLE prison_did_lookup DROP COLUMN IF EXISTS fallback_2;
+ * ALTER TABLE prison_did_lookup DROP COLUMN IF EXISTS fallback_2_area;
+ * ALTER TABLE prison_did_lookup DROP COLUMN IF EXISTS fallback_3;
+ * ALTER TABLE prison_did_lookup DROP COLUMN IF EXISTS fallback_3_area;
+ * ALTER TABLE prison_did_lookup DROP COLUMN IF EXISTS location;
+ * ALTER TABLE prison_did_lookup DROP COLUMN IF EXISTS notes;
+ * ALTER TABLE prison_did_lookup ADD COLUMN IF NOT EXISTS primary_town text;
+ */
+
+const REQUIRED_COLS = ['prison_name', 'prison_state', 'primary_town'];
 
 let parsedRows = [];
 
@@ -160,11 +173,11 @@ function parseXlsx(buffer) {
 
     if (!raw.length) { showValidationError('The file is empty.'); return; }
 
-    // Check required columns
+    // Check required columns (case-insensitive)
     const cols = Object.keys(raw[0]).map(c => c.trim().toLowerCase());
     const missing = REQUIRED_COLS.filter(c => !cols.includes(c));
     if (missing.length) {
-      showValidationError(`Missing required columns: ${missing.join(', ')}`);
+      showValidationError(`Missing required column${missing.length > 1 ? 's' : ''}: ${missing.map(c => `"${c}"`).join(', ')}`);
       return;
     }
 
@@ -187,12 +200,13 @@ function renderPreview() {
   const body    = document.getElementById('previewBody');
   const count   = document.getElementById('previewCount');
 
-  const displayCols = ['prison_name','prison_state','primary_exchange_code','primary_area','fallback_1','fallback_1_area'];
-  const previewRows = parsedRows.slice(0, 10);
+  const displayCols  = ['prison_name', 'prison_state', 'primary_town'];
+  const displayLabels = ['Prison Name', 'State', 'Primary Town'];
+  const previewRows  = parsedRows.slice(0, 10);
 
-  head.innerHTML = `<tr>${displayCols.map(c => `<th>${c}</th>`).join('')}${parsedRows.length > displayCols.length ? '<th>…</th>' : ''}</tr>`;
+  head.innerHTML = `<tr>${displayLabels.map(l => `<th>${l}</th>`).join('')}</tr>`;
   body.innerHTML = previewRows.map(row =>
-    `<tr>${displayCols.map(c => `<td>${esc(String(row[c] ?? ''))}</td>`).join('')}${parsedRows.length > displayCols.length ? '<td>+more</td>' : ''}</tr>`
+    `<tr>${displayCols.map(c => `<td>${esc(String(row[c] ?? ''))}</td>`).join('')}</tr>`
   ).join('');
 
   count.textContent = `${parsedRows.length} rows ready to upload${parsedRows.length > 10 ? ' (showing first 10)' : ''}`;
@@ -207,11 +221,17 @@ document.getElementById('confirmUploadBtn')?.addEventListener('click', async () 
   btn.disabled = true; btn.textContent = 'Uploading…';
 
   try {
-    const result = await api('replace-prison-lookup', { rows: parsedRows });
+    // Map to the simplified three-column schema only
+    const rows = parsedRows.map(r => ({
+      prison_name:  String(r.prison_name  ?? '').trim(),
+      prison_state: String(r.prison_state ?? '').trim(),
+      primary_town: String(r.primary_town ?? '').trim(),
+    }));
+    const result = await api('replace-prison-lookup', { rows });
     const status = document.getElementById('uploadStatus');
-    status.textContent = `Uploaded ${result.inserted} rows successfully`;
+    status.textContent = `Prison DID Lookup updated successfully — ${result.inserted} prisons loaded`;
     status.style.display = 'inline';
-    showToast(`Uploaded ${result.inserted} prison records`, 'success');
+    showToast(`Prison DID Lookup updated successfully — ${result.inserted} prisons loaded`, 'success');
     document.getElementById('lastUpdated').textContent = `Last updated: ${new Date().toLocaleString('en-AU')}`;
     // Reset
     parsedRows = [];
