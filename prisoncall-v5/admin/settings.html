@@ -60,16 +60,16 @@
         </div>
         <div class="card-body">
           <p style="font-size:14px;color:#6B7280;line-height:1.6">
-            This table maps each prison to its primary town for DID lookup. When a new subscriber orders a plan, the admin portal reads this table. Upload a new .xlsx file to atomically replace the entire table.
+            This table maps each prison to its primary town for DID lookup. When a new subscriber orders a plan, the admin portal reads this table. Upload a new .csv file to atomically replace the entire table.
           </p>
           <p style="font-size:12px;color:#6B7280;margin-top:-8px">
             Required columns: <code style="background:var(--color-surface);padding:1px 5px;border-radius:4px;font-size:11px">prison_name, prison_state, primary_town</code>
           </p>
 
           <div class="upload-area" id="uploadArea">
-            <input type="file" id="fileInput" accept=".xlsx">
+            <input type="file" id="fileInput" accept=".csv">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;margin:0 auto 12px;display:block;opacity:.4"><path stroke-linecap="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-            <p class="upload-area-title">Click to select .xlsx file</p>
+            <p class="upload-area-title">Click to select .csv file</p>
             <p class="upload-area-sub" id="uploadFileName">No file selected</p>
           </div>
 
@@ -102,8 +102,6 @@
   </div>
 </main>
 
-<!-- SheetJS from CDN -->
-<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 
 <script type="module">
 import { initAdminPage, api, fmtDateTime, showToast, esc } from '/admin/admin-supabase.js';
@@ -150,8 +148,8 @@ fileInput.addEventListener('change', () => {
 });
 
 function handleFile(file) {
-  if (!file.name.endsWith('.xlsx')) {
-    showValidationError('Please select an .xlsx file.');
+  if (!file.name.endsWith('.csv')) {
+    showValidationError('Please select a .csv file.');
     return;
   }
 
@@ -161,33 +159,61 @@ function handleFile(file) {
   parsedRows = [];
 
   const reader = new FileReader();
-  reader.onload = e => parseXlsx(e.target.result);
-  reader.readAsArrayBuffer(file);
+  reader.onload = e => parseCsv(e.target.result);
+  reader.readAsText(file, 'utf-8');
 }
 
-function parseXlsx(buffer) {
+// Simple RFC-4180-compliant CSV parser — handles quoted fields with embedded
+// commas, double-quote escapes, and CRLF/LF line endings.
+function parseCsv(text) {
   try {
-    const wb  = XLSX.read(buffer, { type: 'array' });
-    const ws  = wb.Sheets[wb.SheetNames[0]];
-    const raw = XLSX.utils.sheet_to_json(ws, { defval: '' });
+    const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
 
-    if (!raw.length) { showValidationError('The file is empty.'); return; }
+    // Strip trailing empty lines
+    while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+
+    if (!lines.length) { showValidationError('The file is empty.'); return; }
+
+    function splitCsvLine(line) {
+      const fields = [];
+      let cur = '', inQuote = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (inQuote) {
+          if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+          else if (ch === '"') { inQuote = false; }
+          else { cur += ch; }
+        } else {
+          if (ch === '"') { inQuote = true; }
+          else if (ch === ',') { fields.push(cur); cur = ''; }
+          else { cur += ch; }
+        }
+      }
+      fields.push(cur);
+      return fields;
+    }
+
+    const headers = splitCsvLine(lines[0]).map(h => h.trim().toLowerCase());
 
     // Check required columns (case-insensitive)
-    const cols = Object.keys(raw[0]).map(c => c.trim().toLowerCase());
-    const missing = REQUIRED_COLS.filter(c => !cols.includes(c));
+    const missing = REQUIRED_COLS.filter(c => !headers.includes(c));
     if (missing.length) {
       showValidationError(`Missing required column${missing.length > 1 ? 's' : ''}: ${missing.map(c => `"${c}"`).join(', ')}`);
       return;
     }
 
-    // Normalise keys to lowercase
-    parsedRows = raw.map(row => {
-      const norm = {};
-      for (const [k, v] of Object.entries(row)) norm[k.trim().toLowerCase()] = v;
-      return norm;
-    });
+    const raw = [];
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
+      const values = splitCsvLine(lines[i]);
+      const row = {};
+      headers.forEach((h, idx) => { row[h] = values[idx] ?? ''; });
+      raw.push(row);
+    }
 
+    if (!raw.length) { showValidationError('The file has no data rows.'); return; }
+
+    parsedRows = raw;
     renderPreview();
   } catch (err) {
     showValidationError('Failed to parse file: ' + err.message);
