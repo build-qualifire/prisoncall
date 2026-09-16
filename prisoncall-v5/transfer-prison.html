@@ -1279,11 +1279,12 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          did:           state.currentDID,
-          currentPrison: state.currentPrison,
-          newPrison:     state.newPrison,
-          mobile:        state.confirmedMobile,
-          currentState:  state.currentState || state.didState,
+          did:            state.currentDID,
+          currentPrison:  state.currentPrison,
+          newPrison:      state.newPrison,
+          newPrisonState: state.transferState || state.didState,
+          mobile:         state.confirmedMobile,
+          currentState:   state.currentState || state.didState,
         })
       })
       .then(function(r){ return r.json(); })
