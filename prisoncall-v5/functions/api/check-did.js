@@ -42,6 +42,8 @@ async function queryOneFmt(supabaseUrl, supabaseKey, fmt) {
     encodeURIComponent(fmt) +
     '&status=eq.ACTIVE&select=prison_name,prison_state,status&limit=1';
 
+  console.log('[check-did] querying URL:', url);
+
   const res = await fetch(url, {
     headers: {
       Authorization: 'Bearer ' + supabaseKey,
@@ -52,6 +54,7 @@ async function queryOneFmt(supabaseUrl, supabaseKey, fmt) {
   });
 
   const text = await res.text();
+  console.log('[check-did] response status:', res.status, '| body:', text);
   return { ok: res.ok, body: text };
 }
 
@@ -66,6 +69,8 @@ export async function onRequestPost(context) {
   }
 
   const did = (body.did || '').replace(/\D/g, '');
+  console.log('[check-did] RAW input received:', JSON.stringify(body.did));
+  console.log('[check-did] Cleaned (digits only):', did, '| length:', did.length);
   if (!did) {
     return jsonResponse({ success: false, error: 'Missing DID' });
   }
@@ -74,37 +79,48 @@ export async function onRequestPost(context) {
   const SUPABASE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.log('[check-did] ERROR: missing env vars — SUPABASE_URL:', !!SUPABASE_URL, '| SUPABASE_SERVICE_ROLE_KEY:', !!SUPABASE_KEY);
     return jsonResponse({ success: false, error: 'Server misconfiguration' });
   }
 
   const formats = didFormats(did);
-  console.log('[check-did] received:', JSON.stringify(body.did), '| cleaned:', did, '| trying formats:', formats.join(', '));
+  console.log('[check-did] Format variants to try:', formats.join(' | '));
 
   for (const fmt of formats) {
+    console.log('[check-did] Trying format:', fmt);
     let result;
     try {
       result = await queryOneFmt(SUPABASE_URL, SUPABASE_KEY, fmt);
-    } catch {
+    } catch (err) {
+      console.log('[check-did] fetch threw for format', fmt, ':', err.message);
       continue;
     }
 
-    if (!result.ok) continue;
+    if (!result.ok) {
+      console.log('[check-did] Non-OK response for format', fmt, '— skipping');
+      continue;
+    }
 
     let rows;
     try { rows = JSON.parse(result.body); } catch { rows = null; }
+    console.log('[check-did] Parsed rows for format', fmt, ':', JSON.stringify(rows));
 
     if (Array.isArray(rows) && rows.length > 0) {
       const row = rows[0];
       if (row.status === 'ACTIVE') {
+        console.log('[check-did] MATCH found with format:', fmt, '| prison:', row.prison_name, '| state:', row.prison_state);
         return jsonResponse({
           success: true,
           currentPrison: row.prison_name,
           state: row.prison_state,
         });
+      } else {
+        console.log('[check-did] Row found but status is not ACTIVE:', row.status);
       }
     }
   }
 
+  console.log('[check-did] No match found across all format variants');
   return jsonResponse({ success: false });
 }
 
