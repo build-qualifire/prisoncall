@@ -131,7 +131,7 @@ export async function onRequest({ request, env }) {
         const sub = Array.isArray(subs) ? subs[0] : null;
         if (!sub) return json({ error: 'Subscriber not found' }, 404);
 
-        const lookup = await sb(`prison_did_lookup?prison_name=eq.${encodeURIComponent(sub.prison_name)}&select=*&limit=1`);
+        const lookup = await sb(`prison_did_lookup?prison_name=eq.${encodeURIComponent(sub.prison_name)}&select=primary_town&limit=1`);
         const lookupData = await lookup.json();
         const exchange = Array.isArray(lookupData) ? lookupData[0] : null;
 
