@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Prisoncall payment failed</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#F5F5F5;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+
+  <!-- Outer wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F5F5;padding:40px 20px;">
+    <tr>
+      <td align="center">
+
+        <!-- Inner card -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background-color:#FFFFFF;border-radius:8px;overflow:hidden;">
+
+          <!-- Header block -->
+          <tr>
+            <td align="center" style="background-color:#101010;padding:32px 40px;">
+              <span style="font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:28px;font-weight:800;color:#FFFFFF;display:block;">Prisoncall</span>
+            </td>
+          </tr>
+
+          <!-- Green accent bar -->
+          <tr>
+            <td style="background-color:#00D258;height:4px;font-size:0;line-height:0;">&nbsp;</td>
+          </tr>
+
+          <!-- Content area -->
+          <tr>
+            <td style="padding:40px 40px 32px;">
+
+              <!-- Headline -->
+              <p style="font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:28px;font-weight:800;color:#101010;margin:0 0 16px 0;line-height:1.3;">Hi {{ customer.first_name }}, your Prisoncall payment failed.</p>
+
+              <!-- Body copy -->
+              <p style="font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;font-weight:400;color:#444444;line-height:1.6;margin:0 0 16px 0;">We were not able to process your Prisoncall subscription payment of {{ subscription.total_amount_formatted }}. To restore your Prisoncall number, please do the following:</p>
+
+              <ul style="font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;font-weight:400;color:#444444;line-height:1.6;margin:0 0 16px 0;padding-left:24px;">
+                <li style="margin-bottom:8px;">If your card has expired or your details have changed, update your payment details using the button below</li>
+                <li>If you had insufficient funds, top up your account and ensure funds are available</li>
+              </ul>
+
+              <p style="font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;font-weight:400;color:#444444;line-height:1.6;margin:0 0 32px 0;">Once done, reply YES to the SMS we sent you and we will restore your Prisoncall number immediately.</p>
+
+              <!-- CTA button -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center">
+                    <a href="{{ update_payment_url }}" style="display:block;background-color:#00D258;color:#000000;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;font-weight:700;text-decoration:none;text-align:center;padding:16px 32px;border-radius:6px;">Update Payment Details</a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="background-color:#F9F9F9;border-top:1px solid #E5E5E5;padding:24px 40px;">
+              <p style="font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#999999;margin:0;line-height:1.6;">Questions? Visit our <a href="https://prisoncall.com.au/contact" style="color:#999999;text-decoration:underline;">Help &amp; Support</a> page.</p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /Inner card -->
+
+      </td>
+    </tr>
+  </table>
+  <!-- /Outer wrapper -->
+
+</body>
+</html>
