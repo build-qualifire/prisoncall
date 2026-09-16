@@ -791,8 +791,10 @@
         if(data.success){
           state.currentDID    = fullDID;
           state.currentPrison = data.currentPrison;
-          state.currentState  = data.state;
-          state.transferState = data.state; /* default Step 4A toggle to prison's state */
+          /* prison_state can be NULL for older records — fall back to the
+             VIC/NSW toggle the customer explicitly selected in Step 1      */
+          state.currentState  = data.state || state.didState;
+          state.transferState = data.state || state.didState; /* default Step 4A toggle */
           removeStepsFrom(2);
           var s2 = buildStep2El();
           tpFlow.appendChild(s2);
@@ -1162,7 +1164,7 @@
   }
 
   function buildStep4El(){
-    var sv  = state.transferState || state.currentState || 'vic';
+    var sv  = state.transferState || state.currentState || state.didState || 'vic';
     var el  = document.createElement('section');
     el.className = 'step-section'; el.dataset.step = '4';
     el.innerHTML = [
@@ -1281,7 +1283,7 @@
           currentPrison: state.currentPrison,
           newPrison:     state.newPrison,
           mobile:        state.confirmedMobile,
-          currentState:  state.currentState,
+          currentState:  state.currentState || state.didState,
         })
       })
       .then(function(r){ return r.json(); })
