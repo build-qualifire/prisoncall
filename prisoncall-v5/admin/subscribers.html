@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/admin/admin.css?v=11">
+  <link rel="stylesheet" href="/admin/admin.css?v=12">
 </head>
 <body class="admin-body">
 
@@ -167,7 +167,7 @@ function renderTable() {
       <td class="td-muted">${fmtDate(s.created_at)}</td>
       <td class="td-name">${esc(s.customer_name || '—')}</td>
       <td class="td-muted">${esc(s.customer_email || '—')}</td>
-      <td>${esc(formatMobile(s.customer_mobile))}</td>
+      <td style="white-space:nowrap">${esc(formatMobile(s.customer_mobile))}</td>
       <td>${esc(s.prison_name || '—')}${s.prison_state ? `, <span style="color:#6B7280">${esc(s.prison_state.toUpperCase())}</span>` : ''}</td>
       <td class="td-mono">${did}</td>
       <td>${formatInterval(s.plan_interval)}</td>

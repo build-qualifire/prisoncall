@@ -319,7 +319,7 @@ img { display: block; max-width: 100%; }
 
 .td-name { font-weight: 600; }
 .td-muted { color: var(--color-muted); font-size: 12px; }
-.td-mono { font-family: 'SF Mono', 'Consolas', monospace; font-size: 12px; }
+.td-mono { font-size: 12px; white-space: nowrap; }
 
 /* Expand row */
 .expand-content {
@@ -396,7 +396,6 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
 }
 .copy-field-value {
   flex: 1; font-size: 14px; font-weight: 600;
-  font-family: 'SF Mono', 'Consolas', monospace;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .copy-btn {
@@ -438,7 +437,7 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
 .info-row { display: flex; flex-direction: column; gap: 2px; }
 .info-label { font-size: 11px; font-weight: 600; color: var(--color-muted); text-transform: uppercase; letter-spacing: .06em; }
 .info-value { font-size: 14px; font-weight: 500; color: var(--color-text); }
-.info-value--mono { font-family: 'SF Mono','Consolas',monospace; font-size: 13px; }
+.info-value--mono { font-size: 13px; white-space: nowrap; }
 .info-divider { height: 1px; background: var(--color-border); margin: 4px 0; }
 
 /* ── Exchange Guidance ──────────────────────────────────── */
@@ -455,7 +454,7 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
   font-size: 13px;
 }
 .exchange-item:last-child { border-bottom: none; }
-.exchange-code { font-family: 'SF Mono','Consolas',monospace; font-weight: 700; font-size: 14px; color: var(--color-text); min-width: 80px; }
+.exchange-code { font-weight: 700; font-size: 14px; color: var(--color-text); min-width: 80px; }
 .exchange-area { color: var(--color-muted); font-size: 12px; }
 .exchange-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--color-green-pale); color: #065F46; }
 .exchange-badge--fallback { background: var(--color-grey-pill); color: var(--color-muted); }
@@ -593,7 +592,7 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
   overflow-wrap: break-word; /* break long URLs/addresses only when truly necessary */
   word-break: break-word;
 }
-.m-card-mono  { font-family: monospace; }
+.m-card-mono  { /* Plus Jakarta Sans — same as rest of portal */ }
 .m-card-footer {
   display: flex; justify-content: space-between; align-items: center;
   padding-top: 8px; border-top: 1px solid var(--color-border);

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/admin/admin.css?v=11">
+  <link rel="stylesheet" href="/admin/admin.css?v=12">
 </head>
 <body class="admin-body">
 
@@ -289,7 +289,7 @@ function renderPendingAction() {
 
       <div class="form-group">
         <label class="form-label" for="didInput">Prisoncall Number (DID)</label>
-        <input class="form-input" id="didInput" placeholder="61XXXXXXXXX" maxlength="11" inputmode="numeric" style="font-family:monospace">
+        <input class="form-input" id="didInput" placeholder="61XXXXXXXXX" maxlength="11" inputmode="numeric">
         <p class="form-hint">11 digits, must start with 61</p>
         <p class="form-error" id="didError">Must be 11 digits starting with 61</p>
       </div>
@@ -361,7 +361,7 @@ function renderTransferHistory() {
             </div>
             <div style="font-size:12px;color:#6B7280">
               Requested ${fmtDate(t.requested_at || t.created_at)}
-              ${t.new_did ? ` · New DID: <span style="font-family:monospace">${esc(t.new_did)}</span>` : ''}
+              ${t.new_did ? ` · New DID: <span>${esc(t.new_did)}</span>` : ''}
               ${t.fulfilled_at ? ` · Fulfilled ${fmtDate(t.fulfilled_at)}` : ''}
             </div>
           </div>`).join('')}

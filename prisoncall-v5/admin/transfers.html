@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/admin/admin.css?v=11">
+  <link rel="stylesheet" href="/admin/admin.css?v=12">
   <style>
     .expand-row { display: none; }
     .expand-row.open { display: table-row; }
@@ -313,7 +313,7 @@ function renderExpandContent(t, p = '') {
         ${isPending ? `
         <div class="form-group" style="margin-top:4px">
           <label class="form-label" for="${p}newDid-${esc(t.id)}">New Prisoncall Number (DID)</label>
-          <input class="form-input" id="${p}newDid-${esc(t.id)}" placeholder="03 XXXX XXXX" maxlength="13" inputmode="numeric" value="${esc(t.new_did ? formatDID(t.new_did) : '')}" style="font-family:monospace">
+          <input class="form-input" id="${p}newDid-${esc(t.id)}" placeholder="03 XXXX XXXX" maxlength="13" inputmode="numeric" value="${esc(t.new_did ? formatDID(t.new_did) : '')}">
           <p class="form-hint">Paste in any format — auto-converts to local. Stored as E.164 (61XXXXXXXXX).</p>
           <p class="form-error" id="${p}txErr-${esc(t.id)}">Must be a valid 10-digit Australian number</p>
         </div>
