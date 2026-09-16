@@ -13,29 +13,25 @@ function jsonResponse(body) {
   });
 }
 
-/* Build all plausible storage formats for a 10-digit Australian number.
-   e.g. "0361540567" produces:
-     "0361540567"   - as entered (local format)
-     "+61361540567" - E.164 with +
-     "61361540567"  - country code without + (admin-entered via validateDID)
-     "361540567"    - 9-digit without leading 0 (area code retained)
-     "61540567"     - 8-digit local suffix (no leading 0, no area code digit)
-                      covers DIDs stored by VoipLine or n8n without area code prefix
+/* Build the 4 format variants for a 10-digit Australian local number.
+   DIDs are stored in Supabase as 11-digit strings starting with 61 (no plus,
+   no leading zero) — e.g. "61361540567".  The other three variants are tried
+   as fallbacks in case of historical data inconsistencies.
+
+   Query order for "0361540567":
+     1. "61361540567"  — country code without +  (stored format — most likely)
+     2. "+61361540567" — E.164 with +
+     3. "0361540567"   — local format as entered
+     4. "361540567"    — without leading zero
 */
 function didFormats(digits) {
   const withoutLeadingZero = digits.startsWith('0') ? digits.slice(1) : digits;
-  const formats = [
-    digits,
+  return [
+    '61'  + withoutLeadingZero,   // stored format — try first
     '+61' + withoutLeadingZero,
-    '61'  + withoutLeadingZero,
+    digits,
     withoutLeadingZero,
   ];
-  // For 10-digit local numbers (0X XXXX XXXX), also try the bare 8-digit suffix
-  // by stripping the leading 0 AND the area code digit (first 2 chars total).
-  if (digits.length === 10 && digits.startsWith('0')) {
-    formats.push(digits.slice(2));
-  }
-  return formats;
 }
 
 /* Single-format lookup — identical pattern to check-existing-customer.js */
