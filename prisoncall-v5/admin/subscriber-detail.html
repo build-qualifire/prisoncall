@@ -155,7 +155,10 @@ function render() {
             </div>
             <div class="info-row">
               <span class="info-label">Assigned Mobile</span>
-              <span class="info-value info-value--mono">${esc(formatMobile(sub.assigned_mobile))}</span>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+                <span class="info-value info-value--mono">${esc(formatMobile(sub.assigned_mobile))}</span>
+                <button class="copy-btn" id="copyAssignedMobileInfo">Copy</button>
+              </div>
             </div>
             <div class="info-divider"></div>
             <div class="info-row">
@@ -194,6 +197,11 @@ function render() {
     copyText(pbxName, e.currentTarget);
   });
 
+  // Copy assigned mobile (sidebar info card) — E.164 format for VoipLine / automation
+  document.getElementById('copyAssignedMobileInfo')?.addEventListener('click', e => {
+    copyText(mobileToE164(sub.assigned_mobile), e.currentTarget);
+  });
+
   // Copy assigned mobile (in action area)
   document.getElementById('copyMobile')?.addEventListener('click', e => {
     copyText(formatMobile(sub.assigned_mobile), e.currentTarget);
@@ -226,6 +234,15 @@ function render() {
 function formatInterval(val) {
   if (!val) return '—';
   return val.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('-');
+}
+
+/* Strip leading 0 / country prefix and return E.164 "61XXXXXXXXX" for copying */
+function mobileToE164(val) {
+  if (!val) return '';
+  const d = String(val).replace(/\D/g, '');
+  if (d.startsWith('61') && d.length === 11) return d;
+  if (d.startsWith('0') && d.length === 10) return '61' + d.slice(1);
+  return d;
 }
 
 function renderActionArea() {
